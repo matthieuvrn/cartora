@@ -1,0 +1,11 @@
+Conventions de dépendances (règle d’or)
+
+domain : dépend de rien (à part TS).
+
+application : dépend de domain + ports (interfaces).
+
+infrastructure : implémente les ports, dépend de application + libs externes.
+
+interface : Next/UI/controllers, dépend de application (+ mapping DTO).
+
+src/app/* : wrappers qui appellent src/interface/*.

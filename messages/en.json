@@ -1,0 +1,6 @@
+{
+  "Hello": {
+    "title": "Architecture smoke test",
+    "subtitle": "Hello use-case crossing Domain → Application → Infrastructure → Interface"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "Hello": {
+    "title": "Smoke test archi",
+    "subtitle": "Use-case Hello qui traverse Domain → Application → Infrastructure → Interface"
+  }
+}
