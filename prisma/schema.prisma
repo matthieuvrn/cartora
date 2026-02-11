@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum PlanStatus {
+  FREE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+
+  @@map("plan_status")
+}
+
+enum MenuStatus {
+  DRAFT
+  PUBLISHED
+
+  @@map("menu_status")
+}
+
+enum CategoryType {
+  STARTERS
+  MAINS
+  DESSERTS
+  DRINKS
+
+  @@map("category_type")
+}
+
+enum ItemBadge {
+  NONE
+  NEW
+  POPULAR
+
+  @@map("item_badge")
+}
+
+enum Locale {
+  FR
+  EN
+
+  @@map("locale")
+}
+
+enum EntityType {
+  RESTAURANT
+  MENU
+  ITEM
+
+  @@map("entity_type")
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model Restaurant {
+  id          String     @id @default(uuid()) @db.Uuid
+  ownerUserId String     @unique @map("owner_user_id") @db.Uuid
+  displayName String     @map("display_name")
+  slug        String     @unique
+  planStatus  PlanStatus @default(FREE) @map("plan_status")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  menu         Menu?
+  billing      Billing?
+  qrAsset      QrAsset?
+  categories   Category[]
+  items        Item[]
+  translations Translation[]
+  snapshots    MenuPublicSnapshot[]
+
+  @@map("restaurants")
+}
+
+model Menu {
+  id           String     @id @default(uuid()) @db.Uuid
+  restaurantId String     @unique @map("restaurant_id") @db.Uuid
+  status       MenuStatus @default(DRAFT)
+  publishedAt  DateTime?  @map("published_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  restaurant Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categories Category[]
+  snapshots  MenuPublicSnapshot[]
+
+  @@map("menus")
+}
+
+model Category {
+  id           String       @id @default(uuid()) @db.Uuid
+  menuId       String       @map("menu_id") @db.Uuid
+  restaurantId String       @map("restaurant_id") @db.Uuid
+  type         CategoryType
+  order        Int
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  menu       Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items      Item[]
+
+  @@unique([menuId, type])
+  @@index([restaurantId])
+  @@map("categories")
+}
+
+model Item {
+  id           String    @id @default(uuid()) @db.Uuid
+  categoryId   String    @map("category_id") @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  priceCents   Int       @map("price_cents")
+  badge        ItemBadge @default(NONE)
+  isAvailable  Boolean   @default(true) @map("is_available")
+  order        Int
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId])
+  @@index([restaurantId])
+  @@map("items")
+}
+
+model Translation {
+  id           String     @id @default(uuid()) @db.Uuid
+  entityType   EntityType @map("entity_type")
+  entityId     String     @map("entity_id") @db.Uuid
+  field        String
+  locale       Locale
+  value        String
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([entityType, entityId, field, locale])
+  @@index([restaurantId])
+  @@index([entityType, entityId])
+  @@map("translations")
+}
+
+model Billing {
+  id                   String   @id @default(uuid()) @db.Uuid
+  restaurantId         String   @unique @map("restaurant_id") @db.Uuid
+  stripeCustomerId     String?  @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?  @unique @map("stripe_subscription_id")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("billing")
+}
+
+model QrAsset {
+  id           String   @id @default(uuid()) @db.Uuid
+  restaurantId String   @unique @map("restaurant_id") @db.Uuid
+  storagePath  String   @map("storage_path")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("qr_assets")
+}
+
+model MenuPublicSnapshot {
+  id           String   @id @default(uuid()) @db.Uuid
+  menuId       String   @map("menu_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  snapshotData Json     @map("snapshot_data")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  menu       Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([menuId])
+  @@index([restaurantId])
+  @@map("menu_public_snapshots")
+}
