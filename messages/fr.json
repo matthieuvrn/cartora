@@ -2,5 +2,22 @@
   "Hello": {
     "title": "Smoke test archi",
     "subtitle": "Use-case Hello qui traverse Domain → Application → Infrastructure → Interface"
+  },
+  "Auth": {
+    "login": "Se connecter",
+    "signup": "Créer un compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "loginAction": "Se connecter",
+    "signupAction": "Créer mon compte",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "checkEmailTitle": "Vérifie tes emails",
+    "checkEmailDesc": "Un lien de confirmation t'a été envoyé. Clique dessus pour activer ton compte.",
+    "error": {
+      "invalid_credentials": "Email ou mot de passe incorrect",
+      "email_not_confirmed": "Ton email n'a pas encore été vérifié. Vérifie ta boîte mail.",
+      "generic": "Une erreur est survenue, réessayez"
+    }
   }
 }

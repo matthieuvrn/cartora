@@ -2,5 +2,22 @@
   "Hello": {
     "title": "Architecture smoke test",
     "subtitle": "Hello use-case crossing Domain → Application → Infrastructure → Interface"
+  },
+  "Auth": {
+    "login": "Sign in",
+    "signup": "Create an account",
+    "email": "Email",
+    "password": "Password",
+    "loginAction": "Sign in",
+    "signupAction": "Create my account",
+    "noAccount": "No account yet?",
+    "hasAccount": "Already have an account?",
+    "checkEmailTitle": "Check your emails",
+    "checkEmailDesc": "A confirmation link has been sent to you. Click it to activate your account.",
+    "error": {
+      "invalid_credentials": "Invalid email or password",
+      "email_not_confirmed": "Your email has not been verified yet. Please check your inbox.",
+      "generic": "Something went wrong, please try again"
+    }
   }
 }
