@@ -1,0 +1,255 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
+import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
+import { prisma } from "@/infrastructure/db/prisma";
+import { CreateItem } from "@/application/use-cases/CreateItem";
+import { UpdateItem } from "@/application/use-cases/UpdateItem";
+import { DeleteItem } from "@/application/use-cases/DeleteItem";
+import { ReorderItems } from "@/application/use-cases/ReorderItems";
+import { MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
+
+// ─── State ──────────────────────────────────────────────────────────────────
+
+export type ItemActionState = {
+  error: string | null;
+  fieldErrors?: Record<string, string>;
+  success?: boolean;
+};
+
+// ─── Schemas Zod v4 ─────────────────────────────────────────────────────────
+
+const TranslationSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+const CreateItemSchema = z.object({
+  categoryId: z.uuid(),
+  priceEur: z.coerce.number().min(0).max(MAX_PRICE_CENTS / 100),
+  badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const UpdateItemSchema = z.object({
+  itemId: z.uuid(),
+  priceEur: z.coerce.number().min(0).max(MAX_PRICE_CENTS / 100),
+  badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  isAvailable: z.boolean(),
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const DeleteItemSchema = z.object({
+  itemId: z.uuid(),
+});
+
+const ReorderItemsSchema = z.object({
+  categoryId: z.uuid(),
+  itemIds: z.array(z.uuid()).min(1),
+});
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+async function getAuthenticatedRestaurantId(): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { ownerUserId: user.id },
+    select: { id: true },
+  });
+  if (!restaurant) throw new Error("No restaurant found");
+
+  return restaurant.id;
+}
+
+function eurToCents(eur: number): number {
+  return Math.round(eur * 100);
+}
+
+// ─── Actions ────────────────────────────────────────────────────────────────
+
+export async function createItemAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = CreateItemSchema.safeParse({
+    categoryId: formData.get("categoryId"),
+    priceEur: formData.get("priceEur"),
+    badge: formData.get("badge"),
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path.join(".");
+      fieldErrors[key] = issue.message;
+    }
+    return { error: "validation", fieldErrors };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new CreateItem(repo);
+
+    await useCase.execute({
+      categoryId: parsed.data.categoryId,
+      restaurantId,
+      priceCents: eurToCents(parsed.data.priceEur),
+      badge: parsed.data.badge,
+      translations: parsed.data.translations,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    console.error("[createItem]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}
+
+export async function updateItemAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = UpdateItemSchema.safeParse({
+    itemId: formData.get("itemId"),
+    priceEur: formData.get("priceEur"),
+    badge: formData.get("badge"),
+    isAvailable: formData.get("isAvailable") === "true",
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = issue.path.join(".");
+      fieldErrors[key] = issue.message;
+    }
+    return { error: "validation", fieldErrors };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new UpdateItem(repo);
+
+    await useCase.execute({
+      itemId: parsed.data.itemId,
+      restaurantId,
+      priceCents: eurToCents(parsed.data.priceEur),
+      badge: parsed.data.badge,
+      isAvailable: parsed.data.isAvailable,
+      translations: parsed.data.translations,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    console.error("[updateItem]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}
+
+export async function deleteItemAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = DeleteItemSchema.safeParse({
+    itemId: formData.get("itemId"),
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new DeleteItem(repo);
+
+    await useCase.execute({
+      itemId: parsed.data.itemId,
+      restaurantId,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    console.error("[deleteItem]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}
+
+export async function reorderItemsAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const raw = formData.get("itemIds");
+  let itemIds: unknown = [];
+  if (typeof raw === "string") {
+    try {
+      itemIds = JSON.parse(raw);
+    } catch {
+      return { error: "validation" };
+    }
+  }
+
+  const parsed = ReorderItemsSchema.safeParse({
+    categoryId: formData.get("categoryId"),
+    itemIds,
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new ReorderItems(repo);
+
+    await useCase.execute({
+      categoryId: parsed.data.categoryId,
+      restaurantId,
+      itemIds: parsed.data.itemIds,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    console.error("[reorderItems]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}

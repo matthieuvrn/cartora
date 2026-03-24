@@ -27,5 +27,39 @@
       "resend_success": "A new link has been sent!",
       "generic": "Something went wrong, please try again"
     }
+  },
+  "Dashboard": {
+    "title": "My menu",
+    "addItem": "Add item",
+    "editItem": "Edit item",
+    "deleteItem": "Delete item",
+    "save": "Save",
+    "cancel": "Cancel",
+    "nameFr": "Name (FR)",
+    "nameEn": "Name (EN)",
+    "descriptionFr": "Description (FR)",
+    "descriptionEn": "Description (EN)",
+    "price": "Price",
+    "badgeLabel": "Badge",
+    "available": "Available",
+    "category": {
+      "STARTERS": "Starters",
+      "MAINS": "Mains",
+      "DESSERTS": "Desserts",
+      "DRINKS": "Drinks"
+    },
+    "badge": {
+      "NONE": "None",
+      "NEW": "New",
+      "POPULAR": "Popular"
+    },
+    "emptyCategory": "No items in this category",
+    "confirmDelete": "Delete this item? This action cannot be undone.",
+    "error": {
+      "nameRequired": "Name is required",
+      "priceTooHigh": "Price exceeds the maximum allowed",
+      "invalidBadge": "Invalid badge",
+      "generic": "Something went wrong, please try again"
+    }
   }
 }
