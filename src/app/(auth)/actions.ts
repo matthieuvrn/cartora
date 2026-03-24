@@ -4,10 +4,14 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 
-const AuthSchema = z.object({
-  email: z.email(),
-  password: z.string().min(6),
-});
+const EmailSchema = z.email();
+const PasswordSchema = z.string().min(6);
+
+function getValidationError(email: unknown, password: unknown): string | null {
+  if (!EmailSchema.safeParse(email).success) return "invalid_email";
+  if (!PasswordSchema.safeParse(password).success) return "password_too_short";
+  return null;
+}
 
 export type AuthState = {
   error: string | null;
@@ -18,17 +22,19 @@ export async function login(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
-  const parsed = AuthSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
+  const email = formData.get("email");
+  const password = formData.get("password");
 
-  if (!parsed.success) {
-    return { error: "invalid_credentials" };
+  const validationError = getValidationError(email, password);
+  if (validationError) {
+    return { error: validationError };
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email as string,
+    password: password as string,
+  });
 
   if (error) {
     if (error.message.toLowerCase().includes("email not confirmed")) {
@@ -44,18 +50,18 @@ export async function signup(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
-  const parsed = AuthSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
+  const email = formData.get("email");
+  const password = formData.get("password");
 
-  if (!parsed.success) {
-    return { error: "invalid_credentials" };
+  const validationError = getValidationError(email, password);
+  if (validationError) {
+    return { error: validationError };
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signUp({
-    ...parsed.data,
+    email: email as string,
+    password: password as string,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
@@ -63,6 +69,32 @@ export async function signup(
 
   if (error) {
     console.error("[signup] Supabase error:", error.message, error.status);
+    if (error.message.toLowerCase().includes("already registered")) {
+      return { error: "user_already_exists" };
+    }
+    return { error: "generic" };
+  }
+
+  return { error: null, success: true };
+}
+
+export async function resendConfirmation(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = formData.get("email");
+  if (!EmailSchema.safeParse(email).success) {
+    return { error: "invalid_email" };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: email as string,
+  });
+
+  if (error) {
+    console.error("[resend] Supabase error:", error.message, error.status);
     return { error: "generic" };
   }
 

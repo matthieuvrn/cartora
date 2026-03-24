@@ -14,9 +14,17 @@
     "hasAccount": "Already have an account?",
     "checkEmailTitle": "Check your emails",
     "checkEmailDesc": "A confirmation link has been sent to you. Click it to activate your account.",
+    "resendLink": "Resend link",
+    "resendEmail": "Enter your email to receive a new link",
     "error": {
       "invalid_credentials": "Invalid email or password",
+      "invalid_email": "Invalid email address",
+      "password_too_short": "Password must be at least 6 characters",
+      "user_already_exists": "An account already exists with this email",
       "email_not_confirmed": "Your email has not been verified yet. Please check your inbox.",
+      "otp_expired": "Your confirmation link has expired.",
+      "auth_callback_failed": "Confirmation failed. Please try again.",
+      "resend_success": "A new link has been sent!",
       "generic": "Something went wrong, please try again"
     }
   }

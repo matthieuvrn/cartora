@@ -14,9 +14,17 @@
     "hasAccount": "Déjà un compte ?",
     "checkEmailTitle": "Vérifie tes emails",
     "checkEmailDesc": "Un lien de confirmation t'a été envoyé. Clique dessus pour activer ton compte.",
+    "resendLink": "Renvoyer le lien",
+    "resendEmail": "Entre ton email pour recevoir un nouveau lien",
     "error": {
       "invalid_credentials": "Email ou mot de passe incorrect",
+      "invalid_email": "Adresse email invalide",
+      "password_too_short": "Le mot de passe doit faire au moins 6 caractères",
+      "user_already_exists": "Un compte existe déjà avec cet email",
       "email_not_confirmed": "Ton email n'a pas encore été vérifié. Vérifie ta boîte mail.",
+      "otp_expired": "Ton lien de confirmation a expiré.",
+      "auth_callback_failed": "La confirmation a échoué. Réessaie.",
+      "resend_success": "Un nouveau lien t'a été envoyé !",
       "generic": "Une erreur est survenue, réessayez"
     }
   }
