@@ -1,0 +1,41 @@
+import { describe, it, expect, vi } from "vitest";
+import { ReorderItems } from "./ReorderItems";
+import type { MenuRepository } from "@/application/ports/MenuRepository";
+
+function createMockRepo(): MenuRepository {
+  return {
+    getMenuByRestaurantId: async () => null,
+    createItem: async () => ({ id: "id" }),
+    updateItem: async () => {},
+    deleteItem: async () => {},
+    reorderItems: vi.fn(async () => {}),
+    getNextItemOrder: async () => 0,
+  };
+}
+
+describe("ReorderItems", () => {
+  it("delegates ordered list to repo", async () => {
+    const repo = createMockRepo();
+    const uc = new ReorderItems(repo);
+
+    await uc.execute({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      itemIds: ["item-3", "item-1", "item-2"],
+    });
+
+    expect(repo.reorderItems).toHaveBeenCalledWith(
+      "cat-1",
+      "resto-1",
+      ["item-3", "item-1", "item-2"],
+    );
+  });
+
+  it("throws when itemIds is empty", async () => {
+    const uc = new ReorderItems(createMockRepo());
+
+    await expect(
+      uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: [] }),
+    ).rejects.toThrow("La liste des items ne peut pas être vide");
+  });
+});
