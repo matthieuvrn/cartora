@@ -1,3 +1,6 @@
+-- Cartora — Schema init (generated from prisma/schema.prisma)
+-- Run: prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script
+
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
@@ -115,7 +118,9 @@ CREATE TABLE "menu_public_snapshots" (
     "id" UUID NOT NULL,
     "menu_id" UUID NOT NULL,
     "restaurant_id" UUID NOT NULL,
+    "slug" TEXT NOT NULL,
     "snapshot_data" JSONB NOT NULL,
+    "published_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "menu_public_snapshots_pkey" PRIMARY KEY ("id")
@@ -164,10 +169,13 @@ CREATE UNIQUE INDEX "billing_stripe_subscription_id_key" ON "billing"("stripe_su
 CREATE UNIQUE INDEX "qr_assets_restaurant_id_key" ON "qr_assets"("restaurant_id");
 
 -- CreateIndex
-CREATE INDEX "menu_public_snapshots_menu_id_idx" ON "menu_public_snapshots"("menu_id");
+CREATE UNIQUE INDEX "menu_public_snapshots_restaurant_id_key" ON "menu_public_snapshots"("restaurant_id");
 
 -- CreateIndex
-CREATE INDEX "menu_public_snapshots_restaurant_id_idx" ON "menu_public_snapshots"("restaurant_id");
+CREATE UNIQUE INDEX "menu_public_snapshots_slug_key" ON "menu_public_snapshots"("slug");
+
+-- CreateIndex
+CREATE INDEX "menu_public_snapshots_menu_id_idx" ON "menu_public_snapshots"("menu_id");
 
 -- AddForeignKey
 ALTER TABLE "menus" ADD CONSTRAINT "menus_restaurant_id_fkey" FOREIGN KEY ("restaurant_id") REFERENCES "restaurants"("id") ON DELETE CASCADE ON UPDATE CASCADE;

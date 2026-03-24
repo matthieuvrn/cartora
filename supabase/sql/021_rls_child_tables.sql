@@ -3,9 +3,6 @@
 --
 -- restaurants keeps its own direct policy (owner_user_id = auth.uid()).
 -- All other tables delegate to my_restaurant_id().
---
--- NOTE: menu_public_snapshots is locked to the owner for now.
--- A separate anon SELECT policy will be added when building /m/[slug].
 
 -- ─── Helper function ──────────────────────────────────────────────────────────
 -- SECURITY DEFINER  → runs as DB owner, bypasses RLS on restaurants (no recursion)

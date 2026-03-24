@@ -1,4 +1,5 @@
--- ─── Auto-update updated_at on every UPDATE ─────────────────────────────────
+-- Auto-update updated_at on every UPDATE.
+-- Covers all tables that have an updated_at column.
 
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$

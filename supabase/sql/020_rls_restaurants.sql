@@ -1,5 +1,5 @@
--- Enable RLS on restaurants table
--- Users can only access their own restaurant (owner_user_id = auth.uid())
+-- RLS on restaurants: owner_user_id = auth.uid()
+-- Direct check — no helper function needed for this table.
 
 ALTER TABLE "restaurants" ENABLE ROW LEVEL SECURITY;
 
