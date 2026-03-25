@@ -1,4 +1,5 @@
 import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
+import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 
 export interface RestaurantRepository {
   findByOwnerUserId(
@@ -11,4 +12,13 @@ export interface RestaurantRepository {
     slug: string;
     categories: InitialCategory[];
   }): Promise<{ id: string }>;
+
+  getRestaurantById(
+    id: string,
+  ): Promise<{
+    id: string;
+    slug: string;
+    displayName: string;
+    planStatus: PlanStatus;
+  } | null>;
 }

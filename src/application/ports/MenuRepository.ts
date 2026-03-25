@@ -38,4 +38,10 @@ export interface MenuRepository {
   ): Promise<void>;
 
   getNextItemOrder(categoryId: string): Promise<number>;
+
+  updateMenuStatus(
+    menuId: string,
+    status: "DRAFT" | "PUBLISHED",
+    publishedAt: string,
+  ): Promise<void>;
 }

@@ -1,5 +1,6 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
+import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PrismaClient, CategoryType } from "@/generated/prisma/client";
 
 export class PrismaRestaurantRepository implements RestaurantRepository {
@@ -68,6 +69,29 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     }
 
     throw new Error("Failed to create restaurant after retries");
+  }
+
+  async getRestaurantById(
+    id: string,
+  ): Promise<{
+    id: string;
+    slug: string;
+    displayName: string;
+    planStatus: PlanStatus;
+  } | null> {
+    const restaurant = await this.db.restaurant.findUnique({
+      where: { id },
+      select: { id: true, slug: true, displayName: true, planStatus: true },
+    });
+
+    if (!restaurant) return null;
+
+    return {
+      id: restaurant.id,
+      slug: restaurant.slug,
+      displayName: restaurant.displayName,
+      planStatus: restaurant.planStatus as PlanStatus,
+    };
   }
 }
 

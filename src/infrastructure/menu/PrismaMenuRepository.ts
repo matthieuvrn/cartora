@@ -187,6 +187,17 @@ export class PrismaMenuRepository implements MenuRepository {
   async getNextItemOrder(categoryId: string): Promise<number> {
     return this.db.item.count({ where: { categoryId } });
   }
+
+  async updateMenuStatus(
+    menuId: string,
+    status: "DRAFT" | "PUBLISHED",
+    publishedAt: string,
+  ): Promise<void> {
+    await this.db.menu.update({
+      where: { id: menuId },
+      data: { status, publishedAt: new Date(publishedAt) },
+    });
+  }
 }
 
 function getItemTranslations(

@@ -10,6 +10,7 @@ function createMockRepo(): MenuRepository {
     deleteItem: vi.fn(async () => {}),
     reorderItems: async () => {},
     getNextItemOrder: async () => 0,
+    updateMenuStatus: async () => {},
   };
 }
 

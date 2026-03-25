@@ -40,6 +40,7 @@ function createMockRepo(menu: MenuOverview | null): MenuRepository {
     deleteItem: async () => {},
     reorderItems: async () => {},
     getNextItemOrder: async () => 0,
+    updateMenuStatus: async () => {},
   };
 }
 
