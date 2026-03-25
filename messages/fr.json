@@ -53,6 +53,8 @@
       "NEW": "Nouveau",
       "POPULAR": "Populaire"
     },
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
     "emptyCategory": "Aucun item dans cette catégorie",
     "confirmDelete": "Supprimer cet item ? Cette action est irréversible.",
     "error": {

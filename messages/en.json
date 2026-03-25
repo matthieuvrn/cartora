@@ -53,6 +53,8 @@
       "NEW": "New",
       "POPULAR": "Popular"
     },
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "emptyCategory": "No items in this category",
     "confirmDelete": "Delete this item? This action cannot be undone.",
     "error": {

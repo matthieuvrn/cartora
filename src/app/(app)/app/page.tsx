@@ -2,8 +2,12 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { logout } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
+import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
+import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { prisma } from "@/infrastructure/db/prisma";
+import { Button } from "@/components/ui/button";
+import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 
 export default async function AppPage() {
   const supabase = await createSupabaseServerClient();
@@ -13,23 +17,33 @@ export default async function AppPage() {
 
   if (!user) redirect("/login");
 
-  const repo = new PrismaRestaurantRepository(prisma);
-  const ensureRestaurant = new EnsureRestaurantExists(repo);
+  const restaurantRepo = new PrismaRestaurantRepository(prisma);
+  const ensureRestaurant = new EnsureRestaurantExists(restaurantRepo);
   const { restaurantId } = await ensureRestaurant.execute({
     userId: user.id,
   });
 
+  const menuRepo = new PrismaMenuRepository(prisma);
+  const getMenu = new GetMenuForDashboard(menuRepo);
+  const menu = await getMenu.execute({ restaurantId });
+
   return (
-    <main className="p-8">
-      <p className="text-sm text-muted-foreground">Connecté : {user.email}</p>
-      <p className="text-sm text-muted-foreground">
-        Restaurant : {restaurantId}
-      </p>
-      <form action={logout} className="mt-4">
-        <button type="submit" className="underline text-sm">
-          Se déconnecter
-        </button>
-      </form>
+    <main className="min-h-screen bg-muted/40">
+      <header className="border-b bg-background px-6 py-4 flex items-center justify-between">
+        <h1 className="text-lg font-semibold">Cartora</h1>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <form action={logout}>
+            <Button variant="ghost" size="sm" type="submit">
+              Se déconnecter
+            </Button>
+          </form>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-4xl px-4 py-8">
+        <MenuDashboard menu={menu} />
+      </div>
     </main>
   );
 }
