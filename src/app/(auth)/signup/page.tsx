@@ -14,13 +14,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { signup, type AuthState } from "@/app/(auth)/actions";
+import { signupAction, type AuthState } from "@/app/(auth)/actions";
 
 const initialState: AuthState = { error: null };
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
-  const [state, action, isPending] = useActionState(signup, initialState);
+  const [state, action, isPending] = useActionState(signupAction, initialState);
 
   if (state.success) {
     return (

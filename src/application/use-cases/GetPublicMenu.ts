@@ -5,11 +5,13 @@ export type GetPublicMenuInput = {
   slug: string;
 };
 
-export class GetPublicMenu {
-  constructor(private readonly snapshotRepo: SnapshotRepository) {}
+export type GetPublicMenuOutput = PublicMenuSnapshot | null;
 
-  async execute(input: GetPublicMenuInput): Promise<PublicMenuSnapshot | null> {
-    const result = await this.snapshotRepo.getSnapshotBySlug(input.slug);
+export class GetPublicMenu {
+  constructor(private readonly repo: SnapshotRepository) {}
+
+  async execute(input: GetPublicMenuInput): Promise<GetPublicMenuOutput> {
+    const result = await this.repo.getSnapshotBySlug(input.slug);
     return result?.snapshotData ?? null;
   }
 }

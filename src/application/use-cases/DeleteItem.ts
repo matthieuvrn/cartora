@@ -9,6 +9,6 @@ export class DeleteItem {
   constructor(private readonly repo: MenuRepository) {}
 
   async execute(input: DeleteItemInput): Promise<void> {
-    await this.repo.deleteItem(input.itemId, input.restaurantId);
+    await this.repo.deleteItem({ itemId: input.itemId, restaurantId: input.restaurantId });
   }
 }

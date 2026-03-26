@@ -5,10 +5,12 @@ export type GetMenuForDashboardInput = {
   restaurantId: string;
 };
 
+export type GetMenuForDashboardOutput = MenuOverview;
+
 export class GetMenuForDashboard {
   constructor(private readonly repo: MenuRepository) {}
 
-  async execute(input: GetMenuForDashboardInput): Promise<MenuOverview> {
+  async execute(input: GetMenuForDashboardInput): Promise<GetMenuForDashboardOutput> {
     const menu = await this.repo.getMenuByRestaurantId(input.restaurantId);
 
     if (!menu) {

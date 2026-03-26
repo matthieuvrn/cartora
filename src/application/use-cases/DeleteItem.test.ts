@@ -22,6 +22,6 @@ describe("DeleteItem", () => {
 
     await uc.execute({ itemId: "item-1", restaurantId: "resto-1" });
 
-    expect(repo.deleteItem).toHaveBeenCalledWith("item-1", "resto-1");
+    expect(repo.deleteItem).toHaveBeenCalledWith({ itemId: "item-1", restaurantId: "resto-1" });
   });
 });

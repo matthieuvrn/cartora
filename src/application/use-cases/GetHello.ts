@@ -1,7 +1,7 @@
-import type {Clock} from '@/application/ports/Clock';
-import type {GreetingRepository} from '@/application/ports/GreetingRepository';
-import {Greeting, type Locale} from '@/domain/hello/Greeting';
-import {GreetingPolicy} from '@/domain/hello/GreetingPolicy';
+import type { Clock } from "@/application/ports/Clock";
+import type { GreetingRepository } from "@/application/ports/GreetingRepository";
+import { Greeting, type Locale } from "@/domain/hello/Greeting";
+import { GreetingPolicy } from "@/domain/hello/GreetingPolicy";
 
 export type GetHelloInput = {
   locale: Locale;

@@ -124,11 +124,11 @@ describe("PublishMenu", () => {
       },
       publishedAt: "2026-03-25T12:00:00.000Z",
     });
-    expect(menuRepo.updateMenuStatus).toHaveBeenCalledWith(
-      "menu-1",
-      "PUBLISHED",
-      "2026-03-25T12:00:00.000Z",
-    );
+    expect(menuRepo.updateMenuStatus).toHaveBeenCalledWith({
+      menuId: "menu-1",
+      status: "PUBLISHED",
+      publishedAt: "2026-03-25T12:00:00.000Z",
+    });
   });
 
   it("throws plan_inactive for FREE plan", async () => {

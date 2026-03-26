@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
-  login,
-  resendConfirmation,
+  loginAction,
+  resendConfirmationAction,
   type AuthState,
 } from "@/app/(auth)/actions";
 
@@ -43,9 +43,9 @@ function parseCallbackError(): string | null {
 
 export default function LoginPage() {
   const t = useTranslations("Auth");
-  const [state, action, isPending] = useActionState(login, initialState);
+  const [state, action, isPending] = useActionState(loginAction, initialState);
   const [resendState, resendAction, isResending] = useActionState(
-    resendConfirmation,
+    resendConfirmationAction,
     initialState,
   );
   const callbackError = parseCallbackError();

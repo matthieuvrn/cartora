@@ -4,8 +4,19 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 
+// ─── Schemas ───
+
 const EmailSchema = z.email();
 const PasswordSchema = z.string().min(6);
+
+// ─── State ───
+
+export type AuthState = {
+  error: string | null;
+  success?: boolean;
+};
+
+// ─── Helpers ───
 
 function getValidationError(email: unknown, password: unknown): string | null {
   if (!EmailSchema.safeParse(email).success) return "invalid_email";
@@ -13,12 +24,9 @@ function getValidationError(email: unknown, password: unknown): string | null {
   return null;
 }
 
-export type AuthState = {
-  error: string | null;
-  success?: boolean;
-};
+// ─── Actions ───
 
-export async function login(
+export async function loginAction(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
@@ -46,7 +54,7 @@ export async function login(
   redirect("/app");
 }
 
-export async function signup(
+export async function signupAction(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
@@ -68,7 +76,7 @@ export async function signup(
   });
 
   if (error) {
-    console.error("[signup] Supabase error:", error.message, error.status);
+    console.error("[signupAction]", error);
     if (error.message.toLowerCase().includes("already registered")) {
       return { error: "user_already_exists" };
     }
@@ -78,7 +86,7 @@ export async function signup(
   return { error: null, success: true };
 }
 
-export async function resendConfirmation(
+export async function resendConfirmationAction(
   _prev: AuthState,
   formData: FormData,
 ): Promise<AuthState> {
@@ -94,14 +102,14 @@ export async function resendConfirmation(
   });
 
   if (error) {
-    console.error("[resend] Supabase error:", error.message, error.status);
+    console.error("[resendConfirmationAction]", error);
     return { error: "generic" };
   }
 
   return { error: null, success: true };
 }
 
-export async function logout(): Promise<never> {
+export async function logoutAction(): Promise<never> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/login");

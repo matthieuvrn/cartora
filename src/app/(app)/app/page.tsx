@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
-import { logout } from "@/app/(auth)/actions";
+import { logoutAction } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
 import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -40,7 +40,7 @@ export default async function AppPage() {
         <h1 className="text-lg font-semibold">Cartora</h1>
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">{user.email}</p>
-          <form action={logout}>
+          <form action={logoutAction}>
             <Button variant="ghost" size="sm" type="submit">
               {t("logout")}
             </Button>

@@ -58,7 +58,7 @@ export class PublishMenu {
       publishedAt: now,
     });
 
-    await this.menuRepo.updateMenuStatus(menu.menuId, "PUBLISHED", now);
+    await this.menuRepo.updateMenuStatus({ menuId: menu.menuId, status: "PUBLISHED", publishedAt: now });
 
     return { slug: restaurant.slug };
   }

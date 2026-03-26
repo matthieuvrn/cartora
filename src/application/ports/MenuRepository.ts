@@ -29,21 +29,21 @@ export interface MenuRepository {
     };
   }): Promise<void>;
 
-  deleteItem(itemId: string, restaurantId: string): Promise<void>;
+  deleteItem(params: { itemId: string; restaurantId: string }): Promise<void>;
 
-  reorderItems(
-    categoryId: string,
-    restaurantId: string,
-    itemIds: string[],
-  ): Promise<void>;
+  reorderItems(params: {
+    categoryId: string;
+    restaurantId: string;
+    itemIds: string[];
+  }): Promise<void>;
 
   getNextItemOrder(categoryId: string): Promise<number>;
 
-  updateMenuStatus(
-    menuId: string,
-    status: "DRAFT" | "PUBLISHED",
-    publishedAt: string,
-  ): Promise<void>;
+  updateMenuStatus(params: {
+    menuId: string;
+    status: "DRAFT" | "PUBLISHED";
+    publishedAt: string;
+  }): Promise<void>;
 
   markMenuAsDraft(restaurantId: string): Promise<void>;
 }

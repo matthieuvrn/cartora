@@ -159,7 +159,8 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async deleteItem(itemId: string, restaurantId: string): Promise<void> {
+  async deleteItem(params: { itemId: string; restaurantId: string }): Promise<void> {
+    const { itemId, restaurantId } = params;
     await this.db.$transaction(async (tx) => {
       await tx.translation.deleteMany({
         where: { entityType: "ITEM", entityId: itemId, restaurantId },
@@ -171,11 +172,12 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async reorderItems(
-    categoryId: string,
-    restaurantId: string,
-    itemIds: string[],
-  ): Promise<void> {
+  async reorderItems(params: {
+    categoryId: string;
+    restaurantId: string;
+    itemIds: string[];
+  }): Promise<void> {
+    const { categoryId, restaurantId, itemIds } = params;
     await this.db.$transaction(
       itemIds.map((id, index) =>
         this.db.item.update({
@@ -197,11 +199,12 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async updateMenuStatus(
-    menuId: string,
-    status: "DRAFT" | "PUBLISHED",
-    publishedAt: string,
-  ): Promise<void> {
+  async updateMenuStatus(params: {
+    menuId: string;
+    status: "DRAFT" | "PUBLISHED";
+    publishedAt: string;
+  }): Promise<void> {
+    const { menuId, status, publishedAt } = params;
     await this.db.menu.update({
       where: { id: menuId },
       data: { status, publishedAt: new Date(publishedAt) },

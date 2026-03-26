@@ -26,11 +26,11 @@ describe("ReorderItems", () => {
       itemIds: ["item-3", "item-1", "item-2"],
     });
 
-    expect(repo.reorderItems).toHaveBeenCalledWith(
-      "cat-1",
-      "resto-1",
-      ["item-3", "item-1", "item-2"],
-    );
+    expect(repo.reorderItems).toHaveBeenCalledWith({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      itemIds: ["item-3", "item-1", "item-2"],
+    });
   });
 
   it("throws when itemIds is empty", async () => {
