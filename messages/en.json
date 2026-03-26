@@ -67,6 +67,11 @@
       "DRAFT": "Draft",
       "PUBLISHED": "Published"
     },
+    "qrCode": {
+      "title": "QR Code",
+      "description": "Scan this QR code to access your menu",
+      "download": "Download"
+    },
     "error": {
       "nameRequired": "Name is required",
       "priceTooHigh": "Price exceeds the maximum allowed",

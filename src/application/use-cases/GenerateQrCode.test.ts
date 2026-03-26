@@ -13,9 +13,7 @@ const INPUT_FIXTURE = {
 const FAKE_BUFFER = Buffer.from("fake-png");
 const PUBLIC_URL = "https://storage.test/qr-codes/resto-1.png";
 
-function createMockQrCodeGenerator(
-  overrides: Partial<QrCodeGenerator> = {},
-): QrCodeGenerator {
+function createMockQrCodeGenerator(overrides: Partial<QrCodeGenerator> = {}): QrCodeGenerator {
   return {
     generate: vi.fn(async () => FAKE_BUFFER),
     ...overrides,

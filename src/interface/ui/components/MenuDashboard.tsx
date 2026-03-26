@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CategorySection } from "./CategorySection";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
+import { QrCodeCard } from "./QrCodeCard";
 
 type Props = {
   menu: MenuOverview;
@@ -16,9 +17,17 @@ type Props = {
   planStatus: PlanStatus;
   slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
+  qrCodeUrl: string | null;
 };
 
-export function MenuDashboard({ menu, restaurantName, planStatus, slug, publishAction }: Props) {
+export function MenuDashboard({
+  menu,
+  restaurantName,
+  planStatus,
+  slug,
+  publishAction,
+  qrCodeUrl,
+}: Props) {
   const t = useTranslations("Dashboard");
 
   return (
@@ -54,6 +63,8 @@ export function MenuDashboard({ menu, restaurantName, planStatus, slug, publishA
           </AlertDescription>
         </Alert>
       )}
+
+      {menu.publishedAt !== null && qrCodeUrl !== null && <QrCodeCard qrCodeUrl={qrCodeUrl} />}
 
       {menu.categories.map((category) => (
         <CategorySection key={category.id} category={category} />

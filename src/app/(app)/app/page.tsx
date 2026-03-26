@@ -6,6 +6,8 @@ import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurant
 import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
+import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
+import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { prisma } from "@/infrastructure/db/prisma";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
@@ -32,6 +34,10 @@ export default async function AppPage() {
   const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
   if (!restaurant) redirect("/login");
 
+  const qrAssetRepo = new PrismaQrAssetRepository(prisma);
+  const qrAsset = await qrAssetRepo.findByRestaurantId(restaurantId);
+  const qrCodeUrl = qrAsset ? new SupabaseStorageService().getPublicUrl(qrAsset.storagePath) : null;
+
   const t = await getTranslations("Dashboard");
 
   return (
@@ -55,6 +61,7 @@ export default async function AppPage() {
           planStatus={restaurant.planStatus}
           slug={restaurant.slug}
           publishAction={publishMenuAction}
+          qrCodeUrl={qrCodeUrl}
         />
       </div>
     </main>
