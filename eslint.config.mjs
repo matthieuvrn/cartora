@@ -15,6 +15,16 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
 
+  // Underscore prefix = intentionally unused
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
+    },
+  },
+
   /**
    * 1) ZONES — empêche les imports cross-layer
    *    - domain ne peut pas importer application/infra/interface/app
