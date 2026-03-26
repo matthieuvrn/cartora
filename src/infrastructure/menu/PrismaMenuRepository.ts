@@ -6,9 +6,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 export class PrismaMenuRepository implements MenuRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async getMenuByRestaurantId(
-    restaurantId: string,
-  ): Promise<MenuOverview | null> {
+  async getMenuByRestaurantId(restaurantId: string): Promise<MenuOverview | null> {
     const menu = await this.db.menu.findUnique({
       where: { restaurantId },
       select: {
@@ -75,17 +73,19 @@ export class PrismaMenuRepository implements MenuRepository {
         id: cat.id,
         type: cat.type,
         order: cat.order,
-        items: cat.items.map((item): MenuItemData => ({
-          id: item.id,
-          priceCents: item.priceCents,
-          badge: item.badge as ItemBadge,
-          isAvailable: item.isAvailable,
-          order: item.order,
-          translations: {
-            fr: getItemTranslations(translationMap, item.id, "FR"),
-            en: getItemTranslations(translationMap, item.id, "EN"),
-          },
-        })),
+        items: cat.items.map(
+          (item): MenuItemData => ({
+            id: item.id,
+            priceCents: item.priceCents,
+            badge: item.badge as ItemBadge,
+            isAvailable: item.isAvailable,
+            order: item.order,
+            translations: {
+              fr: getItemTranslations(translationMap, item.id, "FR"),
+              en: getItemTranslations(translationMap, item.id, "EN"),
+            },
+          }),
+        ),
       })),
     };
   }
@@ -106,10 +106,38 @@ export class PrismaMenuRepository implements MenuRepository {
 
       await tx.translation.createMany({
         data: [
-          { entityType: "ITEM", entityId: item.id, field: "name", locale: "FR", value: params.translations.fr.name, restaurantId: params.restaurantId },
-          { entityType: "ITEM", entityId: item.id, field: "description", locale: "FR", value: params.translations.fr.description, restaurantId: params.restaurantId },
-          { entityType: "ITEM", entityId: item.id, field: "name", locale: "EN", value: params.translations.en.name, restaurantId: params.restaurantId },
-          { entityType: "ITEM", entityId: item.id, field: "description", locale: "EN", value: params.translations.en.description, restaurantId: params.restaurantId },
+          {
+            entityType: "ITEM",
+            entityId: item.id,
+            field: "name",
+            locale: "FR",
+            value: params.translations.fr.name,
+            restaurantId: params.restaurantId,
+          },
+          {
+            entityType: "ITEM",
+            entityId: item.id,
+            field: "description",
+            locale: "FR",
+            value: params.translations.fr.description,
+            restaurantId: params.restaurantId,
+          },
+          {
+            entityType: "ITEM",
+            entityId: item.id,
+            field: "name",
+            locale: "EN",
+            value: params.translations.en.name,
+            restaurantId: params.restaurantId,
+          },
+          {
+            entityType: "ITEM",
+            entityId: item.id,
+            field: "description",
+            locale: "EN",
+            value: params.translations.en.description,
+            restaurantId: params.restaurantId,
+          },
         ],
       });
 

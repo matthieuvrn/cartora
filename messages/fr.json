@@ -101,7 +101,12 @@
     "pro": {
       "name": "Pro",
       "price": "9,99 € / mois",
-      "features": ["Publication en ligne", "QR code personnalisé", "Sans watermark", "Support prioritaire"]
+      "features": [
+        "Publication en ligne",
+        "QR code personnalisé",
+        "Sans watermark",
+        "Support prioritaire"
+      ]
     },
     "cta": "Choisir",
     "comingSoon": "Bientôt disponible"

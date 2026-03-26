@@ -1,4 +1,4 @@
-import type {Clock} from '@/application/ports/Clock';
+import type { Clock } from "@/application/ports/Clock";
 
 export class SystemClock implements Clock {
   nowISO(): string {

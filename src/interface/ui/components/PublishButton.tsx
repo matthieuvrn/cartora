@@ -47,9 +47,7 @@ export function PublishButton({ planStatus, menuStatus, publishAction }: Props) 
         </Button>
       </form>
 
-      {state.error && (
-        <p className="text-sm text-destructive">{t("error.publishFailed")}</p>
-      )}
+      {state.error && <p className="text-sm text-destructive">{t("error.publishFailed")}</p>}
     </div>
   );
 }

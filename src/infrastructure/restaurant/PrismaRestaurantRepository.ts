@@ -6,9 +6,7 @@ import type { PrismaClient, CategoryType } from "@/generated/prisma/client";
 export class PrismaRestaurantRepository implements RestaurantRepository {
   constructor(private readonly db: PrismaClient) {}
 
-  async findByOwnerUserId(
-    ownerUserId: string
-  ): Promise<{ id: string } | null> {
+  async findByOwnerUserId(ownerUserId: string): Promise<{ id: string } | null> {
     return this.db.restaurant.findUnique({
       where: { ownerUserId },
       select: { id: true },
@@ -24,10 +22,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     const maxRetries = 2;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const slug =
-        attempt === 0
-          ? params.slug
-          : `${params.slug}-${randomSuffix()}`;
+      const slug = attempt === 0 ? params.slug : `${params.slug}-${randomSuffix()}`;
 
       try {
         return await this.db.$transaction(async (tx) => {
@@ -58,8 +53,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         });
       } catch (error: unknown) {
         const isUniqueViolation =
-          error instanceof Error &&
-          error.message.includes("Unique constraint");
+          error instanceof Error && error.message.includes("Unique constraint");
 
         if (isUniqueViolation && attempt < maxRetries) {
           continue;
@@ -71,9 +65,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     throw new Error("Failed to create restaurant after retries");
   }
 
-  async getRestaurantById(
-    id: string,
-  ): Promise<{
+  async getRestaurantById(id: string): Promise<{
     id: string;
     slug: string;
     displayName: string;

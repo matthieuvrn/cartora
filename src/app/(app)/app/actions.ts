@@ -36,7 +36,10 @@ const TranslationSchema = z.object({
 
 const CreateItemSchema = z.object({
   categoryId: z.uuid(),
-  priceEur: z.coerce.number().min(0).max(MAX_PRICE_CENTS / 100),
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   translations: z.object({
     fr: TranslationSchema,
@@ -46,7 +49,10 @@ const CreateItemSchema = z.object({
 
 const UpdateItemSchema = z.object({
   itemId: z.uuid(),
-  priceEur: z.coerce.number().min(0).max(MAX_PRICE_CENTS / 100),
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   isAvailable: z.boolean(),
   translations: z.object({
@@ -266,9 +272,7 @@ export async function reorderItemsAction(
   }
 }
 
-export async function publishMenuAction(
-  _prev: PublishActionState,
-): Promise<PublishActionState> {
+export async function publishMenuAction(_prev: PublishActionState): Promise<PublishActionState> {
   try {
     const restaurantId = await getAuthenticatedRestaurantId();
     const menuRepo = new PrismaMenuRepository(prisma);

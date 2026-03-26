@@ -44,9 +44,7 @@ const MENU_FIXTURE: MenuOverview = {
   ],
 };
 
-function createMockMenuRepo(
-  overrides: Partial<MenuRepository> = {},
-): MenuRepository {
+function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
   return {
     getMenuByRestaurantId: async () => MENU_FIXTURE,
     createItem: async () => ({ id: "id" }),
@@ -71,9 +69,7 @@ function createMockRestaurantRepo(
   };
 }
 
-function createMockSnapshotRepo(
-  overrides: Partial<SnapshotRepository> = {},
-): SnapshotRepository {
+function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): SnapshotRepository {
   return {
     upsertSnapshot: vi.fn(async () => {}),
     getSnapshotBySlug: async () => null,
@@ -145,9 +141,7 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow(
-      "plan_inactive",
-    );
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("plan_inactive");
     expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
   });
 
@@ -168,9 +162,7 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow(
-      "no_items",
-    );
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("no_items");
   });
 
   it("throws when restaurant not found", async () => {
@@ -181,9 +173,7 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow(
-      "Restaurant introuvable",
-    );
+    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow("Restaurant introuvable");
   });
 
   it("throws when menu not found", async () => {
@@ -194,9 +184,7 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow(
-      "Menu introuvable",
-    );
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("Menu introuvable");
   });
 
   it("snapshot excludes unavailable items", async () => {
@@ -252,9 +240,7 @@ describe("PublishMenu", () => {
           categories: [
             {
               type: "STARTERS",
-              items: [
-                expect.objectContaining({ nameFr: "Soupe" }),
-              ],
+              items: [expect.objectContaining({ nameFr: "Soupe" })],
             },
           ],
         }),

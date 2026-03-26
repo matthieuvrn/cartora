@@ -22,9 +22,7 @@ export class PublishMenu {
   ) {}
 
   async execute(input: PublishMenuInput): Promise<PublishMenuOutput> {
-    const restaurant = await this.restaurantRepo.getRestaurantById(
-      input.restaurantId,
-    );
+    const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
       throw new Error("Restaurant introuvable");
     }
@@ -39,10 +37,7 @@ export class PublishMenu {
       0,
     );
 
-    const result = PublicationPolicy.canPublish(
-      restaurant.planStatus,
-      availableItemCount,
-    );
+    const result = PublicationPolicy.canPublish(restaurant.planStatus, availableItemCount);
     if (!result.allowed) {
       throw new Error(result.reason);
     }
@@ -58,7 +53,11 @@ export class PublishMenu {
       publishedAt: now,
     });
 
-    await this.menuRepo.updateMenuStatus({ menuId: menu.menuId, status: "PUBLISHED", publishedAt: now });
+    await this.menuRepo.updateMenuStatus({
+      menuId: menu.menuId,
+      status: "PUBLISHED",
+      publishedAt: now,
+    });
 
     return { slug: restaurant.slug };
   }

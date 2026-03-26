@@ -16,7 +16,7 @@ export type GetHelloOutput = {
 export class GetHello {
   constructor(
     private readonly repo: GreetingRepository,
-    private readonly clock: Clock
+    private readonly clock: Clock,
   ) {}
 
   async execute(input: GetHelloInput): Promise<GetHelloOutput> {
@@ -27,7 +27,7 @@ export class GetHello {
 
     return {
       message: greeting.message,
-      generatedAt: this.clock.nowISO()
+      generatedAt: this.clock.nowISO(),
     };
   }
 }

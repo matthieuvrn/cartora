@@ -28,11 +28,7 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
   const tp = useTranslations("PublicMenu");
   const locale = useLocale() as "fr" | "en";
 
-  const snapshot = buildPublicSnapshot(
-    menu,
-    restaurantName,
-    new Date().toISOString(),
-  );
+  const snapshot = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
 
   const categoryLabels: Record<CategoryType, string> = {
     STARTERS: tp("category.STARTERS"),

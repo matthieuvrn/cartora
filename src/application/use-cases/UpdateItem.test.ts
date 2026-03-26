@@ -54,9 +54,7 @@ describe("UpdateItem", () => {
 
     await uc.execute({ ...VALID_INPUT, isAvailable: false });
 
-    expect(repo.updateItem).toHaveBeenCalledWith(
-      expect.objectContaining({ isAvailable: false }),
-    );
+    expect(repo.updateItem).toHaveBeenCalledWith(expect.objectContaining({ isAvailable: false }));
   });
 
   it("defaults EN translations to empty strings when omitted", async () => {
@@ -89,16 +87,14 @@ describe("UpdateItem", () => {
   it("throws when price is negative", async () => {
     const uc = new UpdateItem(createMockRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, priceCents: -5 }),
-    ).rejects.toThrow("Le prix");
+    await expect(uc.execute({ ...VALID_INPUT, priceCents: -5 })).rejects.toThrow("Le prix");
   });
 
   it("throws when badge is invalid", async () => {
     const uc = new UpdateItem(createMockRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, badge: "UNKNOWN" }),
-    ).rejects.toThrow("Badge invalide");
+    await expect(uc.execute({ ...VALID_INPUT, badge: "UNKNOWN" })).rejects.toThrow(
+      "Badge invalide",
+    );
   });
 });

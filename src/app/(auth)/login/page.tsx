@@ -14,11 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  loginAction,
-  resendConfirmationAction,
-  type AuthState,
-} from "@/app/(auth)/actions";
+import { loginAction, resendConfirmationAction, type AuthState } from "@/app/(auth)/actions";
 
 const initialState: AuthState = { error: null };
 
@@ -78,19 +74,11 @@ export default function LoginPage() {
               </p>
             )}
 
-            <p className="text-sm text-muted-foreground">
-              {t("resendEmail")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("resendEmail")}</p>
 
             <div className="space-y-1">
               <Label htmlFor="resend-email">{t("email")}</Label>
-              <Input
-                id="resend-email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-              />
+              <Input id="resend-email" name="email" type="email" autoComplete="email" required />
             </div>
 
             <Button type="submit" className="w-full" disabled={isResending}>
@@ -117,13 +105,7 @@ export default function LoginPage() {
 
             <div className="space-y-1">
               <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-              />
+              <Input id="email" name="email" type="email" autoComplete="email" required />
             </div>
 
             <div className="space-y-1">

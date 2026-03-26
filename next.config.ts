@@ -1,5 +1,5 @@
-import {withSentryConfig} from "@sentry/nextjs";
-import type {NextConfig} from "next";
+import { withSentryConfig } from "@sentry/nextjs";
+import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin();
@@ -15,7 +15,7 @@ const sentryOptions = {
   widenClientFileUpload: true,
   webpack: {
     automaticVercelMonitors: true,
-    treeshake: {removeDebugLogging: true},
+    treeshake: { removeDebugLogging: true },
   },
 };
 

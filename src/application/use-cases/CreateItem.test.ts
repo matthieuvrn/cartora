@@ -82,16 +82,14 @@ describe("CreateItem", () => {
   it("throws when price is negative", async () => {
     const uc = new CreateItem(createMockRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, priceCents: -1 }),
-    ).rejects.toThrow("Le prix");
+    await expect(uc.execute({ ...VALID_INPUT, priceCents: -1 })).rejects.toThrow("Le prix");
   });
 
   it("throws when badge is invalid", async () => {
     const uc = new CreateItem(createMockRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, badge: "TRENDING" }),
-    ).rejects.toThrow("Badge invalide");
+    await expect(uc.execute({ ...VALID_INPUT, badge: "TRENDING" })).rejects.toThrow(
+      "Badge invalide",
+    );
   });
 });

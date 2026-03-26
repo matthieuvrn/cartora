@@ -17,9 +17,7 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
   };
 }
 
-function makeCategory(
-  overrides: Partial<MenuCategoryData> = {},
-): MenuCategoryData {
+function makeCategory(overrides: Partial<MenuCategoryData> = {}): MenuCategoryData {
   return {
     id: "cat-1",
     type: "STARTERS",
@@ -105,10 +103,7 @@ describe("buildPublicSnapshot", () => {
 
   it("returns empty categories array when no items exist", () => {
     const menu = makeMenu({
-      categories: [
-        makeCategory({ items: [] }),
-        makeCategory({ type: "MAINS", items: [] }),
-      ],
+      categories: [makeCategory({ items: [] }), makeCategory({ type: "MAINS", items: [] })],
     });
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);

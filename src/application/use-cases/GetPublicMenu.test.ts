@@ -23,9 +23,7 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
   publishedAt: "2026-03-25T12:00:00.000Z",
 };
 
-function createMockSnapshotRepo(
-  overrides: Partial<SnapshotRepository> = {},
-): SnapshotRepository {
+function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): SnapshotRepository {
   return {
     upsertSnapshot: async () => {},
     getSnapshotBySlug: async () => ({
@@ -46,9 +44,7 @@ describe("GetPublicMenu", () => {
   });
 
   it("returns null for unknown slug", async () => {
-    const uc = new GetPublicMenu(
-      createMockSnapshotRepo({ getSnapshotBySlug: async () => null }),
-    );
+    const uc = new GetPublicMenu(createMockSnapshotRepo({ getSnapshotBySlug: async () => null }));
 
     const result = await uc.execute({ slug: "unknown" });
 

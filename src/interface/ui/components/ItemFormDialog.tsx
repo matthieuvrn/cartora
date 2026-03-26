@@ -21,11 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  createItemAction,
-  updateItemAction,
-  type ItemActionState,
-} from "@/app/(app)/app/actions";
+import { createItemAction, updateItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
 
 type Props = {
@@ -38,13 +34,7 @@ type Props = {
 
 const initialState: ItemActionState = { error: null };
 
-export function ItemFormDialog({
-  mode,
-  categoryId,
-  item,
-  open,
-  onOpenChange,
-}: Props) {
+export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: Props) {
   const t = useTranslations("Dashboard");
   const id = useId();
   const serverAction = mode === "create" ? createItemAction : updateItemAction;
@@ -56,25 +46,18 @@ export function ItemFormDialog({
     },
     [serverAction, onOpenChange],
   );
-  const [state, formAction, isPending] = useActionState(
-    wrappedAction,
-    initialState,
-  );
+  const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>
-            {mode === "create" ? t("addItem") : t("editItem")}
-          </DialogTitle>
+          <DialogTitle>{mode === "create" ? t("addItem") : t("editItem")}</DialogTitle>
         </DialogHeader>
 
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="categoryId" value={categoryId} />
-          {mode === "edit" && item && (
-            <input type="hidden" name="itemId" value={item.id} />
-          )}
+          {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
 
           {state.error && state.error !== "validation" && (
             <p role="alert" className="text-sm text-destructive">
@@ -138,9 +121,7 @@ export function ItemFormDialog({
               aria-invalid={!!state.fieldErrors?.priceEur}
             />
             {state.fieldErrors?.priceEur && (
-              <p className="text-xs text-destructive">
-                {state.fieldErrors.priceEur}
-              </p>
+              <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
             )}
           </div>
 
@@ -171,11 +152,7 @@ export function ItemFormDialog({
           )}
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>

@@ -26,11 +26,7 @@ export function MenuDashboard({ menu, restaurantName, planStatus, slug, publishA
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">{t("title")}</h2>
         <div className="flex items-center gap-2">
-          <PreviewDialog
-            menu={menu}
-            restaurantName={restaurantName}
-            planStatus={planStatus}
-          />
+          <PreviewDialog menu={menu} restaurantName={restaurantName} planStatus={planStatus} />
           <PublishButton
             planStatus={planStatus}
             menuStatus={menu.status}

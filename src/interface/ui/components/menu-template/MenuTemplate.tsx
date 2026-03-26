@@ -21,7 +21,10 @@ export function MenuTemplate({
   watermarkText,
 }: Props) {
   return (
-    <main className="mx-auto max-w-lg px-4 py-6 sm:px-6" aria-label={`Menu de ${snapshot.restaurantName}`}>
+    <main
+      className="mx-auto max-w-lg px-4 py-6 sm:px-6"
+      aria-label={`Menu de ${snapshot.restaurantName}`}
+    >
       <h1 className="mb-6 text-2xl font-bold">{snapshot.restaurantName}</h1>
       <div className="space-y-8">
         {snapshot.categories.map((category) => (

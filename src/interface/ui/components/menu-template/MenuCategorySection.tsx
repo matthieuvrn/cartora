@@ -9,27 +9,15 @@ type Props = {
   badgeLabels: Record<"NEW" | "POPULAR", string>;
 };
 
-export function MenuCategorySection({
-  category,
-  locale,
-  categoryLabels,
-  badgeLabels,
-}: Props) {
+export function MenuCategorySection({ category, locale, categoryLabels, badgeLabels }: Props) {
   if (category.items.length === 0) return null;
 
   return (
     <section>
-      <h2 className="mb-2 text-lg font-semibold">
-        {categoryLabels[category.type]}
-      </h2>
+      <h2 className="mb-2 text-lg font-semibold">{categoryLabels[category.type]}</h2>
       <ul className="divide-y" role="list">
         {category.items.map((item) => (
-          <MenuItemRow
-            key={item.nameFr}
-            item={item}
-            locale={locale}
-            badgeLabels={badgeLabels}
-          />
+          <MenuItemRow key={item.nameFr} item={item} locale={locale} badgeLabels={badgeLabels} />
         ))}
       </ul>
     </section>

@@ -31,9 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const snapshot = await getSnapshotBySlug(slug);
 
   return {
-    title: snapshot
-      ? `${snapshot.restaurantName} | Cartora`
-      : "Menu | Cartora",
+    title: snapshot ? `${snapshot.restaurantName} | Cartora` : "Menu | Cartora",
   };
 }
 

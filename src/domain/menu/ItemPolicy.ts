@@ -30,16 +30,13 @@ export class ItemPolicy {
   }
 
   static validateBadge(value: string): string | null {
-    if (!VALID_BADGES.includes(value))
-      return `Badge invalide : ${value}`;
+    if (!VALID_BADGES.includes(value)) return `Badge invalide : ${value}`;
     return null;
   }
 
   static sanitizeName(value: string): string {
     const trimmed = value.trim();
-    return trimmed.length > MAX_ITEM_NAME_LENGTH
-      ? trimmed.slice(0, MAX_ITEM_NAME_LENGTH)
-      : trimmed;
+    return trimmed.length > MAX_ITEM_NAME_LENGTH ? trimmed.slice(0, MAX_ITEM_NAME_LENGTH) : trimmed;
   }
 
   static sanitizeDescription(value: string): string {

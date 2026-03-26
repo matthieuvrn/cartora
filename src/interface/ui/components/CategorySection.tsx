@@ -4,18 +4,9 @@ import { startTransition, useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import type { MenuCategoryData } from "@/domain/menu/MenuTypes";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardAction,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  reorderItemsAction,
-  type ItemActionState,
-} from "@/app/(app)/app/actions";
+import { reorderItemsAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ItemCard } from "./ItemCard";
 import { ItemFormDialog } from "./ItemFormDialog";
 
@@ -27,12 +18,9 @@ export function CategorySection({ category }: Props) {
   const t = useTranslations("Dashboard");
   const [createOpen, setCreateOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
-  const wrappedReorder = useCallback(
-    async (prev: ItemActionState, formData: FormData) => {
-      return reorderItemsAction(prev, formData);
-    },
-    [],
-  );
+  const wrappedReorder = useCallback(async (prev: ItemActionState, formData: FormData) => {
+    return reorderItemsAction(prev, formData);
+  }, []);
   const [reorderState, reorderAction, isReordering] = useActionState(
     wrappedReorder,
     reorderInitialState,
@@ -69,9 +57,7 @@ export function CategorySection({ category }: Props) {
       </CardHeader>
       <CardContent>
         {category.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4">
-            {t("emptyCategory")}
-          </p>
+          <p className="text-sm text-muted-foreground py-4">{t("emptyCategory")}</p>
         ) : (
           <div className="space-y-3">
             {category.items.map((item, index) => (
@@ -80,7 +66,9 @@ export function CategorySection({ category }: Props) {
                 item={item}
                 categoryId={category.id}
                 onMoveUp={index > 0 ? () => handleMove(index, "up") : undefined}
-                onMoveDown={index < category.items.length - 1 ? () => handleMove(index, "down") : undefined}
+                onMoveDown={
+                  index < category.items.length - 1 ? () => handleMove(index, "down") : undefined
+                }
                 isReordering={isReordering}
               />
             ))}

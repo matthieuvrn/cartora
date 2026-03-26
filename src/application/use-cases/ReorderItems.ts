@@ -14,6 +14,10 @@ export class ReorderItems {
       throw new Error("La liste des items ne peut pas être vide");
     }
 
-    await this.repo.reorderItems({ categoryId: input.categoryId, restaurantId: input.restaurantId, itemIds: input.itemIds });
+    await this.repo.reorderItems({
+      categoryId: input.categoryId,
+      restaurantId: input.restaurantId,
+      itemIds: input.itemIds,
+    });
   }
 }

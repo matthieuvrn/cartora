@@ -58,13 +58,7 @@ export default function SignupPage() {
 
           <div className="space-y-1">
             <Label htmlFor="email">{t("email")}</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-            />
+            <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
 
           <div className="space-y-1">

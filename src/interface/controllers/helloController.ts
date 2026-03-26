@@ -1,4 +1,4 @@
-import type {GetHello, GetHelloInput, GetHelloOutput} from '@/application/use-cases/GetHello';
+import type { GetHello, GetHelloInput, GetHelloOutput } from "@/application/use-cases/GetHello";
 
 export async function getHelloViewModel(
   uc: GetHello,

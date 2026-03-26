@@ -2,9 +2,7 @@ import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 
 export interface RestaurantRepository {
-  findByOwnerUserId(
-    ownerUserId: string
-  ): Promise<{ id: string } | null>;
+  findByOwnerUserId(ownerUserId: string): Promise<{ id: string } | null>;
 
   createWithMenuAndCategories(params: {
     ownerUserId: string;
@@ -13,9 +11,7 @@ export interface RestaurantRepository {
     categories: InitialCategory[];
   }): Promise<{ id: string }>;
 
-  getRestaurantById(
-    id: string,
-  ): Promise<{
+  getRestaurantById(id: string): Promise<{
     id: string;
     slug: string;
     displayName: string;

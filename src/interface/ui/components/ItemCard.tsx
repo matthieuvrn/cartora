@@ -13,10 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  deleteItemAction,
-  type ItemActionState,
-} from "@/app/(app)/app/actions";
+import { deleteItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ItemFormDialog } from "./ItemFormDialog";
 
 type Props = {
@@ -42,13 +39,7 @@ const badgeConfig: Record<
   POPULAR: { icon: Flame, className: "bg-orange-100 text-orange-700" },
 };
 
-function BadgeChip({
-  badge,
-  label,
-}: {
-  badge: Exclude<ItemBadge, "NONE">;
-  label: string;
-}) {
+function BadgeChip({ badge, label }: { badge: Exclude<ItemBadge, "NONE">; label: string }) {
   const config = badgeConfig[badge];
   const Icon = config.icon;
   return (
@@ -68,18 +59,12 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const wrappedDelete = useCallback(
-    async (prev: ItemActionState, formData: FormData) => {
-      const result = await deleteItemAction(prev, formData);
-      if (result.success) setDeleteOpen(false);
-      return result;
-    },
-    [],
-  );
-  const [deleteState, deleteAction, isDeleting] = useActionState(
-    wrappedDelete,
-    deleteInitialState,
-  );
+  const wrappedDelete = useCallback(async (prev: ItemActionState, formData: FormData) => {
+    const result = await deleteItemAction(prev, formData);
+    if (result.success) setDeleteOpen(false);
+    return result;
+  }, []);
+  const [deleteState, deleteAction, isDeleting] = useActionState(wrappedDelete, deleteInitialState);
 
   function handleEdit() {
     setEditKey((k) => k + 1);
@@ -117,14 +102,9 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
         )}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium truncate">
-              {item.translations.fr.name}
-            </span>
+            <span className="font-medium truncate">{item.translations.fr.name}</span>
             {item.badge !== "NONE" && (
-              <BadgeChip
-                badge={item.badge}
-                label={t(`badge.${item.badge}`)}
-              />
+              <BadgeChip badge={item.badge} label={t(`badge.${item.badge}`)} />
             )}
             <span
               className={`inline-block size-2 shrink-0 rounded-full ${
@@ -134,9 +114,7 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
             />
           </div>
           {item.translations.en.name && (
-            <p className="text-sm text-muted-foreground truncate">
-              {item.translations.en.name}
-            </p>
+            <p className="text-sm text-muted-foreground truncate">{item.translations.en.name}</p>
           )}
           {item.translations.fr.description && (
             <p className="text-sm text-foreground/80 line-clamp-2">
@@ -146,15 +124,8 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-semibold tabular-nums">
-            {formatPrice(item.priceCents)}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label={t("editItem")}
-            onClick={handleEdit}
-          >
+          <span className="text-sm font-semibold tabular-nums">{formatPrice(item.priceCents)}</span>
+          <Button variant="ghost" size="icon-xs" aria-label={t("editItem")} onClick={handleEdit}>
             <Pencil />
           </Button>
           <Button
@@ -182,20 +153,14 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
           <DialogHeader>
             <DialogTitle>{t("deleteItem")}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            {t("confirmDelete")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("confirmDelete")}</p>
           {deleteState.error && (
             <p role="alert" className="text-sm text-destructive">
               {t(`error.${deleteState.error}`)}
             </p>
           )}
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDeleteOpen(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
               {t("cancel")}
             </Button>
             <form action={deleteAction}>

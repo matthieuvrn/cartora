@@ -26,10 +26,7 @@ function getValidationError(email: unknown, password: unknown): string | null {
 
 // ─── Actions ───
 
-export async function loginAction(
-  _prev: AuthState,
-  formData: FormData,
-): Promise<AuthState> {
+export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = formData.get("email");
   const password = formData.get("password");
 
@@ -54,10 +51,7 @@ export async function loginAction(
   redirect("/app");
 }
 
-export async function signupAction(
-  _prev: AuthState,
-  formData: FormData,
-): Promise<AuthState> {
+export async function signupAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = formData.get("email");
   const password = formData.get("password");
 

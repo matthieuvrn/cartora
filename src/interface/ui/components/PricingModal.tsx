@@ -10,12 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   open: boolean;
@@ -49,7 +44,10 @@ export function PricingModal({ open, onOpenChange }: Props) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           {[freePlan, proPlan].map((plan) => (
-            <Card key={plan.name} className={`flex flex-col ${plan.current ? "border-muted" : "border-primary"}`}>
+            <Card
+              key={plan.name}
+              className={`flex flex-col ${plan.current ? "border-muted" : "border-primary"}`}
+            >
               <CardHeader>
                 <CardTitle>{plan.name}</CardTitle>
                 <p className="text-2xl font-bold">{plan.price}</p>

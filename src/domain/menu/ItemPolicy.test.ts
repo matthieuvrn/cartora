@@ -43,9 +43,7 @@ describe("ItemPolicy", () => {
     });
 
     it("accepts description at max length", () => {
-      expect(
-        ItemPolicy.validateDescription("a".repeat(MAX_ITEM_DESCRIPTION_LENGTH)),
-      ).toBeNull();
+      expect(ItemPolicy.validateDescription("a".repeat(MAX_ITEM_DESCRIPTION_LENGTH))).toBeNull();
     });
 
     it("rejects description exceeding max length", () => {
@@ -117,9 +115,7 @@ describe("ItemPolicy", () => {
 
     it("truncates at max length", () => {
       const long = "a".repeat(MAX_ITEM_DESCRIPTION_LENGTH + 50);
-      expect(ItemPolicy.sanitizeDescription(long)).toHaveLength(
-        MAX_ITEM_DESCRIPTION_LENGTH,
-      );
+      expect(ItemPolicy.sanitizeDescription(long)).toHaveLength(MAX_ITEM_DESCRIPTION_LENGTH);
     });
   });
 });
