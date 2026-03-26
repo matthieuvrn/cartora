@@ -28,5 +28,6 @@ export type MenuOverview = {
   menuId: string;
   restaurantId: string;
   status: "DRAFT" | "PUBLISHED";
+  publishedAt: string | null;
   categories: MenuCategoryData[];
 };

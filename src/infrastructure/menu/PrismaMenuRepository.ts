@@ -15,6 +15,7 @@ export class PrismaMenuRepository implements MenuRepository {
         id: true,
         restaurantId: true,
         status: true,
+        publishedAt: true,
         categories: {
           orderBy: { order: "asc" },
           select: {
@@ -69,6 +70,7 @@ export class PrismaMenuRepository implements MenuRepository {
       menuId: menu.id,
       restaurantId: menu.restaurantId,
       status: menu.status,
+      publishedAt: menu.publishedAt?.toISOString() ?? null,
       categories: menu.categories.map((cat) => ({
         id: cat.id,
         type: cat.type,
@@ -186,6 +188,13 @@ export class PrismaMenuRepository implements MenuRepository {
 
   async getNextItemOrder(categoryId: string): Promise<number> {
     return this.db.item.count({ where: { categoryId } });
+  }
+
+  async markMenuAsDraft(restaurantId: string): Promise<void> {
+    await this.db.menu.update({
+      where: { restaurantId },
+      data: { status: "DRAFT" },
+    });
   }
 
   async updateMenuStatus(

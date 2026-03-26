@@ -11,6 +11,7 @@ function createMockRepo(): MenuRepository {
     reorderItems: vi.fn(async () => {}),
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
+    markMenuAsDraft: async () => {},
   };
 }
 

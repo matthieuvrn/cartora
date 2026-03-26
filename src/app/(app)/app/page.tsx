@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { logout } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
@@ -8,6 +9,7 @@ import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository
 import { prisma } from "@/infrastructure/db/prisma";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
+import { publishMenuAction } from "./actions";
 
 export default async function AppPage() {
   const supabase = await createSupabaseServerClient();
@@ -27,6 +29,11 @@ export default async function AppPage() {
   const getMenu = new GetMenuForDashboard(menuRepo);
   const menu = await getMenu.execute({ restaurantId });
 
+  const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
+  if (!restaurant) redirect("/login");
+
+  const t = await getTranslations("Dashboard");
+
   return (
     <main className="min-h-screen bg-muted/40">
       <header className="border-b bg-background px-6 py-4 flex items-center justify-between">
@@ -35,14 +42,20 @@ export default async function AppPage() {
           <p className="text-sm text-muted-foreground">{user.email}</p>
           <form action={logout}>
             <Button variant="ghost" size="sm" type="submit">
-              Se déconnecter
+              {t("logout")}
             </Button>
           </form>
         </div>
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <MenuDashboard menu={menu} />
+        <MenuDashboard
+          menu={menu}
+          restaurantName={restaurant.displayName}
+          planStatus={restaurant.planStatus}
+          slug={restaurant.slug}
+          publishAction={publishMenuAction}
+        />
       </div>
     </main>
   );

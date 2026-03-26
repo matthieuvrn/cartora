@@ -11,6 +11,7 @@ function createMockRepo(): MenuRepository {
     reorderItems: async () => {},
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
+    markMenuAsDraft: async () => {},
   };
 }
 

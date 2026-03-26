@@ -34,6 +34,7 @@ function makeMenu(overrides: Partial<MenuOverview> = {}): MenuOverview {
     menuId: "menu-1",
     restaurantId: "resto-1",
     status: "DRAFT",
+    publishedAt: null,
     categories: [makeCategory()],
     ...overrides,
   };

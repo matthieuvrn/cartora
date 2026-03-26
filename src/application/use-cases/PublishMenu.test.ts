@@ -18,6 +18,7 @@ const MENU_FIXTURE: MenuOverview = {
   menuId: "menu-1",
   restaurantId: "resto-1",
   status: "DRAFT",
+  publishedAt: null,
   categories: [
     {
       id: "cat-1",
@@ -54,6 +55,7 @@ function createMockMenuRepo(
     reorderItems: async () => {},
     getNextItemOrder: async () => 0,
     updateMenuStatus: vi.fn(async () => {}),
+    markMenuAsDraft: async () => {},
     ...overrides,
   };
 }

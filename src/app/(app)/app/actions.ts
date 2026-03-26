@@ -9,6 +9,10 @@ import { CreateItem } from "@/application/use-cases/CreateItem";
 import { UpdateItem } from "@/application/use-cases/UpdateItem";
 import { DeleteItem } from "@/application/use-cases/DeleteItem";
 import { ReorderItems } from "@/application/use-cases/ReorderItems";
+import { PublishMenu } from "@/application/use-cases/PublishMenu";
+import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
+import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
+import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
 
 // ─── State ──────────────────────────────────────────────────────────────────
@@ -17,6 +21,10 @@ export type ItemActionState = {
   error: string | null;
   fieldErrors?: Record<string, string>;
   success?: boolean;
+};
+
+export type PublishActionState = {
+  error: string | null;
 };
 
 // ─── Schemas Zod v4 ─────────────────────────────────────────────────────────
@@ -122,6 +130,7 @@ export async function createItemAction(
       translations: parsed.data.translations,
     });
 
+    await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
@@ -174,6 +183,7 @@ export async function updateItemAction(
       translations: parsed.data.translations,
     });
 
+    await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
@@ -204,6 +214,7 @@ export async function deleteItemAction(
       restaurantId,
     });
 
+    await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
@@ -246,10 +257,32 @@ export async function reorderItemsAction(
       itemIds: parsed.data.itemIds,
     });
 
+    await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
     console.error("[reorderItems]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}
+
+export async function publishMenuAction(
+  _prev: PublishActionState,
+): Promise<PublishActionState> {
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const snapshotRepo = new PrismaSnapshotRepository(prisma);
+    const clock = new SystemClock();
+    const useCase = new PublishMenu(menuRepo, restaurantRepo, snapshotRepo, clock);
+
+    await useCase.execute({ restaurantId });
+
+    revalidatePath("/app");
+    return { error: null };
+  } catch (e) {
+    console.error("[publishMenu]", e);
     return { error: e instanceof Error ? e.message : "generic" };
   }
 }

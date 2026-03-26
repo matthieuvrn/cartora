@@ -57,11 +57,53 @@
     "moveDown": "Descendre",
     "emptyCategory": "Aucun item dans cette catégorie",
     "confirmDelete": "Supprimer cet item ? Cette action est irréversible.",
+    "publish": "Publier",
+    "preview": "Aperçu",
+    "previewTitle": "Aperçu du menu",
+    "logout": "Se déconnecter",
+    "publicLinkTitle": "Votre menu est en ligne",
+    "publicLinkLabel": "Voir le menu",
+    "status": {
+      "DRAFT": "Brouillon",
+      "PUBLISHED": "Publié"
+    },
     "error": {
       "nameRequired": "Le nom est obligatoire",
       "priceTooHigh": "Le prix dépasse le maximum autorisé",
       "invalidBadge": "Badge invalide",
+      "publishFailed": "La publication a échoué, réessayez",
       "generic": "Une erreur est survenue, réessayez"
     }
+  },
+  "PublicMenu": {
+    "category": {
+      "STARTERS": "Entrées",
+      "MAINS": "Plats",
+      "DESSERTS": "Desserts",
+      "DRINKS": "Boissons"
+    },
+    "badge": {
+      "NEW": "Nouveau",
+      "POPULAR": "Populaire"
+    },
+    "notFound": "Menu introuvable",
+    "notFoundDescription": "Ce menu n'existe pas ou n'a pas encore été publié.",
+    "watermark": "Propulsé par Cartora"
+  },
+  "Pricing": {
+    "title": "Choisissez votre plan",
+    "description": "Publiez votre carte en ligne et partagez-la via QR code.",
+    "free": {
+      "name": "Gratuit",
+      "price": "0 €",
+      "features": ["Créer votre carte", "Aperçu avec watermark", "Items illimités"]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "9,99 € / mois",
+      "features": ["Publication en ligne", "QR code personnalisé", "Sans watermark", "Support prioritaire"]
+    },
+    "cta": "Choisir",
+    "comingSoon": "Bientôt disponible"
   }
 }

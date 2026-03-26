@@ -44,4 +44,6 @@ export interface MenuRepository {
     status: "DRAFT" | "PUBLISHED",
     publishedAt: string,
   ): Promise<void>;
+
+  markMenuAsDraft(restaurantId: string): Promise<void>;
 }

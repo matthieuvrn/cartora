@@ -57,11 +57,53 @@
     "moveDown": "Move down",
     "emptyCategory": "No items in this category",
     "confirmDelete": "Delete this item? This action cannot be undone.",
+    "publish": "Publish",
+    "preview": "Preview",
+    "previewTitle": "Menu preview",
+    "logout": "Log out",
+    "publicLinkTitle": "Your menu is live",
+    "publicLinkLabel": "View menu",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published"
+    },
     "error": {
       "nameRequired": "Name is required",
       "priceTooHigh": "Price exceeds the maximum allowed",
       "invalidBadge": "Invalid badge",
+      "publishFailed": "Publishing failed, please try again",
       "generic": "Something went wrong, please try again"
     }
+  },
+  "PublicMenu": {
+    "category": {
+      "STARTERS": "Starters",
+      "MAINS": "Mains",
+      "DESSERTS": "Desserts",
+      "DRINKS": "Drinks"
+    },
+    "badge": {
+      "NEW": "New",
+      "POPULAR": "Popular"
+    },
+    "notFound": "Menu not found",
+    "notFoundDescription": "This menu does not exist or has not been published yet.",
+    "watermark": "Powered by Cartora"
+  },
+  "Pricing": {
+    "title": "Choose your plan",
+    "description": "Publish your menu online and share it via QR code.",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "features": ["Create your menu", "Preview with watermark", "Unlimited items"]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$9.99 / month",
+      "features": ["Online publication", "Custom QR code", "No watermark", "Priority support"]
+    },
+    "cta": "Choose",
+    "comingSoon": "Coming soon"
   }
 }
