@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import { GetPublicMenu } from "@/application/use-cases/GetPublicMenu";
+import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { CategoryType } from "@/domain/menu/MenuTypes";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { MenuTemplate } from "@/interface/ui/components/menu-template";
 
+export const revalidate = 3600;
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-function createGetPublicMenu() {
-  const snapshotRepo = new PrismaSnapshotRepository(prisma);
-  return new GetPublicMenu(snapshotRepo);
+function getSnapshotBySlug(slug: string): Promise<PublicMenuSnapshot | null> {
+  return unstable_cache(
+    async () => {
+      const snapshotRepo = new PrismaSnapshotRepository(prisma);
+      const getPublicMenu = new GetPublicMenu(snapshotRepo);
+      return getPublicMenu.execute({ slug });
+    },
+    [`public-menu-${slug}`],
+    { tags: [`public-menu-${slug}`] },
+  )();
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const getPublicMenu = createGetPublicMenu();
-  const snapshot = await getPublicMenu.execute({ slug });
+  const snapshot = await getSnapshotBySlug(slug);
 
   return {
     title: snapshot
@@ -29,8 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicMenuPage({ params }: Props) {
   const { slug } = await params;
-  const getPublicMenu = createGetPublicMenu();
-  const snapshot = await getPublicMenu.execute({ slug });
+  const snapshot = await getSnapshotBySlug(slug);
 
   const locale = (await getLocale()) as "fr" | "en";
   const t = await getTranslations("PublicMenu");

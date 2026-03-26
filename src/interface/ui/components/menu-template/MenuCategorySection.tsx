@@ -22,10 +22,10 @@ export function MenuCategorySection({
       <h2 className="mb-2 text-lg font-semibold">
         {categoryLabels[category.type]}
       </h2>
-      <ul className="divide-y">
-        {category.items.map((item, index) => (
+      <ul className="divide-y" role="list">
+        {category.items.map((item) => (
           <MenuItemRow
-            key={index}
+            key={item.nameFr}
             item={item}
             locale={locale}
             badgeLabels={badgeLabels}

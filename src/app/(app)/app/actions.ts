@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
@@ -277,8 +277,9 @@ export async function publishMenuAction(
     const clock = new SystemClock();
     const useCase = new PublishMenu(menuRepo, restaurantRepo, snapshotRepo, clock);
 
-    await useCase.execute({ restaurantId });
+    const { slug } = await useCase.execute({ restaurantId });
 
+    revalidateTag(`public-menu-${slug}`, "default");
     revalidatePath("/app");
     return { error: null };
   } catch (e) {

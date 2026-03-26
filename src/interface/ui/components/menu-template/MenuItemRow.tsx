@@ -23,6 +23,19 @@ function formatPrice(cents: number, locale: "fr" | "en"): string {
   }).format(cents / 100);
 }
 
+function formatPriceAria(cents: number, locale: "fr" | "en"): string {
+  const euros = Math.floor(cents / 100);
+  const remaining = cents % 100;
+  if (locale === "fr") {
+    return remaining > 0
+      ? `${euros} euros ${remaining}`
+      : `${euros} euros`;
+  }
+  return remaining > 0
+    ? `${euros} euros ${remaining} cents`
+    : `${euros} euros`;
+}
+
 function getLocalizedText(
   fr: string,
   en: string,
@@ -52,7 +65,7 @@ export function MenuItemRow({ item, locale, badgeLabels }: Props) {
               <span
                 className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}
               >
-                <Icon className="size-3" />
+                <Icon className="size-3" aria-hidden="true" />
                 {badgeLabels[item.badge]}
               </span>
             );
@@ -62,7 +75,10 @@ export function MenuItemRow({ item, locale, badgeLabels }: Props) {
           <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
-      <span className="shrink-0 pt-0.5 text-sm font-semibold tabular-nums">
+      <span
+        className="shrink-0 pt-0.5 text-sm font-semibold tabular-nums"
+        aria-label={formatPriceAria(item.priceCents, locale)}
+      >
         {formatPrice(item.priceCents, locale)}
       </span>
     </li>
