@@ -14,6 +14,10 @@ import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRe
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
+import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
+import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
+import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
+import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -282,6 +286,18 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
     const useCase = new PublishMenu(menuRepo, restaurantRepo, snapshotRepo, clock);
 
     const { slug } = await useCase.execute({ restaurantId });
+
+    // QR code generation — non-blocking for publish success
+    try {
+      const qrGenerator = new NodeQrCodeGenerator();
+      const storageService = new SupabaseStorageService();
+      const qrAssetRepo = new PrismaQrAssetRepository(prisma);
+      const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
+      const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}`;
+      await generateQr.execute({ restaurantId, slug, menuUrl });
+    } catch (qrError) {
+      console.error("[publishMenu] QR generation failed:", qrError);
+    }
 
     revalidateTag(`public-menu-${slug}`, "default");
     revalidatePath("/app");
