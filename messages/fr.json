@@ -72,6 +72,10 @@
       "description": "Scannez ce QR code pour accéder à votre menu",
       "download": "Télécharger"
     },
+    "checkoutSuccessTitle": "Bienvenue sur Pro !",
+    "checkoutSuccessDescription": "Votre abonnement est actif. Vous pouvez maintenant publier votre carte.",
+    "checkoutCancelTitle": "Paiement annulé",
+    "checkoutCancelDescription": "Votre paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
     "error": {
       "nameRequired": "Le nom est obligatoire",
       "priceTooHigh": "Le prix dépasse le maximum autorisé",
@@ -95,6 +99,18 @@
     "notFoundDescription": "Ce menu n'existe pas ou n'a pas encore été publié.",
     "watermark": "Propulsé par Cartora"
   },
+  "Billing": {
+    "freeBadge": "Gratuit",
+    "freeDescription": "Passez au plan Pro pour publier votre carte.",
+    "activeDescription": "Votre abonnement Pro est actif.",
+    "manageSubscription": "Gérer mon abonnement",
+    "pastDueTitle": "Paiement en échec",
+    "pastDueDescription": "Votre dernier paiement a échoué. Mettez à jour vos informations de paiement.",
+    "updatePayment": "Mettre à jour",
+    "canceledBadge": "Annulé",
+    "canceledDescription": "Votre abonnement a été annulé.",
+    "resubscribe": "Se réabonner"
+  },
   "Pricing": {
     "title": "Choisissez votre plan",
     "description": "Publiez votre carte en ligne et partagez-la via QR code.",
@@ -113,7 +129,6 @@
         "Support prioritaire"
       ]
     },
-    "cta": "Choisir",
-    "comingSoon": "Bientôt disponible"
+    "cta": "Choisir"
   }
 }

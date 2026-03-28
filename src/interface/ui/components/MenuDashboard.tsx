@@ -10,6 +10,7 @@ import { CategorySection } from "./CategorySection";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
 import { QrCodeCard } from "./QrCodeCard";
+import { BillingStatus } from "./BillingStatus";
 
 type Props = {
   menu: MenuOverview;
@@ -18,6 +19,7 @@ type Props = {
   slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   qrCodeUrl: string | null;
+  hasBilling: boolean;
 };
 
 export function MenuDashboard({
@@ -27,6 +29,7 @@ export function MenuDashboard({
   slug,
   publishAction,
   qrCodeUrl,
+  hasBilling,
 }: Props) {
   const t = useTranslations("Dashboard");
 
@@ -46,6 +49,8 @@ export function MenuDashboard({
           </span>
         </div>
       </div>
+
+      <BillingStatus planStatus={planStatus} hasBilling={hasBilling} />
 
       {menu.publishedAt !== null && (
         <Alert>

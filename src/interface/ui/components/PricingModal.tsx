@@ -1,7 +1,9 @@
 "use client";
 
+import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { createCheckoutAction } from "@/app/(app)/app/billing-actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -61,18 +63,30 @@ export function PricingModal({ open, onOpenChange }: Props) {
                     </li>
                   ))}
                 </ul>
-                <Button
-                  className="mt-auto w-full pt-4"
-                  variant={plan.current ? "outline" : "default"}
-                  disabled
-                >
-                  {plan.current ? t("cta") : t("comingSoon")}
-                </Button>
+                {plan.current ? (
+                  <Button className="mt-auto w-full pt-4" variant="outline" disabled>
+                    {t("cta")}
+                  </Button>
+                ) : (
+                  <form action={createCheckoutAction}>
+                    <CheckoutButton label={t("cta")} />
+                  </form>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CheckoutButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <Button className="mt-auto w-full pt-4" type="submit" disabled={pending}>
+      {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
+      {label}
+    </Button>
   );
 }

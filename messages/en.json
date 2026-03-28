@@ -72,6 +72,10 @@
       "description": "Scan this QR code to access your menu",
       "download": "Download"
     },
+    "checkoutSuccessTitle": "Welcome to Pro!",
+    "checkoutSuccessDescription": "Your subscription is active. You can now publish your menu.",
+    "checkoutCancelTitle": "Checkout cancelled",
+    "checkoutCancelDescription": "Your checkout was cancelled. You can try again anytime.",
     "error": {
       "nameRequired": "Name is required",
       "priceTooHigh": "Price exceeds the maximum allowed",
@@ -95,6 +99,18 @@
     "notFoundDescription": "This menu does not exist or has not been published yet.",
     "watermark": "Powered by Cartora"
   },
+  "Billing": {
+    "freeBadge": "Free",
+    "freeDescription": "Upgrade to Pro to publish your menu.",
+    "activeDescription": "Your Pro subscription is active.",
+    "manageSubscription": "Manage subscription",
+    "pastDueTitle": "Payment failed",
+    "pastDueDescription": "Your last payment failed. Please update your payment information.",
+    "updatePayment": "Update payment",
+    "canceledBadge": "Canceled",
+    "canceledDescription": "Your subscription has been canceled.",
+    "resubscribe": "Resubscribe"
+  },
   "Pricing": {
     "title": "Choose your plan",
     "description": "Publish your menu online and share it via QR code.",
@@ -108,7 +124,6 @@
       "price": "$9.99 / month",
       "features": ["Online publication", "Custom QR code", "No watermark", "Priority support"]
     },
-    "cta": "Choose",
-    "comingSoon": "Coming soon"
+    "cta": "Choose"
   }
 }
