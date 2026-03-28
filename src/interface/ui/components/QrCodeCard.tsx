@@ -20,7 +20,14 @@ export function QrCodeCard({ qrCodeUrl }: Props) {
         <CardDescription>{t("qrCode.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">
-        <Image src={qrCodeUrl} alt="QR Code" width={192} height={192} className="rounded-md" unoptimized />
+        <Image
+          src={qrCodeUrl}
+          alt="QR Code"
+          width={192}
+          height={192}
+          className="rounded-md"
+          unoptimized
+        />
         <Button variant="outline" size="sm" asChild>
           <a href={qrCodeUrl} download="qr-code.png">
             <Download />
