@@ -25,6 +25,7 @@
       "otp_expired": "Ton lien de confirmation a expiré.",
       "auth_callback_failed": "La confirmation a échoué. Réessaie.",
       "resend_success": "Un nouveau lien t'a été envoyé !",
+      "rate_limited": "Trop de tentatives, réessaie dans quelques minutes",
       "generic": "Une erreur est survenue, réessayez"
     }
   },

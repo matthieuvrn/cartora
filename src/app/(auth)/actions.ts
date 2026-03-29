@@ -42,8 +42,11 @@ export async function loginAction(_prev: AuthState, formData: FormData): Promise
   });
 
   if (error) {
-    if (error.message.toLowerCase().includes("email not confirmed")) {
+    if (error.code === "email_not_confirmed") {
       return { error: "email_not_confirmed" };
+    }
+    if (error.code === "over_request_rate_limit" || error.code === "over_email_send_rate_limit") {
+      return { error: "rate_limited" };
     }
     return { error: "invalid_credentials" };
   }
@@ -61,7 +64,7 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: email as string,
     password: password as string,
     options: {
@@ -71,10 +74,19 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
 
   if (error) {
     console.error("[signupAction]", error);
-    if (error.message.toLowerCase().includes("already registered")) {
+    if (error.code === "user_already_exists") {
       return { error: "user_already_exists" };
     }
+    if (error.code === "over_request_rate_limit" || error.code === "over_email_send_rate_limit") {
+      return { error: "rate_limited" };
+    }
     return { error: "generic" };
+  }
+
+  // Supabase returns fake success with empty identities for duplicate emails
+  // when email confirmation is enabled (to prevent email enumeration)
+  if (data.user && data.user.identities?.length === 0) {
+    return { error: "user_already_exists" };
   }
 
   return { error: null, success: true };
@@ -97,6 +109,9 @@ export async function resendConfirmationAction(
 
   if (error) {
     console.error("[resendConfirmationAction]", error);
+    if (error.code === "over_request_rate_limit" || error.code === "over_email_send_rate_limit") {
+      return { error: "rate_limited" };
+    }
     return { error: "generic" };
   }
 
