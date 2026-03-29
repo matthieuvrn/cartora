@@ -67,7 +67,7 @@ export default async function AppPage({
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-8">
-        {checkout === "success" && (
+        {checkout === "success" && restaurant.planStatus === "ACTIVE" && (
           <Alert className="mb-6">
             <CircleCheck className="size-4" />
             <AlertTitle>{t("checkoutSuccessTitle")}</AlertTitle>
