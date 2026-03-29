@@ -65,6 +65,7 @@ function createMockRestaurantRepo(
     findByOwnerUserId: async () => null,
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => RESTAURANT_FIXTURE,
+    updateDisplayName: async () => {},
     ...overrides,
   };
 }

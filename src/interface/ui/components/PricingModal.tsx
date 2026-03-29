@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 type Props = {
   open: boolean;
@@ -21,20 +21,6 @@ type Props = {
 
 export function PricingModal({ open, onOpenChange }: Props) {
   const t = useTranslations("Pricing");
-
-  const freePlan = {
-    name: t("free.name"),
-    price: t("free.price"),
-    features: t.raw("free.features") as string[],
-    current: true,
-  };
-
-  const proPlan = {
-    name: t("pro.name"),
-    price: t("pro.price"),
-    features: t.raw("pro.features") as string[],
-    current: false,
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -45,36 +31,67 @@ export function PricingModal({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {[freePlan, proPlan].map((plan) => (
-            <Card
-              key={plan.name}
-              className={`flex flex-col ${plan.current ? "border-muted" : "border-primary"}`}
-            >
-              <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
-                <p className="text-2xl font-bold">{plan.price}</p>
-              </CardHeader>
-              <CardContent className="flex flex-1 flex-col">
-                <ul className="space-y-2 text-sm">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
-                      <Check className="size-4 text-primary" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                {plan.current ? (
-                  <Button className="mt-auto w-full pt-4" variant="outline" disabled>
-                    {t("cta")}
-                  </Button>
-                ) : (
-                  <form action={createCheckoutAction}>
-                    <CheckoutButton label={t("cta")} />
-                  </form>
+          {/* Gratuit */}
+          <Card className="flex flex-col border-muted">
+            <CardHeader>
+              <CardTitle className="text-lg">{t("free.name")}</CardTitle>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-3xl font-bold tracking-tight">{t("free.price")}</span>
+              </div>
+            </CardHeader>
+
+            <CardContent className="flex-1">
+              <ul className="space-y-3 text-sm">
+                {(t.raw("free.features") as string[]).map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
+                    <Check className="size-4 shrink-0 text-muted-foreground" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+
+            <CardFooter>
+              <Button className="w-full" variant="outline" disabled>
+                {t("ctaCurrent")}
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Pro */}
+          <Card className="relative flex flex-col border-primary shadow-md">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{t("pro.name")}</CardTitle>
+                <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                  {t("popular")}
+                </span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-3xl font-bold tracking-tight">{t("pro.price")}</span>
+                {t("pro.period") && (
+                  <span className="text-sm text-muted-foreground">{t("pro.period")}</span>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            </CardHeader>
+
+            <CardContent className="flex-1">
+              <ul className="space-y-3 text-sm">
+                {(t.raw("pro.features") as string[]).map((feature) => (
+                  <li key={feature} className="flex items-center gap-2">
+                    <Check className="size-4 shrink-0 text-primary" />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+
+            <CardFooter>
+              <form action={createCheckoutAction} className="w-full">
+                <CheckoutButton label={t("ctaChoose")} />
+              </form>
+            </CardFooter>
+          </Card>
         </div>
       </DialogContent>
     </Dialog>
@@ -84,7 +101,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
 function CheckoutButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button className="mt-auto w-full pt-4" type="submit" disabled={pending}>
+    <Button className="w-full" type="submit" disabled={pending}>
       {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
       {label}
     </Button>

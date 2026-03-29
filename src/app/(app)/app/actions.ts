@@ -14,6 +14,8 @@ import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRe
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
+import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
+import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
 import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
@@ -29,6 +31,11 @@ export type ItemActionState = {
 
 export type PublishActionState = {
   error: string | null;
+};
+
+export type RenameActionState = {
+  error: string | null;
+  success?: boolean;
 };
 
 // ─── Schemas Zod v4 ─────────────────────────────────────────────────────────
@@ -72,6 +79,10 @@ const DeleteItemSchema = z.object({
 const ReorderItemsSchema = z.object({
   categoryId: z.uuid(),
   itemIds: z.array(z.uuid()).min(1),
+});
+
+const RenameRestaurantSchema = z.object({
+  displayName: z.string().min(1).max(MAX_DISPLAY_NAME_LENGTH),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -304,6 +315,39 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
     return { error: null };
   } catch (e) {
     console.error("[publishMenu]", e);
+    return { error: e instanceof Error ? e.message : "generic" };
+  }
+}
+
+export async function renameRestaurantAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  const parsed = RenameRestaurantSchema.safeParse({
+    displayName: formData.get("displayName"),
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const useCase = new RenameRestaurant(restaurantRepo);
+
+    await useCase.execute({
+      restaurantId,
+      displayName: parsed.data.displayName,
+    });
+
+    const menuRepo = new PrismaMenuRepository(prisma);
+    await menuRepo.markMenuAsDraft(restaurantId);
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    console.error("[renameRestaurant]", e);
     return { error: e instanceof Error ? e.message : "generic" };
   }
 }

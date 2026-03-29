@@ -76,7 +76,12 @@
     "checkoutSuccessDescription": "Votre abonnement est actif. Vous pouvez maintenant publier votre carte.",
     "checkoutCancelTitle": "Paiement annulé",
     "checkoutCancelDescription": "Votre paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
+    "editName": "Modifier le nom",
+    "saveName": "Enregistrer",
+    "cancelEdit": "Annuler",
+    "namePlaceholder": "Nom de votre restaurant",
     "error": {
+      "renameRequired": "Le nom du restaurant est obligatoire",
       "nameRequired": "Le nom est obligatoire",
       "priceTooHigh": "Le prix dépasse le maximum autorisé",
       "invalidBadge": "Badge invalide",
@@ -114,14 +119,17 @@
   "Pricing": {
     "title": "Choisissez votre plan",
     "description": "Publiez votre carte en ligne et partagez-la via QR code.",
+    "popular": "Populaire",
     "free": {
       "name": "Gratuit",
       "price": "0 €",
+      "period": "",
       "features": ["Créer votre carte", "Aperçu avec watermark", "Items illimités"]
     },
     "pro": {
       "name": "Pro",
-      "price": "9,99 € / mois",
+      "price": "29,90 €",
+      "period": "/ mois",
       "features": [
         "Publication en ligne",
         "QR code personnalisé",
@@ -129,6 +137,7 @@
         "Support prioritaire"
       ]
     },
-    "cta": "Choisir"
+    "ctaCurrent": "Plan actuel",
+    "ctaChoose": "Choisir"
   }
 }

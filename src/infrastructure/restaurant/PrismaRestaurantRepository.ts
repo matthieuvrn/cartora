@@ -85,6 +85,12 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       planStatus: restaurant.planStatus as PlanStatus,
     };
   }
+  async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: params.restaurantId },
+      data: { displayName: params.displayName },
+    });
+  }
 }
 
 function randomSuffix(): string {

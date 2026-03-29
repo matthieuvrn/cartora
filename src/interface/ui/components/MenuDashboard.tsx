@@ -7,6 +7,7 @@ import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PublishActionState } from "@/app/(app)/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CategorySection } from "./CategorySection";
+import { EditableRestaurantName } from "./EditableRestaurantName";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
 import { QrCodeCard } from "./QrCodeCard";
@@ -36,7 +37,10 @@ export function MenuDashboard({
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{t("title")}</h2>
+        <div className="space-y-1">
+          <EditableRestaurantName currentName={restaurantName} />
+          <p className="text-sm text-muted-foreground">{t("title")}</p>
+        </div>
         <div className="flex items-center gap-2">
           <PreviewDialog menu={menu} restaurantName={restaurantName} planStatus={planStatus} />
           <PublishButton

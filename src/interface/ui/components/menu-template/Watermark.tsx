@@ -5,10 +5,10 @@ type Props = {
 export function Watermark({ text }: Props) {
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex items-center justify-center bg-black/60 py-2"
+      className="pointer-events-none mt-8 flex items-center justify-center rounded-lg bg-muted py-2.5"
       aria-hidden="true"
     >
-      <span className="text-sm font-medium text-white">{text}</span>
+      <span className="text-xs font-medium text-muted-foreground">{text}</span>
     </div>
   );
 }

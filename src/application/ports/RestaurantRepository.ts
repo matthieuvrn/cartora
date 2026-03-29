@@ -17,4 +17,6 @@ export interface RestaurantRepository {
     displayName: string;
     planStatus: PlanStatus;
   } | null>;
+
+  updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
 }

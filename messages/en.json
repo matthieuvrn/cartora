@@ -76,7 +76,12 @@
     "checkoutSuccessDescription": "Your subscription is active. You can now publish your menu.",
     "checkoutCancelTitle": "Checkout cancelled",
     "checkoutCancelDescription": "Your checkout was cancelled. You can try again anytime.",
+    "editName": "Edit name",
+    "saveName": "Save",
+    "cancelEdit": "Cancel",
+    "namePlaceholder": "Your restaurant name",
     "error": {
+      "renameRequired": "Restaurant name is required",
       "nameRequired": "Name is required",
       "priceTooHigh": "Price exceeds the maximum allowed",
       "invalidBadge": "Invalid badge",
@@ -114,16 +119,20 @@
   "Pricing": {
     "title": "Choose your plan",
     "description": "Publish your menu online and share it via QR code.",
+    "popular": "Popular",
     "free": {
       "name": "Free",
       "price": "$0",
+      "period": "",
       "features": ["Create your menu", "Preview with watermark", "Unlimited items"]
     },
     "pro": {
       "name": "Pro",
-      "price": "$9.99 / month",
+      "price": "$29.90",
+      "period": "/ month",
       "features": ["Online publication", "Custom QR code", "No watermark", "Priority support"]
     },
-    "cta": "Choose"
+    "ctaCurrent": "Current plan",
+    "ctaChoose": "Choose"
   }
 }

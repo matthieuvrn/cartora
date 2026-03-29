@@ -55,7 +55,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
           <DialogTitle>{mode === "create" ? t("addItem") : t("editItem")}</DialogTitle>
         </DialogHeader>
 
-        <form action={formAction} className="space-y-4">
+        <form action={formAction} className="space-y-5">
           <input type="hidden" name="categoryId" value={categoryId} />
           {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
 
@@ -65,78 +65,98 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
             </p>
           )}
 
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
-            <Input
-              id={`${id}-nameFr`}
-              name="nameFr"
-              required
-              defaultValue={item?.translations.fr.name ?? ""}
-              aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
-            />
-            {state.fieldErrors?.["translations.fr.name"] && (
-              <p className="text-xs text-destructive">
-                {state.fieldErrors["translations.fr.name"]}
-              </p>
-            )}
-          </div>
+          {/* FR fields */}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-muted-foreground">Français</legend>
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
+              <Input
+                id={`${id}-nameFr`}
+                name="nameFr"
+                required
+                placeholder="ex: Spaghetti Carbonara"
+                defaultValue={item?.translations.fr.name ?? ""}
+                aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
+              />
+              {state.fieldErrors?.["translations.fr.name"] && (
+                <p className="text-xs text-destructive">
+                  {state.fieldErrors["translations.fr.name"]}
+                </p>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
+              <Textarea
+                id={`${id}-descFr`}
+                name="descriptionFr"
+                placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
+                defaultValue={item?.translations.fr.description ?? ""}
+              />
+            </div>
+          </fieldset>
 
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
-            <Textarea
-              id={`${id}-descFr`}
-              name="descriptionFr"
-              defaultValue={item?.translations.fr.description ?? ""}
-            />
-          </div>
+          {/* EN fields */}
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-muted-foreground">English</legend>
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
+              <Input
+                id={`${id}-nameEn`}
+                name="nameEn"
+                placeholder="ex: Spaghetti Carbonara"
+                defaultValue={item?.translations.en.name ?? ""}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
+              <Textarea
+                id={`${id}-descEn`}
+                name="descriptionEn"
+                placeholder="ex: Fresh pasta, pancetta, parmesan..."
+                defaultValue={item?.translations.en.description ?? ""}
+              />
+            </div>
+          </fieldset>
 
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
-            <Input
-              id={`${id}-nameEn`}
-              name="nameEn"
-              defaultValue={item?.translations.en.name ?? ""}
-            />
-          </div>
+          {/* Price + Badge row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-price`}>{t("price")}</Label>
+              <div className="relative">
+                <Input
+                  id={`${id}-price`}
+                  name="priceEur"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  className="pr-8"
+                  placeholder="0.00"
+                  defaultValue={item ? (item.priceCents / 100).toFixed(2) : ""}
+                  aria-invalid={!!state.fieldErrors?.priceEur}
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  €
+                </span>
+              </div>
+              {state.fieldErrors?.priceEur && (
+                <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
+              )}
+            </div>
 
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
-            <Textarea
-              id={`${id}-descEn`}
-              name="descriptionEn"
-              defaultValue={item?.translations.en.description ?? ""}
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-price`}>{t("price")}</Label>
-            <Input
-              id={`${id}-price`}
-              name="priceEur"
-              type="number"
-              step="0.01"
-              min="0"
-              required
-              defaultValue={item ? (item.priceCents / 100).toFixed(2) : ""}
-              aria-invalid={!!state.fieldErrors?.priceEur}
-            />
-            {state.fieldErrors?.priceEur && (
-              <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
-            <Select name="badge" defaultValue={item?.badge ?? "NONE"}>
-              <SelectTrigger id={`${id}-badge`} className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
-                <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
-                <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
+              <Select name="badge" defaultValue={item?.badge ?? "NONE"}>
+                <SelectTrigger id={`${id}-badge`} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
+                  <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
+                  <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {mode === "edit" && (
