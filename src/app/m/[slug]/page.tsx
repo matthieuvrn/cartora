@@ -14,7 +14,7 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-function getSnapshotBySlug(slug: string): Promise<PublicMenuSnapshot | null> {
+async function getSnapshotBySlug(slug: string): Promise<PublicMenuSnapshot | null> {
   return unstable_cache(
     async () => {
       const snapshotRepo = new PrismaSnapshotRepository(prisma);
@@ -22,7 +22,10 @@ function getSnapshotBySlug(slug: string): Promise<PublicMenuSnapshot | null> {
       return getPublicMenu.execute({ slug });
     },
     [`public-menu-${slug}`],
-    { tags: [`public-menu-${slug}`] },
+    {
+      tags: [`public-menu-${slug}`],
+      revalidate: 3600,
+    },
   )();
 }
 

@@ -18,14 +18,11 @@ export function EditableRestaurantName({ currentName }: Props) {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const wrappedAction = useCallback(
-    async (prev: RenameActionState, formData: FormData) => {
-      const result = await renameRestaurantAction(prev, formData);
-      if (result.success) setEditing(false);
-      return result;
-    },
-    [],
-  );
+  const wrappedAction = useCallback(async (prev: RenameActionState, formData: FormData) => {
+    const result = await renameRestaurantAction(prev, formData);
+    if (result.success) setEditing(false);
+    return result;
+  }, []);
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
 
   if (!editing) {
