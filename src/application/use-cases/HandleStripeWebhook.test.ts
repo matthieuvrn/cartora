@@ -46,7 +46,7 @@ describe("HandleStripeWebhook", () => {
 
     const result = await useCase.execute(VALID_INPUT);
 
-    expect(result).toEqual({ status: "processed" });
+    expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
     expect(billingRepo.upsertBilling).toHaveBeenCalledWith({
       restaurantId: "resto-1",
       stripeCustomerId: "cus_abc123",
@@ -66,7 +66,7 @@ describe("HandleStripeWebhook", () => {
 
     const result = await useCase.execute({ ...VALID_INPUT, eventType: "invoice.payment_failed" });
 
-    expect(result).toEqual({ status: "processed" });
+    expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
     expect(billingRepo.updatePlanStatus).toHaveBeenCalledWith("resto-1", "PAST_DUE");
   });
 
@@ -84,7 +84,7 @@ describe("HandleStripeWebhook", () => {
       eventType: "customer.subscription.deleted",
     });
 
-    expect(result).toEqual({ status: "processed" });
+    expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
     expect(billingRepo.updatePlanStatus).toHaveBeenCalledWith("resto-1", "CANCELED");
   });
 

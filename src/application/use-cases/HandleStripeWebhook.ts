@@ -9,10 +9,9 @@ export type HandleStripeWebhookInput = {
   restaurantId: string;
 };
 
-export type HandleStripeWebhookOutput = {
-  status: "processed" | "skipped";
-  reason?: string;
-};
+export type HandleStripeWebhookOutput =
+  | { status: "processed"; slug: string }
+  | { status: "skipped"; reason?: string };
 
 export class HandleStripeWebhook {
   constructor(
@@ -44,6 +43,6 @@ export class HandleStripeWebhook {
 
     await this.billingRepo.updatePlanStatus(input.restaurantId, resolved.status);
 
-    return { status: "processed" };
+    return { status: "processed", slug: restaurant.slug };
   }
 }

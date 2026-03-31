@@ -103,6 +103,8 @@
     },
     "notFound": "Menu introuvable",
     "notFoundDescription": "Ce menu n'existe pas ou n'a pas encore été publié.",
+    "unavailable": "Menu indisponible",
+    "unavailableDescription": "Ce menu n'est plus disponible pour le moment.",
     "watermark": "Propulsé par Cartora"
   },
   "Billing": {

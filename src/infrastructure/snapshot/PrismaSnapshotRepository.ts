@@ -1,5 +1,6 @@
 import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PrismaClient, Prisma } from "@/generated/prisma/client";
 
 export class PrismaSnapshotRepository implements SnapshotRepository {
@@ -32,10 +33,18 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
 
   async getSnapshotBySlug(
     slug: string,
-  ): Promise<{ snapshotData: PublicMenuSnapshot; publishedAt: string } | null> {
+  ): Promise<{
+    snapshotData: PublicMenuSnapshot;
+    publishedAt: string;
+    planStatus: PlanStatus;
+  } | null> {
     const row = await this.db.menuPublicSnapshot.findUnique({
       where: { slug },
-      select: { snapshotData: true, publishedAt: true },
+      select: {
+        snapshotData: true,
+        publishedAt: true,
+        restaurant: { select: { planStatus: true } },
+      },
     });
 
     if (!row || !row.publishedAt) return null;
@@ -43,6 +52,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
     return {
       snapshotData: row.snapshotData as unknown as PublicMenuSnapshot,
       publishedAt: row.publishedAt.toISOString(),
+      planStatus: row.restaurant.planStatus as PlanStatus,
     };
   }
 }
