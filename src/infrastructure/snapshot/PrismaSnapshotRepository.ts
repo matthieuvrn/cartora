@@ -31,9 +31,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
     });
   }
 
-  async getSnapshotBySlug(
-    slug: string,
-  ): Promise<{
+  async getSnapshotBySlug(slug: string): Promise<{
     snapshotData: PublicMenuSnapshot;
     publishedAt: string;
     planStatus: PlanStatus;

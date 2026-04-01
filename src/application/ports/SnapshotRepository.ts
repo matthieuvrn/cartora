@@ -12,5 +12,9 @@ export interface SnapshotRepository {
 
   getSnapshotBySlug(
     slug: string,
-  ): Promise<{ snapshotData: PublicMenuSnapshot; publishedAt: string; planStatus: PlanStatus } | null>;
+  ): Promise<{
+    snapshotData: PublicMenuSnapshot;
+    publishedAt: string;
+    planStatus: PlanStatus;
+  } | null>;
 }
