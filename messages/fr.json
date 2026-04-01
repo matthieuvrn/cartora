@@ -142,5 +142,26 @@
     },
     "ctaCurrent": "Plan actuel",
     "ctaChoose": "Choisir"
+  },
+  "Stats": {
+    "title": "Statistiques",
+    "totalViews": "Vues totales",
+    "last7Days": "7 derniers jours",
+    "views": "vues",
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Ordinateur",
+      "TABLET": "Tablette"
+    },
+    "source": {
+      "QR": "QR code",
+      "DIRECT": "Direct",
+      "LINK": "Lien"
+    },
+    "locale": {
+      "fr": "Français",
+      "en": "Anglais"
+    },
+    "empty": "Aucune vue pour le moment"
   }
 }

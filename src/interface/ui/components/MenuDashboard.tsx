@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { DashboardStats } from "@/domain/analytics/AnalyticsTypes";
 import type { PublishActionState } from "@/app/(app)/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CategorySection } from "./CategorySection";
@@ -12,6 +13,7 @@ import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
 import { QrCodeCard } from "./QrCodeCard";
 import { BillingStatus } from "./BillingStatus";
+import { StatsCard } from "./StatsCard";
 
 type Props = {
   menu: MenuOverview;
@@ -21,6 +23,7 @@ type Props = {
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   qrCodeUrl: string | null;
   hasBilling: boolean;
+  stats?: DashboardStats;
 };
 
 export function MenuDashboard({
@@ -31,6 +34,7 @@ export function MenuDashboard({
   publishAction,
   qrCodeUrl,
   hasBilling,
+  stats,
 }: Props) {
   const t = useTranslations("Dashboard");
 
@@ -74,6 +78,8 @@ export function MenuDashboard({
       )}
 
       {menu.publishedAt !== null && qrCodeUrl !== null && <QrCodeCard qrCodeUrl={qrCodeUrl} />}
+
+      <StatsCard stats={stats} />
 
       {menu.categories.map((category) => (
         <CategorySection key={category.id} category={category} />

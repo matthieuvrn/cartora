@@ -304,7 +304,7 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
       const storageService = new SupabaseStorageService();
       const qrAssetRepo = new PrismaQrAssetRepository(prisma);
       const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
-      const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}`;
+      const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}?utm_source=qr`;
       await generateQr.execute({ restaurantId, slug, menuUrl });
     } catch (qrError) {
       console.error("[publishMenu] QR generation failed:", qrError);

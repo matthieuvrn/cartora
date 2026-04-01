@@ -137,5 +137,26 @@
     },
     "ctaCurrent": "Current plan",
     "ctaChoose": "Choose"
+  },
+  "Stats": {
+    "title": "Statistics",
+    "totalViews": "Total views",
+    "last7Days": "Last 7 days",
+    "views": "views",
+    "device": {
+      "MOBILE": "Mobile",
+      "DESKTOP": "Desktop",
+      "TABLET": "Tablet"
+    },
+    "source": {
+      "QR": "QR code",
+      "DIRECT": "Direct",
+      "LINK": "Link"
+    },
+    "locale": {
+      "fr": "French",
+      "en": "English"
+    },
+    "empty": "No views yet"
   }
 }

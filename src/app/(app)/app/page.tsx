@@ -10,8 +10,11 @@ import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRe
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
+import { PrismaAnalyticsRepository } from "@/infrastructure/analytics/PrismaAnalyticsRepository";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
+import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
+import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { publishMenuAction } from "./actions";
@@ -49,6 +52,11 @@ export default async function AppPage({
   const billingRepo = new PrismaBillingRepository(prisma);
   const billing = await billingRepo.findByRestaurantId(restaurantId);
   const hasBilling = billing !== null;
+
+  const analyticsRepo = new PrismaAnalyticsRepository(prisma);
+  const clock = new SystemClock();
+  const getDashboardStats = new GetDashboardStats(analyticsRepo, clock);
+  const stats = await getDashboardStats.execute({ restaurantId });
 
   const t = await getTranslations("Dashboard");
 
@@ -89,6 +97,7 @@ export default async function AppPage({
           publishAction={publishMenuAction}
           qrCodeUrl={qrCodeUrl}
           hasBilling={hasBilling}
+          stats={stats}
         />
       </div>
     </main>
