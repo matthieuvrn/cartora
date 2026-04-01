@@ -154,8 +154,8 @@
       "LINK": "Link"
     },
     "locale": {
-      "fr": "French",
-      "en": "English"
+      "FR": "French",
+      "EN": "English"
     },
     "empty": "No views yet"
   }

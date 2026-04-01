@@ -159,8 +159,8 @@
       "LINK": "Lien"
     },
     "locale": {
-      "fr": "Français",
-      "en": "Anglais"
+      "FR": "Français",
+      "EN": "Anglais"
     },
     "empty": "Aucune vue pour le moment"
   }

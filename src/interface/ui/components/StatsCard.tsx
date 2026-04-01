@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { DashboardStats, DeviceType, ViewSource } from "@/domain/analytics/AnalyticsTypes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -10,6 +10,7 @@ type Props = {
 
 export function StatsCard({ stats }: Props) {
   const t = useTranslations("Stats");
+  const locale = useLocale();
 
   if (!stats || stats.totalViews === 0) {
     return (
@@ -50,7 +51,7 @@ export function StatsCard({ stats }: Props) {
                 style={{ height: `${Math.max((day.count / maxCount) * 100, 2)}%` }}
               />
               <span className="text-[10px] text-muted-foreground">
-                {new Date(day.date + "T00:00:00").toLocaleDateString(undefined, {
+                {new Date(day.date + "T00:00:00").toLocaleDateString(locale, {
                   weekday: "short",
                 })}
               </span>
