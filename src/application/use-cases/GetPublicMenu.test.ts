@@ -27,6 +27,7 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
   return {
     upsertSnapshot: async () => {},
     getSnapshotBySlug: async () => ({
+      restaurantId: "resto-1",
       snapshotData: SNAPSHOT_FIXTURE,
       publishedAt: "2026-03-25T12:00:00.000Z",
       planStatus: "ACTIVE" as const,

@@ -32,6 +32,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
   }
 
   async getSnapshotBySlug(slug: string): Promise<{
+    restaurantId: string;
     snapshotData: PublicMenuSnapshot;
     publishedAt: string;
     planStatus: PlanStatus;
@@ -39,6 +40,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
     const row = await this.db.menuPublicSnapshot.findUnique({
       where: { slug },
       select: {
+        restaurantId: true,
         snapshotData: true,
         publishedAt: true,
         restaurant: { select: { planStatus: true } },
@@ -48,6 +50,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
     if (!row || !row.publishedAt) return null;
 
     return {
+      restaurantId: row.restaurantId,
       snapshotData: row.snapshotData as unknown as PublicMenuSnapshot,
       publishedAt: row.publishedAt.toISOString(),
       planStatus: row.restaurant.planStatus as PlanStatus,

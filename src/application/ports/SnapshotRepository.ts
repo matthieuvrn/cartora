@@ -10,9 +10,8 @@ export interface SnapshotRepository {
     publishedAt: string;
   }): Promise<void>;
 
-  getSnapshotBySlug(
-    slug: string,
-  ): Promise<{
+  getSnapshotBySlug(slug: string): Promise<{
+    restaurantId: string;
     snapshotData: PublicMenuSnapshot;
     publishedAt: string;
     planStatus: PlanStatus;
