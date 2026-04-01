@@ -57,6 +57,22 @@ enum EntityType {
   @@map("entity_type")
 }
 
+enum DeviceType {
+  MOBILE
+  DESKTOP
+  TABLET
+
+  @@map("device_type")
+}
+
+enum ViewSource {
+  QR
+  DIRECT
+  LINK
+
+  @@map("view_source")
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model Restaurant {
@@ -74,7 +90,9 @@ model Restaurant {
   categories   Category[]
   items        Item[]
   translations Translation[]
-  snapshots    MenuPublicSnapshot[]
+  snapshots          MenuPublicSnapshot[]
+  menuViewEvents     MenuViewEvent[]
+  menuViewDailyStats MenuViewDailyStat[]
 
   @@map("restaurants")
 }
@@ -189,4 +207,36 @@ model MenuPublicSnapshot {
 
   @@index([menuId])
   @@map("menu_public_snapshots")
+}
+
+model MenuViewEvent {
+  id           String     @id @default(uuid()) @db.Uuid
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  slug         String
+  locale       Locale
+  deviceType   DeviceType @map("device_type")
+  source       ViewSource
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId, createdAt])
+  @@index([createdAt])
+  @@map("menu_view_events")
+}
+
+model MenuViewDailyStat {
+  id           String     @id @default(uuid()) @db.Uuid
+  restaurantId String     @map("restaurant_id") @db.Uuid
+  date         DateTime   @db.Date
+  locale       Locale
+  deviceType   DeviceType @map("device_type")
+  source       ViewSource
+  viewCount    Int        @default(0) @map("view_count")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, date, locale, deviceType, source])
+  @@index([restaurantId, date])
+  @@map("menu_view_daily_stats")
 }
