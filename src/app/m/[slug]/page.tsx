@@ -7,7 +7,7 @@ import type { CategoryType } from "@/domain/menu/MenuTypes";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
-import { MenuTemplate } from "@/interface/ui/components/menu-template";
+import { MenuTemplate, TrackingBeacon } from "@/interface/ui/components/menu-template";
 
 export const revalidate = 3600;
 
@@ -77,12 +77,15 @@ export default async function PublicMenuPage({ params }: Props) {
   };
 
   return (
-    <MenuTemplate
-      snapshot={result.snapshot}
-      locale={locale}
-      showWatermark={PublicationPolicy.shouldShowWatermark(result.planStatus)}
-      categoryLabels={categoryLabels}
-      badgeLabels={badgeLabels}
-    />
+    <>
+      <MenuTemplate
+        snapshot={result.snapshot}
+        locale={locale}
+        showWatermark={PublicationPolicy.shouldShowWatermark(result.planStatus)}
+        categoryLabels={categoryLabels}
+        badgeLabels={badgeLabels}
+      />
+      <TrackingBeacon slug={slug} locale={locale} />
+    </>
   );
 }
