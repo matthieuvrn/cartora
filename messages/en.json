@@ -157,6 +157,12 @@
       "FR": "French",
       "EN": "English"
     },
-    "empty": "No views yet"
+    "empty": "No views yet",
+    "topDevice": "Top device",
+    "topSource": "Top source",
+    "chartTitle": "Daily views",
+    "deviceBreakdown": "By device",
+    "sourceBreakdown": "By source",
+    "localeBreakdown": "By language"
   }
 }

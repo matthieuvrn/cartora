@@ -1,18 +1,46 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { Eye, Monitor, QrCode, Smartphone, Tablet, Globe, Link2 } from "lucide-react";
 import type { DashboardStats, DeviceType, ViewSource } from "@/domain/analytics/AnalyticsTypes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { KpiCard } from "./stats/KpiCard";
+import { ViewsChart } from "./stats/ViewsChart";
+import { BreakdownSection } from "./stats/BreakdownSection";
 
 type Props = {
   stats?: DashboardStats;
 };
 
+const CHART_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
+
+const DEVICE_ICONS = { MOBILE: Smartphone, DESKTOP: Monitor, TABLET: Tablet } as const;
+const SOURCE_ICONS = { QR: QrCode, DIRECT: Globe, LINK: Link2 } as const;
+const DEVICE_KEYS: DeviceType[] = ["MOBILE", "DESKTOP", "TABLET"];
+const SOURCE_KEYS: ViewSource[] = ["QR", "DIRECT", "LINK"];
+
+function topEntry<K extends string>(record: Record<K, number>): K | null {
+  let best: K | null = null;
+  let max = 0;
+  for (const [key, count] of Object.entries(record) as [K, number][]) {
+    if (count > max) {
+      best = key;
+      max = count;
+    }
+  }
+  return best;
+}
+
 export function StatsCard({ stats }: Props) {
   const t = useTranslations("Stats");
-  const locale = useLocale();
 
-  if (!stats || stats.totalViews === 0) {
+  if (!stats) {
     return (
       <Card>
         <CardHeader>
@@ -26,74 +54,102 @@ export function StatsCard({ stats }: Props) {
     );
   }
 
-  const maxCount = Math.max(...stats.viewsByDay.map((d) => d.count), 1);
+  const topDevice = topEntry(stats.byDevice);
+  const topSource = topEntry(stats.bySource);
 
-  const deviceKeys: DeviceType[] = ["MOBILE", "DESKTOP", "TABLET"];
-  const sourceKeys: ViewSource[] = ["QR", "DIRECT", "LINK"];
+  const deviceEntries = DEVICE_KEYS.filter((key) => (stats.byDevice[key] ?? 0) > 0)
+    .sort((a, b) => (stats.byDevice[b] ?? 0) - (stats.byDevice[a] ?? 0))
+    .map((key, i) => ({
+      label: t(`device.${key}`),
+      count: stats.byDevice[key] ?? 0,
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("title")}</CardTitle>
-        <CardDescription>{t("last7Days")}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div>
-          <span className="text-3xl font-bold">{stats.totalViews}</span>{" "}
-          <span className="text-sm text-muted-foreground">{t("views")}</span>
-        </div>
+  const sourceEntries = SOURCE_KEYS.filter((key) => (stats.bySource[key] ?? 0) > 0)
+    .sort((a, b) => (stats.bySource[b] ?? 0) - (stats.bySource[a] ?? 0))
+    .map((key, i) => ({
+      label: t(`source.${key}`),
+      count: stats.bySource[key] ?? 0,
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
 
-        <div className="flex items-end gap-2 h-24">
-          {stats.viewsByDay.map((day) => (
-            <div key={day.date} className="flex-1 flex flex-col items-center gap-1">
-              <div
-                className="w-full rounded-sm bg-primary"
-                style={{ height: `${Math.max((day.count / maxCount) * 100, 2)}%` }}
-              />
-              <span className="text-[10px] text-muted-foreground">
-                {new Date(day.date + "T00:00:00").toLocaleDateString(locale, {
-                  weekday: "short",
-                })}
-              </span>
-            </div>
-          ))}
-        </div>
+  const localeEntries = Object.entries(stats.byLocale)
+    .filter(([, count]) => count > 0)
+    .sort(([, a], [, b]) => b - a)
+    .map(([key, count], i) => ({
+      label: t(`locale.${key}`),
+      count,
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
 
-        <div className="space-y-3">
-          <BreakdownRow
-            entries={Object.entries(stats.byLocale)
-              .filter(([, count]) => count > 0)
-              .sort(([, a], [, b]) => b - a)
-              .map(([key, count]) => ({ label: t(`locale.${key}`), count }))}
-          />
-          <BreakdownRow
-            entries={deviceKeys
-              .filter((key) => (stats.byDevice[key] ?? 0) > 0)
-              .sort((a, b) => (stats.byDevice[b] ?? 0) - (stats.byDevice[a] ?? 0))
-              .map((key) => ({ label: t(`device.${key}`), count: stats.byDevice[key] ?? 0 }))}
-          />
-          <BreakdownRow
-            entries={sourceKeys
-              .filter((key) => (stats.bySource[key] ?? 0) > 0)
-              .sort((a, b) => (stats.bySource[b] ?? 0) - (stats.bySource[a] ?? 0))
-              .map((key) => ({ label: t(`source.${key}`), count: stats.bySource[key] ?? 0 }))}
-          />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function BreakdownRow({ entries }: { entries: { label: string; count: number }[] }) {
-  if (entries.length === 0) return null;
+  const hasBreakdowns =
+    deviceEntries.length > 0 || sourceEntries.length > 0 || localeEntries.length > 0;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      {entries.map((entry) => (
-        <span key={entry.label} className="rounded-full bg-secondary px-3 py-1 text-xs font-medium">
-          {entry.label} · {entry.count}
-        </span>
-      ))}
+    <div className="space-y-4">
+      {/* KPI row */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard
+          title={t("totalViews")}
+          value={stats.totalViews}
+          icon={Eye}
+          description={t("last7Days")}
+        />
+        <KpiCard
+          title={t("topDevice")}
+          value={topDevice ? t(`device.${topDevice}`) : "—"}
+          icon={topDevice ? DEVICE_ICONS[topDevice] : Monitor}
+        />
+        <KpiCard
+          title={t("topSource")}
+          value={topSource ? t(`source.${topSource}`) : "—"}
+          icon={topSource ? SOURCE_ICONS[topSource] : Globe}
+        />
+        <KpiCard
+          title={t("chartTitle")}
+          value={stats.viewsByDay.reduce((sum, d) => sum + d.count, 0)}
+          icon={Eye}
+          description={t("last7Days")}
+        />
+      </div>
+
+      {/* Area chart */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("chartTitle")}</CardTitle>
+          <CardDescription>{t("last7Days")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ViewsChart viewsByDay={stats.viewsByDay} />
+        </CardContent>
+      </Card>
+
+      {/* Breakdowns — only when there's data */}
+      {hasBreakdowns && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {deviceEntries.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <BreakdownSection title={t("deviceBreakdown")} entries={deviceEntries} />
+              </CardContent>
+            </Card>
+          )}
+          {sourceEntries.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <BreakdownSection title={t("sourceBreakdown")} entries={sourceEntries} />
+              </CardContent>
+            </Card>
+          )}
+          {localeEntries.length > 0 && (
+            <Card>
+              <CardContent className="p-4">
+                <BreakdownSection title={t("localeBreakdown")} entries={localeEntries} />
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 }

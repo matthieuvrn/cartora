@@ -162,6 +162,12 @@
       "FR": "Français",
       "EN": "Anglais"
     },
-    "empty": "Aucune vue pour le moment"
+    "empty": "Aucune vue pour le moment",
+    "topDevice": "Appareil principal",
+    "topSource": "Source principale",
+    "chartTitle": "Vues par jour",
+    "deviceBreakdown": "Par appareil",
+    "sourceBreakdown": "Par source",
+    "localeBreakdown": "Par langue"
   }
 }
