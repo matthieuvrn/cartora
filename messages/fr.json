@@ -143,6 +143,16 @@
     "ctaCurrent": "Plan actuel",
     "ctaChoose": "Choisir"
   },
+  "NotFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous cherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "Error": {
+    "title": "Une erreur est survenue",
+    "description": "Quelque chose s'est mal passé. Veuillez réessayer.",
+    "retry": "Réessayer"
+  },
   "Stats": {
     "title": "Statistiques",
     "totalViews": "Vues totales",
