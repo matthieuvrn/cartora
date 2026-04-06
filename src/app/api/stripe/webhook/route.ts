@@ -5,13 +5,15 @@ import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/infrastructure/db/prisma";
 import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
 import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
+import { PrismaWebhookEventRepository } from "@/infrastructure/billing/PrismaWebhookEventRepository";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { HandleStripeWebhook } from "@/application/use-cases/HandleStripeWebhook";
 
 const paymentGateway = new StripePaymentGateway();
 const billingRepo = new PrismaBillingRepository(prisma);
+const webhookEventRepo = new PrismaWebhookEventRepository(prisma);
 const restaurantRepo = new PrismaRestaurantRepository(prisma);
-const handleWebhook = new HandleStripeWebhook(billingRepo, restaurantRepo);
+const handleWebhook = new HandleStripeWebhook(billingRepo, restaurantRepo, webhookEventRepo);
 
 export async function POST(request: NextRequest) {
   const payload = await request.text();
@@ -40,6 +42,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await handleWebhook.execute({
+      stripeEventId: event.id,
       eventType: event.type,
       stripeCustomerId,
       stripeSubscriptionId,
