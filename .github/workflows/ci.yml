@@ -14,6 +14,9 @@ jobs:
       SENTRY_ORG: "dummy"
       SENTRY_PROJECT: "dummy"
       DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+      STRIPE_SECRET_KEY: "sk_test_dummy"
+      STRIPE_WEBHOOK_SECRET: "whsec_dummy"
+      STRIPE_PRICE_ID: "price_dummy"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
