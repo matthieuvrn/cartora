@@ -56,4 +56,18 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
       planStatus: row.restaurant.planStatus as PlanStatus,
     };
   }
+
+  async listPublished(): Promise<Array<{ slug: string; publishedAt: string }>> {
+    const rows = await this.db.menuPublicSnapshot.findMany({
+      where: {
+        publishedAt: { not: null },
+        restaurant: { planStatus: { not: "CANCELED" } },
+      },
+      select: { slug: true, publishedAt: true },
+      orderBy: { publishedAt: "desc" },
+    });
+    return rows
+      .filter((r) => r.publishedAt !== null)
+      .map((r) => ({ slug: r.slug, publishedAt: r.publishedAt!.toISOString() }));
+  }
 }

@@ -74,6 +74,7 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
   return {
     upsertSnapshot: vi.fn(async () => {}),
     getSnapshotBySlug: async () => null,
+    listPublished: async () => [],
     ...overrides,
   };
 }

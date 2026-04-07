@@ -32,6 +32,7 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
       publishedAt: "2026-03-25T12:00:00.000Z",
       planStatus: "ACTIVE" as const,
     }),
+    listPublished: async () => [],
     ...overrides,
   };
 }

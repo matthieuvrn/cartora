@@ -29,6 +29,7 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
   return {
     upsertSnapshot: async () => {},
     getSnapshotBySlug: async () => SNAPSHOT_FIXTURE,
+    listPublished: async () => [],
     ...overrides,
   };
 }

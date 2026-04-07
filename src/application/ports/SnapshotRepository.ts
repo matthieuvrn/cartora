@@ -16,4 +16,6 @@ export interface SnapshotRepository {
     publishedAt: string;
     planStatus: PlanStatus;
   } | null>;
+
+  listPublished(): Promise<Array<{ slug: string; publishedAt: string }>>;
 }
