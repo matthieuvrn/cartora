@@ -141,7 +141,66 @@
       ]
     },
     "ctaCurrent": "Plan actuel",
-    "ctaChoose": "Choisir"
+    "ctaChoose": "Choisir",
+    "ctaStartFree": "Commencer gratuitement",
+    "ctaStartPro": "Créer mon compte"
+  },
+  "Landing": {
+    "header": {
+      "login": "Se connecter",
+      "cta": "Créer ma carte"
+    },
+    "hero": {
+      "eyebrow": "Pour les restaurateurs indépendants",
+      "title": "Ta carte en ligne. En 5 minutes. Sans dev.",
+      "subtitle": "Crée ta carte numérique, génère ton QR code, mets à jour tes plats en un clic. Tes clients scannent, tes ventes décollent.",
+      "ctaPrimary": "Créer ma carte gratuitement",
+      "ctaSecondary": "Voir un exemple",
+      "trust": "Sans carte bancaire · Setup en 5 min · Annulable à tout moment"
+    },
+    "features": {
+      "title": "Tout ce qu'il te faut. Rien de plus.",
+      "editor": {
+        "title": "Éditeur ultra-simple",
+        "description": "Ajoute, modifie et réorganise tes plats en quelques clics. Aucune formation nécessaire."
+      },
+      "qr": {
+        "title": "QR code personnalisé",
+        "description": "Imprime ton QR code, colle-le sur tes tables, et c'est en ligne. Tes clients scannent, c'est tout."
+      },
+      "stats": {
+        "title": "Stats en temps réel",
+        "description": "Vois quels plats cartonnent, à quelle heure, depuis quel appareil. Prends les bonnes décisions."
+      }
+    },
+    "pricing": {
+      "title": "Des tarifs simples, sans surprise",
+      "subtitle": "Essaie gratuitement, passe Pro quand tu es prêt à publier."
+    },
+    "faq": {
+      "title": "Questions fréquentes",
+      "subtitle": "Tout ce qu'il faut savoir avant de te lancer",
+      "howItWorks": {
+        "q": "Comment ça fonctionne ?",
+        "a": "Crée un compte gratuit, ajoute tes plats, publie ta carte et partage-la via un QR code unique à imprimer sur tes tables."
+      },
+      "techSkills": {
+        "q": "Ai-je besoin de compétences techniques ?",
+        "a": "Non. L'interface est pensée pour les restaurateurs, pas pour les développeurs. Ta carte est prête en quelques minutes, sans la moindre ligne de code."
+      },
+      "commitment": {
+        "q": "Suis-je engagé ?",
+        "a": "Non. L'abonnement Pro est mensuel et résiliable à tout moment depuis ton espace de facturation, en un clic."
+      },
+      "itemsLimit": {
+        "q": "Combien de plats puis-je ajouter ?",
+        "a": "Illimité, même sur le plan gratuit. Ajoute autant d'entrées, plats, desserts et boissons que tu veux."
+      },
+      "watermark": {
+        "q": "Pourquoi un filigrane sur le plan gratuit ?",
+        "a": "Le plan gratuit te permet de créer et prévisualiser ta carte en toute liberté. Pour publier sans filigrane et obtenir ton QR code, passe au plan Pro."
+      }
+    }
   },
   "NotFound": {
     "title": "Page introuvable",
