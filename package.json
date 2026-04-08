@@ -14,7 +14,8 @@
     "test": "vitest run",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
-    "db:check": "tsx scripts/db-check.ts"
+    "db:check": "tsx scripts/db-check.ts",
+    "db:seed-demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
