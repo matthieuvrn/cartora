@@ -55,7 +55,14 @@ export function EditableRestaurantName({ currentName }: Props) {
         className="h-9 w-64 text-base font-bold"
         disabled={isPending}
       />
-      <Button type="submit" variant="ghost" size="icon" className="size-8" disabled={isPending}>
+      <Button
+        type="submit"
+        variant="ghost"
+        size="icon"
+        className="size-8"
+        disabled={isPending}
+        aria-label={t("saveName")}
+      >
         <Check className="size-4" />
       </Button>
       <Button
@@ -65,6 +72,7 @@ export function EditableRestaurantName({ currentName }: Props) {
         className="size-8"
         onClick={() => setEditing(false)}
         disabled={isPending}
+        aria-label={t("cancelEdit")}
       >
         <X className="size-4" />
       </Button>
