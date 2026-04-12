@@ -11,14 +11,47 @@ const analyticsRepo = new PrismaAnalyticsRepository(prisma);
 const snapshotRepo = new PrismaSnapshotRepository(prisma);
 const recordMenuView = new RecordMenuView(analyticsRepo, snapshotRepo);
 
+// --- Rate limiter in-memory (sliding window par IP) ---
+const WINDOW_MS = 60_000; // 1 minute
+const MAX_REQUESTS = 100; // max par IP par fenêtre
+
+const ipHits = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipHits.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    ipHits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > MAX_REQUESTS;
+}
+
+// Nettoyage périodique pour éviter les fuites mémoire
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of ipHits) {
+    if (now > entry.resetAt) ipHits.delete(ip);
+  }
+}, WINDOW_MS);
+
 const TrackBodySchema = z.object({
-  slug: z.string(),
-  locale: z.string().optional(),
-  source: z.string().optional(),
-  screenWidth: z.number().optional(),
+  slug: z.string().min(1).max(255),
+  locale: z.enum(["fr", "en", "FR", "EN"]).optional(),
+  source: z.enum(["qr"]).optional(),
+  screenWidth: z.number().int().min(0).max(16384).optional(),
 });
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const parsed = TrackBodySchema.safeParse(await request.json().catch(() => null));
 
   if (!parsed.success) {
@@ -33,7 +66,7 @@ export async function POST(request: NextRequest) {
     await recordMenuView.execute({
       slug,
       userAgent,
-      locale: locale ?? "fr",
+      locale: locale?.toLowerCase() ?? "fr",
       utmSource: source,
       referrer,
     });
