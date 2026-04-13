@@ -235,6 +235,12 @@
     "chartTitle": "Daily views",
     "deviceBreakdown": "By device",
     "sourceBreakdown": "By source",
-    "localeBreakdown": "By language"
+    "localeBreakdown": "By language",
+    "last60Min": "Last 60 minutes",
+    "last24h": "Last 24 hours",
+    "peakHour": "Peak hour",
+    "peakDay": "Busiest day",
+    "hourlyTitle": "Views by hour",
+    "hourlyDescription": "Hourly distribution (last 7 days)"
   }
 }

@@ -59,6 +59,14 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     ]);
   }
 
+  async getEventTimestamps(restaurantId: string, since: Date): Promise<{ createdAt: Date }[]> {
+    return this.prisma.menuViewEvent.findMany({
+      where: { restaurantId, createdAt: { gte: since } },
+      select: { createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+  }
+
   async getDailyStats(restaurantId: string, from: string, to: string): Promise<DailyStatRow[]> {
     const rows = await this.prisma.menuViewDailyStat.findMany({
       where: {

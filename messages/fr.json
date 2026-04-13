@@ -240,6 +240,12 @@
     "chartTitle": "Vues par jour",
     "deviceBreakdown": "Par appareil",
     "sourceBreakdown": "Par source",
-    "localeBreakdown": "Par langue"
+    "localeBreakdown": "Par langue",
+    "last60Min": "60 dernières minutes",
+    "last24h": "Dernières 24h",
+    "peakHour": "Heure de pointe",
+    "peakDay": "Jour de pointe",
+    "hourlyTitle": "Vues par heure",
+    "hourlyDescription": "Répartition horaire (7 derniers jours)"
   }
 }

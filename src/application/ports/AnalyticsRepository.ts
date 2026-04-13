@@ -10,4 +10,6 @@ export interface AnalyticsRepository {
   }): Promise<void>;
 
   getDailyStats(restaurantId: string, from: string, to: string): Promise<DailyStatRow[]>;
+
+  getEventTimestamps(restaurantId: string, since: Date): Promise<{ createdAt: Date }[]>;
 }

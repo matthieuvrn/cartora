@@ -13,10 +13,10 @@ export function KpiCard({ title, value, icon: Icon, description }: Props) {
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground">{title}</span>
-          <Icon className="size-4 text-muted-foreground" />
+          <span className="text-xs font-medium text-muted-foreground truncate">{title}</span>
+          <Icon className="size-4 shrink-0 text-muted-foreground" />
         </div>
-        <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
+        <p className="mt-2 text-2xl font-bold tabular-nums truncate">{value}</p>
         {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
       </CardContent>
     </Card>

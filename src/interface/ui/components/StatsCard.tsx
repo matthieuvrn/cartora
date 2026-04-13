@@ -1,15 +1,31 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { Eye, Monitor, QrCode, Smartphone, Tablet, Globe, Link2 } from "lucide-react";
-import type { DashboardStats, DeviceType, ViewSource } from "@/domain/analytics/AnalyticsTypes";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  Eye,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Clock,
+  Timer,
+  TrendingUp,
+  CalendarDays,
+} from "lucide-react";
+import type {
+  DashboardStats,
+  DeviceType,
+  RealtimeStats,
+  ViewSource,
+} from "@/domain/analytics/AnalyticsTypes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { KpiCard } from "./stats/KpiCard";
 import { ViewsChart } from "./stats/ViewsChart";
+import { HourlyChart } from "./stats/HourlyChart";
 import { BreakdownSection } from "./stats/BreakdownSection";
 
 type Props = {
   stats?: DashboardStats;
+  realtimeStats?: RealtimeStats;
 };
 
 const CHART_COLORS = [
@@ -21,7 +37,6 @@ const CHART_COLORS = [
 ];
 
 const DEVICE_ICONS = { MOBILE: Smartphone, DESKTOP: Monitor, TABLET: Tablet } as const;
-const SOURCE_ICONS = { QR: QrCode, DIRECT: Globe, LINK: Link2 } as const;
 const DEVICE_KEYS: DeviceType[] = ["MOBILE", "DESKTOP", "TABLET"];
 const SOURCE_KEYS: ViewSource[] = ["QR", "DIRECT", "LINK"];
 
@@ -37,8 +52,31 @@ function topEntry<K extends string>(record: Record<K, number>): K | null {
   return best;
 }
 
-export function StatsCard({ stats }: Props) {
+function formatPeakHour(hour: number, locale: string): string {
+  if (locale === "en") {
+    if (hour === 0) return "12 AM";
+    if (hour === 12) return "12 PM";
+    return hour < 12 ? `${hour} AM` : `${hour - 12} PM`;
+  }
+  return `${hour}h`;
+}
+
+function findPeakDay(viewsByDay: { date: string; count: number }[], locale: string): string | null {
+  let best: { date: string; count: number } | null = null;
+  for (const day of viewsByDay) {
+    if (!best || day.count > best.count) best = day;
+  }
+  if (!best || best.count === 0) return null;
+  return new Date(best.date + "T00:00:00").toLocaleDateString(locale, {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+  });
+}
+
+export function StatsCard({ stats, realtimeStats }: Props) {
   const t = useTranslations("Stats");
+  const locale = useLocale();
 
   if (!stats) {
     return (
@@ -55,7 +93,7 @@ export function StatsCard({ stats }: Props) {
   }
 
   const topDevice = topEntry(stats.byDevice);
-  const topSource = topEntry(stats.bySource);
+  const peakDay = findPeakDay(stats.viewsByDay, locale);
 
   const deviceEntries = DEVICE_KEYS.filter((key) => (stats.byDevice[key] ?? 0) > 0)
     .sort((a, b) => (stats.byDevice[b] ?? 0) - (stats.byDevice[a] ?? 0))
@@ -87,33 +125,32 @@ export function StatsCard({ stats }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <KpiCard
           title={t("totalViews")}
           value={stats.totalViews}
           icon={Eye}
           description={t("last7Days")}
         />
+        <KpiCard title={t("last24h")} value={realtimeStats?.viewsLast24h ?? "—"} icon={Timer} />
+        <KpiCard title={t("last60Min")} value={realtimeStats?.viewsLast60Min ?? "—"} icon={Clock} />
+        <KpiCard
+          title={t("peakHour")}
+          value={
+            realtimeStats?.peakHour != null ? formatPeakHour(realtimeStats.peakHour, locale) : "—"
+          }
+          icon={TrendingUp}
+        />
+        <KpiCard title={t("peakDay")} value={peakDay ?? "—"} icon={CalendarDays} />
         <KpiCard
           title={t("topDevice")}
           value={topDevice ? t(`device.${topDevice}`) : "—"}
           icon={topDevice ? DEVICE_ICONS[topDevice] : Monitor}
         />
-        <KpiCard
-          title={t("topSource")}
-          value={topSource ? t(`source.${topSource}`) : "—"}
-          icon={topSource ? SOURCE_ICONS[topSource] : Globe}
-        />
-        <KpiCard
-          title={t("chartTitle")}
-          value={stats.viewsByDay.reduce((sum, d) => sum + d.count, 0)}
-          icon={Eye}
-          description={t("last7Days")}
-        />
       </div>
 
-      {/* Area chart */}
+      {/* Area chart — daily views */}
       <Card>
         <CardHeader>
           <CardTitle>{t("chartTitle")}</CardTitle>
@@ -123,6 +160,22 @@ export function StatsCard({ stats }: Props) {
           <ViewsChart viewsByDay={stats.viewsByDay} />
         </CardContent>
       </Card>
+
+      {/* Bar chart — hourly distribution */}
+      {realtimeStats && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("hourlyTitle")}</CardTitle>
+            <CardDescription>{t("hourlyDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <HourlyChart
+              hourlyDistribution={realtimeStats.hourlyDistribution}
+              peakHour={realtimeStats.peakHour}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Breakdowns — only when there's data */}
       {hasBreakdowns && (

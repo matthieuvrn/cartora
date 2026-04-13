@@ -16,3 +16,15 @@ export interface DashboardStats {
   byDevice: Record<DeviceType, number>;
   bySource: Record<ViewSource, number>;
 }
+
+export interface HourlyCount {
+  hour: number; // 0-23
+  count: number;
+}
+
+export interface RealtimeStats {
+  viewsLast60Min: number;
+  viewsLast24h: number;
+  hourlyDistribution: HourlyCount[]; // 24 entries, aggregated over last 7 days
+  peakHour: number | null; // 0-23
+}

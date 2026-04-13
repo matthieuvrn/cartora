@@ -15,6 +15,7 @@ import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorage
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
 import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
+import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
@@ -59,6 +60,9 @@ export default async function AppPage({
   const getDashboardStats = new GetDashboardStats(analyticsRepo, clock);
   const stats = await getDashboardStats.execute({ restaurantId });
 
+  const getRealtimeStats = new GetRealtimeStats(analyticsRepo, clock);
+  const realtimeStats = await getRealtimeStats.execute({ restaurantId });
+
   const t = await getTranslations("Dashboard");
 
   return (
@@ -99,6 +103,7 @@ export default async function AppPage({
           qrCodeUrl={qrCodeUrl}
           hasBilling={hasBilling}
           stats={stats}
+          realtimeStats={realtimeStats}
         />
 
         <div className="mt-16 border-t pt-8">

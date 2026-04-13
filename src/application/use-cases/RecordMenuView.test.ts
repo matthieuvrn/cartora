@@ -21,6 +21,7 @@ function createMockAnalyticsRepo(
   return {
     recordView: vi.fn(async () => {}),
     getDailyStats: vi.fn(async () => []),
+    getEventTimestamps: vi.fn(async () => []),
     ...overrides,
   };
 }
