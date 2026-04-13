@@ -17,4 +17,6 @@ export interface PaymentGateway {
     returnUrl: string;
   }): Promise<{ url: string }>;
   verifyWebhookSignature(payload: string, signature: string): StripeWebhookEvent;
+  cancelSubscription(subscriptionId: string): Promise<void>;
+  deleteCustomer(customerId: string): Promise<void>;
 }

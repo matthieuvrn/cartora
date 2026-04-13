@@ -25,6 +25,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
+    delete: async () => {},
     ...overrides,
   };
 }
@@ -36,6 +37,8 @@ function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): Paym
     })),
     createPortalSession: async () => ({ url: "" }),
     verifyWebhookSignature: () => ({ id: "", type: "", created: 0, data: {} }),
+    cancelSubscription: async () => {},
+    deleteCustomer: async () => {},
     ...overrides,
   };
 }

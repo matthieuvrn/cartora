@@ -17,6 +17,7 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
+import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
 import { publishMenuAction } from "./actions";
 
 export default async function AppPage({
@@ -99,6 +100,10 @@ export default async function AppPage({
           hasBilling={hasBilling}
           stats={stats}
         />
+
+        <div className="mt-16 border-t pt-8">
+          <DeleteAccountButton />
+        </div>
       </div>
     </main>
   );

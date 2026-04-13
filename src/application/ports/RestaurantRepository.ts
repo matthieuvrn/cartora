@@ -19,4 +19,6 @@ export interface RestaurantRepository {
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
+
+  delete(restaurantId: string): Promise<void>;
 }

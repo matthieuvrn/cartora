@@ -30,6 +30,8 @@ function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): Paym
       url: "https://billing.stripe.com/portal_123",
     })),
     verifyWebhookSignature: () => ({ id: "", type: "", created: 0, data: {} }),
+    cancelSubscription: async () => {},
+    deleteCustomer: async () => {},
     ...overrides,
   };
 }

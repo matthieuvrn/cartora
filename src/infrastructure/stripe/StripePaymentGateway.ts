@@ -51,4 +51,12 @@ export class StripePaymentGateway implements PaymentGateway {
       data: event.data.object as unknown as Record<string, unknown>,
     };
   }
+
+  async cancelSubscription(subscriptionId: string): Promise<void> {
+    await this.stripe.subscriptions.cancel(subscriptionId);
+  }
+
+  async deleteCustomer(customerId: string): Promise<void> {
+    await this.stripe.customers.del(customerId);
+  }
 }

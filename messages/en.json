@@ -84,7 +84,14 @@
       "invalidBadge": "Invalid badge",
       "publishFailed": "Publishing failed, please try again",
       "generic": "Something went wrong, please try again"
-    }
+    },
+    "deleteAccount": "Delete my account",
+    "deleteAccountConfirmTitle": "Delete your account?",
+    "deleteAccountConfirmDescription": "This action is irreversible. All your data, menu and subscription will be deleted.",
+    "deleteAccountConfirmWord": "DELETE",
+    "deleteAccountConfirmLabel": "Type {word} to confirm",
+    "deleteAccountConfirmButton": "Delete permanently",
+    "deleteAccountError": "An error occurred while deleting your account."
   },
   "PublicMenu": {
     "category": {

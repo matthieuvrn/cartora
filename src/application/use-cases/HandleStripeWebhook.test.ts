@@ -37,6 +37,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
+    delete: async () => {},
     ...overrides,
   };
 }

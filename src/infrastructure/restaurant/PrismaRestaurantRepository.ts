@@ -91,6 +91,10 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       data: { displayName: params.displayName },
     });
   }
+
+  async delete(restaurantId: string): Promise<void> {
+    await this.db.restaurant.delete({ where: { id: restaurantId } });
+  }
 }
 
 function randomSuffix(): string {

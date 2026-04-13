@@ -84,7 +84,14 @@
       "invalidBadge": "Badge invalide",
       "publishFailed": "La publication a échoué, réessayez",
       "generic": "Une erreur est survenue, réessayez"
-    }
+    },
+    "deleteAccount": "Supprimer mon compte",
+    "deleteAccountConfirmTitle": "Supprimer votre compte ?",
+    "deleteAccountConfirmDescription": "Cette action est irréversible. Toutes vos données, votre menu et votre abonnement seront supprimés.",
+    "deleteAccountConfirmWord": "SUPPRIMER",
+    "deleteAccountConfirmLabel": "Tapez {word} pour confirmer",
+    "deleteAccountConfirmButton": "Supprimer définitivement",
+    "deleteAccountError": "Une erreur est survenue lors de la suppression."
   },
   "PublicMenu": {
     "category": {

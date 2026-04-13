@@ -5,9 +5,13 @@ import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
+import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
+import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
+import { SupabaseAuthAdminService } from "@/infrastructure/auth/SupabaseAuthAdminService";
 import { CreateCheckoutSession } from "@/application/use-cases/CreateCheckoutSession";
 import { CreatePortalSession } from "@/application/use-cases/CreatePortalSession";
+import { DeleteRestaurant } from "@/application/use-cases/DeleteRestaurant";
 import * as Sentry from "@sentry/nextjs";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -72,4 +76,51 @@ export async function createPortalAction(): Promise<void> {
     throw e;
   }
   redirect(portalUrl);
+}
+
+export async function deleteAccountAction(): Promise<{ error: string | null }> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Not authenticated");
+
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { ownerUserId: user.id },
+      select: { id: true },
+    });
+    if (!restaurant) throw new Error("No restaurant found");
+
+    const billingRepo = new PrismaBillingRepository(prisma);
+    const qrAssetRepo = new PrismaQrAssetRepository(prisma);
+    const gateway = new StripePaymentGateway();
+    const storage = new SupabaseStorageService();
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const authAdmin = new SupabaseAuthAdminService();
+    const useCase = new DeleteRestaurant(
+      billingRepo,
+      qrAssetRepo,
+      gateway,
+      storage,
+      restaurantRepo,
+      authAdmin,
+    );
+
+    const result = await useCase.execute({
+      restaurantId: restaurant.id,
+      ownerUserId: user.id,
+    });
+
+    if (result.errors.length > 0) {
+      for (const err of result.errors) {
+        console.error("[deleteAccount] partial cleanup error:", err);
+      }
+    }
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "deleteAccount" } });
+    return { error: "delete_failed" };
+  }
+
+  redirect("/login");
 }

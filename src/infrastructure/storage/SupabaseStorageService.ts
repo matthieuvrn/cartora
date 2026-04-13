@@ -21,4 +21,9 @@ export class SupabaseStorageService implements StorageService {
     const { data } = this.client.storage.from(BUCKET).getPublicUrl(path);
     return data.publicUrl;
   }
+
+  async delete(path: string): Promise<void> {
+    const { error } = await this.client.storage.from(BUCKET).remove([path]);
+    if (error) throw new Error(`Storage delete failed: ${error.message}`);
+  }
 }
