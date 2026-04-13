@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
+import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/infrastructure/db/prisma";
 import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
@@ -40,6 +41,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: "skipped", reason: "missing required fields" });
   }
 
+  if (!z.uuid().safeParse(restaurantId).success) {
+    return NextResponse.json({ error: "Invalid restaurantId format" }, { status: 400 });
+  }
+
   try {
     const result = await handleWebhook.execute({
       stripeEventId: event.id,
@@ -56,7 +61,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result);
   } catch (error) {
     Sentry.captureException(error);
-    console.error("Webhook processing error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

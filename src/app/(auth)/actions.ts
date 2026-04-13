@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
+import * as Sentry from "@sentry/nextjs";
 
 // ─── Schemas ───
 
@@ -73,7 +74,7 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   });
 
   if (error) {
-    console.error("[signupAction]", error);
+    Sentry.captureException(error, { tags: { action: "signup" } });
     if (error.code === "user_already_exists") {
       return { error: "user_already_exists" };
     }
@@ -108,7 +109,7 @@ export async function resendConfirmationAction(
   });
 
   if (error) {
-    console.error("[resendConfirmationAction]", error);
+    Sentry.captureException(error, { tags: { action: "resendConfirmation" } });
     if (error.code === "over_request_rate_limit" || error.code === "over_email_send_rate_limit") {
       return { error: "rate_limited" };
     }

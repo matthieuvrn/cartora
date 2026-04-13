@@ -20,6 +20,7 @@ import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
 import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
+import * as Sentry from "@sentry/nextjs";
 
 // ─── State ──────────────────────────────────────────────────────────────────
 
@@ -155,8 +156,8 @@ export async function createItemAction(
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
-    console.error("[createItem]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "createItem" } });
+    return { error: "generic" };
   }
 }
 
@@ -208,8 +209,8 @@ export async function updateItemAction(
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
-    console.error("[updateItem]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "updateItem" } });
+    return { error: "generic" };
   }
 }
 
@@ -239,8 +240,8 @@ export async function deleteItemAction(
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
-    console.error("[deleteItem]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "deleteItem" } });
+    return { error: "generic" };
   }
 }
 
@@ -282,8 +283,8 @@ export async function reorderItemsAction(
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
-    console.error("[reorderItems]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "reorderItems" } });
+    return { error: "generic" };
   }
 }
 
@@ -307,15 +308,15 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
       const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}?utm_source=qr`;
       await generateQr.execute({ restaurantId, slug, menuUrl });
     } catch (qrError) {
-      console.error("[publishMenu] QR generation failed:", qrError);
+      Sentry.captureException(qrError, { tags: { action: "publishMenu.qr" } });
     }
 
     revalidateTag(`public-menu-${slug}`, "default");
     revalidatePath("/app");
     return { error: null };
   } catch (e) {
-    console.error("[publishMenu]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "publishMenu" } });
+    return { error: "generic" };
   }
 }
 
@@ -347,7 +348,7 @@ export async function renameRestaurantAction(
     revalidatePath("/app");
     return { error: null, success: true };
   } catch (e) {
-    console.error("[renameRestaurant]", e);
-    return { error: e instanceof Error ? e.message : "generic" };
+    Sentry.captureException(e, { tags: { action: "renameRestaurant" } });
+    return { error: "generic" };
   }
 }

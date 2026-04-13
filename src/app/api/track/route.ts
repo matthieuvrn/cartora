@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     Sentry.captureException(error);
-    console.error("Track error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

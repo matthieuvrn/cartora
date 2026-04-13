@@ -8,6 +8,7 @@ import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingR
 import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
 import { CreateCheckoutSession } from "@/application/use-cases/CreateCheckoutSession";
 import { CreatePortalSession } from "@/application/use-cases/CreatePortalSession";
+import * as Sentry from "@sentry/nextjs";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -48,7 +49,7 @@ export async function createCheckoutAction(): Promise<void> {
     });
     checkoutUrl = result.checkoutUrl;
   } catch (e) {
-    console.error("[createCheckout]", e);
+    Sentry.captureException(e, { tags: { action: "createCheckout" } });
     throw e;
   }
   redirect(checkoutUrl);
@@ -67,7 +68,7 @@ export async function createPortalAction(): Promise<void> {
     });
     portalUrl = result.portalUrl;
   } catch (e) {
-    console.error("[createPortal]", e);
+    Sentry.captureException(e, { tags: { action: "createPortal" } });
     throw e;
   }
   redirect(portalUrl);

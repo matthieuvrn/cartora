@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
       "frame-src checkout.stripe.com billing.stripe.com",
       "frame-ancestors 'none'",
       "font-src 'self'",
+      ...(process.env.NEXT_PUBLIC_SENTRY_CSP_REPORT_URI
+        ? [`report-uri ${process.env.NEXT_PUBLIC_SENTRY_CSP_REPORT_URI}`]
+        : []),
     ];
 
     return [
@@ -30,7 +33,7 @@ const nextConfig: NextConfig = {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
-          { key: "Content-Security-Policy-Report-Only", value: cspDirectives.join("; ") },
+          { key: "Content-Security-Policy", value: cspDirectives.join("; ") },
         ],
       },
     ];
