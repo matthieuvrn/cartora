@@ -51,6 +51,7 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     updateItem: async () => {},
     deleteItem: async () => {},
     reorderItems: async () => {},
+    verifyCategoryOwnership: async () => true,
     getNextItemOrder: async () => 0,
     updateMenuStatus: vi.fn(async () => {}),
     markMenuAsDraft: async () => {},

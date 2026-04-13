@@ -34,6 +34,9 @@ export class CreateItem {
     const badgeError = ItemPolicy.validateBadge(input.badge);
     if (badgeError) throw new Error(badgeError);
 
+    const isOwned = await this.repo.verifyCategoryOwnership(input.categoryId, input.restaurantId);
+    if (!isOwned) throw new Error("Cette catégorie n'appartient pas à ce restaurant");
+
     const order = await this.repo.getNextItemOrder(input.categoryId);
 
     const { id } = await this.repo.createItem({

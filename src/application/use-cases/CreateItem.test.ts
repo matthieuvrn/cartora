@@ -9,6 +9,7 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     updateItem: async () => {},
     deleteItem: async () => {},
     reorderItems: async () => {},
+    verifyCategoryOwnership: vi.fn(async () => true),
     getNextItemOrder: vi.fn(async () => 3),
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
@@ -91,5 +92,26 @@ describe("CreateItem", () => {
     await expect(uc.execute({ ...VALID_INPUT, badge: "TRENDING" })).rejects.toThrow(
       "Badge invalide",
     );
+  });
+
+  it("throws when categoryId does not belong to restaurantId", async () => {
+    const repo = createMockRepo({
+      verifyCategoryOwnership: vi.fn(async () => false),
+    });
+    const uc = new CreateItem(repo);
+
+    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
+      "Cette catégorie n'appartient pas à ce restaurant",
+    );
+    expect(repo.createItem).not.toHaveBeenCalled();
+  });
+
+  it("calls verifyCategoryOwnership with correct arguments", async () => {
+    const repo = createMockRepo();
+    const uc = new CreateItem(repo);
+
+    await uc.execute(VALID_INPUT);
+
+    expect(repo.verifyCategoryOwnership).toHaveBeenCalledWith("cat-1", "resto-1");
   });
 });

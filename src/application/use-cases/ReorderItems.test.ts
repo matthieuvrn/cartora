@@ -9,6 +9,7 @@ function createMockRepo(): MenuRepository {
     updateItem: async () => {},
     deleteItem: async () => {},
     reorderItems: vi.fn(async () => {}),
+    verifyCategoryOwnership: vi.fn(async () => true),
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
@@ -39,5 +40,16 @@ describe("ReorderItems", () => {
     await expect(
       uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: [] }),
     ).rejects.toThrow("La liste des items ne peut pas être vide");
+  });
+
+  it("throws when categoryId does not belong to restaurantId", async () => {
+    const repo = createMockRepo();
+    repo.verifyCategoryOwnership = vi.fn(async () => false);
+    const uc = new ReorderItems(repo);
+
+    await expect(
+      uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: ["item-1"] }),
+    ).rejects.toThrow("Cette catégorie n'appartient pas à ce restaurant");
+    expect(repo.reorderItems).not.toHaveBeenCalled();
   });
 });

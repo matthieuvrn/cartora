@@ -125,6 +125,7 @@ model Category {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   items      Item[]
 
+  @@unique([id, restaurantId])
   @@unique([menuId, type])
   @@index([restaurantId])
   @@map("categories")
@@ -143,6 +144,8 @@ model Item {
 
   category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  // NOTE: FK composite (category_id, restaurant_id) → categories(id, restaurant_id)
+  // appliquée au niveau DB via supabase/sql/060_composite_fk_items_category.sql
 
   @@index([categoryId])
   @@index([restaurantId])

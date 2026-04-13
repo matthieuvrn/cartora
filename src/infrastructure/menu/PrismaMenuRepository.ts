@@ -90,8 +90,22 @@ export class PrismaMenuRepository implements MenuRepository {
     };
   }
 
+  async verifyCategoryOwnership(categoryId: string, restaurantId: string): Promise<boolean> {
+    const category = await this.db.category.findFirst({
+      where: { id: categoryId, restaurantId },
+      select: { id: true },
+    });
+    return category !== null;
+  }
+
   async createItem(params: Parameters<MenuRepository["createItem"]>[0]): Promise<{ id: string }> {
     return this.db.$transaction(async (tx) => {
+      const category = await tx.category.findFirst({
+        where: { id: params.categoryId, restaurantId: params.restaurantId },
+        select: { id: true },
+      });
+      if (!category) throw new Error("Category does not belong to this restaurant");
+
       const item = await tx.item.create({
         data: {
           categoryId: params.categoryId,
@@ -206,14 +220,20 @@ export class PrismaMenuRepository implements MenuRepository {
     itemIds: string[];
   }): Promise<void> {
     const { categoryId, restaurantId, itemIds } = params;
-    await this.db.$transaction(
-      itemIds.map((id, index) =>
-        this.db.item.update({
+    await this.db.$transaction(async (tx) => {
+      const category = await tx.category.findFirst({
+        where: { id: categoryId, restaurantId },
+        select: { id: true },
+      });
+      if (!category) throw new Error("Category does not belong to this restaurant");
+
+      for (const [index, id] of itemIds.entries()) {
+        await tx.item.update({
           where: { id, categoryId, restaurantId },
           data: { order: index },
-        }),
-      ),
-    );
+        });
+      }
+    });
   }
 
   async getNextItemOrder(categoryId: string): Promise<number> {

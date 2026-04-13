@@ -37,6 +37,8 @@ export interface MenuRepository {
     itemIds: string[];
   }): Promise<void>;
 
+  verifyCategoryOwnership(categoryId: string, restaurantId: string): Promise<boolean>;
+
   getNextItemOrder(categoryId: string): Promise<number>;
 
   updateMenuStatus(params: {

@@ -14,6 +14,9 @@ export class ReorderItems {
       throw new Error("La liste des items ne peut pas être vide");
     }
 
+    const isOwned = await this.repo.verifyCategoryOwnership(input.categoryId, input.restaurantId);
+    if (!isOwned) throw new Error("Cette catégorie n'appartient pas à ce restaurant");
+
     await this.repo.reorderItems({
       categoryId: input.categoryId,
       restaurantId: input.restaurantId,

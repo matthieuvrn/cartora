@@ -9,6 +9,7 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     updateItem: vi.fn(async () => {}),
     deleteItem: async () => {},
     reorderItems: async () => {},
+    verifyCategoryOwnership: async () => true,
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
