@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob:",
+      `img-src 'self' data: blob: ${process.env.NEXT_PUBLIC_SUPABASE_URL}`,
       "connect-src 'self' *.supabase.co *.ingest.de.sentry.io",
       "frame-src checkout.stripe.com billing.stripe.com",
       "frame-ancestors 'none'",
