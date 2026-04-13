@@ -13,7 +13,7 @@ const recordMenuView = new RecordMenuView(analyticsRepo, snapshotRepo);
 
 // --- Rate limiter in-memory (sliding window par IP) ---
 const WINDOW_MS = 60_000; // 1 minute
-const MAX_REQUESTS = 100; // max per IP per window
+const MAX_REQUESTS = 15; // max per IP per window
 
 const ipHits = new Map<string, { count: number; resetAt: number }>();
 
