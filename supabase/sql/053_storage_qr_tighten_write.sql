@@ -1,8 +1,8 @@
--- Resserrer les policies d'ecriture du bucket QR :
--- seul le proprietaire du restaurant peut ecrire dans son fichier QR.
+-- Tighten QR bucket write policies:
+-- only the restaurant owner can write to their QR file.
 --
--- Le path dans le bucket est : qr-codes/{restaurantId}.png
--- On verifie que le nom du fichier correspond a my_restaurant_id().
+-- Bucket path: qr-codes/{restaurantId}.png
+-- Verify that the file name matches my_restaurant_id().
 
 -- ─── INSERT ─────────────────────────────────────────────────────────────────
 DROP POLICY IF EXISTS "qr_codes_authenticated_write" ON storage.objects;

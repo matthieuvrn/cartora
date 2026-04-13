@@ -13,7 +13,7 @@ const recordMenuView = new RecordMenuView(analyticsRepo, snapshotRepo);
 
 // --- Rate limiter in-memory (sliding window par IP) ---
 const WINDOW_MS = 60_000; // 1 minute
-const MAX_REQUESTS = 100; // max par IP par fenêtre
+const MAX_REQUESTS = 100; // max per IP per window
 
 const ipHits = new Map<string, { count: number; resetAt: number }>();
 
@@ -30,7 +30,7 @@ function isRateLimited(ip: string): boolean {
   return entry.count > MAX_REQUESTS;
 }
 
-// Nettoyage périodique pour éviter les fuites mémoire
+// Periodic cleanup to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of ipHits) {

@@ -1,8 +1,4 @@
 {
-  "Hello": {
-    "title": "Smoke test archi",
-    "subtitle": "Use-case Hello qui traverse Domain → Application → Infrastructure → Interface"
-  },
   "Auth": {
     "login": "Se connecter",
     "signup": "Créer un compte",

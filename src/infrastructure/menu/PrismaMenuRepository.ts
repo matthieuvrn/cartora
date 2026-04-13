@@ -37,7 +37,7 @@ export class PrismaMenuRepository implements MenuRepository {
 
     if (!menu) return null;
 
-    // Toutes les traductions ITEM du restaurant en une seule requête (pas de N+1)
+    // All ITEM translations for the restaurant in a single query (no N+1)
     const translations = await this.db.translation.findMany({
       where: { restaurantId, entityType: "ITEM" },
       select: {

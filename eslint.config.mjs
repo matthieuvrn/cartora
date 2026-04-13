@@ -4,7 +4,7 @@ import nextTs from "eslint-config-next/typescript";
 import importPlugin from "eslint-plugin-import";
 import prettierConfig from "eslint-config-prettier";
 
-// Libs bloquées dans domain + application (framework, services externes)
+// Libs blocked in domain + application (frameworks, external services)
 const noFrameworkPatterns = [
   "next",
   "next/**",
@@ -38,10 +38,10 @@ const eslintConfig = defineConfig([
   },
 
   /**
-   * 1) ZONES — empêche les imports cross-layer
-   *    - domain ne peut pas importer application/infra/interface/app
-   *    - application ne peut pas importer infra/interface/app
-   *    - infrastructure ne peut pas importer interface/app
+   * 1) ZONES — prevents cross-layer imports
+   *    - domain cannot import application/infra/interface/app
+   *    - application cannot import infra/interface/app
+   *    - infrastructure cannot import interface/app
    */
   {
     files: ["src/**/*.{js,jsx,ts,tsx}"],
@@ -53,63 +53,62 @@ const eslintConfig = defineConfig([
         "error",
         {
           zones: [
-            // Domain ne dépend de rien d'autre
+            // Domain depends on nothing else
             {
               target: "./src/domain",
               from: "./src/application",
-              message: "Domain ne peut pas importer Application",
+              message: "Domain cannot import Application",
             },
             {
               target: "./src/domain",
               from: "./src/infrastructure",
-              message: "Domain ne peut pas importer Infrastructure",
+              message: "Domain cannot import Infrastructure",
             },
             {
               target: "./src/domain",
               from: "./src/interface",
-              message: "Domain ne peut pas importer Interface",
+              message: "Domain cannot import Interface",
             },
             {
               target: "./src/domain",
               from: "./src/app",
-              message: "Domain ne peut pas importer App",
+              message: "Domain cannot import App",
             },
 
-            // Application dépend de domain mais pas d'infra/interface/app
+            // Application depends on Domain but not Infra/Interface/App
             {
               target: "./src/application",
               from: "./src/infrastructure",
-              message: "Application ne peut pas importer Infrastructure",
+              message: "Application cannot import Infrastructure",
             },
             {
               target: "./src/application",
               from: "./src/interface",
-              message: "Application ne peut pas importer Interface",
+              message: "Application cannot import Interface",
             },
             {
               target: "./src/application",
               from: "./src/app",
-              message: "Application ne peut pas importer App",
+              message: "Application cannot import App",
             },
 
-            // Infrastructure ne dépend pas de interface/app
+            // Infrastructure does not depend on Interface/App
             {
               target: "./src/infrastructure",
               from: "./src/interface",
-              message: "Infrastructure ne peut pas importer Interface",
+              message: "Infrastructure cannot import Interface",
             },
             {
               target: "./src/infrastructure",
               from: "./src/app",
-              message: "Infrastructure ne peut pas importer App",
+              message: "Infrastructure cannot import App",
             },
 
-            // Interface ne doit pas importer infrastructure (composition root = src/app)
+            // Interface must not import Infrastructure (composition root = src/app)
             {
               target: "./src/interface",
               from: "./src/infrastructure",
-              message:
-                "Interface ne peut pas importer Infrastructure (utiliser la composition root src/app)",
+              message: "Interface cannot import Infrastructure (use the composition root src/app)",
             },
           ],
         },
@@ -118,8 +117,8 @@ const eslintConfig = defineConfig([
   },
 
   /**
-   * 2) DOMAIN — pur TS : pas de Next/React/infra libs
-   *    (complément utile aux zones, car zones ne bloque pas les libs externes)
+   * 2) DOMAIN — pure TS: no Next/React/infra libs
+   *    (complements zones, which don't block external libs)
    */
   {
     files: ["src/domain/**/*.{ts,tsx}"],
@@ -128,13 +127,13 @@ const eslintConfig = defineConfig([
         "error",
         {
           patterns: [
-            // Bloque les autres couches via alias
+            // Block other layers via alias
             "@/application/**",
             "@/infrastructure/**",
             "@/interface/**",
             "@/app/**",
 
-            // Bloque framework / libs externes
+            // Block framework / external libs
             ...noFrameworkPatterns,
           ],
         },
@@ -143,7 +142,7 @@ const eslintConfig = defineConfig([
   },
 
   /**
-   * 3) APPLICATION — pas de Next/React/UI/infra
+   * 3) APPLICATION — no Next/React/UI/infra
    */
   {
     files: ["src/application/**/*.{ts,tsx}"],
@@ -158,8 +157,8 @@ const eslintConfig = defineConfig([
   },
 
   /**
-   * 4) INFRA — évite cycles : pas d'import interface/app
-   *    (zones le fait déjà, mais ça donne un message d'erreur plus explicite via alias)
+   * 4) INFRA — prevent cycles: no interface/app imports
+   *    (zones already does this, but alias gives a more explicit error message)
    */
   {
     files: ["src/infrastructure/**/*.{ts,tsx}"],
@@ -174,8 +173,8 @@ const eslintConfig = defineConfig([
   },
 
   /**
-   * 5) INTERFACE — pas d'import infrastructure (double verrou avec les zones)
-   *    Note : interface peut importer app (server actions)
+   * 5) INTERFACE — no infrastructure imports (double lock with zones)
+   *    Note: interface can import app (server actions)
    */
   {
     files: ["src/interface/**/*.{ts,tsx}"],
@@ -189,7 +188,7 @@ const eslintConfig = defineConfig([
     },
   },
 
-  // Désactive les règles de formatting ESLint qui entrent en conflit avec Prettier
+  // Disable ESLint formatting rules that conflict with Prettier
   prettierConfig,
 ]);
 

@@ -1,8 +1,4 @@
 {
-  "Hello": {
-    "title": "Architecture smoke test",
-    "subtitle": "Hello use-case crossing Domain → Application → Infrastructure → Interface"
-  },
   "Auth": {
     "login": "Sign in",
     "signup": "Create an account",

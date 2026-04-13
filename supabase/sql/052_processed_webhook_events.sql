@@ -14,6 +14,6 @@ CREATE TABLE processed_webhook_events (
 CREATE UNIQUE INDEX processed_webhook_events_stripe_event_id_key
   ON processed_webhook_events(stripe_event_id);
 
--- RLS activé sans policies = deny all pour anon/authenticated.
--- Le service role (Prisma) bypass RLS.
+-- RLS enabled with no policies = deny all for anon/authenticated.
+-- The service role (Prisma) bypasses RLS.
 ALTER TABLE processed_webhook_events ENABLE ROW LEVEL SECURITY;
