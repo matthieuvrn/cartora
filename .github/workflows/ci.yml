@@ -19,13 +19,12 @@ jobs:
       STRIPE_PRICE_ID: "price_dummy"
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10.28.2 # TODO: drop once action-setup v6 auto-detect + frozen-lockfile works
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: "pnpm"
+      - run: corepack enable
+      - run: pnpm --version
       - run: pnpm install
       - run: pnpm format:check
       - run: pnpm lint
@@ -37,25 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-        with:
-          version: 10.28.2
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Debug lockfile state
-        run: |
-          echo "=== pnpm version ==="
-          pnpm --version
-          echo "=== lockfile size ==="
-          wc -l pnpm-lock.yaml
-          echo "=== lockfile sha256 ==="
-          sha256sum pnpm-lock.yaml
-          echo "=== first 3 lines ==="
-          head -3 pnpm-lock.yaml
-          echo "=== last 3 lines ==="
-          tail -3 pnpm-lock.yaml
-          echo "=== doc separators count ==="
-          grep -c '^---' pnpm-lock.yaml || echo 0
+          cache: "pnpm"
+      - run: corepack enable
+      - run: pnpm --version
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm audit --prod --audit-level=high
