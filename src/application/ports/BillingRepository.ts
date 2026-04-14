@@ -2,8 +2,8 @@ import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 
 export interface BillingInfo {
   restaurantId: string;
-  stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
 }
 
 export interface BillingRepository {

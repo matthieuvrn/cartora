@@ -33,7 +33,7 @@ export class PrismaBillingRepository implements BillingRepository {
         stripeSubscriptionId: true,
       },
     });
-    if (!row || !row.stripeCustomerId || !row.stripeSubscriptionId) return null;
+    if (!row) return null;
     return {
       restaurantId: row.restaurantId,
       stripeCustomerId: row.stripeCustomerId,

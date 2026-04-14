@@ -6,37 +6,17 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaAnalyticsRepository } from "@/infrastructure/analytics/PrismaAnalyticsRepository";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { RecordMenuView } from "@/application/use-cases/RecordMenuView";
+import { createRateLimiter } from "@/infrastructure/rate-limit/createRateLimiter";
 
 const analyticsRepo = new PrismaAnalyticsRepository(prisma);
 const snapshotRepo = new PrismaSnapshotRepository(prisma);
 const recordMenuView = new RecordMenuView(analyticsRepo, snapshotRepo);
 
-// --- Rate limiter in-memory (sliding window par IP) ---
-const WINDOW_MS = 60_000; // 1 minute
-const MAX_REQUESTS = 15; // max per IP per window
-
-const ipHits = new Map<string, { count: number; resetAt: number }>();
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = ipHits.get(ip);
-
-  if (!entry || now > entry.resetAt) {
-    ipHits.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-
-  entry.count++;
-  return entry.count > MAX_REQUESTS;
-}
-
-// Periodic cleanup to prevent memory leaks
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, entry] of ipHits) {
-    if (now > entry.resetAt) ipHits.delete(ip);
-  }
-}, WINDOW_MS);
+const rateLimiter = createRateLimiter({
+  limit: 15,
+  windowSeconds: 60,
+  prefix: "track",
+});
 
 const TrackBodySchema = z.object({
   slug: z.string().min(1).max(255),
@@ -48,8 +28,19 @@ const TrackBodySchema = z.object({
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
 
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  const limit = await rateLimiter.check(ip);
+  if (!limit.success) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      {
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": String(limit.limit),
+          "X-RateLimit-Remaining": String(limit.remaining),
+          "X-RateLimit-Reset": String(limit.resetAt),
+        },
+      },
+    );
   }
 
   const parsed = TrackBodySchema.safeParse(await request.json().catch(() => null));

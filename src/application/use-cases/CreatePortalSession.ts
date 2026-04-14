@@ -18,7 +18,7 @@ export class CreatePortalSession {
 
   async execute(input: CreatePortalSessionInput): Promise<CreatePortalSessionOutput> {
     const billing = await this.billingRepo.findByRestaurantId(input.restaurantId);
-    if (!billing) {
+    if (!billing || !billing.stripeCustomerId) {
       throw new Error("Aucune information de facturation trouvée");
     }
 
