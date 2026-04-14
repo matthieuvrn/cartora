@@ -19,6 +19,7 @@ import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
+import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { publishMenuAction } from "./actions";
 
 export default async function AppPage({
@@ -71,6 +72,7 @@ export default async function AppPage({
         <h1 className="text-lg font-semibold">Cartora</h1>
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">{user.email}</p>
+          <LocaleSwitcher />
           <form action={logoutAction}>
             <Button variant="ghost" size="sm" type="submit">
               {t("logout")}

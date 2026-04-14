@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LandingFaq } from "@/interface/ui/components/LandingFaq";
+import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 
 export default async function LandingPage() {
   const t = await getTranslations("Landing");
@@ -25,6 +26,7 @@ export default async function LandingPage() {
             Cartora
           </Link>
           <nav className="flex items-center gap-2 sm:gap-3">
+            <LocaleSwitcher />
             <Button asChild variant="ghost" size="sm">
               <Link href="/login">{t("header.login")}</Link>
             </Button>

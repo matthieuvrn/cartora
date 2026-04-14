@@ -8,7 +8,10 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
-import { MenuTemplate, TrackingBeacon } from "@/interface/ui/components/menu-template";
+import { TrackingBeacon } from "@/interface/ui/components/menu-template";
+import { PublicMenuClient } from "@/interface/ui/components/menu-template/PublicMenuClient";
+import frMessages from "../../../../messages/fr.json";
+import enMessages from "../../../../messages/en.json";
 
 export const revalidate = 3600;
 
@@ -122,16 +125,32 @@ export default async function PublicMenuPage({ params }: Props) {
     );
   }
 
-  const categoryLabels: Record<CategoryType, string> = {
-    STARTERS: t("category.STARTERS"),
-    MAINS: t("category.MAINS"),
-    DESSERTS: t("category.DESSERTS"),
-    DRINKS: t("category.DRINKS"),
+  const labelsFr = {
+    categoryLabels: {
+      STARTERS: frMessages.PublicMenu.category.STARTERS,
+      MAINS: frMessages.PublicMenu.category.MAINS,
+      DESSERTS: frMessages.PublicMenu.category.DESSERTS,
+      DRINKS: frMessages.PublicMenu.category.DRINKS,
+    },
+    badgeLabels: {
+      NEW: frMessages.PublicMenu.badge.NEW,
+      POPULAR: frMessages.PublicMenu.badge.POPULAR,
+    },
+    watermarkText: frMessages.PublicMenu.watermark,
   };
 
-  const badgeLabels: Record<"NEW" | "POPULAR", string> = {
-    NEW: t("badge.NEW"),
-    POPULAR: t("badge.POPULAR"),
+  const labelsEn = {
+    categoryLabels: {
+      STARTERS: enMessages.PublicMenu.category.STARTERS,
+      MAINS: enMessages.PublicMenu.category.MAINS,
+      DESSERTS: enMessages.PublicMenu.category.DESSERTS,
+      DRINKS: enMessages.PublicMenu.category.DRINKS,
+    },
+    badgeLabels: {
+      NEW: enMessages.PublicMenu.badge.NEW,
+      POPULAR: enMessages.PublicMenu.badge.POPULAR,
+    },
+    watermarkText: enMessages.PublicMenu.watermark,
   };
 
   const jsonLd = buildMenuJsonLd(result.snapshot, slug);
@@ -142,12 +161,12 @@ export default async function PublicMenuPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <MenuTemplate
+      <PublicMenuClient
         snapshot={result.snapshot}
-        locale={locale}
+        defaultLocale={locale}
+        labelsFr={labelsFr}
+        labelsEn={labelsEn}
         showWatermark={PublicationPolicy.shouldShowWatermark(result.planStatus)}
-        categoryLabels={categoryLabels}
-        badgeLabels={badgeLabels}
       />
       <TrackingBeacon slug={slug} locale={locale} />
     </>
