@@ -27,6 +27,7 @@ export function QrCodeCard({ qrCodeUrl }: Props) {
           height={192}
           className="rounded-md"
           unoptimized
+          priority
         />
         <Button variant="outline" size="sm" asChild>
           <a href={qrCodeUrl} download="qr-code.png">
