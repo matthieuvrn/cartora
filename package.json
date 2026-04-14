@@ -28,7 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "geist": "^1.7.0",
-    "lucide-react": "^0.563.0",
+    "lucide-react": "^1.8.0",
     "next": "16.2.3",
     "next-intl": "^4.9.1",
     "qrcode": "^1.5.4",
