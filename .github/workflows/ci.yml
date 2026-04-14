@@ -19,11 +19,12 @@ jobs:
       STRIPE_PRICE_ID: "price_dummy"
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v5
+      - run: corepack enable
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: "pnpm"
+      - run: pnpm --version
       - run: pnpm install
       - run: pnpm format:check
       - run: pnpm lint
@@ -35,10 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v5
+      - run: corepack enable
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: "pnpm"
+      - run: pnpm --version
       - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm audit --prod --audit-level=high
