@@ -59,6 +59,8 @@ describe("GetMenuForDashboard", () => {
   it("throws when menu is not found", async () => {
     const uc = new GetMenuForDashboard(createMockRepo(null));
 
-    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow("Menu introuvable");
+    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow(
+      "Menu introuvable pour le restaurant unknown",
+    );
   });
 });

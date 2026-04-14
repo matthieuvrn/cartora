@@ -177,6 +177,46 @@ describe("DeleteRestaurant", () => {
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });
 
+  it("skips cancelSubscription when stripeSubscriptionId is absent", async () => {
+    const { uc, paymentGateway, restaurantRepo, authAdmin } = createUseCase({
+      billingRepo: {
+        findByRestaurantId: async () => ({
+          restaurantId: "resto-1",
+          stripeCustomerId: "cus_abc123",
+          stripeSubscriptionId: null,
+        }),
+      },
+    });
+
+    const result = await uc.execute(VALID_INPUT);
+
+    expect(result).toEqual({ status: "completed", errors: [] });
+    expect(paymentGateway.cancelSubscription).not.toHaveBeenCalled();
+    expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
+    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
+    expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
+  });
+
+  it("skips deleteCustomer when stripeCustomerId is absent", async () => {
+    const { uc, paymentGateway, restaurantRepo, authAdmin } = createUseCase({
+      billingRepo: {
+        findByRestaurantId: async () => ({
+          restaurantId: "resto-1",
+          stripeCustomerId: null,
+          stripeSubscriptionId: "sub_xyz789",
+        }),
+      },
+    });
+
+    const result = await uc.execute(VALID_INPUT);
+
+    expect(result).toEqual({ status: "completed", errors: [] });
+    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
+    expect(paymentGateway.deleteCustomer).not.toHaveBeenCalled();
+    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
+    expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
+  });
+
   it("captures Stripe error and still deletes storage + restaurant + user", async () => {
     const { uc, storageService, restaurantRepo, authAdmin } = createUseCase({
       paymentGateway: {
