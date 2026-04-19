@@ -9,4 +9,5 @@ Sentry.init({
   tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1,
   environment: process.env.NODE_ENV ?? "development",
   release: process.env.VERCEL_GIT_COMMIT_SHA,
+  sendDefaultPii: false,
 });

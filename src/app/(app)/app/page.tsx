@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { CircleCheck, CircleX } from "lucide-react";
+import { CircleCheck, CircleX, Settings } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { logoutAction } from "@/app/(auth)/actions";
@@ -72,6 +73,11 @@ export default async function AppPage({
         <h1 className="text-lg font-semibold">Cartora</h1>
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">{user.email}</p>
+          <Link href="/app/settings">
+            <Button variant="ghost" size="icon" aria-label={t("settings")}>
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
           <LocaleSwitcher />
           <form action={logoutAction}>
             <Button variant="ghost" size="sm" type="submit">

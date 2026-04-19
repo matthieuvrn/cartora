@@ -22,7 +22,6 @@ const TrackBodySchema = z.object({
   slug: z.string().min(1).max(255),
   locale: z.enum(["fr", "en", "FR", "EN"]).optional(),
   source: z.enum(["qr"]).optional(),
-  screenWidth: z.number().int().min(0).max(16384).optional(),
 });
 
 export async function POST(request: NextRequest) {

@@ -193,12 +193,6 @@ export default async function LandingPage() {
           </div>
         </section>
       </main>
-
-      <footer className="border-t">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Cartora
-        </div>
-      </footer>
     </div>
   );
 }

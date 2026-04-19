@@ -74,6 +74,20 @@ export default function SignupPage() {
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-4">
+          <p className="text-xs text-muted-foreground">
+            {t.rich("consentText", {
+              cguLink: (chunks) => (
+                <Link href="/cgu" className="underline underline-offset-4">
+                  {chunks}
+                </Link>
+              ),
+              privacyLink: (chunks) => (
+                <Link href="/confidentialite" className="underline underline-offset-4">
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending ? "…" : t("signupAction")}
           </Button>

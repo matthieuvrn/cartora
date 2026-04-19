@@ -113,9 +113,7 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
     });
 
     if (result.errors.length > 0) {
-      for (const err of result.errors) {
-        console.error("[deleteAccount] partial cleanup error:", err);
-      }
+      console.error(`[deleteAccount] ${result.errors.length} partial cleanup error(s), see Sentry`);
     }
   } catch (e) {
     Sentry.captureException(e, { tags: { action: "deleteAccount" } });

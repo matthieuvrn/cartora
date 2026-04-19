@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { ConsentProvider } from "@/interface/ui/components/consent/ConsentContext";
+import { CookieBanner } from "@/interface/ui/components/consent/CookieBanner";
+import { Footer } from "@/interface/ui/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -33,7 +36,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale} className={GeistSans.variable}>
       <body className="font-sans antialiased">
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ConsentProvider>
+            {children}
+            <Footer />
+            <CookieBanner />
+          </ConsentProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

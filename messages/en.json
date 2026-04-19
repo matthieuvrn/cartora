@@ -12,10 +12,11 @@
     "checkEmailDesc": "A confirmation link has been sent to you. Click it to activate your account.",
     "resendLink": "Resend link",
     "resendEmail": "Enter your email to receive a new link",
+    "consentText": "By creating an account, you accept our <cguLink>terms of service</cguLink> and acknowledge that you have read our <privacyLink>privacy policy</privacyLink>.",
     "error": {
       "invalid_credentials": "Invalid email or password",
       "invalid_email": "Invalid email address",
-      "password_too_short": "Password must be at least 6 characters",
+      "password_too_short": "Password must be at least 8 characters",
       "user_already_exists": "An account already exists with this email",
       "email_not_confirmed": "Your email has not been verified yet. Please check your inbox.",
       "otp_expired": "Your confirmation link has expired.",
@@ -58,6 +59,7 @@
     "preview": "Preview",
     "previewTitle": "Menu preview",
     "logout": "Log out",
+    "settings": "Settings",
     "publicLinkTitle": "Your menu is live",
     "publicLinkLabel": "View menu",
     "status": {
@@ -209,6 +211,217 @@
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try again.",
     "retry": "Try again"
+  },
+  "Settings": {
+    "title": "Settings",
+    "back": "Back",
+    "account": "My account",
+    "accountDescription": "Your Cartora account information.",
+    "email": "Email address",
+    "data": "My data",
+    "dataDescription": "Manage your personal data and preferences.",
+    "exportButton": "Export my data",
+    "exportError": "Export failed, please try again.",
+    "privacyLink": "View privacy policy",
+    "dangerZone": "Danger zone",
+    "dangerZoneDescription": "Account deletion is immediate and irreversible."
+  },
+  "Footer": {
+    "privacy": "Privacy policy",
+    "legal": "Legal notice",
+    "terms": "Terms of service",
+    "manageCookies": "Manage cookies"
+  },
+  "Privacy": {
+    "title": "Privacy policy",
+    "lastUpdated": "Last updated: April 2026",
+    "controller": {
+      "title": "Data controller",
+      "body": "Cartora is published by Cartora. For any questions about your personal data, contact us at contact@cartora.app."
+    },
+    "dataCollected": {
+      "title": "Data collected",
+      "account": {
+        "title": "Account data",
+        "body": "When you sign up, we collect your email address and a password (stored as a hash). This data is required to create and manage your account."
+      },
+      "menu": {
+        "title": "Menu data",
+        "body": "Restaurant name, menu items (names, descriptions, prices), translations. This is the content you create through the service."
+      },
+      "payment": {
+        "title": "Payment data",
+        "body": "Your email is shared with Stripe during subscription. Stripe processes payment data (credit card) as a subprocessor. We do not store any banking information."
+      },
+      "analytics": {
+        "title": "Audience data (with consent)",
+        "body": "On public menu pages, and only with your consent, we collect: device type (inferred from User-Agent, not stored), browser language, and visit source (QR code, direct link). IP addresses are not stored."
+      },
+      "technical": {
+        "title": "Technical data (with consent)",
+        "body": "With your consent, Sentry collects JavaScript errors and their technical context (URL, browser) to improve service stability. We have disabled the sending of personally identifiable information (sendDefaultPii: false)."
+      }
+    },
+    "purposes": {
+      "title": "Purposes of processing",
+      "service": "Service delivery: account creation, menu management, publication, QR code",
+      "payment": "Payment and subscription management via Stripe",
+      "analytics": "Anonymized audience measurement on public menus (with consent)",
+      "security": "Security: rate limiting to prevent abuse (temporary IP, not stored)",
+      "monitoring": "Technical error monitoring via Sentry (with consent on the browser side)"
+    },
+    "legalBasis": {
+      "title": "Legal basis",
+      "contract": {
+        "label": "Contract (Art. 6(1)(b) GDPR):",
+        "body": "registration, menu management, payment, publication, QR code."
+      },
+      "legitimateInterest": {
+        "label": "Legitimate interest (Art. 6(1)(f) GDPR):",
+        "body": "rate limiting (security), server-side monitoring (Sentry server-side)."
+      },
+      "consent": {
+        "label": "Consent (Art. 6(1)(a) GDPR):",
+        "body": "visitor analytics, browser-side Sentry. You can withdraw your consent at any time via the \"Manage cookies\" button."
+      }
+    },
+    "recipients": {
+      "title": "Recipients and subprocessors",
+      "intro": "Your data is shared with the following subprocessors, strictly for the purposes described above:",
+      "supabase": "Authentication, database, file storage (EU hosting)",
+      "stripe": "Payment processing and subscription management",
+      "sentry": "Error monitoring (EU hosting \u2014 *.ingest.de.sentry.io)",
+      "vercel": "Application and serverless function hosting",
+      "upstash": "Rate limiting (temporary IP storage, optional)"
+    },
+    "retention": {
+      "title": "Retention periods",
+      "account": "Account data: lifetime of the account. Deleted in cascade when the account is deleted.",
+      "analytics": "Raw analytics events: 30 days (automatic daily purge)",
+      "analyticsAggregates": "Daily analytics aggregates: 24 months",
+      "webhookEvents": "Webhook events (Stripe idempotency): 90 days",
+      "logs": "Server logs (Vercel): per Vercel's retention policy (1 to 30 days depending on plan)"
+    },
+    "cookies": {
+      "title": "Cookies and trackers",
+      "intro": "We use the following cookies:",
+      "session": {
+        "label": "Session cookies (Supabase Auth)",
+        "body": "Essential for authentication. Exempt from consent."
+      },
+      "locale": {
+        "label": "Language preference cookie (locale)",
+        "body": "Functional, stores your language choice (fr/en). Exempt from consent."
+      },
+      "consent": {
+        "label": "Consent cookie (cartora-consent)",
+        "body": "Stores your acceptance or refusal of trackers. Duration: 13 months."
+      },
+      "trackers": "Non-essential trackers (analytics, browser-side Sentry) are only activated after your explicit consent."
+    },
+    "rights": {
+      "title": "Your rights",
+      "intro": "Under the GDPR, you have the following rights:",
+      "access": "Right of access: obtain a copy of your personal data",
+      "rectification": "Right to rectification: correct inaccurate data",
+      "erasure": "Right to erasure: delete your account and all your data",
+      "restriction": "Right to restriction of processing",
+      "portability": "Right to data portability: download your data in a structured format (JSON)",
+      "objection": "Right to object",
+      "withdrawConsent": "Right to withdraw your consent to trackers at any time",
+      "contact": "To exercise your rights, contact us at contact@cartora.app. We will respond within one month.",
+      "cnil": "You also have the right to lodge a complaint with the CNIL (www.cnil.fr)."
+    },
+    "transfers": {
+      "title": "Transfers outside the EU",
+      "body": "Some of our subprocessors (Stripe, Vercel) are US companies. Data transfers to the United States are governed by the Data Privacy Framework (DPF) and/or Standard Contractual Clauses (SCCs). We prioritize EU hosting when possible (Supabase EU, Sentry EU)."
+    },
+    "security": {
+      "title": "Security",
+      "body": "We implement technical and organizational measures to protect your data: encryption in transit (HTTPS/TLS), hashed passwords, Row Level Security (RLS) at the database level, strict security headers (CSP, HSTS, X-Frame-Options)."
+    },
+    "changes": {
+      "title": "Changes",
+      "body": "We reserve the right to update this policy. In case of a substantial change, we will notify you by email or through an in-app notification."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "For any questions about this policy or your personal data: contact@cartora.app"
+    }
+  },
+  "Legal": {
+    "title": "Legal notice",
+    "publisher": {
+      "title": "Publisher",
+      "body": "Cartora is published by Cartora. Email: contact@cartora.app"
+    },
+    "hosting": {
+      "title": "Hosting",
+      "body": "The website is hosted by Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, United States. Website: vercel.com"
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "For any questions, you can reach us at contact@cartora.app."
+    },
+    "intellectualProperty": {
+      "title": "Intellectual property",
+      "body": "All content on the Cartora website (text, graphics, logo, icons, source code) is protected by copyright. Any reproduction, representation or distribution, in whole or in part, without prior authorization is prohibited."
+    }
+  },
+  "Terms": {
+    "title": "Terms of service",
+    "lastUpdated": "Last updated: April 2026",
+    "object": {
+      "title": "Purpose",
+      "body": "These terms govern the use of the Cartora service, a platform enabling restaurant owners to create and publish digital menus accessible via QR code."
+    },
+    "access": {
+      "title": "Access to the service",
+      "body": "The service is restricted to persons aged 18 or older. By creating an account, you confirm that you are of legal age and have the legal capacity to enter into a contract."
+    },
+    "account": {
+      "title": "User account",
+      "body": "Each user can create a single account linked to one restaurant and one menu. You are responsible for keeping your login credentials confidential."
+    },
+    "service": {
+      "title": "Service description",
+      "body": "Cartora lets you create a digital menu, publish it online, and generate a QR code to share it. The free plan includes menu creation with a watermark. The Pro plan allows publishing without watermark and access to the QR code."
+    },
+    "pricing": {
+      "title": "Pricing and payment",
+      "body": "The Pro plan is billed monthly. Payments are processed by Stripe. The subscription can be canceled at any time from the billing portal. In case of non-payment, access to Pro features is suspended."
+    },
+    "obligations": {
+      "title": "User obligations",
+      "body": "You agree to use the service for its intended purpose (creating restaurant menus) and not to publish unlawful, defamatory content or content that infringes the rights of third parties."
+    },
+    "intellectualProperty": {
+      "title": "Intellectual property",
+      "body": "You retain ownership of the content you publish on Cartora (dish names, descriptions, prices). Cartora retains ownership of the platform, source code, design and brand."
+    },
+    "liability": {
+      "title": "Liability",
+      "body": "Cartora strives to ensure service availability but does not guarantee uninterrupted operation. Cartora shall not be held liable for indirect damages related to the use of the service."
+    },
+    "termination": {
+      "title": "Termination and deletion",
+      "body": "You can delete your account at any time from settings. Deletion is immediate and irreversible: all your data, menu and subscription are deleted. Cartora reserves the right to suspend or delete an account in case of violation of these terms."
+    },
+    "law": {
+      "title": "Applicable law",
+      "body": "These terms are governed by French law. Any dispute shall be submitted to the competent courts."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "For any questions about these terms: contact@cartora.app"
+    }
+  },
+  "Consent": {
+    "bannerTitle": "Cookies and trackers",
+    "bannerDescription": "We use trackers to analyze traffic and improve service stability. See our <privacyLink>privacy policy</privacyLink>.",
+    "accept": "Accept",
+    "refuse": "Refuse",
+    "manageCookies": "Manage cookies"
   },
   "Stats": {
     "title": "Statistics",

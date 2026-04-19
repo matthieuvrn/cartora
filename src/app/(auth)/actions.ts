@@ -8,7 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 // ─── Schemas ───
 
 const EmailSchema = z.email();
-const PasswordSchema = z.string().min(6);
+const PasswordSchema = z.string().min(8);
 
 // ─── State ───
 
