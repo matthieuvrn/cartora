@@ -14,15 +14,109 @@ updates:
       prefix: "chore(deps)"
       prefix-development: "chore(deps-dev)"
     groups:
-      minor-and-patch:
+      react-and-next:
         update-types:
           - "minor"
           - "patch"
-      react:
         patterns:
+          - "next"
           - "react"
           - "react-dom"
+          - "next-intl"
           - "@types/react*"
+      data-and-observability:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "@prisma/*"
+          - "prisma"
+          - "@supabase/*"
+          - "@sentry/*"
+          - "@upstash/*"
+          - "stripe"
+      ui-and-runtime:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "@iconify*"
+          - "lucide-react"
+          - "radix-ui"
+          - "recharts"
+          - "geist"
+          - "class-variance-authority"
+          - "clsx"
+          - "qrcode"
+          - "tailwind-merge"
+          - "zod"
+      test-and-quality:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "@types/*"
+          - "vitest"
+          - "@vitest/*"
+          - "eslint"
+          - "eslint-*"
+          - "prettier"
+          - "typescript"
+          - "tsx"
+          - "dotenv"
+      styling-and-ui-tooling:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "tw-animate-css"
+          - "shadcn"
+      minor-and-patch-misc:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "next-intl"
+          - "@types/react*"
+          - "@prisma/*"
+          - "prisma"
+          - "@supabase/*"
+          - "@sentry/*"
+          - "@upstash/*"
+          - "stripe"
+          - "@iconify*"
+          - "lucide-react"
+          - "radix-ui"
+          - "recharts"
+          - "geist"
+          - "class-variance-authority"
+          - "clsx"
+          - "qrcode"
+          - "tailwind-merge"
+          - "zod"
+          - "@types/*"
+          - "vitest"
+          - "@vitest/*"
+          - "eslint"
+          - "eslint-*"
+          - "prettier"
+          - "typescript"
+          - "tsx"
+          - "dotenv"
+          - "tailwindcss"
+          - "@tailwindcss/*"
+          - "tw-animate-css"
+          - "shadcn"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -33,3 +127,10 @@ updates:
       - "ci"
     commit-message:
       prefix: "chore(ci)"
+    groups:
+      github-actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+        patterns:
+          - "*"
