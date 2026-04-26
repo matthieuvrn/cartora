@@ -16,6 +16,7 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
           descriptionEn: "Soup of the day",
           priceCents: 850,
           badge: "NONE",
+          allergens: [],
         },
       ],
     },

@@ -1,11 +1,14 @@
 import { Sparkles, Flame } from "lucide-react";
 import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 
 type Props = {
   item: PublicMenuItem;
   locale: "fr" | "en";
   badgeLabels: Record<"NEW" | "POPULAR", string>;
+  allergenLabels: AllergenLabels;
+  allergenSectionLabel: string;
 };
 
 const badgeConfig: Record<
@@ -37,7 +40,13 @@ function getLocalizedText(fr: string, en: string, locale: "fr" | "en"): string {
   return fr;
 }
 
-export function MenuItemRow({ item, locale, badgeLabels }: Props) {
+export function MenuItemRow({
+  item,
+  locale,
+  badgeLabels,
+  allergenLabels,
+  allergenSectionLabel,
+}: Props) {
   const name = getLocalizedText(item.nameFr, item.nameEn, locale);
   const description = getLocalizedText(item.descriptionFr, item.descriptionEn, locale);
 
@@ -61,6 +70,11 @@ export function MenuItemRow({ item, locale, badgeLabels }: Props) {
             })()}
         </div>
         {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        <AllergenIcons
+          allergens={item.allergens}
+          labels={allergenLabels}
+          listLabel={allergenSectionLabel}
+        />
       </div>
       <span
         className="shrink-0 pt-0.5 text-sm font-semibold tabular-nums"

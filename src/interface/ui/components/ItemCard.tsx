@@ -4,7 +4,7 @@ import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Sparkles, Flame, ChevronUp, ChevronDown } from "lucide-react";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
-import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import { ALLERGEN_VALUES, type ItemBadge } from "@/domain/menu/ItemPolicy";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { deleteItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ItemFormDialog } from "./ItemFormDialog";
+import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
 type Props = {
   item: MenuItemData;
@@ -56,6 +57,11 @@ const deleteInitialState: ItemActionState = { error: null };
 
 export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering }: Props) {
   const t = useTranslations("Dashboard");
+  const tAllergen = useTranslations("Allergen");
+  const allergenLabels: AllergenLabels = ALLERGEN_VALUES.reduce((acc, a) => {
+    acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
+    return acc;
+  }, {} as AllergenLabels);
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -121,6 +127,11 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
               {item.translations.fr.description}
             </p>
           )}
+          <AllergenIcons
+            allergens={item.allergens}
+            labels={allergenLabels}
+            listLabel={tAllergen("sectionTitle")}
+          />
         </div>
 
         <div className="flex items-center gap-2 shrink-0">

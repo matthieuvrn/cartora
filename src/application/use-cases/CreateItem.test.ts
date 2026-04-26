@@ -42,6 +42,7 @@ describe("CreateItem", () => {
       restaurantId: "resto-1",
       priceCents: 1200,
       badge: "NEW",
+      allergens: [],
       isAvailable: true,
       order: 3,
       translations: {
@@ -49,6 +50,25 @@ describe("CreateItem", () => {
         en: { name: "Caesar Salad", description: "Lettuce, parmesan" },
       },
     });
+  });
+
+  it("propagates allergens to the repo", async () => {
+    const repo = createMockRepo();
+    const uc = new CreateItem(repo);
+
+    await uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "EGGS"] });
+
+    expect(repo.createItem).toHaveBeenCalledWith(
+      expect.objectContaining({ allergens: ["GLUTEN", "EGGS"] }),
+    );
+  });
+
+  it("rejects an invalid allergen value", async () => {
+    const uc = new CreateItem(createMockRepo());
+
+    await expect(uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "PEPPER"] })).rejects.toThrow(
+      /PEPPER/,
+    );
   });
 
   it("defaults EN translations to empty strings when omitted", async () => {

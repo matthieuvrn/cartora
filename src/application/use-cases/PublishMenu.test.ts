@@ -29,6 +29,7 @@ const MENU_FIXTURE: MenuOverview = {
           id: "item-1",
           priceCents: 850,
           badge: "NONE",
+          allergens: [],
           isAvailable: true,
           order: 0,
           translations: {
@@ -116,6 +117,7 @@ describe("PublishMenu", () => {
                 descriptionEn: "Soup of the day",
                 priceCents: 850,
                 badge: "NONE",
+                allergens: [],
               },
             ],
           },
@@ -204,6 +206,7 @@ describe("PublishMenu", () => {
               id: "item-1",
               priceCents: 850,
               badge: "NONE",
+              allergens: [],
               isAvailable: true,
               order: 0,
               translations: {
@@ -215,6 +218,7 @@ describe("PublishMenu", () => {
               id: "item-2",
               priceCents: 1200,
               badge: "NEW",
+              allergens: [],
               isAvailable: false,
               order: 1,
               translations: {

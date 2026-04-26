@@ -46,3 +46,5 @@ src/generated/prisma/
 # Sentry Config File
 .env.sentry-build-plugin
 CLAUDE.md
+audit-fonctionnalites-saas.md
+roadmap.md

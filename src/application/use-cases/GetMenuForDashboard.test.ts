@@ -18,6 +18,7 @@ const MENU_FIXTURE: MenuOverview = {
           id: "item-1",
           priceCents: 850,
           badge: "NEW",
+          allergens: [],
           isAvailable: true,
           order: 0,
           translations: {

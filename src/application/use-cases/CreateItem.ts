@@ -6,6 +6,7 @@ export type CreateItemInput = {
   restaurantId: string;
   priceCents: number;
   badge: string;
+  allergens?: readonly string[];
   translations: {
     fr: { name: string; description: string };
     en?: { name?: string; description?: string };
@@ -34,6 +35,9 @@ export class CreateItem {
     const badgeError = ItemPolicy.validateBadge(input.badge);
     if (badgeError) throw new Error(badgeError);
 
+    const allergens = ItemPolicy.validateAllergens(input.allergens ?? []);
+    if (allergens.error) throw new Error(allergens.error);
+
     const isOwned = await this.repo.verifyCategoryOwnership(input.categoryId, input.restaurantId);
     if (!isOwned) throw new Error("Cette catégorie n'appartient pas à ce restaurant");
 
@@ -44,6 +48,7 @@ export class CreateItem {
       restaurantId: input.restaurantId,
       priceCents: input.priceCents,
       badge: input.badge as "NONE" | "NEW" | "POPULAR",
+      allergens: allergens.ok,
       isAvailable: true,
       order,
       translations: {

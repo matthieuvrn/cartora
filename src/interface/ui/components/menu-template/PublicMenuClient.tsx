@@ -5,10 +5,14 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { CategoryType } from "@/domain/menu/MenuTypes";
 import { MenuTemplate } from "./MenuTemplate";
 import { Button } from "@/components/ui/button";
+import type { AllergenLabels } from "../AllergenIcons";
 
 type Labels = {
   categoryLabels: Record<CategoryType, string>;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
+  allergenLabels: AllergenLabels;
+  allergenSectionLabel: string;
+  allergenLegendTitle: string;
   watermarkText: string;
 };
 
@@ -66,6 +70,9 @@ export function PublicMenuClient({
         showWatermark={showWatermark}
         categoryLabels={labels.categoryLabels}
         badgeLabels={labels.badgeLabels}
+        allergenLabels={labels.allergenLabels}
+        allergenSectionLabel={labels.allergenSectionLabel}
+        allergenLegendTitle={labels.allergenLegendTitle}
         watermarkText={labels.watermarkText}
       />
     </>

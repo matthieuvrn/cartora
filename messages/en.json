@@ -110,7 +110,68 @@
     "notFoundDescription": "This menu does not exist or has not been published yet.",
     "unavailable": "Menu unavailable",
     "unavailableDescription": "This menu is no longer available at this time.",
-    "watermark": "Powered by Cartora"
+    "watermark": "Powered by Cartora",
+    "allergenLegendTitle": "Declared allergens"
+  },
+  "Allergen": {
+    "sectionTitle": "Allergens",
+    "selectLabel": "Allergens present",
+    "GLUTEN": {
+      "short": "Gluten",
+      "legal": "Cereals containing gluten"
+    },
+    "CRUSTACEANS": {
+      "short": "Crustaceans",
+      "legal": "Crustaceans and products thereof"
+    },
+    "EGGS": {
+      "short": "Eggs",
+      "legal": "Eggs and products thereof"
+    },
+    "FISH": {
+      "short": "Fish",
+      "legal": "Fish and products thereof"
+    },
+    "PEANUTS": {
+      "short": "Peanuts",
+      "legal": "Peanuts and products thereof"
+    },
+    "SOYBEANS": {
+      "short": "Soybeans",
+      "legal": "Soybeans and products thereof"
+    },
+    "MILK": {
+      "short": "Milk",
+      "legal": "Milk and products thereof (including lactose)"
+    },
+    "NUTS": {
+      "short": "Nuts",
+      "legal": "Nuts and products thereof"
+    },
+    "CELERY": {
+      "short": "Celery",
+      "legal": "Celery and products thereof"
+    },
+    "MUSTARD": {
+      "short": "Mustard",
+      "legal": "Mustard and products thereof"
+    },
+    "SESAME": {
+      "short": "Sesame",
+      "legal": "Sesame seeds and products thereof"
+    },
+    "SULPHITES": {
+      "short": "Sulphites",
+      "legal": "Sulphur dioxide and sulphites at concentrations of more than 10 mg/kg or 10 mg/L"
+    },
+    "LUPIN": {
+      "short": "Lupin",
+      "legal": "Lupin and products thereof"
+    },
+    "MOLLUSCS": {
+      "short": "Molluscs",
+      "legal": "Molluscs and products thereof"
+    }
   },
   "Billing": {
     "freeBadge": "Free",

@@ -1,4 +1,4 @@
-import type { ItemBadge } from "./ItemPolicy";
+import type { Allergen, ItemBadge } from "./ItemPolicy";
 import type { CategoryType, MenuOverview } from "./MenuTypes";
 
 export type PublicMenuItem = {
@@ -8,6 +8,7 @@ export type PublicMenuItem = {
   descriptionEn: string;
   priceCents: number;
   badge: ItemBadge;
+  allergens: Allergen[];
 };
 
 export type PublicMenuCategory = {
@@ -38,6 +39,7 @@ export function buildPublicSnapshot(
           descriptionEn: item.translations.en.description,
           priceCents: item.priceCents,
           badge: item.badge,
+          allergens: item.allergens,
         })),
     }))
     .filter((category) => category.items.length > 0);

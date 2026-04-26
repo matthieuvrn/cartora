@@ -23,6 +23,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { createItemAction, updateItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
+import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 
 type Props = {
   mode: "create" | "edit";
@@ -36,7 +37,9 @@ const initialState: ItemActionState = { error: null };
 
 export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: Props) {
   const t = useTranslations("Dashboard");
+  const tAllergen = useTranslations("Allergen");
   const id = useId();
+  const selectedAllergens = new Set(item?.allergens ?? []);
   const serverAction = mode === "create" ? createItemAction : updateItemAction;
   const wrappedAction = useCallback(
     async (prev: ItemActionState, formData: FormData) => {
@@ -158,6 +161,33 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
               </Select>
             </div>
           </div>
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">{tAllergen("sectionTitle")}</legend>
+            <p className="text-xs text-muted-foreground">{tAllergen("selectLabel")}</p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
+              {ALLERGEN_VALUES.map((a) => {
+                const checkboxId = `${id}-allergen-${a}`;
+                return (
+                  <label
+                    key={a}
+                    htmlFor={checkboxId}
+                    className="flex cursor-pointer items-center gap-2 text-sm"
+                  >
+                    <input
+                      id={checkboxId}
+                      type="checkbox"
+                      name="allergens"
+                      value={a}
+                      defaultChecked={selectedAllergens.has(a)}
+                      className="size-4 rounded border-input"
+                    />
+                    <span>{tAllergen(`${a}.short`)}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
 
           {mode === "edit" && (
             <div className="flex items-center gap-2">

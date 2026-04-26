@@ -13,7 +13,7 @@ import { PublishMenu } from "@/application/use-cases/PublishMenu";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
-import { MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
+import { ALLERGEN_VALUES, MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
 import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
@@ -46,6 +46,8 @@ const TranslationSchema = z.object({
   description: z.string(),
 });
 
+const AllergensSchema = z.array(z.enum(ALLERGEN_VALUES)).max(ALLERGEN_VALUES.length).default([]);
+
 const CreateItemSchema = z.object({
   categoryId: z.uuid(),
   priceEur: z.coerce
@@ -53,6 +55,7 @@ const CreateItemSchema = z.object({
     .min(0)
     .max(MAX_PRICE_CENTS / 100),
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  allergens: AllergensSchema,
   translations: z.object({
     fr: TranslationSchema,
     en: TranslationSchema,
@@ -66,6 +69,7 @@ const UpdateItemSchema = z.object({
     .min(0)
     .max(MAX_PRICE_CENTS / 100),
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  allergens: AllergensSchema,
   isAvailable: z.boolean(),
   translations: z.object({
     fr: TranslationSchema,
@@ -118,6 +122,7 @@ export async function createItemAction(
     categoryId: formData.get("categoryId"),
     priceEur: formData.get("priceEur"),
     badge: formData.get("badge"),
+    allergens: formData.getAll("allergens"),
     translations: {
       fr: {
         name: formData.get("nameFr") ?? "",
@@ -149,6 +154,7 @@ export async function createItemAction(
       restaurantId,
       priceCents: eurToCents(parsed.data.priceEur),
       badge: parsed.data.badge,
+      allergens: parsed.data.allergens,
       translations: parsed.data.translations,
     });
 
@@ -169,6 +175,7 @@ export async function updateItemAction(
     itemId: formData.get("itemId"),
     priceEur: formData.get("priceEur"),
     badge: formData.get("badge"),
+    allergens: formData.getAll("allergens"),
     isAvailable: formData.get("isAvailable") === "true",
     translations: {
       fr: {
@@ -201,6 +208,7 @@ export async function updateItemAction(
       restaurantId,
       priceCents: eurToCents(parsed.data.priceEur),
       badge: parsed.data.badge,
+      allergens: parsed.data.allergens,
       isAvailable: parsed.data.isAvailable,
       translations: parsed.data.translations,
     });

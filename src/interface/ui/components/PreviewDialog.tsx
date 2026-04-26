@@ -7,7 +7,9 @@ import type { MenuOverview, CategoryType } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { MenuTemplate } from "./menu-template";
+import type { AllergenLabels } from "./AllergenIcons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +28,7 @@ type Props = {
 export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
   const t = useTranslations("Dashboard");
   const tp = useTranslations("PublicMenu");
+  const tAllergen = useTranslations("Allergen");
   const locale = useLocale() as "fr" | "en";
 
   const snapshot = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
@@ -41,6 +44,11 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
     NEW: tp("badge.NEW"),
     POPULAR: tp("badge.POPULAR"),
   };
+
+  const allergenLabels: AllergenLabels = ALLERGEN_VALUES.reduce((acc, a) => {
+    acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
+    return acc;
+  }, {} as AllergenLabels);
 
   return (
     <Dialog>
@@ -60,6 +68,9 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
           showWatermark={PublicationPolicy.shouldShowWatermark(planStatus)}
           categoryLabels={categoryLabels}
           badgeLabels={badgeLabels}
+          allergenLabels={allergenLabels}
+          allergenSectionLabel={tAllergen("sectionTitle")}
+          allergenLegendTitle={tp("allergenLegendTitle")}
           watermarkText={tp("watermark")}
         />
       </DialogContent>

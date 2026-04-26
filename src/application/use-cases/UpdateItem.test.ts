@@ -41,12 +41,32 @@ describe("UpdateItem", () => {
       restaurantId: "resto-1",
       priceCents: 1500,
       badge: "POPULAR",
+      allergens: [],
       isAvailable: true,
       translations: {
         fr: { name: "Tartare de bœuf", description: "Servi avec frites" },
         en: { name: "Beef tartare", description: "Served with fries" },
       },
     });
+  });
+
+  it("propagates allergens to the repo", async () => {
+    const repo = createMockRepo();
+    const uc = new UpdateItem(repo);
+
+    await uc.execute({ ...VALID_INPUT, allergens: ["MILK", "NUTS"] });
+
+    expect(repo.updateItem).toHaveBeenCalledWith(
+      expect.objectContaining({ allergens: ["MILK", "NUTS"] }),
+    );
+  });
+
+  it("rejects an invalid allergen value", async () => {
+    const uc = new UpdateItem(createMockRepo());
+
+    await expect(uc.execute({ ...VALID_INPUT, allergens: ["MILK", "BANANA"] })).rejects.toThrow(
+      /BANANA/,
+    );
   });
 
   it("passes isAvailable false through", async () => {

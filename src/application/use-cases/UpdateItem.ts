@@ -6,6 +6,7 @@ export type UpdateItemInput = {
   restaurantId: string;
   priceCents: number;
   badge: string;
+  allergens?: readonly string[];
   isAvailable: boolean;
   translations: {
     fr: { name: string; description: string };
@@ -31,11 +32,15 @@ export class UpdateItem {
     const badgeError = ItemPolicy.validateBadge(input.badge);
     if (badgeError) throw new Error(badgeError);
 
+    const allergens = ItemPolicy.validateAllergens(input.allergens ?? []);
+    if (allergens.error) throw new Error(allergens.error);
+
     await this.repo.updateItem({
       itemId: input.itemId,
       restaurantId: input.restaurantId,
       priceCents: input.priceCents,
       badge: input.badge as "NONE" | "NEW" | "POPULAR",
+      allergens: allergens.ok,
       isAvailable: input.isAvailable,
       translations: {
         fr: { name: frName, description: frDesc },

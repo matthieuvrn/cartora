@@ -110,7 +110,68 @@
     "notFoundDescription": "Ce menu n'existe pas ou n'a pas encore été publié.",
     "unavailable": "Menu indisponible",
     "unavailableDescription": "Ce menu n'est plus disponible pour le moment.",
-    "watermark": "Propulsé par Cartora"
+    "watermark": "Propulsé par Cartora",
+    "allergenLegendTitle": "Allergènes déclarés"
+  },
+  "Allergen": {
+    "sectionTitle": "Allergènes",
+    "selectLabel": "Allergènes présents",
+    "GLUTEN": {
+      "short": "Gluten",
+      "legal": "Céréales contenant du gluten"
+    },
+    "CRUSTACEANS": {
+      "short": "Crustacés",
+      "legal": "Crustacés et produits à base de crustacés"
+    },
+    "EGGS": {
+      "short": "Œufs",
+      "legal": "Œufs et produits à base d'œufs"
+    },
+    "FISH": {
+      "short": "Poissons",
+      "legal": "Poissons et produits à base de poissons"
+    },
+    "PEANUTS": {
+      "short": "Arachides",
+      "legal": "Arachides et produits à base d'arachides"
+    },
+    "SOYBEANS": {
+      "short": "Soja",
+      "legal": "Soja et produits à base de soja"
+    },
+    "MILK": {
+      "short": "Lait",
+      "legal": "Lait et produits à base de lait (y compris le lactose)"
+    },
+    "NUTS": {
+      "short": "Fruits à coque",
+      "legal": "Fruits à coque et produits à base de fruits à coque"
+    },
+    "CELERY": {
+      "short": "Céleri",
+      "legal": "Céleri et produits à base de céleri"
+    },
+    "MUSTARD": {
+      "short": "Moutarde",
+      "legal": "Moutarde et produits à base de moutarde"
+    },
+    "SESAME": {
+      "short": "Sésame",
+      "legal": "Graines de sésame et produits à base de graines de sésame"
+    },
+    "SULPHITES": {
+      "short": "Sulfites",
+      "legal": "Anhydride sulfureux et sulfites en concentrations de plus de 10 mg/kg ou 10 mg/L"
+    },
+    "LUPIN": {
+      "short": "Lupin",
+      "legal": "Lupin et produits à base de lupin"
+    },
+    "MOLLUSCS": {
+      "short": "Mollusques",
+      "legal": "Mollusques et produits à base de mollusques"
+    }
   },
   "Billing": {
     "freeBadge": "Gratuit",

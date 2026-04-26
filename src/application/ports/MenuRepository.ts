@@ -1,5 +1,5 @@
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
-import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 
 export interface MenuRepository {
   getMenuByRestaurantId(restaurantId: string): Promise<MenuOverview | null>;
@@ -9,6 +9,7 @@ export interface MenuRepository {
     restaurantId: string;
     priceCents: number;
     badge: ItemBadge;
+    allergens: Allergen[];
     isAvailable: boolean;
     order: number;
     translations: {
@@ -22,6 +23,7 @@ export interface MenuRepository {
     restaurantId: string;
     priceCents: number;
     badge: ItemBadge;
+    allergens: Allergen[];
     isAvailable: boolean;
     translations: {
       fr: { name: string; description: string };

@@ -7,6 +7,7 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
     id: "item-1",
     priceCents: 1200,
     badge: "NONE",
+    allergens: [],
     isAvailable: true,
     order: 0,
     translations: {
@@ -58,6 +59,7 @@ describe("buildPublicSnapshot", () => {
               descriptionEn: "Fresh",
               priceCents: 1200,
               badge: "NONE",
+              allergens: [],
             },
           ],
         },

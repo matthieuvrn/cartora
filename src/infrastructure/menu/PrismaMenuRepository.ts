@@ -1,6 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { MenuOverview, MenuItemData, ItemTranslations } from "@/domain/menu/MenuTypes";
-import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaMenuRepository implements MenuRepository {
@@ -26,6 +26,7 @@ export class PrismaMenuRepository implements MenuRepository {
                 id: true,
                 priceCents: true,
                 badge: true,
+                allergens: true,
                 isAvailable: true,
                 order: true,
               },
@@ -78,6 +79,7 @@ export class PrismaMenuRepository implements MenuRepository {
             id: item.id,
             priceCents: item.priceCents,
             badge: item.badge as ItemBadge,
+            allergens: item.allergens as Allergen[],
             isAvailable: item.isAvailable,
             order: item.order,
             translations: {
@@ -112,6 +114,7 @@ export class PrismaMenuRepository implements MenuRepository {
           restaurantId: params.restaurantId,
           priceCents: params.priceCents,
           badge: params.badge,
+          allergens: params.allergens,
           isAvailable: params.isAvailable,
           order: params.order,
         },
@@ -166,6 +169,7 @@ export class PrismaMenuRepository implements MenuRepository {
         data: {
           priceCents: params.priceCents,
           badge: params.badge,
+          allergens: { set: params.allergens },
           isAvailable: params.isAvailable,
         },
       });

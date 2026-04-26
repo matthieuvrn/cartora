@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  ALLERGEN_VALUES,
   ItemPolicy,
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_DESCRIPTION_LENGTH,
@@ -116,6 +117,43 @@ describe("ItemPolicy", () => {
     it("truncates at max length", () => {
       const long = "a".repeat(MAX_ITEM_DESCRIPTION_LENGTH + 50);
       expect(ItemPolicy.sanitizeDescription(long)).toHaveLength(MAX_ITEM_DESCRIPTION_LENGTH);
+    });
+  });
+
+  describe("validateAllergens", () => {
+    it("accepts an empty list", () => {
+      const result = ItemPolicy.validateAllergens([]);
+      expect(result.error).toBeNull();
+      expect(result.ok).toEqual([]);
+    });
+
+    it("accepts every official value", () => {
+      const result = ItemPolicy.validateAllergens([...ALLERGEN_VALUES]);
+      expect(result.error).toBeNull();
+      expect(result.ok).toHaveLength(ALLERGEN_VALUES.length);
+    });
+
+    it("dedupes silently", () => {
+      const result = ItemPolicy.validateAllergens(["GLUTEN", "GLUTEN", "EGGS"]);
+      expect(result.error).toBeNull();
+      expect(result.ok.sort()).toEqual(["EGGS", "GLUTEN"]);
+    });
+
+    it("rejects unknown values", () => {
+      const result = ItemPolicy.validateAllergens(["GLUTEN", "PEPPER"]);
+      expect(result.error).toMatch(/PEPPER/);
+      expect(result.ok).toEqual([]);
+    });
+
+    it("rejects lowercase variants", () => {
+      const result = ItemPolicy.validateAllergens(["gluten"]);
+      expect(result.error).not.toBeNull();
+    });
+
+    it("rejects more values than the official list size", () => {
+      const tooMany = Array.from({ length: ALLERGEN_VALUES.length + 1 }, () => "GLUTEN");
+      const result = ItemPolicy.validateAllergens(tooMany);
+      expect(result.error).toMatch(/maximum/i);
     });
   });
 });

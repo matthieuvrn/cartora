@@ -5,7 +5,9 @@ import { GetPublicMenu } from "@/application/use-cases/GetPublicMenu";
 import type { GetPublicMenuOutput } from "@/application/use-cases/GetPublicMenu";
 import type { CategoryType } from "@/domain/menu/MenuTypes";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { ALLERGEN_VALUES, type Allergen } from "@/domain/menu/ItemPolicy";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
+import type { AllergenLabels } from "@/interface/ui/components/AllergenIcons";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { TrackingBeacon } from "@/interface/ui/components/menu-template";
@@ -125,6 +127,15 @@ export default async function PublicMenuPage({ params }: Props) {
     );
   }
 
+  const allergenLabelsFor = (source: typeof frMessages | typeof enMessages): AllergenLabels => {
+    const out = {} as AllergenLabels;
+    for (const a of ALLERGEN_VALUES) {
+      const entry = source.Allergen[a as Allergen];
+      out[a] = { short: entry.short, legal: entry.legal };
+    }
+    return out;
+  };
+
   const labelsFr = {
     categoryLabels: {
       STARTERS: frMessages.PublicMenu.category.STARTERS,
@@ -136,6 +147,9 @@ export default async function PublicMenuPage({ params }: Props) {
       NEW: frMessages.PublicMenu.badge.NEW,
       POPULAR: frMessages.PublicMenu.badge.POPULAR,
     },
+    allergenLabels: allergenLabelsFor(frMessages),
+    allergenSectionLabel: frMessages.Allergen.sectionTitle,
+    allergenLegendTitle: frMessages.PublicMenu.allergenLegendTitle,
     watermarkText: frMessages.PublicMenu.watermark,
   };
 
@@ -150,6 +164,9 @@ export default async function PublicMenuPage({ params }: Props) {
       NEW: enMessages.PublicMenu.badge.NEW,
       POPULAR: enMessages.PublicMenu.badge.POPULAR,
     },
+    allergenLabels: allergenLabelsFor(enMessages),
+    allergenSectionLabel: enMessages.Allergen.sectionTitle,
+    allergenLegendTitle: enMessages.PublicMenu.allergenLegendTitle,
     watermarkText: enMessages.PublicMenu.watermark,
   };
 
