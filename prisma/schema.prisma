@@ -25,15 +25,6 @@ enum MenuStatus {
   @@map("menu_status")
 }
 
-enum CategoryType {
-  STARTERS
-  MAINS
-  DESSERTS
-  DRINKS
-
-  @@map("category_type")
-}
-
 enum ItemBadge {
   NONE
   NEW
@@ -132,20 +123,22 @@ model Menu {
 }
 
 model Category {
-  id           String       @id @default(uuid()) @db.Uuid
-  menuId       String       @map("menu_id") @db.Uuid
-  restaurantId String       @map("restaurant_id") @db.Uuid
-  type         CategoryType
+  id           String   @id @default(uuid()) @db.Uuid
+  menuId       String   @map("menu_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  name         String   @db.VarChar(50)
   order        Int
-  createdAt    DateTime     @default(now()) @map("created_at")
-  updatedAt    DateTime     @updatedAt @map("updated_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   menu       Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   items      Item[]
 
+  // NOTE: unicité (menuId, lower(btrim(name))) appliquée via index fonctionnel
+  // dans supabase/sql/062_categories_custom_names.sql
   @@unique([id, restaurantId])
-  @@unique([menuId, type])
+  @@index([menuId])
   @@index([restaurantId])
   @@map("categories")
 }

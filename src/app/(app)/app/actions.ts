@@ -9,7 +9,13 @@ import { CreateItem } from "@/application/use-cases/CreateItem";
 import { UpdateItem } from "@/application/use-cases/UpdateItem";
 import { DeleteItem } from "@/application/use-cases/DeleteItem";
 import { ReorderItems } from "@/application/use-cases/ReorderItems";
+import { CreateCategory } from "@/application/use-cases/CreateCategory";
+import { RenameCategory } from "@/application/use-cases/RenameCategory";
+import { DeleteCategory } from "@/application/use-cases/DeleteCategory";
+import { ReorderCategories } from "@/application/use-cases/ReorderCategories";
 import { PublishMenu } from "@/application/use-cases/PublishMenu";
+import { isDuplicateCategoryNameError } from "@/application/ports/MenuRepository";
+import { MAX_CATEGORY_NAME_LENGTH } from "@/domain/menu/CategoryPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
@@ -84,6 +90,25 @@ const DeleteItemSchema = z.object({
 const ReorderItemsSchema = z.object({
   categoryId: z.uuid(),
   itemIds: z.array(z.uuid()).min(1),
+});
+
+const CategoryNameSchema = z.string().min(1).max(MAX_CATEGORY_NAME_LENGTH);
+
+const CreateCategorySchema = z.object({
+  name: CategoryNameSchema,
+});
+
+const RenameCategorySchema = z.object({
+  categoryId: z.uuid(),
+  name: CategoryNameSchema,
+});
+
+const DeleteCategorySchema = z.object({
+  categoryId: z.uuid(),
+});
+
+const ReorderCategoriesSchema = z.object({
+  orderedIds: z.array(z.uuid()).min(1),
 });
 
 const RenameRestaurantSchema = z.object({
@@ -292,6 +317,153 @@ export async function reorderItemsAction(
     return { error: null, success: true };
   } catch (e) {
     Sentry.captureException(e, { tags: { action: "reorderItems" } });
+    return { error: "generic" };
+  }
+}
+
+// ─── Catégories ─────────────────────────────────────────────────────────────
+
+export async function createCategoryAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = CreateCategorySchema.safeParse({
+    name: formData.get("name"),
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
+    if (!menuId) return { error: "generic" };
+
+    const useCase = new CreateCategory(repo);
+    await useCase.execute({
+      restaurantId,
+      menuId,
+      name: parsed.data.name,
+    });
+
+    await repo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    if (isDuplicateCategoryNameError(e)) {
+      return { error: "duplicate_name" };
+    }
+    Sentry.captureException(e, { tags: { action: "createCategory" } });
+    return { error: "generic" };
+  }
+}
+
+export async function renameCategoryAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = RenameCategorySchema.safeParse({
+    categoryId: formData.get("categoryId"),
+    name: formData.get("name"),
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new RenameCategory(repo);
+
+    await useCase.execute({
+      restaurantId,
+      categoryId: parsed.data.categoryId,
+      name: parsed.data.name,
+    });
+
+    await repo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    if (isDuplicateCategoryNameError(e)) {
+      return { error: "duplicate_name" };
+    }
+    Sentry.captureException(e, { tags: { action: "renameCategory" } });
+    return { error: "generic" };
+  }
+}
+
+export async function deleteCategoryAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const parsed = DeleteCategorySchema.safeParse({
+    categoryId: formData.get("categoryId"),
+  });
+
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const useCase = new DeleteCategory(repo);
+
+    await useCase.execute({
+      restaurantId,
+      categoryId: parsed.data.categoryId,
+    });
+
+    await repo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "deleteCategory" } });
+    return { error: "generic" };
+  }
+}
+
+export async function reorderCategoriesAction(
+  _prev: ItemActionState,
+  formData: FormData,
+): Promise<ItemActionState> {
+  const raw = formData.get("orderedIds");
+  let orderedIds: unknown = [];
+  if (typeof raw === "string") {
+    try {
+      orderedIds = JSON.parse(raw);
+    } catch {
+      return { error: "validation" };
+    }
+  }
+
+  const parsed = ReorderCategoriesSchema.safeParse({ orderedIds });
+  if (!parsed.success) {
+    return { error: "validation" };
+  }
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
+    if (!menuId) return { error: "generic" };
+
+    const useCase = new ReorderCategories(repo);
+    await useCase.execute({
+      restaurantId,
+      menuId,
+      orderedIds: parsed.data.orderedIds,
+    });
+
+    await repo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    return { error: null, success: true };
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "reorderCategories" } });
     return { error: "generic" };
   }
 }

@@ -12,7 +12,7 @@ export interface UserDataExport {
   menu: {
     status: string;
     categories: Array<{
-      type: string;
+      name: string;
       items: Array<{
         nameFr: string | null;
         nameEn: string | null;

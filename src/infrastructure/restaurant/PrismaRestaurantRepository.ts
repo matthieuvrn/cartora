@@ -1,7 +1,7 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PrismaClient, CategoryType } from "@/generated/prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaRestaurantRepository implements RestaurantRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -44,7 +44,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
             data: params.categories.map((cat) => ({
               menuId: menu.id,
               restaurantId: restaurant.id,
-              type: cat.type as CategoryType,
+              name: cat.name,
               order: cat.order,
             })),
           });

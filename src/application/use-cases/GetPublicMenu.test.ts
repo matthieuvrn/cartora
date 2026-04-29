@@ -7,7 +7,7 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
   restaurantName: "Mon Restaurant",
   categories: [
     {
-      type: "STARTERS",
+      name: "Entrées",
       items: [
         {
           nameFr: "Soupe",

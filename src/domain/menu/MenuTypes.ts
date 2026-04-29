@@ -1,7 +1,4 @@
-import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { Allergen, ItemBadge } from "./ItemPolicy";
-
-export type CategoryType = InitialCategory["type"];
 
 export type ItemTranslations = {
   name: string;
@@ -20,7 +17,7 @@ export type MenuItemData = {
 
 export type MenuCategoryData = {
   id: string;
-  type: CategoryType;
+  name: string;
   order: number;
   items: MenuItemData[];
 };

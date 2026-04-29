@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Eye, Smartphone, Tablet, Monitor } from "lucide-react";
-import type { MenuOverview, CategoryType } from "@/domain/menu/MenuTypes";
+import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
@@ -43,13 +43,6 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
   const [viewport, setViewport] = useState<Viewport>("mobile");
 
   const snapshot = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
-
-  const categoryLabels: Record<CategoryType, string> = {
-    STARTERS: tp("category.STARTERS"),
-    MAINS: tp("category.MAINS"),
-    DESSERTS: tp("category.DESSERTS"),
-    DRINKS: tp("category.DRINKS"),
-  };
 
   const badgeLabels: Record<"NEW" | "POPULAR", string> = {
     NEW: tp("badge.NEW"),
@@ -109,7 +102,6 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
             snapshot={snapshot}
             locale={locale}
             showWatermark={PublicationPolicy.shouldShowWatermark(planStatus)}
-            categoryLabels={categoryLabels}
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={tAllergen("sectionTitle")}

@@ -41,10 +41,16 @@
     "badgeLabel": "Badge",
     "available": "Disponible",
     "category": {
-      "STARTERS": "Entrées",
-      "MAINS": "Plats",
-      "DESSERTS": "Desserts",
-      "DRINKS": "Boissons"
+      "add": "Ajouter une catégorie",
+      "rename": "Renommer",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer la catégorie « {name} » et tous ses items ?",
+      "deleteLast": "Vous devez garder au moins une catégorie",
+      "duplicate": "Une catégorie avec ce nom existe déjà",
+      "limitReached": "Limite de {max} catégories atteinte",
+      "namePlaceholder": "Nom de la catégorie",
+      "moveUp": "Monter la catégorie",
+      "moveDown": "Descendre la catégorie"
     },
     "badge": {
       "NONE": "Aucun",
@@ -99,12 +105,6 @@
     "deleteAccountError": "Une erreur est survenue lors de la suppression."
   },
   "PublicMenu": {
-    "category": {
-      "STARTERS": "Entrées",
-      "MAINS": "Plats",
-      "DESSERTS": "Desserts",
-      "DRINKS": "Boissons"
-    },
     "badge": {
       "NEW": "Nouveau",
       "POPULAR": "Populaire"

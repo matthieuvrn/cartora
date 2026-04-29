@@ -10,9 +10,16 @@ function createMockRepo(): MenuRepository {
     deleteItem: vi.fn(async () => {}),
     reorderItems: async () => {},
     verifyCategoryOwnership: async () => true,
+    verifyMenuOwnership: async () => true,
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
+    listCategoryNames: async () => [],
+    createCategory: async () => ({ id: "id" }),
+    renameCategory: async () => {},
+    deleteCategory: async () => {},
+    reorderCategories: async () => {},
+    getMenuIdByRestaurantId: async () => "menu-1",
   };
 }
 

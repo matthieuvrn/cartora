@@ -58,7 +58,7 @@ export class PrismaUserDataRepository implements UserDataRepository {
       menu: {
         status: restaurant.menu?.status ?? "DRAFT",
         categories: restaurant.categories.map((cat) => ({
-          type: cat.type,
+          name: cat.name,
           items: cat.items.map((item) => ({
             nameFr: getTranslation(item.id, "name", "FR"),
             nameEn: getTranslation(item.id, "name", "EN"),

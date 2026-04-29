@@ -1,5 +1,4 @@
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
-import type { CategoryType } from "@/domain/menu/MenuTypes";
 import type { Allergen } from "@/domain/menu/ItemPolicy";
 import { MenuCategorySection } from "./MenuCategorySection";
 import { Watermark } from "./Watermark";
@@ -10,7 +9,6 @@ type Props = {
   snapshot: PublicMenuSnapshot;
   locale: "fr" | "en";
   showWatermark?: boolean;
-  categoryLabels: Record<CategoryType, string>;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
@@ -22,7 +20,6 @@ export function MenuTemplate({
   snapshot,
   locale,
   showWatermark = false,
-  categoryLabels,
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
@@ -45,10 +42,9 @@ export function MenuTemplate({
       <div className="space-y-8">
         {snapshot.categories.map((category) => (
           <MenuCategorySection
-            key={category.type}
+            key={category.name}
             category={category}
             locale={locale}
-            categoryLabels={categoryLabels}
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}

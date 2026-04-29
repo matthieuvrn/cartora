@@ -18,7 +18,7 @@ export class PrismaMenuRepository implements MenuRepository {
           orderBy: { order: "asc" },
           select: {
             id: true,
-            type: true,
+            name: true,
             order: true,
             items: {
               orderBy: { order: "asc" },
@@ -72,7 +72,7 @@ export class PrismaMenuRepository implements MenuRepository {
       publishedAt: menu.publishedAt?.toISOString() ?? null,
       categories: menu.categories.map((cat) => ({
         id: cat.id,
-        type: cat.type,
+        name: cat.name,
         order: cat.order,
         items: cat.items.map(
           (item): MenuItemData => ({
@@ -262,6 +262,108 @@ export class PrismaMenuRepository implements MenuRepository {
       data: { status, publishedAt: new Date(publishedAt) },
     });
   }
+
+  // ─ Catégories ──────────────────────────────────────────────────────────────
+
+  async verifyMenuOwnership(menuId: string, restaurantId: string): Promise<boolean> {
+    const menu = await this.db.menu.findFirst({
+      where: { id: menuId, restaurantId },
+      select: { id: true },
+    });
+    return menu !== null;
+  }
+
+  async getMenuIdByRestaurantId(restaurantId: string): Promise<string | null> {
+    const menu = await this.db.menu.findUnique({
+      where: { restaurantId },
+      select: { id: true },
+    });
+    return menu?.id ?? null;
+  }
+
+  async listCategoryNames(menuId: string): Promise<{ id: string; name: string }[]> {
+    return this.db.category.findMany({
+      where: { menuId },
+      orderBy: { order: "asc" },
+      select: { id: true, name: true },
+    });
+  }
+
+  async createCategory(params: {
+    menuId: string;
+    restaurantId: string;
+    name: string;
+    order: number;
+  }): Promise<{ id: string }> {
+    try {
+      return await this.db.category.create({
+        data: {
+          menuId: params.menuId,
+          restaurantId: params.restaurantId,
+          name: params.name,
+          order: params.order,
+        },
+        select: { id: true },
+      });
+    } catch (e) {
+      throw mapDuplicateNameError(e);
+    }
+  }
+
+  async renameCategory(params: {
+    categoryId: string;
+    restaurantId: string;
+    name: string;
+  }): Promise<void> {
+    try {
+      await this.db.category.update({
+        where: { id: params.categoryId, restaurantId: params.restaurantId },
+        data: { name: params.name },
+      });
+    } catch (e) {
+      throw mapDuplicateNameError(e);
+    }
+  }
+
+  async deleteCategory(params: { categoryId: string; restaurantId: string }): Promise<void> {
+    await this.db.category.delete({
+      where: { id: params.categoryId, restaurantId: params.restaurantId },
+    });
+  }
+
+  async reorderCategories(params: {
+    menuId: string;
+    restaurantId: string;
+    orderedIds: string[];
+  }): Promise<void> {
+    const { menuId, restaurantId, orderedIds } = params;
+    await this.db.$transaction(async (tx) => {
+      for (const [index, id] of orderedIds.entries()) {
+        await tx.category.update({
+          where: { id, menuId, restaurantId },
+          data: { order: index },
+        });
+      }
+    });
+  }
+}
+
+/**
+ * Mappe une violation d'unicité Postgres (code 23505) ou Prisma (P2002) vers une erreur métier
+ * `code: "duplicate_name"` consommable par les use cases / actions.
+ */
+function mapDuplicateNameError(e: unknown): Error {
+  const isPrismaUnique = e instanceof Error && (e as { code?: string }).code === "P2002";
+  const isPgUnique =
+    e instanceof Error && /23505|categories_menu_id_name_lower_idx/.test(e.message);
+  if (isPrismaUnique || isPgUnique) {
+    const wrapped = new Error("Une catégorie avec ce nom existe déjà") as Error & {
+      code: "duplicate_name";
+    };
+    wrapped.code = "duplicate_name";
+    return wrapped;
+  }
+  return e instanceof Error ? e : new Error(String(e));
 }
 
 function getItemTranslations(

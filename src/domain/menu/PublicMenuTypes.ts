@@ -1,5 +1,5 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
-import type { CategoryType, MenuOverview } from "./MenuTypes";
+import type { MenuOverview } from "./MenuTypes";
 
 export type PublicMenuItem = {
   nameFr: string;
@@ -12,7 +12,7 @@ export type PublicMenuItem = {
 };
 
 export type PublicMenuCategory = {
-  type: CategoryType;
+  name: string;
   items: PublicMenuItem[];
 };
 
@@ -29,7 +29,7 @@ export function buildPublicSnapshot(
 ): PublicMenuSnapshot {
   const categories: PublicMenuCategory[] = menu.categories
     .map((category) => ({
-      type: category.type,
+      name: category.name,
       items: category.items
         .filter((item) => item.isAvailable)
         .map((item) => ({

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import { PrismaClient, type CategoryType, type ItemBadge } from "../src/generated/prisma/client";
+import { PrismaClient, type ItemBadge } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { createClient } from "@supabase/supabase-js";
 
@@ -23,120 +23,131 @@ type DemoItem = {
   descriptionEn: string;
 };
 
-const DEMO_MENU: Record<CategoryType, DemoItem[]> = {
-  STARTERS: [
-    {
-      priceCents: 950,
-      badge: "POPULAR",
-      nameFr: "Velouté de potimarron",
-      descriptionFr: "Crème de potimarron rôti, huile de noisette et croûtons maison.",
-      nameEn: "Roasted squash velouté",
-      descriptionEn: "Roasted squash cream with hazelnut oil and homemade croutons.",
-    },
-    {
-      priceCents: 1200,
-      badge: "NONE",
-      nameFr: "Tartare de betterave",
-      descriptionFr:
-        "Betteraves rouges, chèvre frais, noisettes torréfiées et pousses de moutarde.",
-      nameEn: "Beetroot tartare",
-      descriptionEn: "Red beetroot, fresh goat cheese, toasted hazelnuts and mustard sprouts.",
-    },
-    {
-      priceCents: 1400,
-      badge: "NEW",
-      nameFr: "Burrata fumée",
-      descriptionFr: "Burrata fumée au bois de hêtre, tomates anciennes et basilic.",
-      nameEn: "Smoked burrata",
-      descriptionEn: "Beechwood-smoked burrata, heirloom tomatoes and basil.",
-    },
-  ],
-  MAINS: [
-    {
-      priceCents: 2400,
-      badge: "POPULAR",
-      nameFr: "Magret de canard",
-      descriptionFr: "Magret rôti, sauce au miel et romarin, pommes grenailles.",
-      nameEn: "Duck breast",
-      descriptionEn: "Roasted duck breast, honey-rosemary jus and baby potatoes.",
-    },
-    {
-      priceCents: 2100,
-      badge: "NONE",
-      nameFr: "Risotto aux cèpes",
-      descriptionFr: "Riz carnaroli crémeux, cèpes sauvages et copeaux de parmesan.",
-      nameEn: "Porcini risotto",
-      descriptionEn: "Creamy carnaroli rice, wild porcini and parmesan shavings.",
-    },
-    {
-      priceCents: 2600,
-      badge: "NEW",
-      nameFr: "Bar en croûte de sel",
-      descriptionFr: "Bar de ligne cuit en croûte de sel, légumes de saison et beurre citronné.",
-      nameEn: "Salt-crusted sea bass",
-      descriptionEn: "Line-caught sea bass in salt crust, seasonal vegetables and lemon butter.",
-    },
-  ],
-  DESSERTS: [
-    {
-      priceCents: 900,
-      badge: "POPULAR",
-      nameFr: "Tarte au citron revisitée",
-      descriptionFr: "Crème de citron de Menton, meringue italienne et sablé breton.",
-      nameEn: "Lemon tart, revisited",
-      descriptionEn: "Menton lemon curd, Italian meringue and Breton shortbread.",
-    },
-    {
-      priceCents: 950,
-      badge: "NONE",
-      nameFr: "Moelleux chocolat noir",
-      descriptionFr: "Fondant au chocolat noir 70%, cœur coulant et glace vanille bourbon.",
-      nameEn: "Dark chocolate fondant",
-      descriptionEn: "70% dark chocolate fondant with molten heart and bourbon vanilla ice cream.",
-    },
-    {
-      priceCents: 850,
-      badge: "NEW",
-      nameFr: "Pavlova aux fruits rouges",
-      descriptionFr: "Meringue croquante, chantilly vanillée et fruits rouges de saison.",
-      nameEn: "Red berry pavlova",
-      descriptionEn: "Crisp meringue, vanilla whipped cream and seasonal red berries.",
-    },
-  ],
-  DRINKS: [
-    {
-      priceCents: 450,
-      badge: "NONE",
-      nameFr: "Limonade artisanale",
-      descriptionFr: "Limonade maison au citron de Sicile et menthe fraîche.",
-      nameEn: "Artisan lemonade",
-      descriptionEn: "House lemonade with Sicilian lemon and fresh mint.",
-    },
-    {
-      priceCents: 650,
-      badge: "POPULAR",
-      nameFr: "Verre de Côtes du Rhône",
-      descriptionFr: "Rouge fruité, notes de fruits noirs et épices douces.",
-      nameEn: "Glass of Côtes du Rhône",
-      descriptionEn: "Fruity red with black fruit and mild spice notes.",
-    },
-    {
-      priceCents: 400,
-      badge: "NONE",
-      nameFr: "Café expresso",
-      descriptionFr: "Pure Arabica torréfié en France, servi court.",
-      nameEn: "Espresso",
-      descriptionEn: "Pure Arabica roasted in France, served short.",
-    },
-  ],
+type DemoCategory = {
+  name: string;
+  items: DemoItem[];
 };
 
-const CATEGORY_ORDER: Record<CategoryType, number> = {
-  STARTERS: 0,
-  MAINS: 1,
-  DESSERTS: 2,
-  DRINKS: 3,
-};
+const DEMO_MENU: DemoCategory[] = [
+  {
+    name: "Entrées",
+    items: [
+      {
+        priceCents: 950,
+        badge: "POPULAR",
+        nameFr: "Velouté de potimarron",
+        descriptionFr: "Crème de potimarron rôti, huile de noisette et croûtons maison.",
+        nameEn: "Roasted squash velouté",
+        descriptionEn: "Roasted squash cream with hazelnut oil and homemade croutons.",
+      },
+      {
+        priceCents: 1200,
+        badge: "NONE",
+        nameFr: "Tartare de betterave",
+        descriptionFr:
+          "Betteraves rouges, chèvre frais, noisettes torréfiées et pousses de moutarde.",
+        nameEn: "Beetroot tartare",
+        descriptionEn: "Red beetroot, fresh goat cheese, toasted hazelnuts and mustard sprouts.",
+      },
+      {
+        priceCents: 1400,
+        badge: "NEW",
+        nameFr: "Burrata fumée",
+        descriptionFr: "Burrata fumée au bois de hêtre, tomates anciennes et basilic.",
+        nameEn: "Smoked burrata",
+        descriptionEn: "Beechwood-smoked burrata, heirloom tomatoes and basil.",
+      },
+    ],
+  },
+  {
+    name: "Plats",
+    items: [
+      {
+        priceCents: 2400,
+        badge: "POPULAR",
+        nameFr: "Magret de canard",
+        descriptionFr: "Magret rôti, sauce au miel et romarin, pommes grenailles.",
+        nameEn: "Duck breast",
+        descriptionEn: "Roasted duck breast, honey-rosemary jus and baby potatoes.",
+      },
+      {
+        priceCents: 2100,
+        badge: "NONE",
+        nameFr: "Risotto aux cèpes",
+        descriptionFr: "Riz carnaroli crémeux, cèpes sauvages et copeaux de parmesan.",
+        nameEn: "Porcini risotto",
+        descriptionEn: "Creamy carnaroli rice, wild porcini and parmesan shavings.",
+      },
+      {
+        priceCents: 2600,
+        badge: "NEW",
+        nameFr: "Bar en croûte de sel",
+        descriptionFr: "Bar de ligne cuit en croûte de sel, légumes de saison et beurre citronné.",
+        nameEn: "Salt-crusted sea bass",
+        descriptionEn: "Line-caught sea bass in salt crust, seasonal vegetables and lemon butter.",
+      },
+    ],
+  },
+  {
+    name: "Desserts",
+    items: [
+      {
+        priceCents: 900,
+        badge: "POPULAR",
+        nameFr: "Tarte au citron revisitée",
+        descriptionFr: "Crème de citron de Menton, meringue italienne et sablé breton.",
+        nameEn: "Lemon tart, revisited",
+        descriptionEn: "Menton lemon curd, Italian meringue and Breton shortbread.",
+      },
+      {
+        priceCents: 950,
+        badge: "NONE",
+        nameFr: "Moelleux chocolat noir",
+        descriptionFr: "Fondant au chocolat noir 70%, cœur coulant et glace vanille bourbon.",
+        nameEn: "Dark chocolate fondant",
+        descriptionEn:
+          "70% dark chocolate fondant with molten heart and bourbon vanilla ice cream.",
+      },
+      {
+        priceCents: 850,
+        badge: "NEW",
+        nameFr: "Pavlova aux fruits rouges",
+        descriptionFr: "Meringue croquante, chantilly vanillée et fruits rouges de saison.",
+        nameEn: "Red berry pavlova",
+        descriptionEn: "Crisp meringue, vanilla whipped cream and seasonal red berries.",
+      },
+    ],
+  },
+  {
+    name: "Boissons",
+    items: [
+      {
+        priceCents: 450,
+        badge: "NONE",
+        nameFr: "Limonade artisanale",
+        descriptionFr: "Limonade maison au citron de Sicile et menthe fraîche.",
+        nameEn: "Artisan lemonade",
+        descriptionEn: "House lemonade with Sicilian lemon and fresh mint.",
+      },
+      {
+        priceCents: 650,
+        badge: "POPULAR",
+        nameFr: "Verre de Côtes du Rhône",
+        descriptionFr: "Rouge fruité, notes de fruits noirs et épices douces.",
+        nameEn: "Glass of Côtes du Rhône",
+        descriptionEn: "Fruity red with black fruit and mild spice notes.",
+      },
+      {
+        priceCents: 400,
+        badge: "NONE",
+        nameFr: "Café expresso",
+        descriptionFr: "Pure Arabica torréfié en France, servi court.",
+        nameEn: "Espresso",
+        descriptionEn: "Pure Arabica roasted in France, served short.",
+      },
+    ],
+  },
+];
 
 async function ensureDemoAuthUser(): Promise<string> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -210,21 +221,32 @@ async function main() {
       select: { id: true },
     });
 
-    // 3. Upsert the 4 fixed categories
-    const categoryIds: Record<CategoryType, string> = {} as Record<CategoryType, string>;
-    for (const type of Object.keys(DEMO_MENU) as CategoryType[]) {
-      const category = await prisma.category.upsert({
-        where: { menuId_type: { menuId: menu.id, type } },
-        update: { order: CATEGORY_ORDER[type] },
-        create: {
-          menuId: menu.id,
-          restaurantId: restaurant.id,
-          type,
-          order: CATEGORY_ORDER[type],
-        },
+    // 3. Upsert categories by name (matched insensitively via lower(btrim))
+    const categoryIds: string[] = [];
+    for (let order = 0; order < DEMO_MENU.length; order++) {
+      const { name } = DEMO_MENU[order];
+      const existing = await prisma.category.findFirst({
+        where: { menuId: menu.id, name },
         select: { id: true },
       });
-      categoryIds[type] = category.id;
+
+      const category = existing
+        ? await prisma.category.update({
+            where: { id: existing.id },
+            data: { name, order },
+            select: { id: true },
+          })
+        : await prisma.category.create({
+            data: {
+              menuId: menu.id,
+              restaurantId: restaurant.id,
+              name,
+              order,
+            },
+            select: { id: true },
+          });
+
+      categoryIds.push(category.id);
     }
 
     // 4. Replace items + translations (deterministic re-seed)
@@ -249,13 +271,14 @@ async function main() {
       }
 
       // Create fresh items + translations
-      for (const type of Object.keys(DEMO_MENU) as CategoryType[]) {
-        const items = DEMO_MENU[type];
+      for (let catIdx = 0; catIdx < DEMO_MENU.length; catIdx++) {
+        const { items } = DEMO_MENU[catIdx];
+        const categoryId = categoryIds[catIdx];
         for (let order = 0; order < items.length; order++) {
           const item = items[order];
           const created = await tx.item.create({
             data: {
-              categoryId: categoryIds[type],
+              categoryId,
               restaurantId: restaurant.id,
               priceCents: item.priceCents,
               badge: item.badge,

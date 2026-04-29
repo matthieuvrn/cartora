@@ -22,7 +22,7 @@ const MENU_FIXTURE: MenuOverview = {
   categories: [
     {
       id: "cat-1",
-      type: "STARTERS",
+      name: "Entrées",
       order: 0,
       items: [
         {
@@ -39,9 +39,9 @@ const MENU_FIXTURE: MenuOverview = {
         },
       ],
     },
-    { id: "cat-2", type: "MAINS", order: 1, items: [] },
-    { id: "cat-3", type: "DESSERTS", order: 2, items: [] },
-    { id: "cat-4", type: "DRINKS", order: 3, items: [] },
+    { id: "cat-2", name: "Plats", order: 1, items: [] },
+    { id: "cat-3", name: "Desserts", order: 2, items: [] },
+    { id: "cat-4", name: "Boissons", order: 3, items: [] },
   ],
 };
 
@@ -53,9 +53,16 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     deleteItem: async () => {},
     reorderItems: async () => {},
     verifyCategoryOwnership: async () => true,
+    verifyMenuOwnership: async () => true,
     getNextItemOrder: async () => 0,
     updateMenuStatus: vi.fn(async () => {}),
     markMenuAsDraft: async () => {},
+    listCategoryNames: async () => [],
+    createCategory: async () => ({ id: "id" }),
+    renameCategory: async () => {},
+    deleteCategory: async () => {},
+    reorderCategories: async () => {},
+    getMenuIdByRestaurantId: async () => "menu-1",
     ...overrides,
   };
 }
@@ -108,7 +115,7 @@ describe("PublishMenu", () => {
         restaurantName: "Mon Restaurant",
         categories: [
           {
-            type: "STARTERS",
+            name: "Entrées",
             items: [
               {
                 nameFr: "Soupe",
@@ -199,7 +206,7 @@ describe("PublishMenu", () => {
       categories: [
         {
           id: "cat-1",
-          type: "STARTERS",
+          name: "Entrées",
           order: 0,
           items: [
             {
@@ -247,7 +254,7 @@ describe("PublishMenu", () => {
         snapshotData: expect.objectContaining({
           categories: [
             {
-              type: "STARTERS",
+              name: "Entrées",
               items: [expect.objectContaining({ nameFr: "Soupe" })],
             },
           ],

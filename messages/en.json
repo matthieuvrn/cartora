@@ -41,10 +41,16 @@
     "badgeLabel": "Badge",
     "available": "Available",
     "category": {
-      "STARTERS": "Starters",
-      "MAINS": "Mains",
-      "DESSERTS": "Desserts",
-      "DRINKS": "Drinks"
+      "add": "Add category",
+      "rename": "Rename",
+      "delete": "Delete",
+      "deleteConfirm": "Delete the category \"{name}\" and all its items?",
+      "deleteLast": "You must keep at least one category",
+      "duplicate": "A category with this name already exists",
+      "limitReached": "{max} categories limit reached",
+      "namePlaceholder": "Category name",
+      "moveUp": "Move category up",
+      "moveDown": "Move category down"
     },
     "badge": {
       "NONE": "None",
@@ -99,12 +105,6 @@
     "deleteAccountError": "An error occurred while deleting your account."
   },
   "PublicMenu": {
-    "category": {
-      "STARTERS": "Starters",
-      "MAINS": "Mains",
-      "DESSERTS": "Desserts",
-      "DRINKS": "Drinks"
-    },
     "badge": {
       "NEW": "New",
       "POPULAR": "Popular"

@@ -21,7 +21,7 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
 function makeCategory(overrides: Partial<MenuCategoryData> = {}): MenuCategoryData {
   return {
     id: "cat-1",
-    type: "STARTERS",
+    name: "Entrées",
     order: 0,
     items: [makeItem()],
     ...overrides,
@@ -50,7 +50,7 @@ describe("buildPublicSnapshot", () => {
       publishedAt: PUBLISHED_AT,
       categories: [
         {
-          type: "STARTERS",
+          name: "Entrées",
           items: [
             {
               nameFr: "Salade",
@@ -88,11 +88,12 @@ describe("buildPublicSnapshot", () => {
     const menu = makeMenu({
       categories: [
         makeCategory({
-          type: "STARTERS",
+          name: "Entrées",
           items: [makeItem({ isAvailable: false })],
         }),
         makeCategory({
-          type: "MAINS",
+          id: "cat-2",
+          name: "Plats",
           items: [makeItem({ isAvailable: true })],
         }),
       ],
@@ -100,12 +101,15 @@ describe("buildPublicSnapshot", () => {
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);
     expect(result.categories).toHaveLength(1);
-    expect(result.categories[0].type).toBe("MAINS");
+    expect(result.categories[0].name).toBe("Plats");
   });
 
   it("returns empty categories array when no items exist", () => {
     const menu = makeMenu({
-      categories: [makeCategory({ items: [] }), makeCategory({ type: "MAINS", items: [] })],
+      categories: [
+        makeCategory({ items: [] }),
+        makeCategory({ id: "cat-2", name: "Plats", items: [] }),
+      ],
     });
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);
@@ -173,11 +177,12 @@ describe("buildPublicSnapshot", () => {
     const menu = makeMenu({
       categories: [
         makeCategory({
-          type: "STARTERS",
+          name: "Entrées",
           items: [makeItem({ id: "1" })],
         }),
         makeCategory({
-          type: "DESSERTS",
+          id: "cat-2",
+          name: "Desserts",
           items: [makeItem({ id: "2", priceCents: 800, badge: "NEW" })],
         }),
       ],
@@ -185,8 +190,8 @@ describe("buildPublicSnapshot", () => {
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);
     expect(result.categories).toHaveLength(2);
-    expect(result.categories[0].type).toBe("STARTERS");
-    expect(result.categories[1].type).toBe("DESSERTS");
+    expect(result.categories[0].name).toBe("Entrées");
+    expect(result.categories[1].name).toBe("Desserts");
     expect(result.categories[1].items[0].badge).toBe("NEW");
   });
 });

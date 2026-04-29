@@ -1,12 +1,10 @@
 import type { PublicMenuCategory } from "@/domain/menu/PublicMenuTypes";
-import type { CategoryType } from "@/domain/menu/MenuTypes";
 import { MenuItemRow } from "./MenuItemRow";
 import type { AllergenLabels } from "../AllergenIcons";
 
 type Props = {
   category: PublicMenuCategory;
   locale: "fr" | "en";
-  categoryLabels: Record<CategoryType, string>;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
@@ -15,7 +13,6 @@ type Props = {
 export function MenuCategorySection({
   category,
   locale,
-  categoryLabels,
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
@@ -24,7 +21,7 @@ export function MenuCategorySection({
 
   return (
     <section>
-      <h2 className="mb-2 text-lg font-semibold">{categoryLabels[category.type]}</h2>
+      <h2 className="mb-2 text-lg font-semibold">{category.name}</h2>
       <ul className="divide-y" role="list">
         {category.items.map((item) => (
           <MenuItemRow

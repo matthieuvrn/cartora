@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { GetPublicMenu } from "@/application/use-cases/GetPublicMenu";
 import type { GetPublicMenuOutput } from "@/application/use-cases/GetPublicMenu";
-import type { CategoryType } from "@/domain/menu/MenuTypes";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { ALLERGEN_VALUES, type Allergen } from "@/domain/menu/ItemPolicy";
 import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
@@ -15,33 +14,18 @@ import { PublicMenuClient } from "@/interface/ui/components/menu-template/Public
 import frMessages from "../../../../messages/fr.json";
 import enMessages from "../../../../messages/en.json";
 
-export const revalidate = 3600;
-
-const CATEGORY_LABELS_FR: Record<CategoryType, string> = {
-  STARTERS: "Entrées",
-  MAINS: "Plats",
-  DESSERTS: "Desserts",
-  DRINKS: "Boissons",
-};
-
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
-async function getPublicMenuBySlug(slug: string): Promise<GetPublicMenuOutput> {
-  return unstable_cache(
-    async () => {
-      const snapshotRepo = new PrismaSnapshotRepository(prisma);
-      const getPublicMenu = new GetPublicMenu(snapshotRepo);
-      return getPublicMenu.execute({ slug });
-    },
-    [`public-menu-${slug}`],
-    {
-      tags: [`public-menu-${slug}`],
-      revalidate: 3600,
-    },
-  )();
-}
+// React.cache dedupes within a single request (generateMetadata + page render share the result),
+// but does NOT persist across requests. After a publish, the next request always fetches fresh
+// from DB — no stale-while-revalidate window like unstable_cache had.
+const getPublicMenuBySlug = cache(async (slug: string): Promise<GetPublicMenuOutput> => {
+  const snapshotRepo = new PrismaSnapshotRepository(prisma);
+  const getPublicMenu = new GetPublicMenu(snapshotRepo);
+  return getPublicMenu.execute({ slug });
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -55,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const { restaurantName, categories } = result.snapshot;
-  const categoryList = categories.map((c) => CATEGORY_LABELS_FR[c.type]).join(", ");
+  const categoryList = categories.map((c) => c.name).join(", ");
   const description = categoryList
     ? `Consultez le menu de ${restaurantName} : ${categoryList}. Disponible en ligne sur Cartora.`
     : `Consultez le menu de ${restaurantName}. Disponible en ligne sur Cartora.`;
@@ -86,7 +70,7 @@ function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string) {
       name: `Menu de ${snapshot.restaurantName}`,
       hasMenuSection: snapshot.categories.map((category) => ({
         "@type": "MenuSection",
-        name: CATEGORY_LABELS_FR[category.type],
+        name: category.name,
         hasMenuItem: category.items.map((item) => ({
           "@type": "MenuItem",
           name: item.nameFr,
@@ -137,12 +121,6 @@ export default async function PublicMenuPage({ params }: Props) {
   };
 
   const labelsFr = {
-    categoryLabels: {
-      STARTERS: frMessages.PublicMenu.category.STARTERS,
-      MAINS: frMessages.PublicMenu.category.MAINS,
-      DESSERTS: frMessages.PublicMenu.category.DESSERTS,
-      DRINKS: frMessages.PublicMenu.category.DRINKS,
-    },
     badgeLabels: {
       NEW: frMessages.PublicMenu.badge.NEW,
       POPULAR: frMessages.PublicMenu.badge.POPULAR,
@@ -154,12 +132,6 @@ export default async function PublicMenuPage({ params }: Props) {
   };
 
   const labelsEn = {
-    categoryLabels: {
-      STARTERS: enMessages.PublicMenu.category.STARTERS,
-      MAINS: enMessages.PublicMenu.category.MAINS,
-      DESSERTS: enMessages.PublicMenu.category.DESSERTS,
-      DRINKS: enMessages.PublicMenu.category.DRINKS,
-    },
     badgeLabels: {
       NEW: enMessages.PublicMenu.badge.NEW,
       POPULAR: enMessages.PublicMenu.badge.POPULAR,
