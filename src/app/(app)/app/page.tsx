@@ -7,6 +7,11 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { logoutAction } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
 import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
+import {
+  RESTAURANT_TYPES,
+  defaultCategoryKeysFor,
+  type RestaurantType,
+} from "@/domain/restaurant/RestaurantInitPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
@@ -38,8 +43,23 @@ export default async function AppPage({
 
   const restaurantRepo = new PrismaRestaurantRepository(prisma);
   const ensureRestaurant = new EnsureRestaurantExists(restaurantRepo);
+
+  const rawType = user.user_metadata?.restaurant_type;
+  const restaurantType: RestaurantType | null =
+    typeof rawType === "string" && (RESTAURANT_TYPES as readonly string[]).includes(rawType)
+      ? (rawType as RestaurantType)
+      : null;
+
+  const tCategories = await getTranslations("Categories.default");
+  const categories = defaultCategoryKeysFor(restaurantType).map(({ key, order }) => ({
+    name: tCategories(key),
+    order,
+  }));
+
   const { restaurantId } = await ensureRestaurant.execute({
     userId: user.id,
+    restaurantType,
+    categories,
   });
 
   const menuRepo = new PrismaMenuRepository(prisma);

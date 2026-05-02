@@ -1,4 +1,4 @@
-import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
+import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 
 export interface RestaurantRepository {
@@ -9,6 +9,7 @@ export interface RestaurantRepository {
     displayName: string;
     slug: string;
     categories: InitialCategory[];
+    restaurantType?: RestaurantType | null;
   }): Promise<{ id: string }>;
 
   getRestaurantById(id: string): Promise<{

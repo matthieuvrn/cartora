@@ -3,12 +3,14 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
+import { RESTAURANT_TYPES } from "@/domain/restaurant/RestaurantInitPolicy";
 import * as Sentry from "@sentry/nextjs";
 
 // ─── Schemas ───
 
 const EmailSchema = z.email();
 const PasswordSchema = z.string().min(8);
+const RestaurantTypeSchema = z.enum(RESTAURANT_TYPES);
 
 // ─── State ───
 
@@ -64,12 +66,20 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
     return { error: validationError };
   }
 
+  const restaurantTypeRaw = formData.get("restaurantType");
+  const restaurantTypeResult =
+    typeof restaurantTypeRaw === "string" && restaurantTypeRaw.length > 0
+      ? RestaurantTypeSchema.safeParse(restaurantTypeRaw)
+      : null;
+  const restaurantType = restaurantTypeResult?.success ? restaurantTypeResult.data : undefined;
+
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signUp({
     email: email as string,
     password: password as string,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      data: restaurantType ? { restaurant_type: restaurantType } : undefined,
     },
   });
 

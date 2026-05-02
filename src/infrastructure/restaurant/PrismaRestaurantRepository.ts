@@ -1,5 +1,5 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { InitialCategory } from "@/domain/restaurant/RestaurantInitPolicy";
+import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
 
@@ -18,6 +18,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     displayName: string;
     slug: string;
     categories: InitialCategory[];
+    restaurantType?: RestaurantType | null;
   }): Promise<{ id: string }> {
     const maxRetries = 2;
 
@@ -31,6 +32,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
               ownerUserId: params.ownerUserId,
               displayName: params.displayName,
               slug,
+              restaurantType: params.restaurantType ?? null,
             },
             select: { id: true },
           });

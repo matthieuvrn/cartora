@@ -4,6 +4,17 @@ import { useActionState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
+  UtensilsCrossed,
+  Pizza,
+  Beer,
+  Wine,
+  Coffee,
+  CookingPot,
+  Beef,
+  Croissant,
+  type LucideIcon,
+} from "lucide-react";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -15,8 +26,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { signupAction, type AuthState } from "@/app/(auth)/actions";
+import { RESTAURANT_TYPES, type RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 
 const initialState: AuthState = { error: null };
+
+const TYPE_ICONS: Record<RestaurantType, LucideIcon> = {
+  TRADITIONAL: UtensilsCrossed,
+  PIZZERIA: Pizza,
+  BRASSERIE: Beer,
+  BAR: Wine,
+  CAFE: Coffee,
+  CREPERIE: CookingPot,
+  FASTFOOD: Beef,
+  BAKERY: Croissant,
+};
 
 export default function SignupPage() {
   const t = useTranslations("Auth");
@@ -42,7 +65,7 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>{t("signup")}</CardTitle>
         <CardDescription>Cartora</CardDescription>
@@ -71,6 +94,25 @@ export default function SignupPage() {
               required
             />
           </div>
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">{t("restaurantType.label")}</legend>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {RESTAURANT_TYPES.map((type) => {
+                const Icon = TYPE_ICONS[type];
+                return (
+                  <label
+                    key={type}
+                    className="relative flex cursor-pointer flex-col items-center gap-1 rounded-md border border-input bg-background p-3 text-center text-xs transition-colors hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent"
+                  >
+                    <input type="radio" name="restaurantType" value={type} className="sr-only" />
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    <span>{t(`restaurantType.${type}`)}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
         </CardContent>
 
         <CardFooter className="flex flex-col gap-3 pt-4">

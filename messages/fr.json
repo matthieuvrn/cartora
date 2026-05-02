@@ -24,6 +24,43 @@
       "resend_success": "Un nouveau lien t'a été envoyé !",
       "rate_limited": "Trop de tentatives, réessaie dans quelques minutes",
       "generic": "Une erreur est survenue, réessayez"
+    },
+    "restaurantType": {
+      "label": "Type d'établissement (optionnel)",
+      "TRADITIONAL": "Restaurant",
+      "PIZZERIA": "Pizzeria",
+      "BRASSERIE": "Brasserie",
+      "BAR": "Bar",
+      "CAFE": "Café",
+      "CREPERIE": "Crêperie",
+      "FASTFOOD": "Fast-food",
+      "BAKERY": "Boulangerie"
+    }
+  },
+  "Categories": {
+    "default": {
+      "starters": "Entrées",
+      "mains": "Plats",
+      "desserts": "Desserts",
+      "drinks": "Boissons",
+      "pizzas": "Pizzas",
+      "pasta": "Pâtes",
+      "antipasti": "Antipasti",
+      "cocktails": "Cocktails",
+      "beers": "Bières",
+      "wines": "Vins",
+      "softs": "Softs",
+      "boards": "Planches",
+      "hotDrinks": "Boissons chaudes",
+      "pastries": "Pâtisseries",
+      "brunch": "Brunchs",
+      "burgers": "Burgers",
+      "sides": "Accompagnements",
+      "breads": "Pains",
+      "viennoiseries": "Viennoiseries",
+      "crepesSweet": "Crêpes sucrées",
+      "crepesSavory": "Galettes salées",
+      "ciders": "Cidres"
     }
   },
   "Dashboard": {

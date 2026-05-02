@@ -1,12 +1,15 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import {
   DEFAULT_DISPLAY_NAME,
-  INITIAL_CATEGORIES,
   generateSlug,
+  type InitialCategory,
+  type RestaurantType,
 } from "@/domain/restaurant/RestaurantInitPolicy";
 
 export type EnsureRestaurantInput = {
   userId: string;
+  restaurantType?: RestaurantType | null;
+  categories: InitialCategory[];
 };
 
 export type EnsureRestaurantOutput = {
@@ -30,7 +33,8 @@ export class EnsureRestaurantExists {
       ownerUserId: input.userId,
       displayName: DEFAULT_DISPLAY_NAME,
       slug,
-      categories: [...INITIAL_CATEGORIES],
+      categories: input.categories,
+      restaurantType: input.restaurantType ?? null,
     });
 
     return { restaurantId: restaurant.id, created: true };
