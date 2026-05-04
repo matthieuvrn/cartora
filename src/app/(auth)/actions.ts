@@ -19,29 +19,25 @@ export type AuthState = {
   success?: boolean;
 };
 
-// ─── Helpers ───
-
-function getValidationError(email: unknown, password: unknown): string | null {
-  if (!EmailSchema.safeParse(email).success) return "invalid_email";
-  if (!PasswordSchema.safeParse(password).success) return "password_too_short";
-  return null;
-}
-
 // ─── Actions ───
 
 export async function loginAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = formData.get("email");
   const password = formData.get("password");
 
-  const validationError = getValidationError(email, password);
-  if (validationError) {
-    return { error: validationError };
+  // Au login, on ne valide jamais le format du mdp : il a pu être créé sous une politique antérieure.
+  // Supabase tranche via invalid_credentials.
+  if (!EmailSchema.safeParse(email).success) {
+    return { error: "invalid_email" };
+  }
+  if (typeof password !== "string" || password.length === 0) {
+    return { error: "invalid_credentials" };
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: email as string,
-    password: password as string,
+    password,
   });
 
   if (error) {
@@ -61,9 +57,11 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
   const email = formData.get("email");
   const password = formData.get("password");
 
-  const validationError = getValidationError(email, password);
-  if (validationError) {
-    return { error: validationError };
+  if (!EmailSchema.safeParse(email).success) {
+    return { error: "invalid_email" };
+  }
+  if (!PasswordSchema.safeParse(password).success) {
+    return { error: "password_too_short" };
   }
 
   const restaurantTypeRaw = formData.get("restaurantType");
