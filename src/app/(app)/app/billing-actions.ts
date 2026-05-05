@@ -95,14 +95,16 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
     const billingRepo = new PrismaBillingRepository(prisma);
     const qrAssetRepo = new PrismaQrAssetRepository(prisma);
     const gateway = new StripePaymentGateway();
-    const storage = new SupabaseStorageService();
+    const qrStorage = new SupabaseStorageService("qr-codes");
+    const itemImageStorage = new SupabaseStorageService("item-images");
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const authAdmin = new SupabaseAuthAdminService();
     const useCase = new DeleteRestaurant(
       billingRepo,
       qrAssetRepo,
       gateway,
-      storage,
+      qrStorage,
+      itemImageStorage,
       restaurantRepo,
       authAdmin,
     );

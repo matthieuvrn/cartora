@@ -20,6 +20,9 @@ const MENU_FIXTURE: MenuOverview = {
           badge: "NEW",
           allergens: [],
           isAvailable: true,
+          imagePath: null,
+          altTextFr: null,
+          altTextEn: null,
           order: 0,
           translations: {
             fr: { name: "Soupe", description: "Soupe du jour" },
@@ -40,6 +43,8 @@ function createMockRepo(menu: MenuOverview | null): MenuRepository {
     createItem: async () => ({ id: "new-id" }),
     updateItem: async () => {},
     deleteItem: async () => {},
+    getItem: async () => ({ imagePath: null }),
+    updateItemImage: async () => {},
     reorderItems: async () => {},
     verifyCategoryOwnership: async () => true,
     verifyMenuOwnership: async () => true,

@@ -27,9 +27,14 @@ export function MenuTemplate({
   watermarkText,
 }: Props) {
   const presentAllergens = new Set<Allergen>();
+  let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
   for (const category of snapshot.categories) {
-    for (const item of category.items) {
+    for (let i = 0; i < category.items.length; i++) {
+      const item = category.items[i];
       for (const a of item.allergens) presentAllergens.add(a);
+      if (!firstPhotoLocator && item.imagePath) {
+        firstPhotoLocator = { categoryName: category.name, itemIndex: i };
+      }
     }
   }
 
@@ -48,6 +53,9 @@ export function MenuTemplate({
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}
+            priorityItemIndex={
+              firstPhotoLocator?.categoryName === category.name ? firstPhotoLocator.itemIndex : null
+            }
           />
         ))}
       </div>

@@ -71,7 +71,9 @@ export default async function AppPage({
 
   const qrAssetRepo = new PrismaQrAssetRepository(prisma);
   const qrAsset = await qrAssetRepo.findByRestaurantId(restaurantId);
-  const qrCodeUrl = qrAsset ? new SupabaseStorageService().getPublicUrl(qrAsset.storagePath) : null;
+  const qrCodeUrl = qrAsset
+    ? new SupabaseStorageService("qr-codes").getPublicUrl(qrAsset.storagePath)
+    : null;
 
   const billingRepo = new PrismaBillingRepository(prisma);
   const billing = await billingRepo.findByRestaurantId(restaurantId);

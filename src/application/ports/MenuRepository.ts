@@ -39,6 +39,20 @@ export interface MenuRepository {
 
   deleteItem(params: { itemId: string; restaurantId: string }): Promise<void>;
 
+  /** Returns null if the item does not exist or does not belong to the restaurant. */
+  getItem(params: {
+    itemId: string;
+    restaurantId: string;
+  }): Promise<{ imagePath: string | null } | null>;
+
+  updateItemImage(params: {
+    itemId: string;
+    restaurantId: string;
+    imagePath: string | null;
+    altTextFr: string | null;
+    altTextEn: string | null;
+  }): Promise<void>;
+
   reorderItems(params: {
     categoryId: string;
     restaurantId: string;

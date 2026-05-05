@@ -8,6 +8,8 @@ function createMockRepo(): MenuRepository {
     createItem: async () => ({ id: "id" }),
     updateItem: async () => {},
     deleteItem: async () => {},
+    getItem: async () => ({ imagePath: null }),
+    updateItemImage: async () => {},
     reorderItems: vi.fn(async () => {}),
     verifyCategoryOwnership: vi.fn(async () => true),
     verifyMenuOwnership: async () => true,

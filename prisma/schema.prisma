@@ -165,6 +165,9 @@ model Item {
   badge        ItemBadge  @default(NONE)
   allergens    Allergen[] @default([])
   isAvailable  Boolean    @default(true) @map("is_available")
+  imagePath    String?    @map("image_path")
+  altTextFr    String?    @map("alt_text_fr")
+  altTextEn    String?    @map("alt_text_en")
   order        Int
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")

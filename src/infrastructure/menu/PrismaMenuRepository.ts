@@ -28,6 +28,9 @@ export class PrismaMenuRepository implements MenuRepository {
                 badge: true,
                 allergens: true,
                 isAvailable: true,
+                imagePath: true,
+                altTextFr: true,
+                altTextEn: true,
                 order: true,
               },
             },
@@ -81,6 +84,9 @@ export class PrismaMenuRepository implements MenuRepository {
             badge: item.badge as ItemBadge,
             allergens: item.allergens as Allergen[],
             isAvailable: item.isAvailable,
+            imagePath: item.imagePath,
+            altTextFr: item.altTextFr,
+            altTextEn: item.altTextEn,
             order: item.order,
             translations: {
               fr: getItemTranslations(translationMap, item.id, "FR"),
@@ -202,6 +208,34 @@ export class PrismaMenuRepository implements MenuRepository {
           },
         });
       }
+    });
+  }
+
+  async getItem(params: {
+    itemId: string;
+    restaurantId: string;
+  }): Promise<{ imagePath: string | null } | null> {
+    const item = await this.db.item.findFirst({
+      where: { id: params.itemId, restaurantId: params.restaurantId },
+      select: { imagePath: true },
+    });
+    return item;
+  }
+
+  async updateItemImage(params: {
+    itemId: string;
+    restaurantId: string;
+    imagePath: string | null;
+    altTextFr: string | null;
+    altTextEn: string | null;
+  }): Promise<void> {
+    await this.db.item.update({
+      where: { id: params.itemId, restaurantId: params.restaurantId },
+      data: {
+        imagePath: params.imagePath,
+        altTextFr: params.altTextFr,
+        altTextEn: params.altTextEn,
+      },
     });
   }
 

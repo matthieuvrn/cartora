@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Sparkles, Flame, ChevronUp, ChevronDown } from "lucide-react";
@@ -14,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { deleteItemAction, type ItemActionState } from "@/app/(app)/app/actions";
+import { itemImageUrl } from "@/lib/storage-url";
 import { ItemFormDialog } from "./ItemFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
@@ -77,6 +79,9 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
     setEditOpen(true);
   }
 
+  const thumbnailUrl = item.imagePath ? itemImageUrl(item.imagePath) : null;
+  const thumbnailAlt = item.altTextFr || item.altTextEn || item.translations.fr.name;
+
   return (
     <>
       <div className="flex items-start justify-between rounded-lg border p-3 gap-4">
@@ -104,6 +109,17 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
                 <ChevronDown />
               </Button>
             )}
+          </div>
+        )}
+        {thumbnailUrl && (
+          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
+            <Image
+              src={thumbnailUrl}
+              alt={thumbnailAlt}
+              fill
+              sizes="80px"
+              className="object-cover"
+            />
           </div>
         )}
         <div className="flex-1 min-w-0 space-y-1">

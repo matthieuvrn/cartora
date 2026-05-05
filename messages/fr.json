@@ -94,6 +94,23 @@
       "NEW": "Nouveau",
       "POPULAR": "Populaire"
     },
+    "photo": {
+      "title": "Photo du plat",
+      "noPhoto": "Aucune photo",
+      "upload": "Ajouter une photo",
+      "replace": "Remplacer",
+      "delete": "Supprimer la photo",
+      "remove": "Retirer",
+      "uploading": "Envoi en cours…",
+      "altTextHint": "Décrivez l'image pour les lecteurs d'écran (accessibilité)",
+      "altTextFr": "Description (FR)",
+      "altTextEn": "Description (EN)",
+      "error": {
+        "tooLarge": "Image trop lourde (max 5 Mo)",
+        "wrongFormat": "Format non supporté (JPEG, PNG, WebP uniquement)",
+        "generic": "L'enregistrement de la photo a échoué, réessayez"
+      }
+    },
     "moveUp": "Monter",
     "moveDown": "Descendre",
     "emptyCategory": "Aucun item dans cette catégorie",

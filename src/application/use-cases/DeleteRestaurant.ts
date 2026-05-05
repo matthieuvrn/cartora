@@ -20,7 +20,8 @@ export class DeleteRestaurant {
     private readonly billingRepo: BillingRepository,
     private readonly qrAssetRepo: QrAssetRepository,
     private readonly paymentGateway: PaymentGateway,
-    private readonly storageService: StorageService,
+    private readonly qrStorage: StorageService,
+    private readonly itemImageStorage: StorageService,
     private readonly restaurantRepo: RestaurantRepository,
     private readonly authAdmin: AuthAdminService,
   ) {}
@@ -45,11 +46,11 @@ export class DeleteRestaurant {
       );
     }
 
-    // 2. Cleanup Storage (non-blocking)
+    // 2. Cleanup QR storage (non-blocking)
     try {
       const qrAsset = await this.qrAssetRepo.findByRestaurantId(input.restaurantId);
       if (qrAsset) {
-        await this.storageService.delete(qrAsset.storagePath);
+        await this.qrStorage.delete(qrAsset.storagePath);
       }
     } catch (error) {
       errors.push(
@@ -57,10 +58,19 @@ export class DeleteRestaurant {
       );
     }
 
-    // 3. Delete restaurant (CASCADE handles all child tables)
+    // 3. Cleanup item images (non-blocking)
+    try {
+      await this.itemImageStorage.deleteByPrefix(`${input.restaurantId}/`);
+    } catch (error) {
+      errors.push(
+        `Item images cleanup failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    // 4. Delete restaurant (CASCADE handles all child tables)
     await this.restaurantRepo.delete(input.restaurantId);
 
-    // 4. Delete auth user
+    // 5. Delete auth user
     await this.authAdmin.deleteUser(input.ownerUserId);
 
     return { status: "completed", errors };

@@ -8,6 +8,9 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { CreateItem } from "@/application/use-cases/CreateItem";
 import { UpdateItem } from "@/application/use-cases/UpdateItem";
 import { DeleteItem } from "@/application/use-cases/DeleteItem";
+import { CreateItemImageUploadUrl } from "@/application/use-cases/CreateItemImageUploadUrl";
+import { SetItemImage } from "@/application/use-cases/SetItemImage";
+import { DeleteItemImage } from "@/application/use-cases/DeleteItemImage";
 import { ReorderItems } from "@/application/use-cases/ReorderItems";
 import { CreateCategory } from "@/application/use-cases/CreateCategory";
 import { RenameCategory } from "@/application/use-cases/RenameCategory";
@@ -20,6 +23,7 @@ import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRe
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { ALLERGEN_VALUES, MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
+import { ALLOWED_IMAGE_MIME_TYPES, MAX_ALT_TEXT_LENGTH } from "@/domain/menu/ItemPhotoPolicy";
 import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
@@ -34,6 +38,7 @@ export type ItemActionState = {
   error: string | null;
   fieldErrors?: Record<string, string>;
   success?: boolean;
+  createdItemId?: string;
 };
 
 export type PublishActionState = {
@@ -174,7 +179,7 @@ export async function createItemAction(
     const repo = new PrismaMenuRepository(prisma);
     const useCase = new CreateItem(repo);
 
-    await useCase.execute({
+    const { itemId } = await useCase.execute({
       categoryId: parsed.data.categoryId,
       restaurantId,
       priceCents: eurToCents(parsed.data.priceEur),
@@ -185,7 +190,7 @@ export async function createItemAction(
 
     await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
-    return { error: null, success: true };
+    return { error: null, success: true, createdItemId: itemId };
   } catch (e) {
     Sentry.captureException(e, { tags: { action: "createItem" } });
     return { error: "generic" };
@@ -262,7 +267,8 @@ export async function deleteItemAction(
   try {
     const restaurantId = await getAuthenticatedRestaurantId();
     const repo = new PrismaMenuRepository(prisma);
-    const useCase = new DeleteItem(repo);
+    const itemImageStorage = new SupabaseStorageService("item-images");
+    const useCase = new DeleteItem(repo, itemImageStorage);
 
     await useCase.execute({
       itemId: parsed.data.itemId,
@@ -318,6 +324,112 @@ export async function reorderItemsAction(
   } catch (e) {
     Sentry.captureException(e, { tags: { action: "reorderItems" } });
     return { error: "generic" };
+  }
+}
+
+// ─── Photos d'items ─────────────────────────────────────────────────────────
+
+const CreateImageUploadUrlSchema = z.object({
+  itemId: z.uuid(),
+  mime: z.enum(ALLOWED_IMAGE_MIME_TYPES),
+});
+
+const SetItemImageSchema = z.object({
+  itemId: z.uuid(),
+  imagePath: z.string().min(1).max(500),
+  altTextFr: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+  altTextEn: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+});
+
+const DeleteItemImageSchema = z.object({
+  itemId: z.uuid(),
+});
+
+export type ImageUploadUrlResult =
+  | { ok: true; uploadUrl: string; token: string; path: string }
+  | { ok: false; error: string };
+
+export async function createItemImageUploadUrlAction(input: {
+  itemId: string;
+  mime: string;
+}): Promise<ImageUploadUrlResult> {
+  const parsed = CreateImageUploadUrlSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new CreateItemImageUploadUrl(repo, storage);
+
+    const result = await useCase.execute({
+      restaurantId,
+      itemId: parsed.data.itemId,
+      mime: parsed.data.mime,
+    });
+
+    return { ok: true, ...result };
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "createItemImageUploadUrl" } });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export type ImageMutationResult = { ok: true } | { ok: false; error: string };
+
+export async function setItemImageAction(input: {
+  itemId: string;
+  imagePath: string;
+  altTextFr?: string;
+  altTextEn?: string;
+}): Promise<ImageMutationResult> {
+  const parsed = SetItemImageSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new SetItemImage(repo, storage);
+
+    await useCase.execute({
+      restaurantId,
+      itemId: parsed.data.itemId,
+      imagePath: parsed.data.imagePath,
+      altTextFr: parsed.data.altTextFr,
+      altTextEn: parsed.data.altTextEn,
+    });
+
+    revalidatePath("/app");
+    return { ok: true };
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "setItemImage" } });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export async function deleteItemImageAction(input: {
+  itemId: string;
+}): Promise<ImageMutationResult> {
+  const parsed = DeleteItemImageSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new DeleteItemImage(repo, storage);
+
+    await useCase.execute({
+      restaurantId,
+      itemId: parsed.data.itemId,
+    });
+
+    revalidatePath("/app");
+    return { ok: true };
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "deleteItemImage" } });
+    return { ok: false, error: "generic" };
   }
 }
 
@@ -482,7 +594,7 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
     // QR code generation — non-blocking for publish success
     try {
       const qrGenerator = new NodeQrCodeGenerator();
-      const storageService = new SupabaseStorageService();
+      const storageService = new SupabaseStorageService("qr-codes");
       const qrAssetRepo = new PrismaQrAssetRepository(prisma);
       const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
       const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}?utm_source=qr`;

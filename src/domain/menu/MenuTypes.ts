@@ -11,6 +11,9 @@ export type MenuItemData = {
   badge: ItemBadge;
   allergens: Allergen[];
   isAvailable: boolean;
+  imagePath: string | null;
+  altTextFr: string | null;
+  altTextEn: string | null;
   order: number;
   translations: { fr: ItemTranslations; en: ItemTranslations };
 };

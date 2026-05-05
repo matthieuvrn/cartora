@@ -25,6 +25,8 @@ function createMockStorageService(overrides: Partial<StorageService> = {}): Stor
     upload: vi.fn(async () => {}),
     getPublicUrl: vi.fn(() => PUBLIC_URL),
     delete: async () => {},
+    createSignedUploadUrl: async () => ({ uploadUrl: "", token: "", path: "" }),
+    deleteByPrefix: async () => {},
     ...overrides,
   };
 }

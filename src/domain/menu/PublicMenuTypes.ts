@@ -9,6 +9,9 @@ export type PublicMenuItem = {
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
+  imagePath: string | null;
+  altTextFr: string;
+  altTextEn: string;
 };
 
 export type PublicMenuCategory = {
@@ -40,6 +43,9 @@ export function buildPublicSnapshot(
           priceCents: item.priceCents,
           badge: item.badge,
           allergens: item.allergens,
+          imagePath: item.imagePath,
+          altTextFr: item.altTextFr ?? "",
+          altTextEn: item.altTextEn ?? "",
         })),
     }))
     .filter((category) => category.items.length > 0);

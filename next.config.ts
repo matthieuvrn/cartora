@@ -6,6 +6,16 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  images: {
+    remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? [
+          {
+            protocol: "https",
+            hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+          },
+        ]
+      : [],
+  },
   async headers() {
     const cspDirectives = [
       "default-src 'self'",

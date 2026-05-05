@@ -94,6 +94,23 @@
       "NEW": "New",
       "POPULAR": "Popular"
     },
+    "photo": {
+      "title": "Dish photo",
+      "noPhoto": "No photo",
+      "upload": "Add a photo",
+      "replace": "Replace",
+      "delete": "Delete photo",
+      "remove": "Remove",
+      "uploading": "Uploading…",
+      "altTextHint": "Describe the image for screen readers (accessibility)",
+      "altTextFr": "Description (FR)",
+      "altTextEn": "Description (EN)",
+      "error": {
+        "tooLarge": "Image too large (max 5 MB)",
+        "wrongFormat": "Unsupported format (JPEG, PNG, WebP only)",
+        "generic": "Saving the photo failed, please retry"
+      }
+    },
     "moveUp": "Move up",
     "moveDown": "Move down",
     "emptyCategory": "No items in this category",

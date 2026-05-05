@@ -8,6 +8,7 @@ type Props = {
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
+  priorityItemIndex?: number | null;
 };
 
 export function MenuCategorySection({
@@ -16,6 +17,7 @@ export function MenuCategorySection({
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
+  priorityItemIndex = null,
 }: Props) {
   if (category.items.length === 0) return null;
 
@@ -23,7 +25,7 @@ export function MenuCategorySection({
     <section>
       <h2 className="mb-2 text-lg font-semibold">{category.name}</h2>
       <ul className="divide-y" role="list">
-        {category.items.map((item) => (
+        {category.items.map((item, index) => (
           <MenuItemRow
             key={item.nameFr}
             item={item}
@@ -31,6 +33,7 @@ export function MenuCategorySection({
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}
+            priority={index === priorityItemIndex}
           />
         ))}
       </ul>
