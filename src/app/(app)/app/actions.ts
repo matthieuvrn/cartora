@@ -612,6 +612,19 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
   }
 }
 
+// ─── Onboarding ─────────────────────────────────────────────────────────────
+
+export async function dismissActivationChecklistAction(): Promise<void> {
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    await restaurantRepo.markActivationDismissed(restaurantId);
+    revalidatePath("/app");
+  } catch (e) {
+    Sentry.captureException(e, { tags: { action: "dismissActivationChecklist" } });
+  }
+}
+
 export async function renameRestaurantAction(
   _prev: RenameActionState,
   formData: FormData,

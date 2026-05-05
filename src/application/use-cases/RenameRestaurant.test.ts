@@ -8,6 +8,7 @@ function createMockRepo(overrides: Partial<RestaurantRepository> = {}): Restaura
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => null,
     updateDisplayName: vi.fn(async () => {}),
+    markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,
   };

@@ -17,9 +17,12 @@ export interface RestaurantRepository {
     slug: string;
     displayName: string;
     planStatus: PlanStatus;
+    activationDismissedAt: Date | null;
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
+
+  markActivationDismissed(restaurantId: string): Promise<void>;
 
   delete(restaurantId: string): Promise<void>;
 }

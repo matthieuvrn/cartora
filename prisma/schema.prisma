@@ -99,14 +99,15 @@ enum RestaurantType {
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model Restaurant {
-  id             String          @id @default(uuid()) @db.Uuid
-  ownerUserId    String          @unique @map("owner_user_id") @db.Uuid
-  displayName    String          @map("display_name")
-  slug           String          @unique
-  planStatus     PlanStatus      @default(FREE) @map("plan_status")
-  restaurantType RestaurantType? @map("restaurant_type")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
+  id                    String          @id @default(uuid()) @db.Uuid
+  ownerUserId           String          @unique @map("owner_user_id") @db.Uuid
+  displayName           String          @map("display_name")
+  slug                  String          @unique
+  planStatus            PlanStatus      @default(FREE) @map("plan_status")
+  restaurantType        RestaurantType? @map("restaurant_type")
+  activationDismissedAt DateTime?       @map("activation_dismissed_at")
+  createdAt             DateTime        @default(now()) @map("created_at")
+  updatedAt             DateTime        @updatedAt @map("updated_at")
 
   menu         Menu?
   billing      Billing?

@@ -306,7 +306,12 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
 
           {mode === "create" && (
             <fieldset className="space-y-3 rounded-lg border p-3">
-              <legend className="px-2 text-sm font-medium">{t("photo.title")}</legend>
+              <legend className="px-2 text-sm font-medium">
+                {t("photo.title")}{" "}
+                <span className="font-normal text-muted-foreground">
+                  {t("photo.optionalLabel")}
+                </span>
+              </legend>
               {pendingFileError && (
                 <p role="alert" className="text-sm text-destructive">
                   {pendingFileError}

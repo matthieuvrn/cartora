@@ -9,6 +9,7 @@ const RESTAURANT_FIXTURE = {
   slug: "resto-abcd1234",
   displayName: "Mon Restaurant",
   planStatus: "FREE" as PlanStatus,
+  activationDismissedAt: null,
 };
 
 const VALID_INPUT = {
@@ -25,6 +26,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
+    markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,
   };

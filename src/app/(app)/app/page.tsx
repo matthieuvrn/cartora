@@ -12,6 +12,7 @@ import {
   defaultCategoryKeysFor,
   type RestaurantType,
 } from "@/domain/restaurant/RestaurantInitPolicy";
+import { ActivationPolicy } from "@/domain/restaurant/ActivationPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
@@ -26,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
-import { publishMenuAction } from "./actions";
+import { dismissActivationChecklistAction, publishMenuAction } from "./actions";
 
 export default async function AppPage({
   searchParams,
@@ -87,6 +88,16 @@ export default async function AppPage({
   const getRealtimeStats = new GetRealtimeStats(analyticsRepo, clock);
   const realtimeStats = await getRealtimeStats.execute({ restaurantId });
 
+  const totalItems = menu.categories.reduce((acc, c) => acc + c.items.length, 0);
+  const checklist =
+    restaurant.activationDismissedAt !== null
+      ? null
+      : ActivationPolicy.compute({
+          restaurantName: restaurant.displayName,
+          totalItems,
+          menuStatus: menu.status,
+        });
+
   const t = await getTranslations("Dashboard");
 
   return (
@@ -134,6 +145,8 @@ export default async function AppPage({
           hasBilling={hasBilling}
           stats={stats}
           realtimeStats={realtimeStats}
+          activationChecklist={checklist}
+          dismissActivationAction={dismissActivationChecklistAction}
         />
 
         <div className="mt-16 border-t pt-8">

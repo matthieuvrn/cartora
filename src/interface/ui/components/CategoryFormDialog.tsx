@@ -52,7 +52,7 @@ export function CategoryFormDialog(props: Props) {
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <form action={formAction} className="space-y-5">
           <DialogHeader>
             <DialogTitle>

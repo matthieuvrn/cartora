@@ -96,6 +96,7 @@
     },
     "photo": {
       "title": "Photo du plat",
+      "optionalLabel": "(facultatif)",
       "noPhoto": "Aucune photo",
       "upload": "Ajouter une photo",
       "replace": "Remplacer",
@@ -109,6 +110,18 @@
         "tooLarge": "Image trop lourde (max 5 Mo)",
         "wrongFormat": "Format non supporté (JPEG, PNG, WebP uniquement)",
         "generic": "L'enregistrement de la photo a échoué, réessayez"
+      }
+    },
+    "activation": {
+      "title": "Premiers pas",
+      "progress": "{done} sur {total}",
+      "collapse": "Replier",
+      "expand": "Voir la checklist",
+      "step": {
+        "named": "Nommez votre restaurant",
+        "firstItem": "Ajoutez un premier plat",
+        "threeItems": "Ajoutez au moins 3 plats",
+        "published": "Publiez votre menu"
       }
     },
     "moveUp": "Monter",

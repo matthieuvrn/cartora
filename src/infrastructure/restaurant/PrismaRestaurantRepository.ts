@@ -72,10 +72,17 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     slug: string;
     displayName: string;
     planStatus: PlanStatus;
+    activationDismissedAt: Date | null;
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
       where: { id },
-      select: { id: true, slug: true, displayName: true, planStatus: true },
+      select: {
+        id: true,
+        slug: true,
+        displayName: true,
+        planStatus: true,
+        activationDismissedAt: true,
+      },
     });
 
     if (!restaurant) return null;
@@ -85,12 +92,20 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       slug: restaurant.slug,
       displayName: restaurant.displayName,
       planStatus: restaurant.planStatus as PlanStatus,
+      activationDismissedAt: restaurant.activationDismissedAt,
     };
   }
   async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
     await this.db.restaurant.update({
       where: { id: params.restaurantId },
       data: { displayName: params.displayName },
+    });
+  }
+
+  async markActivationDismissed(restaurantId: string): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: restaurantId },
+      data: { activationDismissedAt: new Date() },
     });
   }
 

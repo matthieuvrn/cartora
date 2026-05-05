@@ -70,6 +70,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => null,
     updateDisplayName: async () => {},
+    markActivationDismissed: async () => {},
     delete: vi.fn(async () => {}),
     ...overrides,
   };

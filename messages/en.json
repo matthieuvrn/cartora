@@ -96,6 +96,7 @@
     },
     "photo": {
       "title": "Dish photo",
+      "optionalLabel": "(optional)",
       "noPhoto": "No photo",
       "upload": "Add a photo",
       "replace": "Replace",
@@ -109,6 +110,18 @@
         "tooLarge": "Image too large (max 5 MB)",
         "wrongFormat": "Unsupported format (JPEG, PNG, WebP only)",
         "generic": "Saving the photo failed, please retry"
+      }
+    },
+    "activation": {
+      "title": "Get started",
+      "progress": "{done} of {total}",
+      "collapse": "Collapse",
+      "expand": "Show checklist",
+      "step": {
+        "named": "Name your restaurant",
+        "firstItem": "Add a first dish",
+        "threeItems": "Add at least 3 dishes",
+        "published": "Publish your menu"
       }
     },
     "moveUp": "Move up",

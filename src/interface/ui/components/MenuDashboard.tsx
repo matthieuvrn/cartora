@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
 import type { DashboardStats, RealtimeStats } from "@/domain/analytics/AnalyticsTypes";
 import {
   reorderCategoriesAction,
@@ -12,6 +13,7 @@ import {
   type PublishActionState,
 } from "@/app/(app)/app/actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
 import { CategorySection } from "./CategorySection";
 import { EditableRestaurantName } from "./EditableRestaurantName";
@@ -31,6 +33,8 @@ type Props = {
   hasBilling: boolean;
   stats?: DashboardStats;
   realtimeStats?: RealtimeStats;
+  activationChecklist: ActivationChecklist | null;
+  dismissActivationAction: () => Promise<void>;
 };
 
 export function MenuDashboard({
@@ -43,6 +47,8 @@ export function MenuDashboard({
   hasBilling,
   stats,
   realtimeStats,
+  activationChecklist,
+  dismissActivationAction,
 }: Props) {
   const t = useTranslations("Dashboard");
 
@@ -70,6 +76,13 @@ export function MenuDashboard({
 
   return (
     <div className="space-y-8">
+      {activationChecklist && (
+        <ActivationChecklistCard
+          checklist={activationChecklist}
+          dismissAction={dismissActivationAction}
+        />
+      )}
+
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <EditableRestaurantName currentName={restaurantName} />

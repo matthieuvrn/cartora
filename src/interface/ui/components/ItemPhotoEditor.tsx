@@ -130,7 +130,9 @@ export function ItemPhotoEditor({
 
   return (
     <fieldset className="space-y-3 rounded-lg border p-3">
-      <legend className="px-2 text-sm font-medium">{t("title")}</legend>
+      <legend className="px-2 text-sm font-medium">
+        {t("title")} <span className="font-normal text-muted-foreground">{t("optionalLabel")}</span>
+      </legend>
 
       {error && (
         <p role="alert" className="text-sm text-destructive">
