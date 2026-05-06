@@ -35,6 +35,7 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
       snapshotData: SNAPSHOT_FIXTURE,
       publishedAt: "2026-03-25T12:00:00.000Z",
       planStatus: "ACTIVE" as const,
+      planTier: "PRO" as const,
     }),
     listPublished: async () => [],
     ...overrides,
@@ -42,12 +43,16 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
 }
 
 describe("GetPublicMenu", () => {
-  it("returns snapshot and planStatus for existing slug", async () => {
+  it("returns snapshot, planStatus and planTier for existing slug", async () => {
     const uc = new GetPublicMenu(createMockSnapshotRepo());
 
     const result = await uc.execute({ slug: "resto-abcd1234" });
 
-    expect(result).toEqual({ snapshot: SNAPSHOT_FIXTURE, planStatus: "ACTIVE" });
+    expect(result).toEqual({
+      snapshot: SNAPSHOT_FIXTURE,
+      planStatus: "ACTIVE",
+      planTier: "PRO",
+    });
   });
 
   it("returns null for unknown slug", async () => {

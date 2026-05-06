@@ -102,4 +102,7 @@ export interface MenuRepository {
 
   /** Récupère le menuId d'un restaurant (pour les actions catégories qui n'ont que restaurantId). */
   getMenuIdByRestaurantId(restaurantId: string): Promise<string | null>;
+
+  /** Nombre d'items du restaurant qui ont une `imagePath` non-null (utilisé pour le paywall photos). */
+  countItemsWithImage(restaurantId: string): Promise<number>;
 }

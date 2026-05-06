@@ -27,7 +27,7 @@ function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): Bill
   return {
     upsertBilling: async () => {},
     findByRestaurantId: async () => BILLING_FIXTURE,
-    updatePlanStatus: async () => {},
+    updateRestaurantPlan: async () => {},
     ...overrides,
   };
 }
@@ -44,7 +44,17 @@ function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): Paym
   return {
     createCheckoutSession: async () => ({ url: "" }),
     createPortalSession: async () => ({ url: "" }),
-    verifyWebhookSignature: () => ({ id: "", type: "", created: 0, data: {} }),
+    verifyWebhookSignature: () => ({
+      id: "",
+      type: "",
+      created: 0,
+      data: {},
+      priceId: null,
+      customerId: null,
+      subscriptionId: null,
+      restaurantIdMetadata: null,
+    }),
+    fetchSubscriptionPriceId: async () => null,
     cancelSubscription: vi.fn(async () => {}),
     deleteCustomer: vi.fn(async () => {}),
     ...overrides,

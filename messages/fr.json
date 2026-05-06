@@ -12,11 +12,11 @@
     "checkEmailDesc": "Un lien de confirmation t'a été envoyé. Clique dessus pour activer ton compte.",
     "resendLink": "Renvoyer le lien",
     "resendEmail": "Entre ton email pour recevoir un nouveau lien",
-    "consentText": "En cr\u00e9ant un compte, vous acceptez nos <cguLink>CGU</cguLink> et reconnaissez avoir lu notre <privacyLink>politique de confidentialit\u00e9</privacyLink>.",
+    "consentText": "En créant un compte, vous acceptez nos <cguLink>CGU</cguLink> et reconnaissez avoir lu notre <privacyLink>politique de confidentialité</privacyLink>.",
     "error": {
       "invalid_credentials": "Email ou mot de passe incorrect",
       "invalid_email": "Adresse email invalide",
-      "password_too_short": "Le mot de passe doit faire au moins 8 caract\u00e8res",
+      "password_too_short": "Le mot de passe doit faire au moins 8 caractères",
       "user_already_exists": "Un compte existe déjà avec cet email",
       "email_not_confirmed": "Ton email n'a pas encore été vérifié. Vérifie ta boîte mail.",
       "otp_expired": "Ton lien de confirmation a expiré.",
@@ -161,7 +161,10 @@
       "priceTooHigh": "Le prix dépasse le maximum autorisé",
       "invalidBadge": "Badge invalide",
       "publishFailed": "La publication a échoué, réessayez",
-      "generic": "Une erreur est survenue, réessayez"
+      "generic": "Une erreur est survenue, réessayez",
+      "max_categories": "Limite de catégories atteinte pour votre plan. Passez en supérieur pour en ajouter plus.",
+      "max_photos": "Limite de photos atteinte pour votre plan. Passez en supérieur pour en ajouter plus.",
+      "duplicate_name": "Une catégorie avec ce nom existe déjà"
     },
     "deleteAccount": "Supprimer mon compte",
     "deleteAccountConfirmTitle": "Supprimer votre compte ?",
@@ -253,7 +256,12 @@
     "updatePayment": "Mettre à jour",
     "canceledBadge": "Annulé",
     "canceledDescription": "Votre abonnement a été annulé.",
-    "resubscribe": "Se réabonner"
+    "resubscribe": "Se réabonner",
+    "proBadge": "Pro",
+    "starterBadge": "Starter",
+    "starterDescription": "Votre abonnement Starter est actif.",
+    "switchToPro": "Passer en Pro",
+    "switchToStarter": "Repasser en Starter"
   },
   "Pricing": {
     "title": "Choisissez votre plan",
@@ -279,7 +287,19 @@
     "ctaCurrent": "Plan actuel",
     "ctaChoose": "Choisir",
     "ctaStartFree": "Commencer gratuitement",
-    "ctaStartPro": "Créer mon compte"
+    "ctaStartPro": "Créer mon compte",
+    "starter": {
+      "name": "Starter",
+      "price": "9,90 €",
+      "period": "/ mois",
+      "features": [
+        "Publication en ligne",
+        "QR code",
+        "Sans watermark",
+        "10 catégories",
+        "20 photos d'items"
+      ]
+    }
   },
   "Landing": {
     "header": {
@@ -349,207 +369,207 @@
     "retry": "Réessayer"
   },
   "Settings": {
-    "title": "Param\u00e8tres",
+    "title": "Paramètres",
     "back": "Retour",
     "account": "Mon compte",
     "accountDescription": "Informations de votre compte Cartora.",
     "email": "Adresse email",
-    "data": "Mes donn\u00e9es",
-    "dataDescription": "G\u00e9rez vos donn\u00e9es personnelles et vos pr\u00e9f\u00e9rences.",
-    "exportButton": "Exporter mes donn\u00e9es",
-    "exportError": "L\u2019export a \u00e9chou\u00e9, veuillez r\u00e9essayer.",
-    "privacyLink": "Consulter la politique de confidentialit\u00e9",
+    "data": "Mes données",
+    "dataDescription": "Gérez vos données personnelles et vos préférences.",
+    "exportButton": "Exporter mes données",
+    "exportError": "L’export a échoué, veuillez réessayer.",
+    "privacyLink": "Consulter la politique de confidentialité",
     "dangerZone": "Zone de danger",
-    "dangerZoneDescription": "La suppression de votre compte est imm\u00e9diate et irr\u00e9versible."
+    "dangerZoneDescription": "La suppression de votre compte est immédiate et irréversible."
   },
   "Footer": {
-    "privacy": "Politique de confidentialit\u00e9",
-    "legal": "Mentions l\u00e9gales",
+    "privacy": "Politique de confidentialité",
+    "legal": "Mentions légales",
     "terms": "CGU",
-    "manageCookies": "G\u00e9rer mes cookies"
+    "manageCookies": "Gérer mes cookies"
   },
   "Privacy": {
-    "title": "Politique de confidentialit\u00e9",
-    "lastUpdated": "Derni\u00e8re mise \u00e0 jour : avril 2026",
+    "title": "Politique de confidentialité",
+    "lastUpdated": "Dernière mise à jour : avril 2026",
     "controller": {
       "title": "Responsable de traitement",
-      "body": "Cartora est \u00e9dit\u00e9 par Cartora. Pour toute question relative \u00e0 vos donn\u00e9es personnelles, vous pouvez nous contacter \u00e0 contact@cartora.app."
+      "body": "Cartora est édité par Cartora. Pour toute question relative à vos données personnelles, vous pouvez nous contacter à contact@cartora.app."
     },
     "dataCollected": {
-      "title": "Donn\u00e9es collect\u00e9es",
+      "title": "Données collectées",
       "account": {
-        "title": "Donn\u00e9es de compte",
-        "body": "Lors de votre inscription, nous collectons votre adresse email et un mot de passe (stock\u00e9 sous forme hach\u00e9e). Ces donn\u00e9es sont n\u00e9cessaires \u00e0 la cr\u00e9ation et la gestion de votre compte."
+        "title": "Données de compte",
+        "body": "Lors de votre inscription, nous collectons votre adresse email et un mot de passe (stocké sous forme hachée). Ces données sont nécessaires à la création et la gestion de votre compte."
       },
       "menu": {
-        "title": "Donn\u00e9es de menu",
-        "body": "Nom du restaurant, items du menu (noms, descriptions, prix), traductions. Ces donn\u00e9es constituent le contenu que vous cr\u00e9ez via le service."
+        "title": "Données de menu",
+        "body": "Nom du restaurant, items du menu (noms, descriptions, prix), traductions. Ces données constituent le contenu que vous créez via le service."
       },
       "payment": {
-        "title": "Donn\u00e9es de paiement",
-        "body": "Votre email est transmis \u00e0 Stripe lors de la souscription. Stripe traite les donn\u00e9es de paiement (carte bancaire) en tant que sous-traitant. Nous ne stockons aucune donn\u00e9e bancaire."
+        "title": "Données de paiement",
+        "body": "Votre email est transmis à Stripe lors de la souscription. Stripe traite les données de paiement (carte bancaire) en tant que sous-traitant. Nous ne stockons aucune donnée bancaire."
       },
       "analytics": {
-        "title": "Donn\u00e9es d\u2019audience (avec consentement)",
-        "body": "Sur les pages de menu publiques, et uniquement avec votre consentement, nous collectons : le type d\u2019appareil (d\u00e9duit du User-Agent, non stock\u00e9), la langue du navigateur, et la source de la visite (QR code, lien direct). L\u2019adresse IP n\u2019est pas stock\u00e9e."
+        "title": "Données d’audience (avec consentement)",
+        "body": "Sur les pages de menu publiques, et uniquement avec votre consentement, nous collectons : le type d’appareil (déduit du User-Agent, non stocké), la langue du navigateur, et la source de la visite (QR code, lien direct). L’adresse IP n’est pas stockée."
       },
       "technical": {
-        "title": "Donn\u00e9es techniques (avec consentement)",
-        "body": "Avec votre consentement, Sentry collecte les erreurs JavaScript et leur contexte technique (URL, navigateur) pour am\u00e9liorer la stabilit\u00e9 du service. Nous avons d\u00e9sactiv\u00e9 l\u2019envoi de donn\u00e9es personnelles identifiantes (sendDefaultPii: false)."
+        "title": "Données techniques (avec consentement)",
+        "body": "Avec votre consentement, Sentry collecte les erreurs JavaScript et leur contexte technique (URL, navigateur) pour améliorer la stabilité du service. Nous avons désactivé l’envoi de données personnelles identifiantes (sendDefaultPii: false)."
       }
     },
     "purposes": {
-      "title": "Finalit\u00e9s des traitements",
-      "service": "Fourniture du service : cr\u00e9ation de compte, gestion du menu, publication, QR code",
+      "title": "Finalités des traitements",
+      "service": "Fourniture du service : création de compte, gestion du menu, publication, QR code",
       "payment": "Gestion des paiements et abonnements via Stripe",
-      "analytics": "Mesure d\u2019audience anonymis\u00e9e sur les menus publiques (avec consentement)",
-      "security": "S\u00e9curit\u00e9 : rate limiting pour pr\u00e9venir les abus (IP temporaire, non stock\u00e9e)",
-      "monitoring": "Suivi des erreurs techniques via Sentry (avec consentement c\u00f4t\u00e9 navigateur)"
+      "analytics": "Mesure d’audience anonymisée sur les menus publiques (avec consentement)",
+      "security": "Sécurité : rate limiting pour prévenir les abus (IP temporaire, non stockée)",
+      "monitoring": "Suivi des erreurs techniques via Sentry (avec consentement côté navigateur)"
     },
     "legalBasis": {
-      "title": "Bases l\u00e9gales",
+      "title": "Bases légales",
       "contract": {
         "label": "Contrat (Art. 6(1)(b) RGPD) :",
         "body": "inscription, gestion du menu, paiement, publication, QR code."
       },
       "legitimateInterest": {
-        "label": "Int\u00e9r\u00eat l\u00e9gitime (Art. 6(1)(f) RGPD) :",
-        "body": "rate limiting (s\u00e9curit\u00e9), monitoring serveur (Sentry c\u00f4t\u00e9 serveur)."
+        "label": "Intérêt légitime (Art. 6(1)(f) RGPD) :",
+        "body": "rate limiting (sécurité), monitoring serveur (Sentry côté serveur)."
       },
       "consent": {
         "label": "Consentement (Art. 6(1)(a) RGPD) :",
-        "body": "analytics visiteurs, Sentry c\u00f4t\u00e9 navigateur. Vous pouvez retirer votre consentement \u00e0 tout moment via le bouton \u00ab G\u00e9rer mes cookies \u00bb."
+        "body": "analytics visiteurs, Sentry côté navigateur. Vous pouvez retirer votre consentement à tout moment via le bouton « Gérer mes cookies »."
       }
     },
     "recipients": {
       "title": "Destinataires et sous-traitants",
-      "intro": "Vos donn\u00e9es sont transmises aux sous-traitants suivants, dans le cadre strict des finalit\u00e9s d\u00e9crites ci-dessus :",
-      "supabase": "Authentification, base de donn\u00e9es, stockage de fichiers (h\u00e9bergement UE)",
+      "intro": "Vos données sont transmises aux sous-traitants suivants, dans le cadre strict des finalités décrites ci-dessus :",
+      "supabase": "Authentification, base de données, stockage de fichiers (hébergement UE)",
       "stripe": "Traitement des paiements et gestion des abonnements",
-      "sentry": "Monitoring des erreurs (h\u00e9bergement UE \u2014 *.ingest.de.sentry.io)",
-      "vercel": "H\u00e9bergement de l\u2019application et des fonctions serveur",
-      "upstash": "Rate limiting (stockage temporaire d\u2019IP, optionnel)"
+      "sentry": "Monitoring des erreurs (hébergement UE — *.ingest.de.sentry.io)",
+      "vercel": "Hébergement de l’application et des fonctions serveur",
+      "upstash": "Rate limiting (stockage temporaire d’IP, optionnel)"
     },
     "retention": {
-      "title": "Dur\u00e9es de conservation",
-      "account": "Donn\u00e9es de compte : dur\u00e9e de vie du compte. Supprim\u00e9es en cascade lors de la suppression du compte.",
-      "analytics": "\u00c9v\u00e9nements analytics bruts : 30 jours (purge automatique quotidienne)",
-      "analyticsAggregates": "Agr\u00e9gats analytics journaliers : 24 mois",
-      "webhookEvents": "\u00c9v\u00e9nements webhook (idempotence Stripe) : 90 jours",
-      "logs": "Logs serveur (Vercel) : selon la politique de r\u00e9tention Vercel (1 \u00e0 30 jours selon le plan)"
+      "title": "Durées de conservation",
+      "account": "Données de compte : durée de vie du compte. Supprimées en cascade lors de la suppression du compte.",
+      "analytics": "Événements analytics bruts : 30 jours (purge automatique quotidienne)",
+      "analyticsAggregates": "Agrégats analytics journaliers : 24 mois",
+      "webhookEvents": "Événements webhook (idempotence Stripe) : 90 jours",
+      "logs": "Logs serveur (Vercel) : selon la politique de rétention Vercel (1 à 30 jours selon le plan)"
     },
     "cookies": {
       "title": "Cookies et traceurs",
       "intro": "Nous utilisons les cookies suivants :",
       "session": {
         "label": "Cookies de session (Supabase Auth)",
-        "body": "Essentiels au fonctionnement de l\u2019authentification. Exempt\u00e9s de consentement."
+        "body": "Essentiels au fonctionnement de l’authentification. Exemptés de consentement."
       },
       "locale": {
-        "label": "Cookie de pr\u00e9f\u00e9rence linguistique (locale)",
-        "body": "Fonctionnel, stocke votre choix de langue (fr/en). Exempt\u00e9 de consentement."
+        "label": "Cookie de préférence linguistique (locale)",
+        "body": "Fonctionnel, stocke votre choix de langue (fr/en). Exempté de consentement."
       },
       "consent": {
         "label": "Cookie de consentement (cartora-consent)",
-        "body": "Stocke votre choix d\u2019acceptation ou de refus des traceurs. Dur\u00e9e : 13 mois."
+        "body": "Stocke votre choix d’acceptation ou de refus des traceurs. Durée : 13 mois."
       },
-      "trackers": "Les traceurs non essentiels (analytics, Sentry c\u00f4t\u00e9 navigateur) ne sont activ\u00e9s qu\u2019apr\u00e8s votre consentement explicite."
+      "trackers": "Les traceurs non essentiels (analytics, Sentry côté navigateur) ne sont activés qu’après votre consentement explicite."
     },
     "rights": {
       "title": "Vos droits",
-      "intro": "Conform\u00e9ment au RGPD, vous disposez des droits suivants :",
-      "access": "Droit d\u2019acc\u00e8s : obtenir une copie de vos donn\u00e9es personnelles",
-      "rectification": "Droit de rectification : corriger des donn\u00e9es inexactes",
-      "erasure": "Droit \u00e0 l\u2019effacement : supprimer votre compte et toutes vos donn\u00e9es",
-      "restriction": "Droit \u00e0 la limitation du traitement",
-      "portability": "Droit \u00e0 la portabilit\u00e9 : t\u00e9l\u00e9charger vos donn\u00e9es dans un format structur\u00e9 (JSON)",
-      "objection": "Droit d\u2019opposition",
-      "withdrawConsent": "Droit de retirer votre consentement aux traceurs \u00e0 tout moment",
-      "contact": "Pour exercer vos droits, contactez-nous \u00e0 contact@cartora.app. Nous r\u00e9pondrons dans un d\u00e9lai d\u2019un mois.",
-      "cnil": "Vous disposez \u00e9galement du droit de d\u00e9poser une r\u00e9clamation aupr\u00e8s de la CNIL (www.cnil.fr)."
+      "intro": "Conformément au RGPD, vous disposez des droits suivants :",
+      "access": "Droit d’accès : obtenir une copie de vos données personnelles",
+      "rectification": "Droit de rectification : corriger des données inexactes",
+      "erasure": "Droit à l’effacement : supprimer votre compte et toutes vos données",
+      "restriction": "Droit à la limitation du traitement",
+      "portability": "Droit à la portabilité : télécharger vos données dans un format structuré (JSON)",
+      "objection": "Droit d’opposition",
+      "withdrawConsent": "Droit de retirer votre consentement aux traceurs à tout moment",
+      "contact": "Pour exercer vos droits, contactez-nous à contact@cartora.app. Nous répondrons dans un délai d’un mois.",
+      "cnil": "Vous disposez également du droit de déposer une réclamation auprès de la CNIL (www.cnil.fr)."
     },
     "transfers": {
       "title": "Transferts hors UE",
-      "body": "Certains de nos sous-traitants (Stripe, Vercel) sont des soci\u00e9t\u00e9s am\u00e9ricaines. Les transferts de donn\u00e9es vers les \u00c9tats-Unis sont encadr\u00e9s par le Data Privacy Framework (DPF) et/ou des clauses contractuelles types (SCCs). Nous privil\u00e9gions les h\u00e9bergements en Union europ\u00e9enne lorsque c\u2019est possible (Supabase EU, Sentry EU)."
+      "body": "Certains de nos sous-traitants (Stripe, Vercel) sont des sociétés américaines. Les transferts de données vers les États-Unis sont encadrés par le Data Privacy Framework (DPF) et/ou des clauses contractuelles types (SCCs). Nous privilégions les hébergements en Union européenne lorsque c’est possible (Supabase EU, Sentry EU)."
     },
     "security": {
-      "title": "S\u00e9curit\u00e9",
-      "body": "Nous mettons en \u0153uvre des mesures techniques et organisationnelles pour prot\u00e9ger vos donn\u00e9es : chiffrement en transit (HTTPS/TLS), mots de passe hach\u00e9s, Row Level Security (RLS) au niveau de la base de donn\u00e9es, en-t\u00eates de s\u00e9curit\u00e9 stricts (CSP, HSTS, X-Frame-Options)."
+      "title": "Sécurité",
+      "body": "Nous mettons en œuvre des mesures techniques et organisationnelles pour protéger vos données : chiffrement en transit (HTTPS/TLS), mots de passe hachés, Row Level Security (RLS) au niveau de la base de données, en-têtes de sécurité stricts (CSP, HSTS, X-Frame-Options)."
     },
     "changes": {
       "title": "Modifications",
-      "body": "Nous nous r\u00e9servons le droit de modifier cette politique. En cas de modification substantielle, nous vous en informerons par email ou par une notification dans l\u2019application."
+      "body": "Nous nous réservons le droit de modifier cette politique. En cas de modification substantielle, nous vous en informerons par email ou par une notification dans l’application."
     },
     "contact": {
       "title": "Contact",
-      "body": "Pour toute question concernant cette politique ou vos donn\u00e9es personnelles : contact@cartora.app"
+      "body": "Pour toute question concernant cette politique ou vos données personnelles : contact@cartora.app"
     }
   },
   "Legal": {
-    "title": "Mentions l\u00e9gales",
+    "title": "Mentions légales",
     "publisher": {
-      "title": "\u00c9diteur du site",
-      "body": "Cartora est \u00e9dit\u00e9 par Cartora. Email : contact@cartora.app"
+      "title": "Éditeur du site",
+      "body": "Cartora est édité par Cartora. Email : contact@cartora.app"
     },
     "hosting": {
-      "title": "H\u00e9bergement",
-      "body": "Le site est h\u00e9berg\u00e9 par Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, \u00c9tats-Unis. Site : vercel.com"
+      "title": "Hébergement",
+      "body": "Le site est hébergé par Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis. Site : vercel.com"
     },
     "contact": {
       "title": "Contact",
-      "body": "Pour toute question, vous pouvez nous contacter \u00e0 contact@cartora.app."
+      "body": "Pour toute question, vous pouvez nous contacter à contact@cartora.app."
     },
     "intellectualProperty": {
-      "title": "Propri\u00e9t\u00e9 intellectuelle",
-      "body": "L\u2019ensemble du contenu du site Cartora (textes, graphismes, logo, ic\u00f4nes, code source) est prot\u00e9g\u00e9 par le droit d\u2019auteur. Toute reproduction, repr\u00e9sentation ou diffusion, en tout ou partie, sans autorisation pr\u00e9alable est interdite."
+      "title": "Propriété intellectuelle",
+      "body": "L’ensemble du contenu du site Cartora (textes, graphismes, logo, icônes, code source) est protégé par le droit d’auteur. Toute reproduction, représentation ou diffusion, en tout ou partie, sans autorisation préalable est interdite."
     }
   },
   "Terms": {
-    "title": "Conditions g\u00e9n\u00e9rales d\u2019utilisation",
-    "lastUpdated": "Derni\u00e8re mise \u00e0 jour : avril 2026",
+    "title": "Conditions générales d’utilisation",
+    "lastUpdated": "Dernière mise à jour : avril 2026",
     "object": {
       "title": "Objet",
-      "body": "Les pr\u00e9sentes CGU r\u00e9gissent l\u2019utilisation du service Cartora, une plateforme permettant aux restaurateurs de cr\u00e9er et publier des menus num\u00e9riques accessibles via QR code."
+      "body": "Les présentes CGU régissent l’utilisation du service Cartora, une plateforme permettant aux restaurateurs de créer et publier des menus numériques accessibles via QR code."
     },
     "access": {
-      "title": "Acc\u00e8s au service",
-      "body": "Le service est r\u00e9serv\u00e9 aux personnes majeures (18 ans ou plus). En cr\u00e9ant un compte, vous d\u00e9clarez \u00eatre majeur et avoir la capacit\u00e9 juridique de conclure un contrat."
+      "title": "Accès au service",
+      "body": "Le service est réservé aux personnes majeures (18 ans ou plus). En créant un compte, vous déclarez être majeur et avoir la capacité juridique de conclure un contrat."
     },
     "account": {
       "title": "Compte utilisateur",
-      "body": "Chaque utilisateur peut cr\u00e9er un seul compte associ\u00e9 \u00e0 un restaurant et un menu. Vous \u00eates responsable de la confidentialit\u00e9 de vos identifiants de connexion."
+      "body": "Chaque utilisateur peut créer un seul compte associé à un restaurant et un menu. Vous êtes responsable de la confidentialité de vos identifiants de connexion."
     },
     "service": {
       "title": "Description du service",
-      "body": "Cartora permet de cr\u00e9er un menu num\u00e9rique, de le publier en ligne, et de g\u00e9n\u00e9rer un QR code pour le partager. Le plan gratuit inclut la cr\u00e9ation du menu avec un filigrane. Le plan Pro permet la publication sans filigrane et l\u2019acc\u00e8s au QR code."
+      "body": "Cartora permet de créer un menu numérique, de le publier en ligne, et de générer un QR code pour le partager. Le plan gratuit inclut la création du menu avec un filigrane. Le plan Pro permet la publication sans filigrane et l’accès au QR code."
     },
     "pricing": {
       "title": "Tarifs et paiement",
-      "body": "Le plan Pro est factur\u00e9 mensuellement. Le paiement est g\u00e9r\u00e9 par Stripe. L\u2019abonnement est r\u00e9siliable \u00e0 tout moment depuis le portail de facturation. En cas de non-paiement, l\u2019acc\u00e8s aux fonctionnalit\u00e9s Pro est suspendu."
+      "body": "Le plan Pro est facturé mensuellement. Le paiement est géré par Stripe. L’abonnement est résiliable à tout moment depuis le portail de facturation. En cas de non-paiement, l’accès aux fonctionnalités Pro est suspendu."
     },
     "obligations": {
-      "title": "Obligations de l\u2019utilisateur",
-      "body": "Vous vous engagez \u00e0 utiliser le service conform\u00e9ment \u00e0 sa finalit\u00e9 (cr\u00e9ation de menus pour la restauration) et \u00e0 ne pas publier de contenu illicite, diffamatoire ou portant atteinte aux droits de tiers."
+      "title": "Obligations de l’utilisateur",
+      "body": "Vous vous engagez à utiliser le service conformément à sa finalité (création de menus pour la restauration) et à ne pas publier de contenu illicite, diffamatoire ou portant atteinte aux droits de tiers."
     },
     "intellectualProperty": {
-      "title": "Propri\u00e9t\u00e9 intellectuelle",
-      "body": "Vous conservez la propri\u00e9t\u00e9 du contenu que vous publiez sur Cartora (noms de plats, descriptions, prix). Cartora conserve la propri\u00e9t\u00e9 de la plateforme, du code source, du design et de la marque."
+      "title": "Propriété intellectuelle",
+      "body": "Vous conservez la propriété du contenu que vous publiez sur Cartora (noms de plats, descriptions, prix). Cartora conserve la propriété de la plateforme, du code source, du design et de la marque."
     },
     "liability": {
-      "title": "Responsabilit\u00e9",
-      "body": "Cartora s\u2019efforce d\u2019assurer la disponibilit\u00e9 du service mais ne garantit pas un fonctionnement ininterrompu. Cartora ne saurait \u00eatre tenu responsable des dommages indirects li\u00e9s \u00e0 l\u2019utilisation du service."
+      "title": "Responsabilité",
+      "body": "Cartora s’efforce d’assurer la disponibilité du service mais ne garantit pas un fonctionnement ininterrompu. Cartora ne saurait être tenu responsable des dommages indirects liés à l’utilisation du service."
     },
     "termination": {
-      "title": "R\u00e9siliation et suppression",
-      "body": "Vous pouvez supprimer votre compte \u00e0 tout moment depuis les param\u00e8tres. La suppression est imm\u00e9diate et irr\u00e9versible : toutes vos donn\u00e9es, votre menu et votre abonnement sont supprim\u00e9s. Cartora se r\u00e9serve le droit de suspendre ou supprimer un compte en cas de violation des pr\u00e9sentes CGU."
+      "title": "Résiliation et suppression",
+      "body": "Vous pouvez supprimer votre compte à tout moment depuis les paramètres. La suppression est immédiate et irréversible : toutes vos données, votre menu et votre abonnement sont supprimés. Cartora se réserve le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU."
     },
     "law": {
       "title": "Droit applicable",
-      "body": "Les pr\u00e9sentes CGU sont soumises au droit fran\u00e7ais. Tout litige sera port\u00e9 devant les juridictions comp\u00e9tentes."
+      "body": "Les présentes CGU sont soumises au droit français. Tout litige sera porté devant les juridictions compétentes."
     },
     "contact": {
       "title": "Contact",
-      "body": "Pour toute question relative aux pr\u00e9sentes CGU : contact@cartora.app"
+      "body": "Pour toute question relative aux présentes CGU : contact@cartora.app"
     }
   },
   "Consent": {

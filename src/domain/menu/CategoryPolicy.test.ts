@@ -41,14 +41,51 @@ describe("CategoryPolicy.validateName", () => {
 });
 
 describe("CategoryPolicy.canAddCategory", () => {
-  it("allows below the cap", () => {
-    expect(CategoryPolicy.canAddCategory(0)).toBe(true);
-    expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES - 1)).toBe(true);
+  describe("FREE tier (cap 6)", () => {
+    it("allows below 6", () => {
+      expect(CategoryPolicy.canAddCategory(0, "FREE")).toBe(true);
+      expect(CategoryPolicy.canAddCategory(5, "FREE")).toBe(true);
+    });
+
+    it("refuses at or above 6", () => {
+      expect(CategoryPolicy.canAddCategory(6, "FREE")).toBe(false);
+      expect(CategoryPolicy.canAddCategory(10, "FREE")).toBe(false);
+    });
   });
 
-  it("refuses at and above the cap", () => {
-    expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES)).toBe(false);
-    expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES + 5)).toBe(false);
+  describe("STARTER tier (cap 10)", () => {
+    it("allows below 10", () => {
+      expect(CategoryPolicy.canAddCategory(0, "STARTER")).toBe(true);
+      expect(CategoryPolicy.canAddCategory(9, "STARTER")).toBe(true);
+    });
+
+    it("refuses at or above 10", () => {
+      expect(CategoryPolicy.canAddCategory(10, "STARTER")).toBe(false);
+    });
+  });
+
+  describe("PRO tier (cap = MAX_CATEGORIES safety bound)", () => {
+    it("allows up to the safety cap", () => {
+      expect(CategoryPolicy.canAddCategory(0, "PRO")).toBe(true);
+      expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES - 1, "PRO")).toBe(true);
+    });
+
+    it("refuses at and above the safety cap", () => {
+      expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES, "PRO")).toBe(false);
+      expect(CategoryPolicy.canAddCategory(MAX_CATEGORIES + 5, "PRO")).toBe(false);
+    });
+  });
+});
+
+describe("CategoryPolicy.maxFor", () => {
+  it("FREE = 6", () => {
+    expect(CategoryPolicy.maxFor("FREE")).toBe(6);
+  });
+  it("STARTER = 10", () => {
+    expect(CategoryPolicy.maxFor("STARTER")).toBe(10);
+  });
+  it("PRO = MAX_CATEGORIES safety cap", () => {
+    expect(CategoryPolicy.maxFor("PRO")).toBe(MAX_CATEGORIES);
   });
 });
 

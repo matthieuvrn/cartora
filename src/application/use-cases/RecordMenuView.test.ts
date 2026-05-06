@@ -13,6 +13,7 @@ const SNAPSHOT_FIXTURE = {
   } as PublicMenuSnapshot,
   publishedAt: "2026-03-25T12:00:00.000Z",
   planStatus: "ACTIVE" as const,
+  planTier: "PRO" as const,
 };
 
 function createMockAnalyticsRepo(

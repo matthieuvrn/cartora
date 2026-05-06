@@ -6,12 +6,14 @@ import type { SnapshotRepository } from "@/application/ports/SnapshotRepository"
 import type { Clock } from "@/application/ports/Clock";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 
 const RESTAURANT_FIXTURE = {
   id: "resto-1",
   slug: "resto-abcd1234",
   displayName: "Mon Restaurant",
   planStatus: "ACTIVE" as PlanStatus,
+  planTier: "PRO" as PlanTier,
   activationDismissedAt: null,
 };
 
@@ -69,6 +71,7 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     deleteCategory: async () => {},
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
+    countItemsWithImage: async () => 0,
     ...overrides,
   };
 }
@@ -150,7 +153,7 @@ describe("PublishMenu", () => {
     });
   });
 
-  it("throws plan_inactive for FREE plan", async () => {
+  it("throws plan_inactive for FREE tier", async () => {
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
       createMockMenuRepo(),
@@ -158,6 +161,7 @@ describe("PublishMenu", () => {
         getRestaurantById: async () => ({
           ...RESTAURANT_FIXTURE,
           planStatus: "FREE",
+          planTier: "FREE",
         }),
       }),
       snapshotRepo,
@@ -166,6 +170,45 @@ describe("PublishMenu", () => {
 
     await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("plan_inactive");
     expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("throws plan_inactive for PAST_DUE billing (Pro tier but billing issue)", async () => {
+    const snapshotRepo = createMockSnapshotRepo();
+    const uc = new PublishMenu(
+      createMockMenuRepo(),
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "PAST_DUE",
+          planTier: "PRO",
+        }),
+      }),
+      snapshotRepo,
+      createMockClock(),
+    );
+
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("plan_inactive");
+    expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("publishes for STARTER tier with ACTIVE status", async () => {
+    const snapshotRepo = createMockSnapshotRepo();
+    const uc = new PublishMenu(
+      createMockMenuRepo(),
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "ACTIVE",
+          planTier: "STARTER",
+        }),
+      }),
+      snapshotRepo,
+      createMockClock(),
+    );
+
+    const result = await uc.execute({ restaurantId: "resto-1" });
+    expect(result).toEqual({ slug: "resto-abcd1234" });
+    expect(snapshotRepo.upsertSnapshot).toHaveBeenCalled();
   });
 
   it("throws no_items when no available items", async () => {

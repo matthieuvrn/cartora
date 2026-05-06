@@ -161,7 +161,10 @@
       "priceTooHigh": "Price exceeds the maximum allowed",
       "invalidBadge": "Invalid badge",
       "publishFailed": "Publishing failed, please try again",
-      "generic": "Something went wrong, please try again"
+      "generic": "Something went wrong, please try again",
+      "max_categories": "Category limit reached for your plan. Upgrade to add more.",
+      "max_photos": "Photo limit reached for your plan. Upgrade to add more.",
+      "duplicate_name": "A category with this name already exists"
     },
     "deleteAccount": "Delete my account",
     "deleteAccountConfirmTitle": "Delete your account?",
@@ -253,7 +256,12 @@
     "updatePayment": "Update payment",
     "canceledBadge": "Canceled",
     "canceledDescription": "Your subscription has been canceled.",
-    "resubscribe": "Resubscribe"
+    "resubscribe": "Resubscribe",
+    "proBadge": "Pro",
+    "starterBadge": "Starter",
+    "starterDescription": "Your Starter subscription is active.",
+    "switchToPro": "Switch to Pro",
+    "switchToStarter": "Switch to Starter"
   },
   "Pricing": {
     "title": "Choose your plan",
@@ -274,7 +282,19 @@
     "ctaCurrent": "Current plan",
     "ctaChoose": "Choose",
     "ctaStartFree": "Start for free",
-    "ctaStartPro": "Create my account"
+    "ctaStartPro": "Create my account",
+    "starter": {
+      "name": "Starter",
+      "price": "$9.90",
+      "period": "/ month",
+      "features": [
+        "Online publication",
+        "QR code",
+        "No watermark",
+        "10 categories",
+        "20 item photos"
+      ]
+    }
   },
   "Landing": {
     "header": {
@@ -421,7 +441,7 @@
       "intro": "Your data is shared with the following subprocessors, strictly for the purposes described above:",
       "supabase": "Authentication, database, file storage (EU hosting)",
       "stripe": "Payment processing and subscription management",
-      "sentry": "Error monitoring (EU hosting \u2014 *.ingest.de.sentry.io)",
+      "sentry": "Error monitoring (EU hosting — *.ingest.de.sentry.io)",
       "vercel": "Application and serverless function hosting",
       "upstash": "Rate limiting (temporary IP storage, optional)"
     },

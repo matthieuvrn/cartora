@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { PublicationPolicy } from "./PublicationPolicy";
 import type { PlanStatus } from "./PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 
 describe("PublicationPolicy", () => {
   describe("canPublish", () => {
@@ -63,5 +64,15 @@ describe("PublicationPolicy", () => {
         expect(PublicationPolicy.shouldShowWatermark(status)).toBe(true);
       },
     );
+  });
+
+  describe("shouldShowWatermarkForTier", () => {
+    it("shows watermark for FREE tier", () => {
+      expect(PublicationPolicy.shouldShowWatermarkForTier("FREE")).toBe(true);
+    });
+
+    it.each(["STARTER", "PRO"] satisfies PlanTier[])("hides watermark for %s tier", (tier) => {
+      expect(PublicationPolicy.shouldShowWatermarkForTier(tier)).toBe(false);
+    });
   });
 });

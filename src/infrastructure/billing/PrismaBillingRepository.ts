@@ -1,5 +1,6 @@
 import type { BillingRepository, BillingInfo } from "@/application/ports/BillingRepository";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaBillingRepository implements BillingRepository {
@@ -41,10 +42,13 @@ export class PrismaBillingRepository implements BillingRepository {
     };
   }
 
-  async updatePlanStatus(restaurantId: string, planStatus: PlanStatus): Promise<void> {
+  async updateRestaurantPlan(
+    restaurantId: string,
+    params: { tier: PlanTier; status: PlanStatus },
+  ): Promise<void> {
     await this.db.restaurant.update({
       where: { id: restaurantId },
-      data: { planStatus },
+      data: { planTier: params.tier, planStatus: params.status },
     });
   }
 }

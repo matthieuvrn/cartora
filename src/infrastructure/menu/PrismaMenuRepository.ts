@@ -315,6 +315,12 @@ export class PrismaMenuRepository implements MenuRepository {
     return menu?.id ?? null;
   }
 
+  async countItemsWithImage(restaurantId: string): Promise<number> {
+    return this.db.item.count({
+      where: { restaurantId, imagePath: { not: null } },
+    });
+  }
+
   async listCategoryNames(menuId: string): Promise<{ id: string; name: string }[]> {
     return this.db.category.findMany({
       where: { menuId },

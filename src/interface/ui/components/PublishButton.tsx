@@ -3,18 +3,18 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Send, Loader2 } from "lucide-react";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PublishActionState } from "@/app/(app)/app/actions";
 import { Button } from "@/components/ui/button";
 import { PricingModal } from "./PricingModal";
 
 type Props = {
-  planStatus: PlanStatus;
+  planTier: PlanTier;
   menuStatus: "DRAFT" | "PUBLISHED";
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
 };
 
-export function PublishButton({ planStatus, menuStatus, publishAction }: Props) {
+export function PublishButton({ planTier, menuStatus, publishAction }: Props) {
   const t = useTranslations("Dashboard");
   const [pricingOpen, setPricingOpen] = useState(false);
 
@@ -22,7 +22,11 @@ export function PublishButton({ planStatus, menuStatus, publishAction }: Props) 
     error: null,
   });
 
-  if (planStatus !== "ACTIVE") {
+  // FREE = pas de publication. Starter et Pro ont le droit de publier.
+  // Le serveur (PublishMenu use case) re-vérifie via PlanPolicy.canPublish, qui
+  // refuse aussi les status non-ACTIVE (PAST_DUE, CANCELED) — couvert par
+  // l'erreur "plan_inactive" affichée plus bas.
+  if (planTier === "FREE") {
     return (
       <>
         <Button variant="default" size="sm" onClick={() => setPricingOpen(true)}>

@@ -1,5 +1,6 @@
 import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 
 export interface RestaurantRepository {
   findByOwnerUserId(ownerUserId: string): Promise<{ id: string } | null>;
@@ -17,6 +18,7 @@ export interface RestaurantRepository {
     slug: string;
     displayName: string;
     planStatus: PlanStatus;
+    planTier: PlanTier;
     activationDismissedAt: Date | null;
   } | null>;
 

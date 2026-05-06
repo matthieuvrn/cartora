@@ -360,7 +360,8 @@ export async function createItemImageUploadUrlAction(input: {
     const restaurantId = await getAuthenticatedRestaurantId();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
-    const useCase = new CreateItemImageUploadUrl(repo, storage);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const useCase = new CreateItemImageUploadUrl(repo, storage, restaurantRepo);
 
     const result = await useCase.execute({
       restaurantId,
@@ -370,6 +371,9 @@ export async function createItemImageUploadUrlAction(input: {
 
     return { ok: true, ...result };
   } catch (e) {
+    if (e instanceof Error && e.message.startsWith("max_photos_")) {
+      return { ok: false, error: "max_photos" };
+    }
     Sentry.captureException(e, { tags: { action: "createItemImageUploadUrl" } });
     return { ok: false, error: "generic" };
   }
@@ -453,7 +457,8 @@ export async function createCategoryAction(
     const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
     if (!menuId) return { error: "generic" };
 
-    const useCase = new CreateCategory(repo);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const useCase = new CreateCategory(repo, restaurantRepo);
     await useCase.execute({
       restaurantId,
       menuId,
@@ -466,6 +471,11 @@ export async function createCategoryAction(
   } catch (e) {
     if (isDuplicateCategoryNameError(e)) {
       return { error: "duplicate_name" };
+    }
+    if (e instanceof Error && e.message.startsWith("max_categories_")) {
+      // Le code "max_categories" déclenche l'affichage du CTA upgrade côté UI
+      // (la limite exacte dépend du tier — l'UI la calcule via PlanPolicy).
+      return { error: "max_categories" };
     }
     Sentry.captureException(e, { tags: { action: "createCategory" } });
     return { error: "generic" };

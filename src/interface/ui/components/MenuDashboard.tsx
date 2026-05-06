@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
 import type { DashboardStats, RealtimeStats } from "@/domain/analytics/AnalyticsTypes";
 import {
@@ -27,6 +28,7 @@ type Props = {
   menu: MenuOverview;
   restaurantName: string;
   planStatus: PlanStatus;
+  planTier: PlanTier;
   slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   qrCodeUrl: string | null;
@@ -41,6 +43,7 @@ export function MenuDashboard({
   menu,
   restaurantName,
   planStatus,
+  planTier,
   slug,
   publishAction,
   qrCodeUrl,
@@ -89,9 +92,9 @@ export function MenuDashboard({
           <p className="text-sm text-muted-foreground">{t("title")}</p>
         </div>
         <div className="flex items-center gap-2">
-          <PreviewDialog menu={menu} restaurantName={restaurantName} planStatus={planStatus} />
+          <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />
           <PublishButton
-            planStatus={planStatus}
+            planTier={planTier}
             menuStatus={menu.status}
             publishAction={publishAction}
           />
@@ -101,7 +104,7 @@ export function MenuDashboard({
         </div>
       </div>
 
-      <BillingStatus planStatus={planStatus} hasBilling={hasBilling} />
+      <BillingStatus planStatus={planStatus} planTier={planTier} hasBilling={hasBilling} />
 
       {menu.publishedAt !== null && (
         <Alert>
@@ -137,7 +140,7 @@ export function MenuDashboard({
       ))}
 
       <div className="flex justify-center pt-4">
-        <AddCategoryButton categoriesCount={menu.categories.length} />
+        <AddCategoryButton categoriesCount={menu.categories.length} planTier={planTier} />
       </div>
     </div>
   );

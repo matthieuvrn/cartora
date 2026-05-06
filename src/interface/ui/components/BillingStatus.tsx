@@ -1,28 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import { createCheckoutAction, createPortalAction } from "@/app/(app)/app/billing-actions";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import { createPortalAction } from "@/app/(app)/app/billing-actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { PricingModal } from "./PricingModal";
 
 type Props = {
   planStatus: PlanStatus;
+  planTier: PlanTier;
   hasBilling: boolean;
 };
 
-export function BillingStatus({ planStatus, hasBilling }: Props) {
+export function BillingStatus({ planStatus, planTier, hasBilling }: Props) {
   const t = useTranslations("Billing");
+  const [pricingOpen, setPricingOpen] = useState(false);
 
   if (planStatus === "ACTIVE") {
+    // Tier détermine le label affiché. STARTER → "Starter", PRO → "Pro".
+    const tierLabel = planTier === "STARTER" ? t("starterBadge") : t("proBadge");
+    const tierDescription =
+      planTier === "STARTER" ? t("starterDescription") : t("activeDescription");
     return (
       <div className="flex items-center justify-between rounded-lg border bg-background p-4">
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-            Pro
+            {tierLabel}
           </span>
-          <p className="text-sm text-muted-foreground">{t("activeDescription")}</p>
+          <p className="text-sm text-muted-foreground">{tierDescription}</p>
         </div>
         <form action={createPortalAction}>
           <Button variant="outline" size="sm" type="submit">
@@ -51,20 +60,31 @@ export function BillingStatus({ planStatus, hasBilling }: Props) {
   }
 
   if (planStatus === "CANCELED") {
+    // Resub → on relance un Checkout (pas le Portal) puisque la subscription Stripe
+    // est terminée. La PricingModal présente STARTER + PRO et porte le `tier` choisi.
     return (
-      <div className="flex items-center justify-between rounded-lg border border-destructive/50 bg-background p-4">
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-destructive px-3 py-1 text-xs font-medium text-destructive-foreground">
-            {t("canceledBadge")}
-          </span>
-          <p className="text-sm text-muted-foreground">{t("canceledDescription")}</p>
+      <>
+        <div className="flex items-center justify-between rounded-lg border border-destructive/50 bg-background p-4">
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-destructive px-3 py-1 text-xs font-medium text-destructive-foreground">
+              {t("canceledBadge")}
+            </span>
+            <p className="text-sm text-muted-foreground">{t("canceledDescription")}</p>
+          </div>
+          {hasBilling ? (
+            <form action={createPortalAction}>
+              <Button size="sm" type="submit">
+                {t("resubscribe")}
+              </Button>
+            </form>
+          ) : (
+            <Button size="sm" onClick={() => setPricingOpen(true)}>
+              {t("resubscribe")}
+            </Button>
+          )}
         </div>
-        <form action={hasBilling ? createPortalAction : createCheckoutAction}>
-          <Button size="sm" type="submit">
-            {t("resubscribe")}
-          </Button>
-        </form>
-      </div>
+        <PricingModal open={pricingOpen} onOpenChange={setPricingOpen} />
+      </>
     );
   }
 

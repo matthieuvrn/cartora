@@ -18,7 +18,7 @@ function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): Bill
   return {
     upsertBilling: async () => {},
     findByRestaurantId: async () => BILLING_FIXTURE,
-    updatePlanStatus: async () => {},
+    updateRestaurantPlan: async () => {},
     ...overrides,
   };
 }
@@ -29,7 +29,17 @@ function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): Paym
     createPortalSession: vi.fn(async () => ({
       url: "https://billing.stripe.com/portal_123",
     })),
-    verifyWebhookSignature: () => ({ id: "", type: "", created: 0, data: {} }),
+    verifyWebhookSignature: () => ({
+      id: "",
+      type: "",
+      created: 0,
+      data: {},
+      priceId: null,
+      customerId: null,
+      subscriptionId: null,
+      restaurantIdMetadata: null,
+    }),
+    fetchSubscriptionPriceId: async () => null,
     cancelSubscription: async () => {},
     deleteCustomer: async () => {},
     ...overrides,

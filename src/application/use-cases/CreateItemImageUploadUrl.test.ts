@@ -1,7 +1,19 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateItemImageUploadUrl } from "./CreateItemImageUploadUrl";
 import type { MenuRepository } from "@/application/ports/MenuRepository";
+import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { StorageService } from "@/application/ports/StorageService";
+import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
+
+const RESTAURANT_FIXTURE = {
+  id: "resto-1",
+  slug: "resto-abcd1234",
+  displayName: "Mon Restaurant",
+  planStatus: "ACTIVE" as PlanStatus,
+  planTier: "PRO" as PlanTier,
+  activationDismissedAt: null,
+};
 
 function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
   return {
@@ -23,6 +35,21 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     deleteCategory: async () => {},
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
+    countItemsWithImage: async () => 0,
+    ...overrides,
+  };
+}
+
+function createMockRestaurantRepo(
+  overrides: Partial<RestaurantRepository> = {},
+): RestaurantRepository {
+  return {
+    findByOwnerUserId: async () => null,
+    createWithMenuAndCategories: async () => ({ id: "id" }),
+    getRestaurantById: async () => RESTAURANT_FIXTURE,
+    updateDisplayName: async () => {},
+    markActivationDismissed: async () => {},
+    delete: async () => {},
     ...overrides,
   };
 }
@@ -46,7 +73,7 @@ describe("CreateItemImageUploadUrl", () => {
   it("returns a signed URL for the path <restaurantId>/<itemId>.<ext>", async () => {
     const repo = createMockRepo();
     const storage = createMockStorage();
-    const uc = new CreateItemImageUploadUrl(repo, storage);
+    const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     const out = await uc.execute({
       restaurantId: "resto-1",
@@ -65,7 +92,7 @@ describe("CreateItemImageUploadUrl", () => {
   ])("maps %s to .%s", async (mime, ext) => {
     const repo = createMockRepo();
     const storage = createMockStorage();
-    const uc = new CreateItemImageUploadUrl(repo, storage);
+    const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     const out = await uc.execute({ restaurantId: "r", itemId: "i", mime });
 
@@ -75,7 +102,7 @@ describe("CreateItemImageUploadUrl", () => {
   it("throws on unsupported mime", async () => {
     const repo = createMockRepo();
     const storage = createMockStorage();
-    const uc = new CreateItemImageUploadUrl(repo, storage);
+    const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     await expect(
       uc.execute({ restaurantId: "r", itemId: "i", mime: "image/gif" }),
@@ -86,11 +113,86 @@ describe("CreateItemImageUploadUrl", () => {
   it("throws when item does not belong to the restaurant", async () => {
     const repo = createMockRepo({ getItem: async () => null });
     const storage = createMockStorage();
-    const uc = new CreateItemImageUploadUrl(repo, storage);
+    const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     await expect(
       uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
     ).rejects.toThrow();
     expect(storage.createSignedUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it("rejects when FREE tier reaches 5 photos quota", async () => {
+    const repo = createMockRepo({
+      getItem: async () => ({ imagePath: null }),
+      countItemsWithImage: async () => 5,
+    });
+    const storage = createMockStorage();
+    const uc = new CreateItemImageUploadUrl(
+      repo,
+      storage,
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "FREE" }),
+      }),
+    );
+
+    await expect(
+      uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
+    ).rejects.toThrow("max_photos_5");
+    expect(storage.createSignedUploadUrl).not.toHaveBeenCalled();
+  });
+
+  it("rejects when STARTER tier reaches 20 photos quota", async () => {
+    const repo = createMockRepo({
+      getItem: async () => ({ imagePath: null }),
+      countItemsWithImage: async () => 20,
+    });
+    const storage = createMockStorage();
+    const uc = new CreateItemImageUploadUrl(
+      repo,
+      storage,
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "STARTER" }),
+      }),
+    );
+
+    await expect(
+      uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
+    ).rejects.toThrow("max_photos_20");
+  });
+
+  it("PRO tier has no photo cap (countItemsWithImage = 1000 still allowed)", async () => {
+    const repo = createMockRepo({
+      getItem: async () => ({ imagePath: null }),
+      countItemsWithImage: async () => 1000,
+    });
+    const storage = createMockStorage();
+    const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
+
+    await expect(
+      uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
+    ).resolves.toBeDefined();
+  });
+
+  it("does NOT count toward quota when replacing an existing photo (re-upload)", async () => {
+    const countSpy = vi.fn(async () => 5); // already at FREE quota
+    const repo = createMockRepo({
+      getItem: async () => ({ imagePath: "r/i.webp" }), // item already has a photo
+      countItemsWithImage: countSpy,
+    });
+    const storage = createMockStorage();
+    const uc = new CreateItemImageUploadUrl(
+      repo,
+      storage,
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "FREE" }),
+      }),
+    );
+
+    // Re-upload should succeed even at quota cap.
+    await expect(
+      uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
+    ).resolves.toBeDefined();
+    // Le count n'a même pas besoin d'être appelé puisqu'on skip la check.
+    expect(countSpy).not.toHaveBeenCalled();
   });
 });

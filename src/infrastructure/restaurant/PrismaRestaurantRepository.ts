@@ -1,6 +1,7 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaRestaurantRepository implements RestaurantRepository {
@@ -72,6 +73,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     slug: string;
     displayName: string;
     planStatus: PlanStatus;
+    planTier: PlanTier;
     activationDismissedAt: Date | null;
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
@@ -81,6 +83,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         slug: true,
         displayName: true,
         planStatus: true,
+        planTier: true,
         activationDismissedAt: true,
       },
     });
@@ -92,6 +95,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       slug: restaurant.slug,
       displayName: restaurant.displayName,
       planStatus: restaurant.planStatus as PlanStatus,
+      planTier: restaurant.planTier as PlanTier,
       activationDismissedAt: restaurant.activationDismissedAt,
     };
   }

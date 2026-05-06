@@ -2,7 +2,7 @@ import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
 import type { Clock } from "@/application/ports/Clock";
-import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
+import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
 
 export type PublishMenuInput = {
@@ -37,9 +37,16 @@ export class PublishMenu {
       0,
     );
 
-    const result = PublicationPolicy.canPublish(restaurant.planStatus, availableItemCount);
+    const result = PlanPolicy.canPublish(
+      restaurant.planTier,
+      restaurant.planStatus,
+      availableItemCount,
+    );
     if (!result.allowed) {
-      throw new Error(result.reason);
+      // Backwards-compat : les UI lisent encore "plan_inactive" pour FREE/PAST_DUE/CANCELED.
+      // On normalise les nouveaux reasons (`plan_free`, `billing_issue`) vers ce label.
+      const reason = result.reason === "no_items" ? "no_items" : "plan_inactive";
+      throw new Error(reason);
     }
 
     const now = this.clock.nowISO();

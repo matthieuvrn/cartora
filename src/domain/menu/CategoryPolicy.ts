@@ -1,4 +1,10 @@
-export const MAX_CATEGORIES = 20;
+import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
+
+/**
+ * Hard cap absolu (toutes formules confondues) pour la taille de l'UI / éviter les
+ * cas pathologiques type 500 catégories. Le quota par tier vient de PlanPolicy.
+ */
+export const MAX_CATEGORIES = 50;
 export const MAX_CATEGORY_NAME_LENGTH = 50;
 
 export class CategoryPolicy {
@@ -18,8 +24,13 @@ export class CategoryPolicy {
     return null;
   }
 
-  static canAddCategory(currentCount: number): boolean {
-    return currentCount < MAX_CATEGORIES;
+  /** Quota par tier (FREE=6, STARTER=10, PRO=Infinity), borné par MAX_CATEGORIES. */
+  static maxFor(tier: PlanTier): number {
+    return Math.min(PlanPolicy.maxCategoriesFor(tier), MAX_CATEGORIES);
+  }
+
+  static canAddCategory(currentCount: number, tier: PlanTier): boolean {
+    return currentCount < CategoryPolicy.maxFor(tier);
   }
 
   /**

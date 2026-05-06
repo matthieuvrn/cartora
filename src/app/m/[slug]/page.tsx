@@ -5,7 +5,7 @@ import { GetPublicMenu } from "@/application/use-cases/GetPublicMenu";
 import type { GetPublicMenuOutput } from "@/application/use-cases/GetPublicMenu";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { ALLERGEN_VALUES, type Allergen } from "@/domain/menu/ItemPolicy";
-import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
+import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import type { AllergenLabels } from "@/interface/ui/components/AllergenIcons";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
@@ -155,7 +155,7 @@ export default async function PublicMenuPage({ params }: Props) {
         defaultLocale={locale}
         labelsFr={labelsFr}
         labelsEn={labelsEn}
-        showWatermark={PublicationPolicy.shouldShowWatermark(result.planStatus)}
+        showWatermark={PlanPolicy.shouldShowWatermark(result.planTier)}
       />
       <TrackingBeacon slug={slug} locale={locale} />
     </>

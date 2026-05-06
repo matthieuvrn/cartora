@@ -22,6 +22,7 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     deleteCategory: vi.fn(async () => {}),
     reorderCategories: vi.fn(async () => {}),
     getMenuIdByRestaurantId: vi.fn(async () => "menu-1"),
+    countItemsWithImage: async () => 0,
     ...overrides,
   };
 }

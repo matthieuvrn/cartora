@@ -31,11 +31,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  const obj = event.data as Record<string, unknown>;
-  const metadata = obj.metadata as Record<string, string> | undefined;
-  const restaurantId = metadata?.restaurantId;
-  const stripeCustomerId = obj.customer as string | undefined;
-  const stripeSubscriptionId = (obj.subscription as string) ?? (obj.id as string | undefined);
+  // L'adapter pré-extrait les champs typés selon le event.type. Pour `checkout.session.completed`,
+  // le priceId n'est pas directement dans le payload — on le récupère via l'API Stripe à partir
+  // du subscriptionId pour pouvoir mapper price → tier.
+  let priceId = event.priceId;
+  if (!priceId && event.subscriptionId && event.type === "checkout.session.completed") {
+    try {
+      priceId = await paymentGateway.fetchSubscriptionPriceId(event.subscriptionId);
+    } catch (e) {
+      Sentry.captureException(e, { tags: { stripeEvent: event.type } });
+    }
+  }
+
+  const restaurantId = event.restaurantIdMetadata;
+  const stripeCustomerId = event.customerId;
+  const stripeSubscriptionId = event.subscriptionId;
 
   if (!restaurantId || !stripeCustomerId || !stripeSubscriptionId) {
     return NextResponse.json({ status: "skipped", reason: "missing required fields" });
@@ -52,6 +62,7 @@ export async function POST(request: NextRequest) {
       stripeCustomerId,
       stripeSubscriptionId,
       restaurantId,
+      priceId,
     });
 
     if (result.status === "processed") {

@@ -26,6 +26,18 @@ describe("BillingPolicy", () => {
       });
     });
 
+    it("maps customer.subscription.created to ACTIVE", () => {
+      expect(BillingPolicy.resolveNewPlanStatus("customer.subscription.created")).toEqual({
+        status: "ACTIVE",
+      });
+    });
+
+    it("maps customer.subscription.updated to ACTIVE", () => {
+      expect(BillingPolicy.resolveNewPlanStatus("customer.subscription.updated")).toEqual({
+        status: "ACTIVE",
+      });
+    });
+
     it("returns unhandled_event for unknown event types", () => {
       expect(BillingPolicy.resolveNewPlanStatus("customer.updated")).toEqual({
         status: null,
@@ -37,6 +49,7 @@ describe("BillingPolicy", () => {
   describe("checkTransition", () => {
     const validTransitions: [PlanStatus, PlanStatus][] = [
       ["FREE", "ACTIVE"],
+      ["ACTIVE", "ACTIVE"], // tier change Starter↔Pro via subscription.updated
       ["ACTIVE", "PAST_DUE"],
       ["ACTIVE", "CANCELED"],
       ["PAST_DUE", "ACTIVE"],
@@ -48,7 +61,8 @@ describe("BillingPolicy", () => {
       expect(BillingPolicy.checkTransition(current, next)).toEqual({ allowed: true });
     });
 
-    const sameStatusCases: PlanStatus[] = ["FREE", "ACTIVE", "PAST_DUE", "CANCELED"];
+    // ACTIVE → ACTIVE est désormais autorisé (tier changes), donc exclu d'ici.
+    const sameStatusCases: PlanStatus[] = ["FREE", "PAST_DUE", "CANCELED"];
 
     it.each(sameStatusCases)("returns no_change for %s → %s", (status) => {
       expect(BillingPolicy.checkTransition(status, status)).toEqual({

@@ -5,8 +5,8 @@ import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Eye, Smartphone, Tablet, Monitor } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import { PublicationPolicy } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { MenuTemplate } from "./menu-template";
@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   menu: MenuOverview;
   restaurantName: string;
-  planStatus: PlanStatus;
+  planTier: PlanTier;
 };
 
 type Viewport = "mobile" | "tablet" | "desktop";
@@ -35,7 +35,7 @@ const VIEWPORT_MAX_WIDTH: Record<Viewport, string> = {
   desktop: "max-w-full",
 };
 
-export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
+export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
   const t = useTranslations("Dashboard");
   const tp = useTranslations("PublicMenu");
   const tAllergen = useTranslations("Allergen");
@@ -101,7 +101,7 @@ export function PreviewDialog({ menu, restaurantName, planStatus }: Props) {
           <MenuTemplate
             snapshot={snapshot}
             locale={locale}
-            showWatermark={PublicationPolicy.shouldShowWatermark(planStatus)}
+            showWatermark={PlanPolicy.shouldShowWatermark(planTier)}
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={tAllergen("sectionTitle")}

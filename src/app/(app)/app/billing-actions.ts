@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -13,6 +14,8 @@ import { CreateCheckoutSession } from "@/application/use-cases/CreateCheckoutSes
 import { CreatePortalSession } from "@/application/use-cases/CreatePortalSession";
 import { DeleteRestaurant } from "@/application/use-cases/DeleteRestaurant";
 import * as Sentry from "@sentry/nextjs";
+
+const TIER_SCHEMA = z.enum(["STARTER", "PRO"]);
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -39,9 +42,16 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
 
 // ─── Actions ────────────────────────────────────────────────────────────────
 
-export async function createCheckoutAction(): Promise<void> {
+/**
+ * `formData` : champ `tier` requis = "STARTER" | "PRO". L'action accepte FormData
+ * (côté client, on l'invoque via <form action={createCheckoutAction}> avec un input
+ * caché `tier`). Pour les upgrades Starter↔Pro on passe par `createPortalAction`,
+ * pas par cette action — le use case rejette si planStatus n'est pas FREE/CANCELED.
+ */
+export async function createCheckoutAction(formData: FormData): Promise<void> {
   let checkoutUrl: string;
   try {
+    const tier = TIER_SCHEMA.parse(formData.get("tier"));
     const { restaurantId, email } = await getAuthenticatedUser();
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const gateway = new StripePaymentGateway();
@@ -50,6 +60,7 @@ export async function createCheckoutAction(): Promise<void> {
       restaurantId,
       customerEmail: email,
       baseUrl: process.env.NEXT_PUBLIC_APP_URL!,
+      targetTier: tier,
     });
     checkoutUrl = result.checkoutUrl;
   } catch (e) {

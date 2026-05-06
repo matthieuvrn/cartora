@@ -139,6 +139,7 @@ export default async function AppPage({
           menu={menu}
           restaurantName={restaurant.displayName}
           planStatus={restaurant.planStatus}
+          planTier={restaurant.planTier}
           slug={restaurant.slug}
           publishAction={publishMenuAction}
           qrCodeUrl={qrCodeUrl}

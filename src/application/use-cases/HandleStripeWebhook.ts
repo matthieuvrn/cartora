@@ -2,6 +2,7 @@ import type { BillingRepository } from "@/application/ports/BillingRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { WebhookEventRepository } from "@/application/ports/WebhookEventRepository";
 import { BillingPolicy } from "@/domain/billing/BillingPolicy";
+import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
 
 export type HandleStripeWebhookInput = {
   stripeEventId: string;
@@ -9,6 +10,8 @@ export type HandleStripeWebhookInput = {
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   restaurantId: string;
+  /** Stripe price.id, ou null si l'event n'en porte pas (ex: invoice ambigu). */
+  priceId: string | null;
 };
 
 export type HandleStripeWebhookOutput =
@@ -46,13 +49,37 @@ export class HandleStripeWebhook {
       return { status: "skipped", reason: transition.reason };
     }
 
+    // Détermination du nouveau tier :
+    // - .deleted → on retombe systématiquement en FREE (subscription terminée).
+    // - autres events avec priceId → mapping price → tier via PlanPolicy.
+    // - autres events sans priceId (typiquement invoice.paid sans line.price exploitable)
+    //   → on conserve le tier actuel pour ne pas écraser à FREE par erreur.
+    let nextTier: PlanTier;
+    if (input.eventType === "customer.subscription.deleted") {
+      nextTier = "FREE";
+    } else if (input.priceId) {
+      const resolvedTier = PlanPolicy.resolveTierFromPriceId(input.priceId);
+      if (!resolvedTier) {
+        // Price inconnu → configuration cassée. On marque traité pour ne pas boucler
+        // mais on n'écrit rien.
+        await this.webhookEventRepo.markProcessed(input.stripeEventId, input.eventType);
+        return { status: "skipped", reason: "unknown_price_id" };
+      }
+      nextTier = resolvedTier;
+    } else {
+      nextTier = restaurant.planTier;
+    }
+
     await this.billingRepo.upsertBilling({
       restaurantId: input.restaurantId,
       stripeCustomerId: input.stripeCustomerId,
       stripeSubscriptionId: input.stripeSubscriptionId,
     });
 
-    await this.billingRepo.updatePlanStatus(input.restaurantId, resolved.status);
+    await this.billingRepo.updateRestaurantPlan(input.restaurantId, {
+      tier: nextTier,
+      status: resolved.status,
+    });
 
     await this.webhookEventRepo.markProcessed(input.stripeEventId, input.eventType);
 

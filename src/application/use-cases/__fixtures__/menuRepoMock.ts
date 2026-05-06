@@ -25,6 +25,7 @@ export function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): Men
     deleteCategory: vi.fn(async () => {}),
     reorderCategories: vi.fn(async () => {}),
     getMenuIdByRestaurantId: vi.fn(async () => "menu-1"),
+    countItemsWithImage: vi.fn(async () => 0),
     ...overrides,
   };
 }

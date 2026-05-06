@@ -57,6 +57,7 @@ function createMockRepo(menu: MenuOverview | null): MenuRepository {
     deleteCategory: async () => {},
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
+    countItemsWithImage: async () => 0,
   };
 }
 

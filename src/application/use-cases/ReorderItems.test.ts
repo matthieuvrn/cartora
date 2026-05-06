@@ -22,6 +22,7 @@ function createMockRepo(): MenuRepository {
     deleteCategory: async () => {},
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
+    countItemsWithImage: async () => 0,
   };
 }
 

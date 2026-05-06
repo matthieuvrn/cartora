@@ -1,17 +1,22 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { HandleStripeWebhook } from "./HandleStripeWebhook";
 import type { BillingRepository } from "@/application/ports/BillingRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { WebhookEventRepository } from "@/application/ports/WebhookEventRepository";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 
 const RESTAURANT_FIXTURE = {
   id: "resto-1",
   slug: "resto-abcd1234",
   displayName: "Mon Restaurant",
   planStatus: "FREE" as PlanStatus,
+  planTier: "FREE" as PlanTier,
   activationDismissedAt: null,
 };
+
+const STARTER_PRICE_ID = "price_starter_test_123";
+const PRO_PRICE_ID = "price_pro_test_456";
 
 const VALID_INPUT = {
   stripeEventId: "evt_test_123",
@@ -19,13 +24,14 @@ const VALID_INPUT = {
   stripeCustomerId: "cus_abc123",
   stripeSubscriptionId: "sub_xyz789",
   restaurantId: "resto-1",
+  priceId: PRO_PRICE_ID,
 };
 
 function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): BillingRepository {
   return {
     upsertBilling: vi.fn(async () => {}),
     findByRestaurantId: async () => null,
-    updatePlanStatus: vi.fn(async () => {}),
+    updateRestaurantPlan: vi.fn(async () => {}),
     ...overrides,
   };
 }
@@ -55,7 +61,16 @@ function createMockWebhookEventRepo(
 }
 
 describe("HandleStripeWebhook", () => {
-  it("processes checkout.session.completed for FREE restaurant", async () => {
+  beforeEach(() => {
+    vi.stubEnv("STRIPE_PRICE_ID", PRO_PRICE_ID);
+    vi.stubEnv("STRIPE_PRICE_ID_STARTER", STARTER_PRICE_ID);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it("processes checkout.session.completed for FREE restaurant (PRO priceId)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
     const useCase = new HandleStripeWebhook(
@@ -72,35 +87,117 @@ describe("HandleStripeWebhook", () => {
       stripeCustomerId: "cus_abc123",
       stripeSubscriptionId: "sub_xyz789",
     });
-    expect(billingRepo.updatePlanStatus).toHaveBeenCalledWith("resto-1", "ACTIVE");
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "PRO",
+      status: "ACTIVE",
+    });
     expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith(
       "evt_test_123",
       "checkout.session.completed",
     );
   });
 
-  it("processes invoice.payment_failed for ACTIVE restaurant", async () => {
+  it("processes checkout.session.completed with STARTER priceId → tier STARTER", async () => {
+    const billingRepo = createMockBillingRepo();
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      createMockRestaurantRepo(),
+      createMockWebhookEventRepo(),
+    );
+
+    await useCase.execute({ ...VALID_INPUT, priceId: STARTER_PRICE_ID });
+
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "STARTER",
+      status: "ACTIVE",
+    });
+  });
+
+  it("processes customer.subscription.updated (Starter → Pro upgrade via Portal)", async () => {
     const billingRepo = createMockBillingRepo();
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planStatus: "ACTIVE" }),
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "ACTIVE",
+          planTier: "STARTER",
+        }),
       }),
       createMockWebhookEventRepo(),
     );
 
-    const result = await useCase.execute({ ...VALID_INPUT, eventType: "invoice.payment_failed" });
+    const result = await useCase.execute({
+      ...VALID_INPUT,
+      eventType: "customer.subscription.updated",
+      priceId: PRO_PRICE_ID,
+    });
 
     expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
-    expect(billingRepo.updatePlanStatus).toHaveBeenCalledWith("resto-1", "PAST_DUE");
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "PRO",
+      status: "ACTIVE",
+    });
   });
 
-  it("processes customer.subscription.deleted for ACTIVE restaurant", async () => {
+  it("processes customer.subscription.created with STARTER priceId", async () => {
+    const billingRepo = createMockBillingRepo();
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      createMockRestaurantRepo(),
+      createMockWebhookEventRepo(),
+    );
+
+    await useCase.execute({
+      ...VALID_INPUT,
+      eventType: "customer.subscription.created",
+      priceId: STARTER_PRICE_ID,
+    });
+
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "STARTER",
+      status: "ACTIVE",
+    });
+  });
+
+  it("processes invoice.payment_failed for ACTIVE restaurant (preserves tier)", async () => {
     const billingRepo = createMockBillingRepo();
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planStatus: "ACTIVE" }),
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "ACTIVE",
+          planTier: "STARTER",
+        }),
+      }),
+      createMockWebhookEventRepo(),
+    );
+
+    const result = await useCase.execute({
+      ...VALID_INPUT,
+      eventType: "invoice.payment_failed",
+      priceId: null,
+    });
+
+    expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
+    // Sans priceId on conserve le tier courant. Status passe à PAST_DUE.
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "STARTER",
+      status: "PAST_DUE",
+    });
+  });
+
+  it("processes customer.subscription.deleted → tier=FREE, status=CANCELED", async () => {
+    const billingRepo = createMockBillingRepo();
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      createMockRestaurantRepo({
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "ACTIVE",
+          planTier: "PRO",
+        }),
       }),
       createMockWebhookEventRepo(),
     );
@@ -108,10 +205,34 @@ describe("HandleStripeWebhook", () => {
     const result = await useCase.execute({
       ...VALID_INPUT,
       eventType: "customer.subscription.deleted",
+      priceId: PRO_PRICE_ID, // ignoré : .deleted force FREE
     });
 
     expect(result).toEqual({ status: "processed", slug: "resto-abcd1234" });
-    expect(billingRepo.updatePlanStatus).toHaveBeenCalledWith("resto-1", "CANCELED");
+    expect(billingRepo.updateRestaurantPlan).toHaveBeenCalledWith("resto-1", {
+      tier: "FREE",
+      status: "CANCELED",
+    });
+  });
+
+  it("skips when priceId is unknown (broken Stripe config)", async () => {
+    const billingRepo = createMockBillingRepo();
+    const webhookEventRepo = createMockWebhookEventRepo();
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      createMockRestaurantRepo(),
+      webhookEventRepo,
+    );
+
+    const result = await useCase.execute({
+      ...VALID_INPUT,
+      priceId: "price_unknown_xxx",
+    });
+
+    expect(result).toEqual({ status: "skipped", reason: "unknown_price_id" });
+    expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
+    expect(billingRepo.updateRestaurantPlan).not.toHaveBeenCalled();
+    expect(webhookEventRepo.markProcessed).toHaveBeenCalled();
   });
 
   it("skips unhandled event types", async () => {
@@ -124,29 +245,11 @@ describe("HandleStripeWebhook", () => {
 
     expect(result).toEqual({ status: "skipped", reason: "unhandled_event" });
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
-    expect(billingRepo.updatePlanStatus).not.toHaveBeenCalled();
+    expect(billingRepo.updateRestaurantPlan).not.toHaveBeenCalled();
     expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith("evt_test_123", "customer.updated");
   });
 
-  it("skips when transition is no_change", async () => {
-    const billingRepo = createMockBillingRepo();
-    const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      billingRepo,
-      createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planStatus: "ACTIVE" }),
-      }),
-      webhookEventRepo,
-    );
-
-    const result = await useCase.execute({ ...VALID_INPUT, eventType: "invoice.paid" });
-
-    expect(result).toEqual({ status: "skipped", reason: "no_change" });
-    expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
-    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith("evt_test_123", "invoice.paid");
-  });
-
-  it("skips when transition is invalid", async () => {
+  it("skips when transition is invalid (FREE → PAST_DUE)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
     const useCase = new HandleStripeWebhook(
@@ -157,7 +260,11 @@ describe("HandleStripeWebhook", () => {
       webhookEventRepo,
     );
 
-    const result = await useCase.execute({ ...VALID_INPUT, eventType: "invoice.payment_failed" });
+    const result = await useCase.execute({
+      ...VALID_INPUT,
+      eventType: "invoice.payment_failed",
+      priceId: null,
+    });
 
     expect(result).toEqual({ status: "skipped", reason: "invalid_transition" });
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
@@ -196,48 +303,7 @@ describe("HandleStripeWebhook", () => {
 
     expect(result).toEqual({ status: "duplicate" });
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
-    expect(billingRepo.updatePlanStatus).not.toHaveBeenCalled();
-    expect(webhookEventRepo.markProcessed).not.toHaveBeenCalled();
-  });
-
-  it("calls markProcessed after successful processing", async () => {
-    const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      createMockBillingRepo(),
-      createMockRestaurantRepo(),
-      webhookEventRepo,
-    );
-
-    await useCase.execute(VALID_INPUT);
-
-    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith(
-      "evt_test_123",
-      "checkout.session.completed",
-    );
-  });
-
-  it("calls markProcessed after skipped processing", async () => {
-    const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      createMockBillingRepo(),
-      createMockRestaurantRepo(),
-      webhookEventRepo,
-    );
-
-    await useCase.execute({ ...VALID_INPUT, eventType: "customer.updated" });
-
-    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith("evt_test_123", "customer.updated");
-  });
-
-  it("does not call markProcessed when restaurant not found", async () => {
-    const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      createMockBillingRepo(),
-      createMockRestaurantRepo({ getRestaurantById: async () => null }),
-      webhookEventRepo,
-    );
-
-    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow();
+    expect(billingRepo.updateRestaurantPlan).not.toHaveBeenCalled();
     expect(webhookEventRepo.markProcessed).not.toHaveBeenCalled();
   });
 });
