@@ -49,7 +49,7 @@ describe("ReorderItems", () => {
 
     await expect(
       uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: [] }),
-    ).rejects.toThrow("La liste des items ne peut pas être vide");
+    ).rejects.toMatchObject({ name: "DomainError", code: "empty_list" });
   });
 
   it("throws when categoryId does not belong to restaurantId", async () => {
@@ -59,7 +59,7 @@ describe("ReorderItems", () => {
 
     await expect(
       uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: ["item-1"] }),
-    ).rejects.toThrow("Cette catégorie n'appartient pas à ce restaurant");
+    ).rejects.toMatchObject({ name: "DomainError", code: "ownership_mismatch" });
     expect(repo.reorderItems).not.toHaveBeenCalled();
   });
 });

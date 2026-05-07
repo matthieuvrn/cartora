@@ -6,6 +6,7 @@ import { Pencil, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { renameRestaurantAction, type RenameActionState } from "@/app/(app)/app/actions";
+import { ErrorMessage } from "./ErrorMessage";
 
 type Props = {
   currentName: string;
@@ -76,12 +77,7 @@ export function EditableRestaurantName({ currentName }: Props) {
       >
         <X className="size-4" />
       </Button>
-      {state.error && state.error !== "validation" && (
-        <p className="text-sm text-destructive">{t(`error.${state.error}`)}</p>
-      )}
-      {state.error === "validation" && (
-        <p className="text-sm text-destructive">{t("error.renameRequired")}</p>
-      )}
+      <ErrorMessage error={state.error} />
     </form>
   );
 }

@@ -14,6 +14,7 @@ import { CreateCheckoutSession } from "@/application/use-cases/CreateCheckoutSes
 import { CreatePortalSession } from "@/application/use-cases/CreatePortalSession";
 import { DeleteRestaurant } from "@/application/use-cases/DeleteRestaurant";
 import * as Sentry from "@sentry/nextjs";
+import { isDomainError } from "@/domain/errors/DomainError";
 
 const TIER_SCHEMA = z.enum(["STARTER", "PRO"]);
 
@@ -24,13 +25,16 @@ async function getAuthenticatedUser(): Promise<{ restaurantId: string; email: st
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.email) throw new Error("Not authenticated");
+  if (!user?.email) {
+    // Session expirée → `redirect()` propage NEXT_REDIRECT, pas de Sentry noise.
+    redirect("/login");
+  }
 
   const restaurant = await prisma.restaurant.findUnique({
     where: { ownerUserId: user.id },
     select: { id: true },
   });
-  if (!restaurant) throw new Error("No restaurant found");
+  if (!restaurant) redirect("/app");
 
   return { restaurantId: restaurant.id, email: user.email };
 }
@@ -50,21 +54,36 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
  */
 export async function createCheckoutAction(formData: FormData): Promise<void> {
   let checkoutUrl: string;
+  let restaurantId: string | null = null;
   try {
     const tier = TIER_SCHEMA.parse(formData.get("tier"));
-    const { restaurantId, email } = await getAuthenticatedUser();
+    const auth = await getAuthenticatedUser();
+    restaurantId = auth.restaurantId;
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const gateway = new StripePaymentGateway();
     const useCase = new CreateCheckoutSession(restaurantRepo, gateway);
     const result = await useCase.execute({
-      restaurantId,
-      customerEmail: email,
+      restaurantId: auth.restaurantId,
+      customerEmail: auth.email,
       baseUrl: process.env.NEXT_PUBLIC_APP_URL!,
       targetTier: tier,
     });
     checkoutUrl = result.checkoutUrl;
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "createCheckout" } });
+    if (isDomainError(e)) {
+      // DomainError ⇒ redirect propre vers /app avec un code lisible.
+      // L'UI peut afficher un toast/banner basé sur le query param.
+      Sentry.captureException(e, {
+        tags: { action: "createCheckout", domainCode: e.code },
+        user: restaurantId ? { id: restaurantId } : undefined,
+        level: "warning",
+      });
+      redirect(`/app?checkout_error=${encodeURIComponent(e.code)}`);
+    }
+    Sentry.captureException(e, {
+      tags: { action: "createCheckout" },
+      user: restaurantId ? { id: restaurantId } : undefined,
+    });
     throw e;
   }
   redirect(checkoutUrl);
@@ -72,8 +91,9 @@ export async function createCheckoutAction(formData: FormData): Promise<void> {
 
 export async function createPortalAction(): Promise<void> {
   let portalUrl: string;
+  let restaurantId: string | null = null;
   try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+    restaurantId = await getAuthenticatedRestaurantId();
     const billingRepo = new PrismaBillingRepository(prisma);
     const gateway = new StripePaymentGateway();
     const useCase = new CreatePortalSession(billingRepo, gateway);
@@ -83,7 +103,18 @@ export async function createPortalAction(): Promise<void> {
     });
     portalUrl = result.portalUrl;
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "createPortal" } });
+    if (isDomainError(e)) {
+      Sentry.captureException(e, {
+        tags: { action: "createPortal", domainCode: e.code },
+        user: restaurantId ? { id: restaurantId } : undefined,
+        level: "warning",
+      });
+      redirect(`/app?portal_error=${encodeURIComponent(e.code)}`);
+    }
+    Sentry.captureException(e, {
+      tags: { action: "createPortal" },
+      user: restaurantId ? { id: restaurantId } : undefined,
+    });
     throw e;
   }
   redirect(portalUrl);
@@ -95,13 +126,13 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) throw new Error("Not authenticated");
+    if (!user) redirect("/login");
 
     const restaurant = await prisma.restaurant.findUnique({
       where: { ownerUserId: user.id },
       select: { id: true },
     });
-    if (!restaurant) throw new Error("No restaurant found");
+    if (!restaurant) redirect("/app");
 
     const billingRepo = new PrismaBillingRepository(prisma);
     const qrAssetRepo = new PrismaQrAssetRepository(prisma);
@@ -127,9 +158,16 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
 
     if (result.errors.length > 0) {
       console.error(`[deleteAccount] ${result.errors.length} partial cleanup error(s), see Sentry`);
+      Sentry.captureMessage("deleteAccount.partialCleanup", {
+        level: "warning",
+        tags: { action: "deleteAccount" },
+        extra: { errorCount: result.errors.length, errors: result.errors },
+      });
     }
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "deleteAccount" } });
+    Sentry.captureException(e, {
+      tags: { action: "deleteAccount" },
+    });
     return { error: "delete_failed" };
   }
 

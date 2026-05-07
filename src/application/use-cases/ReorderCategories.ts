@@ -1,4 +1,5 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type ReorderCategoriesInput = {
   restaurantId: string;
@@ -11,11 +12,11 @@ export class ReorderCategories {
 
   async execute(input: ReorderCategoriesInput): Promise<void> {
     if (input.orderedIds.length === 0) {
-      throw new Error("La liste des catégories ne peut pas être vide");
+      throw new DomainError("empty_list", { field: "orderedIds" });
     }
 
     const isOwned = await this.repo.verifyMenuOwnership(input.menuId, input.restaurantId);
-    if (!isOwned) throw new Error("Ce menu n'appartient pas à ce restaurant");
+    if (!isOwned) throw new DomainError("ownership_mismatch", { entityId: input.menuId });
 
     const existing = await this.repo.listCategoryNames(input.menuId);
     const existingIds = new Set(existing.map((c) => c.id));
@@ -25,7 +26,10 @@ export class ReorderCategories {
       existingIds.size !== requestedIds.size ||
       [...existingIds].some((id) => !requestedIds.has(id))
     ) {
-      throw new Error("La liste doit contenir exactement les catégories existantes");
+      throw new DomainError("list_mismatch", {
+        expected: existingIds.size,
+        received: requestedIds.size,
+      });
     }
 
     await this.repo.reorderCategories({

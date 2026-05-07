@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { isDomainError } from "@/domain/errors/DomainError";
 import { getTranslations } from "next-intl/server";
 import { Settings } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
@@ -27,7 +28,7 @@ import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
-import { dismissActivationChecklistAction, publishMenuAction } from "./actions";
+import { dismissActivationChecklistAction, publishMenuAction, regenerateQrAction } from "./actions";
 
 export default async function AppPage({
   searchParams,
@@ -65,7 +66,16 @@ export default async function AppPage({
 
   const menuRepo = new PrismaMenuRepository(prisma);
   const getMenu = new GetMenuForDashboard(menuRepo);
-  const menu = await getMenu.execute({ restaurantId });
+  let menu;
+  try {
+    menu = await getMenu.execute({ restaurantId });
+  } catch (e) {
+    // `menu_not_found` est un état "vide attendu" (jamais censé arriver après
+    // EnsureRestaurantExists au login, mais on reste défensif). On rend
+    // `not-found.tsx` plutôt que `error.tsx` — pas de bruit Sentry.
+    if (isDomainError(e) && e.code === "menu_not_found") notFound();
+    throw e;
+  }
 
   const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
   if (!restaurant) redirect("/login");
@@ -134,6 +144,7 @@ export default async function AppPage({
           planTier={restaurant.planTier}
           slug={restaurant.slug}
           publishAction={publishMenuAction}
+          regenerateQrAction={regenerateQrAction}
           qrCodeUrl={qrCodeUrl}
           hasBilling={hasBilling}
           stats={stats}

@@ -13,6 +13,7 @@ export default defineConfig({
       "src/domain/**/*.test.ts",
       "src/application/**/*.test.ts",
       "src/infrastructure/rate-limit/**/*.test.ts",
+      "src/lib/**/*.test.ts",
     ],
   },
 });

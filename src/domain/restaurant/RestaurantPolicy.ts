@@ -1,11 +1,13 @@
+import type { ValidationFailure } from "@/domain/errors/DomainError";
+
 export const MAX_DISPLAY_NAME_LENGTH = 50;
 
 export class RestaurantPolicy {
-  static validateDisplayName(value: string): string | null {
+  static validateDisplayName(value: string): ValidationFailure | null {
     const trimmed = value.trim();
-    if (!trimmed) return "Le nom du restaurant est obligatoire";
+    if (!trimmed) return { field: "displayName", code: "display_name_required" };
     if (trimmed.length > MAX_DISPLAY_NAME_LENGTH)
-      return `Le nom du restaurant ne doit pas dépasser ${MAX_DISPLAY_NAME_LENGTH} caractères`;
+      return { field: "displayName", code: "display_name_too_long" };
     return null;
   }
 

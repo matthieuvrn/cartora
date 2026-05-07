@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaUserDataRepository } from "@/infrastructure/user-data/PrismaUserDataRepository";
@@ -12,13 +13,16 @@ async function getAuthenticatedUser(): Promise<{ restaurantId: string; email: st
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.email) throw new Error("Not authenticated");
+  if (!user?.email) {
+    // Session expirée → redirect propage NEXT_REDIRECT, pas de bruit Sentry.
+    redirect("/login");
+  }
 
   const restaurant = await prisma.restaurant.findUnique({
     where: { ownerUserId: user.id },
     select: { id: true },
   });
-  if (!restaurant) throw new Error("No restaurant found");
+  if (!restaurant) redirect("/app");
 
   return { restaurantId: restaurant.id, email: user.email };
 }

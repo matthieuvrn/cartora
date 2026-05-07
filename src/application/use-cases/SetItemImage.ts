@@ -1,6 +1,7 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { StorageService } from "@/application/ports/StorageService";
 import { ItemPhotoPolicy } from "@/domain/menu/ItemPhotoPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type SetItemImageInput = {
   restaurantId: string;
@@ -21,11 +22,11 @@ export class SetItemImage {
       itemId: input.itemId,
       restaurantId: input.restaurantId,
     });
-    if (!item) throw new Error("Item introuvable");
+    if (!item) throw new DomainError("item_not_found", { entityId: input.itemId });
 
     const expectedPrefix = `${input.restaurantId}/`;
     if (!input.imagePath.startsWith(expectedPrefix)) {
-      throw new Error("Chemin d'image invalide");
+      throw new DomainError("invalid_image_path");
     }
 
     const altFr = ItemPhotoPolicy.validateAltText(input.altTextFr ?? "").ok;

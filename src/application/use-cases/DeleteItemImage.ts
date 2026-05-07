@@ -1,5 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { StorageService } from "@/application/ports/StorageService";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type DeleteItemImageInput = {
   restaurantId: string;
@@ -17,7 +18,7 @@ export class DeleteItemImage {
       itemId: input.itemId,
       restaurantId: input.restaurantId,
     });
-    if (!item) throw new Error("Item introuvable");
+    if (!item) throw new DomainError("item_not_found", { entityId: input.itemId });
 
     if (item.imagePath) {
       try {

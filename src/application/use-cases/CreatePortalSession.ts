@@ -1,5 +1,6 @@
 import type { BillingRepository } from "@/application/ports/BillingRepository";
 import type { PaymentGateway } from "@/application/ports/PaymentGateway";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreatePortalSessionInput = {
   restaurantId: string;
@@ -19,7 +20,7 @@ export class CreatePortalSession {
   async execute(input: CreatePortalSessionInput): Promise<CreatePortalSessionOutput> {
     const billing = await this.billingRepo.findByRestaurantId(input.restaurantId);
     if (!billing || !billing.stripeCustomerId) {
-      throw new Error("Aucune information de facturation trouvée");
+      throw new DomainError("billing_missing", { entityId: input.restaurantId });
     }
 
     const { url } = await this.paymentGateway.createPortalSession({

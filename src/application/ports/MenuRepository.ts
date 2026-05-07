@@ -1,11 +1,9 @@
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 
-export type DuplicateCategoryNameError = Error & { code: "duplicate_name" };
-
-export function isDuplicateCategoryNameError(e: unknown): e is DuplicateCategoryNameError {
-  return e instanceof Error && (e as { code?: string }).code === "duplicate_name";
-}
+// Note : la détection des collisions de nom passe désormais par
+// `isDomainError(e) && e.code === "duplicate_name"` depuis `@/domain/errors/DomainError`.
+// L'ancien helper `isDuplicateCategoryNameError` a été supprimé en Phase E.
 
 export interface MenuRepository {
   getMenuByRestaurantId(restaurantId: string): Promise<MenuOverview | null>;

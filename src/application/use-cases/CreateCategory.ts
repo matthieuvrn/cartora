@@ -1,6 +1,7 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import { CategoryPolicy } from "@/domain/menu/CategoryPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreateCategoryInput = {
   restaurantId: string;
@@ -21,23 +22,27 @@ export class CreateCategory {
   async execute(input: CreateCategoryInput): Promise<CreateCategoryOutput> {
     const name = CategoryPolicy.sanitizeName(input.name);
     const nameError = CategoryPolicy.validateName(name);
-    if (nameError) throw new Error(nameError);
+    if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
     const isOwned = await this.repo.verifyMenuOwnership(input.menuId, input.restaurantId);
-    if (!isOwned) throw new Error("Ce menu n'appartient pas à ce restaurant");
+    if (!isOwned) throw new DomainError("ownership_mismatch", { entityId: input.menuId });
 
-    // Lookup tier pour appliquer le quota correspondant. Les errors max_categories_*
-    // sont catchées par l'action layer pour afficher un CTA upgrade.
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
-    if (!restaurant) throw new Error("Restaurant introuvable");
+    if (!restaurant) {
+      throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
+    }
 
     const existing = await this.repo.listCategoryNames(input.menuId);
     if (!CategoryPolicy.canAddCategory(existing.length, restaurant.planTier)) {
       const max = CategoryPolicy.maxFor(restaurant.planTier);
-      throw new Error(`max_categories_${max}`);
+      throw new DomainError("max_categories", {
+        limit: max,
+        current: existing.length,
+        tier: restaurant.planTier,
+      });
     }
     if (CategoryPolicy.isDuplicateName(existing, name)) {
-      throw new Error("Une catégorie avec ce nom existe déjà");
+      throw new DomainError("duplicate_name", { field: "name" });
     }
 
     const { id } = await this.repo.createCategory({

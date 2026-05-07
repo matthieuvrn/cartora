@@ -168,7 +168,11 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("plan_inactive");
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "plan_inactive",
+      metadata: { tier: "FREE" },
+    });
     expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
   });
 
@@ -187,7 +191,11 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("plan_inactive");
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "plan_inactive",
+      metadata: { tier: "PRO" },
+    });
     expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
   });
 
@@ -228,7 +236,10 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("no_items");
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "no_items",
+    });
   });
 
   it("throws when restaurant not found", async () => {
@@ -239,7 +250,11 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow("Restaurant introuvable");
+    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "restaurant_not_found",
+      metadata: { entityId: "unknown" },
+    });
   });
 
   it("throws when menu not found", async () => {
@@ -250,7 +265,11 @@ describe("PublishMenu", () => {
       createMockClock(),
     );
 
-    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toThrow("Menu introuvable");
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "menu_not_found",
+      metadata: { entityId: "resto-1" },
+    });
   });
 
   it("snapshot excludes unavailable items", async () => {

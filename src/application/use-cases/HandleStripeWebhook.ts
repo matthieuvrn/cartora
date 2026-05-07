@@ -3,6 +3,7 @@ import type { RestaurantRepository } from "@/application/ports/RestaurantReposit
 import type { WebhookEventRepository } from "@/application/ports/WebhookEventRepository";
 import { BillingPolicy } from "@/domain/billing/BillingPolicy";
 import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type HandleStripeWebhookInput = {
   stripeEventId: string;
@@ -40,7 +41,9 @@ export class HandleStripeWebhook {
 
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
-      throw new Error("Restaurant introuvable");
+      // Throw une DomainError ⇒ le route handler la mappe à un 400 (non-retriable),
+      // Stripe arrête de retry sur un restaurant qui n'existe plus côté Cartora.
+      throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
     }
 
     const transition = BillingPolicy.checkTransition(restaurant.planStatus, resolved.status);

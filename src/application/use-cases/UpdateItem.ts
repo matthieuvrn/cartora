@@ -1,5 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import { ItemPolicy } from "@/domain/menu/ItemPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type UpdateItemInput = {
   itemId: string;
@@ -24,16 +25,21 @@ export class UpdateItem {
     const enDesc = ItemPolicy.sanitizeDescription(input.translations.en?.description ?? "");
 
     const nameError = ItemPolicy.validateName(frName);
-    if (nameError) throw new Error(nameError);
+    if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
     const priceError = ItemPolicy.validatePriceCents(input.priceCents);
-    if (priceError) throw new Error(priceError);
+    if (priceError) throw new DomainError(priceError.code, { field: priceError.field });
 
     const badgeError = ItemPolicy.validateBadge(input.badge);
-    if (badgeError) throw new Error(badgeError);
+    if (badgeError)
+      throw new DomainError(badgeError.code, {
+        field: badgeError.field,
+        invalidValue: input.badge,
+      });
 
     const allergens = ItemPolicy.validateAllergens(input.allergens ?? []);
-    if (allergens.error) throw new Error(allergens.error);
+    if (allergens.error)
+      throw new DomainError(allergens.error.code, { field: allergens.error.field });
 
     await this.repo.updateItem({
       itemId: input.itemId,

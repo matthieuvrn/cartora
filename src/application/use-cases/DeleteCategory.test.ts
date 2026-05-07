@@ -31,9 +31,10 @@ describe("DeleteCategory", () => {
     });
     const uc = new DeleteCategory(repo);
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
-      "Vous devez garder au moins une catégorie",
-    );
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "must_keep_one_category",
+    });
     expect(repo.deleteCategory).not.toHaveBeenCalled();
   });
 
@@ -41,9 +42,10 @@ describe("DeleteCategory", () => {
     const repo = createMockMenuRepo({ verifyCategoryOwnership: vi.fn(async () => false) });
     const uc = new DeleteCategory(repo);
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
-      "Cette catégorie n'appartient pas à ce restaurant",
-    );
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "ownership_mismatch",
+    });
     expect(repo.deleteCategory).not.toHaveBeenCalled();
   });
 });

@@ -29,6 +29,7 @@ import {
   updateItemAction,
   type ItemActionState,
 } from "@/app/(app)/app/actions";
+import { ErrorMessage } from "./ErrorMessage";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import {
@@ -156,11 +157,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
           <input type="hidden" name="categoryId" value={categoryId} />
           {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
 
-          {state.error && state.error !== "validation" && (
-            <p role="alert" className="text-sm text-destructive">
-              {t(`error.${state.error}`)}
-            </p>
-          )}
+          {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
           {/* FR fields */}
           <fieldset className="space-y-3">

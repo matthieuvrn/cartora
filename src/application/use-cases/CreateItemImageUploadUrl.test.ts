@@ -137,7 +137,11 @@ describe("CreateItemImageUploadUrl", () => {
 
     await expect(
       uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
-    ).rejects.toThrow("max_photos_5");
+    ).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_photos",
+      metadata: { limit: 5, current: 5, tier: "FREE" },
+    });
     expect(storage.createSignedUploadUrl).not.toHaveBeenCalled();
   });
 
@@ -157,7 +161,11 @@ describe("CreateItemImageUploadUrl", () => {
 
     await expect(
       uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
-    ).rejects.toThrow("max_photos_20");
+    ).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_photos",
+      metadata: { limit: 20, current: 20, tier: "STARTER" },
+    });
   });
 
   it("PRO tier has no photo cap (countItemsWithImage = 1000 still allowed)", async () => {

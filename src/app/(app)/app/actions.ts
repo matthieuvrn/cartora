@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
@@ -17,7 +18,7 @@ import { RenameCategory } from "@/application/use-cases/RenameCategory";
 import { DeleteCategory } from "@/application/use-cases/DeleteCategory";
 import { ReorderCategories } from "@/application/use-cases/ReorderCategories";
 import { PublishMenu } from "@/application/use-cases/PublishMenu";
-import { isDuplicateCategoryNameError } from "@/application/ports/MenuRepository";
+import { DomainError, isDomainError } from "@/domain/errors/DomainError";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/domain/menu/CategoryPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
@@ -31,24 +32,19 @@ import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import * as Sentry from "@sentry/nextjs";
+import { withActionContext, type ActionError, type ActionState } from "@/lib/action-result";
 
 // ─── State ──────────────────────────────────────────────────────────────────
+//
+// Phase F : tous les ActionStates partagent maintenant le même shape, basé sur
+// `ActionState<TExtra>` du module `@/lib/action-result`. L'`error` est un
+// `{ code, metadata? } | null` au lieu d'une string opaque.
 
-export type ItemActionState = {
-  error: string | null;
-  fieldErrors?: Record<string, string>;
-  success?: boolean;
-  createdItemId?: string;
-};
+export type ItemActionState = ActionState<{ success?: boolean; createdItemId?: string }>;
 
-export type PublishActionState = {
-  error: string | null;
-};
+export type PublishActionState = ActionState<{ slug?: string }>;
 
-export type RenameActionState = {
-  error: string | null;
-  success?: boolean;
-};
+export type RenameActionState = ActionState<{ success?: boolean }>;
 
 // ─── Schemas Zod v4 ─────────────────────────────────────────────────────────
 
@@ -127,13 +123,22 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
+  if (!user) {
+    // Session expirée pendant que l'utilisateur remplissait un formulaire :
+    // `redirect()` est repropagé tel quel par `withActionContext` (digest NEXT_REDIRECT).
+    // Pas de bruit Sentry pour ce cas attendu.
+    redirect("/login");
+  }
 
   const restaurant = await prisma.restaurant.findUnique({
     where: { ownerUserId: user.id },
     select: { id: true },
   });
-  if (!restaurant) throw new Error("No restaurant found");
+  if (!restaurant) {
+    // Edge case improbable (compte sans restaurant) : on relance le flow d'init
+    // depuis le dashboard plutôt que de planter en exception silencieuse.
+    redirect("/app");
+  }
 
   return restaurant.id;
 }
@@ -141,6 +146,20 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
 function eurToCents(eur: number): number {
   return Math.round(eur * 100);
 }
+
+/**
+ * Construit la map `fieldErrors` consommée par les composants à partir d'une
+ * `ZodSafeParseResult` en échec. Clé = chemin pointé du champ (ex: `translations.fr.name`).
+ */
+function zodFieldErrors(issues: readonly z.ZodIssue[]): Record<string, string> {
+  const fieldErrors: Record<string, string> = {};
+  for (const issue of issues) {
+    fieldErrors[issue.path.join(".")] = issue.message;
+  }
+  return fieldErrors;
+}
+
+const VALIDATION_ERROR: ActionError = { code: "validation" };
 
 // ─── Actions ────────────────────────────────────────────────────────────────
 
@@ -166,35 +185,30 @@ export async function createItemAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = issue.path.join(".");
-      fieldErrors[key] = issue.message;
-    }
-    return { error: "validation", fieldErrors };
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const useCase = new CreateItem(repo);
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "createItem", restaurantId, input: { categoryId: parsed.data.categoryId } },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new CreateItem(repo);
 
-    const { itemId } = await useCase.execute({
-      categoryId: parsed.data.categoryId,
-      restaurantId,
-      priceCents: eurToCents(parsed.data.priceEur),
-      badge: parsed.data.badge,
-      allergens: parsed.data.allergens,
-      translations: parsed.data.translations,
-    });
+      const { itemId } = await useCase.execute({
+        categoryId: parsed.data.categoryId,
+        restaurantId,
+        priceCents: eurToCents(parsed.data.priceEur),
+        badge: parsed.data.badge,
+        allergens: parsed.data.allergens,
+        translations: parsed.data.translations,
+      });
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true, createdItemId: itemId };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "createItem" } });
-    return { error: "generic" };
-  }
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true, createdItemId: itemId };
+    },
+  );
 }
 
 export async function updateItemAction(
@@ -220,36 +234,31 @@ export async function updateItemAction(
   });
 
   if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) {
-      const key = issue.path.join(".");
-      fieldErrors[key] = issue.message;
-    }
-    return { error: "validation", fieldErrors };
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const useCase = new UpdateItem(repo);
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "updateItem", restaurantId, input: { itemId: parsed.data.itemId } },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new UpdateItem(repo);
 
-    await useCase.execute({
-      itemId: parsed.data.itemId,
-      restaurantId,
-      priceCents: eurToCents(parsed.data.priceEur),
-      badge: parsed.data.badge,
-      allergens: parsed.data.allergens,
-      isAvailable: parsed.data.isAvailable,
-      translations: parsed.data.translations,
-    });
+      await useCase.execute({
+        itemId: parsed.data.itemId,
+        restaurantId,
+        priceCents: eurToCents(parsed.data.priceEur),
+        badge: parsed.data.badge,
+        allergens: parsed.data.allergens,
+        isAvailable: parsed.data.isAvailable,
+        translations: parsed.data.translations,
+      });
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "updateItem" } });
-    return { error: "generic" };
-  }
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 export async function deleteItemAction(
@@ -261,27 +270,27 @@ export async function deleteItemAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const itemImageStorage = new SupabaseStorageService("item-images");
-    const useCase = new DeleteItem(repo, itemImageStorage);
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "deleteItem", restaurantId, input: { itemId: parsed.data.itemId } },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const itemImageStorage = new SupabaseStorageService("item-images");
+      const useCase = new DeleteItem(repo, itemImageStorage);
 
-    await useCase.execute({
-      itemId: parsed.data.itemId,
-      restaurantId,
-    });
+      await useCase.execute({
+        itemId: parsed.data.itemId,
+        restaurantId,
+      });
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "deleteItem" } });
-    return { error: "generic" };
-  }
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 export async function reorderItemsAction(
@@ -294,7 +303,7 @@ export async function reorderItemsAction(
     try {
       itemIds = JSON.parse(raw);
     } catch {
-      return { error: "validation" };
+      return { error: VALIDATION_ERROR };
     }
   }
 
@@ -304,27 +313,27 @@ export async function reorderItemsAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const useCase = new ReorderItems(repo);
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "reorderItems", restaurantId, input: { categoryId: parsed.data.categoryId } },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new ReorderItems(repo);
 
-    await useCase.execute({
-      categoryId: parsed.data.categoryId,
-      restaurantId,
-      itemIds: parsed.data.itemIds,
-    });
+      await useCase.execute({
+        categoryId: parsed.data.categoryId,
+        restaurantId,
+        itemIds: parsed.data.itemIds,
+      });
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "reorderItems" } });
-    return { error: "generic" };
-  }
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 // ─── Photos d'items ─────────────────────────────────────────────────────────
@@ -371,10 +380,13 @@ export async function createItemImageUploadUrlAction(input: {
 
     return { ok: true, ...result };
   } catch (e) {
-    if (e instanceof Error && e.message.startsWith("max_photos_")) {
-      return { ok: false, error: "max_photos" };
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
     }
-    Sentry.captureException(e, { tags: { action: "createItemImageUploadUrl" } });
+    Sentry.captureException(e, {
+      tags: { action: "createItemImageUploadUrl" },
+      extra: { itemId: parsed.data.itemId, mime: parsed.data.mime },
+    });
     return { ok: false, error: "generic" };
   }
 }
@@ -407,7 +419,13 @@ export async function setItemImageAction(input: {
     revalidatePath("/app");
     return { ok: true };
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "setItemImage" } });
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "setItemImage" },
+      extra: { itemId: parsed.data.itemId },
+    });
     return { ok: false, error: "generic" };
   }
 }
@@ -432,7 +450,13 @@ export async function deleteItemImageAction(input: {
     revalidatePath("/app");
     return { ok: true };
   } catch (e) {
-    Sentry.captureException(e, { tags: { action: "deleteItemImage" } });
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "deleteItemImage" },
+      extra: { itemId: parsed.data.itemId },
+    });
     return { ok: false, error: "generic" };
   }
 }
@@ -448,38 +472,36 @@ export async function createCategoryAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
-    if (!menuId) return { error: "generic" };
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "createCategory", restaurantId, input: { name: parsed.data.name } },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
+      if (!menuId) {
+        // Edge case improbable : restaurant sans menu (devrait être créé par
+        // EnsureRestaurantExists au login). Throw un DomainError typé.
+        throw new (await import("@/domain/errors/DomainError")).DomainError("menu_not_found", {
+          entityId: restaurantId,
+        });
+      }
 
-    const restaurantRepo = new PrismaRestaurantRepository(prisma);
-    const useCase = new CreateCategory(repo, restaurantRepo);
-    await useCase.execute({
-      restaurantId,
-      menuId,
-      name: parsed.data.name,
-    });
+      const restaurantRepo = new PrismaRestaurantRepository(prisma);
+      const useCase = new CreateCategory(repo, restaurantRepo);
+      await useCase.execute({
+        restaurantId,
+        menuId,
+        name: parsed.data.name,
+      });
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    if (isDuplicateCategoryNameError(e)) {
-      return { error: "duplicate_name" };
-    }
-    if (e instanceof Error && e.message.startsWith("max_categories_")) {
-      // Le code "max_categories" déclenche l'affichage du CTA upgrade côté UI
-      // (la limite exacte dépend du tier — l'UI la calcule via PlanPolicy).
-      return { error: "max_categories" };
-    }
-    Sentry.captureException(e, { tags: { action: "createCategory" } });
-    return { error: "generic" };
-  }
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 export async function renameCategoryAction(
@@ -492,30 +514,31 @@ export async function renameCategoryAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const useCase = new RenameCategory(repo);
-
-    await useCase.execute({
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    {
+      actionName: "renameCategory",
       restaurantId,
-      categoryId: parsed.data.categoryId,
-      name: parsed.data.name,
-    });
+      input: { categoryId: parsed.data.categoryId },
+    },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new RenameCategory(repo);
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    if (isDuplicateCategoryNameError(e)) {
-      return { error: "duplicate_name" };
-    }
-    Sentry.captureException(e, { tags: { action: "renameCategory" } });
-    return { error: "generic" };
-  }
+      await useCase.execute({
+        restaurantId,
+        categoryId: parsed.data.categoryId,
+        name: parsed.data.name,
+      });
+
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 export async function deleteCategoryAction(
@@ -527,26 +550,30 @@ export async function deleteCategoryAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const useCase = new DeleteCategory(repo);
-
-    await useCase.execute({
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    {
+      actionName: "deleteCategory",
       restaurantId,
-      categoryId: parsed.data.categoryId,
-    });
+      input: { categoryId: parsed.data.categoryId },
+    },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new DeleteCategory(repo);
 
-    await repo.markMenuAsDraft(restaurantId);
-    revalidatePath("/app");
-    return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "deleteCategory" } });
-    return { error: "generic" };
-  }
+      await useCase.execute({
+        restaurantId,
+        categoryId: parsed.data.categoryId,
+      });
+
+      await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
 }
 
 export async function reorderCategoriesAction(
@@ -559,20 +586,22 @@ export async function reorderCategoriesAction(
     try {
       orderedIds = JSON.parse(raw);
     } catch {
-      return { error: "validation" };
+      return { error: VALIDATION_ERROR };
     }
   }
 
   const parsed = ReorderCategoriesSchema.safeParse({ orderedIds });
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "reorderCategories", restaurantId }, async () => {
     const repo = new PrismaMenuRepository(prisma);
     const menuId = await repo.getMenuIdByRestaurantId(restaurantId);
-    if (!menuId) return { error: "generic" };
+    if (!menuId) {
+      throw new DomainError("menu_not_found", { entityId: restaurantId });
+    }
 
     const useCase = new ReorderCategories(repo);
     await useCase.execute({
@@ -584,24 +613,25 @@ export async function reorderCategoriesAction(
     await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "reorderCategories" } });
-    return { error: "generic" };
-  }
+  });
 }
 
 export async function publishMenuAction(_prev: PublishActionState): Promise<PublishActionState> {
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "publishMenu", restaurantId }, async () => {
     const menuRepo = new PrismaMenuRepository(prisma);
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const snapshotRepo = new PrismaSnapshotRepository(prisma);
     const clock = new SystemClock();
     const useCase = new PublishMenu(menuRepo, restaurantRepo, snapshotRepo, clock);
 
+    // 1. Publication — peut throw DomainError("plan_inactive" | "no_items" | …)
+    //    qui sera converti en `state.error.code` par `withActionContext`.
     const { slug } = await useCase.execute({ restaurantId });
 
-    // QR code generation — non-blocking for publish success
+    // 2. Génération QR — non bloquante. Échec ⇒ warning ambre côté UI, le menu reste
+    //    publié. L'utilisateur peut relancer via `regenerateQrAction`.
+    let warning: PublishActionState["warning"] = null;
     try {
       const qrGenerator = new NodeQrCodeGenerator();
       const storageService = new SupabaseStorageService("qr-codes");
@@ -610,16 +640,47 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
       const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}?utm_source=qr`;
       await generateQr.execute({ restaurantId, slug, menuUrl });
     } catch (qrError) {
-      Sentry.captureException(qrError, { tags: { action: "publishMenu.qr" } });
+      // Warning niveau Sentry : on veut le voir mais ce n'est pas une exception bloquante.
+      Sentry.captureException(qrError, {
+        tags: { action: "publishMenu", phase: "qr" },
+        user: { id: restaurantId },
+        level: "warning",
+        extra: { slug },
+      });
+      warning = { code: "qr_failed" };
     }
 
     revalidateTag(`public-menu-${slug}`, "default");
     revalidatePath("/app");
-    return { error: null };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "publishMenu" } });
-    return { error: "generic" };
-  }
+    return { error: null, slug, warning };
+  });
+}
+
+/**
+ * Régénère un QR code pour le menu déjà publié de l'utilisateur courant.
+ * Utilisé quand `publishMenuAction` a renvoyé `warning: { code: "qr_failed" }`.
+ */
+export async function regenerateQrAction(
+  _prev: ActionState<{ success?: boolean }>,
+): Promise<ActionState<{ success?: boolean }>> {
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "regenerateQr", restaurantId }, async () => {
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
+    if (!restaurant) {
+      // L'utilisateur est authentifié mais n'a pas de restaurant : édge case improbable
+      // (cf. EnsureRestaurantExists au login), mais on reste défensif.
+      throw new DomainError("restaurant_not_found", { entityId: restaurantId });
+    }
+    const qrGenerator = new NodeQrCodeGenerator();
+    const storageService = new SupabaseStorageService("qr-codes");
+    const qrAssetRepo = new PrismaQrAssetRepository(prisma);
+    const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
+    const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${restaurant.slug}?utm_source=qr`;
+    await generateQr.execute({ restaurantId, slug: restaurant.slug, menuUrl });
+    revalidatePath("/app");
+    return { error: null, success: true };
+  });
 }
 
 // ─── Onboarding ─────────────────────────────────────────────────────────────
@@ -644,11 +705,11 @@ export async function renameRestaurantAction(
   });
 
   if (!parsed.success) {
-    return { error: "validation" };
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "renameRestaurant", restaurantId }, async () => {
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const useCase = new RenameRestaurant(restaurantRepo);
 
@@ -662,8 +723,5 @@ export async function renameRestaurantAction(
 
     revalidatePath("/app");
     return { error: null, success: true };
-  } catch (e) {
-    Sentry.captureException(e, { tags: { action: "renameRestaurant" } });
-    return { error: "generic" };
-  }
+  });
 }

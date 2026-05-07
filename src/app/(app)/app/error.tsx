@@ -15,7 +15,9 @@ export default function DashboardError({
   const t = useTranslations("Error");
 
   useEffect(() => {
-    Sentry.captureException(error);
+    // `digest` permet à Sentry de corréler le rapport client avec le log serveur
+    // (le digest est généré côté serveur en App Router pour les erreurs throws).
+    Sentry.captureException(error, { tags: { digest: error.digest ?? null } });
   }, [error]);
 
   return (

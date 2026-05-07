@@ -76,9 +76,9 @@ describe("CreateItem", () => {
   it("rejects an invalid allergen value", async () => {
     const uc = new CreateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "PEPPER"] })).rejects.toThrow(
-      /PEPPER/,
-    );
+    await expect(
+      uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "PEPPER"] }),
+    ).rejects.toMatchObject({ name: "DomainError", code: "invalid_allergen" });
   });
 
   it("defaults EN translations to empty strings when omitted", async () => {
@@ -107,21 +107,29 @@ describe("CreateItem", () => {
 
     await expect(
       uc.execute({ ...VALID_INPUT, translations: { fr: { name: "", description: "" } } }),
-    ).rejects.toThrow("Le nom est obligatoire");
+    ).rejects.toMatchObject({
+      name: "DomainError",
+      code: "name_required",
+      metadata: { field: "name" },
+    });
   });
 
   it("throws when price is negative", async () => {
     const uc = new CreateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, priceCents: -1 })).rejects.toThrow("Le prix");
+    await expect(uc.execute({ ...VALID_INPUT, priceCents: -1 })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "price_too_low",
+    });
   });
 
   it("throws when badge is invalid", async () => {
     const uc = new CreateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, badge: "TRENDING" })).rejects.toThrow(
-      "Badge invalide",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, badge: "TRENDING" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "invalid_badge",
+    });
   });
 
   it("throws when categoryId does not belong to restaurantId", async () => {
@@ -130,9 +138,10 @@ describe("CreateItem", () => {
     });
     const uc = new CreateItem(repo);
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
-      "Cette catégorie n'appartient pas à ce restaurant",
-    );
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "ownership_mismatch",
+    });
     expect(repo.createItem).not.toHaveBeenCalled();
   });
 

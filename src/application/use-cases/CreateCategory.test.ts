@@ -69,18 +69,21 @@ describe("CreateCategory", () => {
 
   it("refuses empty name", async () => {
     const uc = new CreateCategory(createMockMenuRepo(), createMockRestaurantRepo());
-    await expect(uc.execute({ ...VALID_INPUT, name: "  " })).rejects.toThrow(
-      "Le nom est obligatoire",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, name: "  " })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "name_required",
+      metadata: { field: "name" },
+    });
   });
 
   it("refuses if menu does not belong to restaurant", async () => {
     const repo = createMockMenuRepo({ verifyMenuOwnership: vi.fn(async () => false) });
     const uc = new CreateCategory(repo, createMockRestaurantRepo());
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
-      "Ce menu n'appartient pas à ce restaurant",
-    );
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "ownership_mismatch",
+    });
     expect(repo.createCategory).not.toHaveBeenCalled();
   });
 
@@ -97,7 +100,11 @@ describe("CreateCategory", () => {
       }),
     );
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow("max_categories_6");
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_categories",
+      metadata: { limit: 6, current: 6, tier: "FREE" },
+    });
     expect(repo.createCategory).not.toHaveBeenCalled();
   });
 
@@ -114,7 +121,11 @@ describe("CreateCategory", () => {
       }),
     );
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow("max_categories_10");
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_categories",
+      metadata: { limit: 10, current: 10, tier: "STARTER" },
+    });
     expect(repo.createCategory).not.toHaveBeenCalled();
   });
 
@@ -131,7 +142,11 @@ describe("CreateCategory", () => {
       }),
     );
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(`max_categories_${MAX_CATEGORIES}`);
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_categories",
+      metadata: { limit: MAX_CATEGORIES, tier: "PRO" },
+    });
   });
 
   it("refuses duplicate name (case + trim insensitive)", async () => {
@@ -140,9 +155,10 @@ describe("CreateCategory", () => {
     });
     const uc = new CreateCategory(repo, createMockRestaurantRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, name: "  TAPAS  " })).rejects.toThrow(
-      "Une catégorie avec ce nom existe déjà",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, name: "  TAPAS  " })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "duplicate_name",
+    });
     expect(repo.createCategory).not.toHaveBeenCalled();
   });
 
@@ -153,6 +169,9 @@ describe("CreateCategory", () => {
       createMockRestaurantRepo({ getRestaurantById: async () => null }),
     );
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow("Restaurant introuvable");
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "restaurant_not_found",
+    });
   });
 });

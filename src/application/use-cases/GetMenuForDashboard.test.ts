@@ -73,8 +73,10 @@ describe("GetMenuForDashboard", () => {
   it("throws when menu is not found", async () => {
     const uc = new GetMenuForDashboard(createMockRepo(null));
 
-    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toThrow(
-      "Menu introuvable pour le restaurant unknown",
-    );
+    await expect(uc.execute({ restaurantId: "unknown" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "menu_not_found",
+      metadata: { entityId: "unknown" },
+    });
   });
 });

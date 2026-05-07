@@ -18,6 +18,7 @@ import {
   type ItemActionState,
 } from "@/app/(app)/app/actions";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/domain/menu/CategoryPolicy";
+import { ErrorMessage } from "./ErrorMessage";
 
 type Props =
   | {
@@ -47,7 +48,6 @@ export function CategoryFormDialog(props: Props) {
     if (state.success) onOpenChange(false);
   }, [state.success, onOpenChange]);
 
-  const errorKey = state.error === "duplicate_name" ? "category.duplicate" : `error.${state.error}`;
   const defaultName = props.mode === "rename" ? props.initialName : "";
 
   return (
@@ -76,9 +76,10 @@ export function CategoryFormDialog(props: Props) {
             />
           </div>
 
-          {state.error && (
+          <ErrorMessage error={state.error} />
+          {state.fieldErrors?.name && (
             <p role="alert" className="text-sm text-destructive">
-              {t(errorKey)}
+              {state.fieldErrors.name}
             </p>
           )}
 

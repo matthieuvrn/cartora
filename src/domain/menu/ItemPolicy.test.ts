@@ -141,7 +141,7 @@ describe("ItemPolicy", () => {
 
     it("rejects unknown values", () => {
       const result = ItemPolicy.validateAllergens(["GLUTEN", "PEPPER"]);
-      expect(result.error).toMatch(/PEPPER/);
+      expect(result.error).toEqual({ field: "allergens", code: "invalid_allergen" });
       expect(result.ok).toEqual([]);
     });
 
@@ -153,7 +153,7 @@ describe("ItemPolicy", () => {
     it("rejects more values than the official list size", () => {
       const tooMany = Array.from({ length: ALLERGEN_VALUES.length + 1 }, () => "GLUTEN");
       const result = ItemPolicy.validateAllergens(tooMany);
-      expect(result.error).toMatch(/maximum/i);
+      expect(result.error).toEqual({ field: "allergens", code: "too_many_allergens" });
     });
   });
 });

@@ -1,3 +1,5 @@
+import type { ValidationFailure } from "@/domain/errors/DomainError";
+
 export const ALLOWED_IMAGE_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 export type AllowedImageMime = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
@@ -17,27 +19,27 @@ export class ItemPhotoPolicy {
     return MIME_SET.has(mime);
   }
 
-  static validateMimeType(mime: string): string | null {
+  static validateMimeType(mime: string): ValidationFailure | null {
     if (!ItemPhotoPolicy.isAllowedMime(mime)) {
-      return "Format non supporté (JPEG, PNG, WebP uniquement)";
+      return { field: "mime", code: "unsupported_mime" };
     }
     return null;
   }
 
-  static validateSize(bytes: number): string | null {
-    if (!Number.isFinite(bytes) || bytes <= 0) return "Fichier vide ou invalide";
+  static validateSize(bytes: number): ValidationFailure | null {
+    if (!Number.isFinite(bytes) || bytes <= 0) return { field: "size", code: "validation_failed" };
     if (bytes > MAX_IMAGE_SIZE_BYTES) {
-      return `Image trop lourde (max ${MAX_IMAGE_SIZE_BYTES / (1024 * 1024)} Mo)`;
+      return { field: "size", code: "validation_failed" };
     }
     return null;
   }
 
-  static validateAltText(text: string): { ok: string; error: string | null } {
+  static validateAltText(text: string): { ok: string; error: ValidationFailure | null } {
     const trimmed = text.trim();
     if (trimmed.length > MAX_ALT_TEXT_LENGTH) {
       return {
         ok: trimmed.slice(0, MAX_ALT_TEXT_LENGTH),
-        error: `La description ne doit pas dépasser ${MAX_ALT_TEXT_LENGTH} caractères`,
+        error: { field: "altText", code: "description_too_long" },
       };
     }
     return { ok: trimmed, error: null };

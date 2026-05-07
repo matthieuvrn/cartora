@@ -4,6 +4,7 @@ import type { SnapshotRepository } from "@/application/ports/SnapshotRepository"
 import type { Clock } from "@/application/ports/Clock";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type PublishMenuInput = {
   restaurantId: string;
@@ -24,12 +25,12 @@ export class PublishMenu {
   async execute(input: PublishMenuInput): Promise<PublishMenuOutput> {
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
-      throw new Error("Restaurant introuvable");
+      throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
     }
 
     const menu = await this.menuRepo.getMenuByRestaurantId(input.restaurantId);
     if (!menu) {
-      throw new Error("Menu introuvable");
+      throw new DomainError("menu_not_found", { entityId: input.restaurantId });
     }
 
     const availableItemCount = menu.categories.reduce(
@@ -43,10 +44,11 @@ export class PublishMenu {
       availableItemCount,
     );
     if (!result.allowed) {
-      // Backwards-compat : les UI lisent encore "plan_inactive" pour FREE/PAST_DUE/CANCELED.
-      // On normalise les nouveaux reasons (`plan_free`, `billing_issue`) vers ce label.
-      const reason = result.reason === "no_items" ? "no_items" : "plan_inactive";
-      throw new Error(reason);
+      // PlanPolicy peut renvoyer `plan_free`, `billing_issue`, `no_items`. On distingue
+      // `no_items` pour permettre à l'UI un message ciblé ; les deux autres motifs sont
+      // tous deux "votre formule ne permet pas de publier" → `plan_inactive`.
+      const code = result.reason === "no_items" ? "no_items" : "plan_inactive";
+      throw new DomainError(code, { tier: restaurant.planTier });
     }
 
     const now = this.clock.nowISO();

@@ -13,6 +13,7 @@ import {
   type ItemActionState,
   type PublishActionState,
 } from "@/app/(app)/app/actions";
+import type { ActionState } from "@/lib/action-result";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
@@ -31,6 +32,9 @@ type Props = {
   planTier: PlanTier;
   slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
+  regenerateQrAction: (
+    _prev: ActionState<{ success?: boolean }>,
+  ) => Promise<ActionState<{ success?: boolean }>>;
   qrCodeUrl: string | null;
   hasBilling: boolean;
   stats?: DashboardStats;
@@ -46,6 +50,7 @@ export function MenuDashboard({
   planTier,
   slug,
   publishAction,
+  regenerateQrAction,
   qrCodeUrl,
   hasBilling,
   stats,
@@ -97,6 +102,7 @@ export function MenuDashboard({
             planTier={planTier}
             menuStatus={menu.status}
             publishAction={publishAction}
+            regenerateQrAction={regenerateQrAction}
           />
           <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
             {t(`status.${menu.status}`)}

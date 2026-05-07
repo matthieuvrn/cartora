@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { deleteCategoryAction, type ItemActionState } from "@/app/(app)/app/actions";
+import { ErrorMessage } from "./ErrorMessage";
 
 type Props = {
   categoryId: string;
@@ -46,11 +47,7 @@ export function DeleteCategoryDialog({ categoryId, categoryName, open, onOpenCha
           </DialogDescription>
         </DialogHeader>
 
-        {state.error && (
-          <p role="alert" className="text-sm text-destructive">
-            {t(`error.${state.error}`)}
-          </p>
-        )}
+        <ErrorMessage error={state.error} />
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={isPending}>

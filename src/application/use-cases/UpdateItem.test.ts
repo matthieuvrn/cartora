@@ -74,9 +74,9 @@ describe("UpdateItem", () => {
   it("rejects an invalid allergen value", async () => {
     const uc = new UpdateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, allergens: ["MILK", "BANANA"] })).rejects.toThrow(
-      /BANANA/,
-    );
+    await expect(
+      uc.execute({ ...VALID_INPUT, allergens: ["MILK", "BANANA"] }),
+    ).rejects.toMatchObject({ name: "DomainError", code: "invalid_allergen" });
   });
 
   it("passes isAvailable false through", async () => {
@@ -112,20 +112,24 @@ describe("UpdateItem", () => {
 
     await expect(
       uc.execute({ ...VALID_INPUT, translations: { fr: { name: "  ", description: "" } } }),
-    ).rejects.toThrow("Le nom est obligatoire");
+    ).rejects.toMatchObject({ name: "DomainError", code: "name_required" });
   });
 
   it("throws when price is negative", async () => {
     const uc = new UpdateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, priceCents: -5 })).rejects.toThrow("Le prix");
+    await expect(uc.execute({ ...VALID_INPUT, priceCents: -5 })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "price_too_low",
+    });
   });
 
   it("throws when badge is invalid", async () => {
     const uc = new UpdateItem(createMockRepo());
 
-    await expect(uc.execute({ ...VALID_INPUT, badge: "UNKNOWN" })).rejects.toThrow(
-      "Badge invalide",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, badge: "UNKNOWN" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "invalid_badge",
+    });
   });
 });

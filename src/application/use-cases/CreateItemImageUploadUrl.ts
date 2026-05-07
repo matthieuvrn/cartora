@@ -3,6 +3,7 @@ import type { RestaurantRepository } from "@/application/ports/RestaurantReposit
 import type { SignedUploadUrl, StorageService } from "@/application/ports/StorageService";
 import { ItemPhotoPolicy, type AllowedImageMime } from "@/domain/menu/ItemPhotoPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreateItemImageUploadUrlInput = {
   restaurantId: string;
@@ -23,25 +24,30 @@ export class CreateItemImageUploadUrl {
 
   async execute(input: CreateItemImageUploadUrlInput): Promise<CreateItemImageUploadUrlOutput> {
     if (!ItemPhotoPolicy.isAllowedMime(input.mime)) {
-      throw new Error("Format non supporté (JPEG, PNG, WebP uniquement)");
+      throw new DomainError("unsupported_mime", { invalidValue: input.mime });
     }
 
     const item = await this.repo.getItem({
       itemId: input.itemId,
       restaurantId: input.restaurantId,
     });
-    if (!item) throw new Error("Item introuvable");
+    if (!item) throw new DomainError("item_not_found", { entityId: input.itemId });
 
     // Quota photos par tier — uniquement appliqué quand on AJOUTE une photo (pas quand
     // on remplace une existante sur le même item, qui ne change pas le compteur).
     if (!item.imagePath) {
       const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
-      if (!restaurant) throw new Error("Restaurant introuvable");
+      if (!restaurant) {
+        throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
+      }
       const max = PlanPolicy.maxPhotosFor(restaurant.planTier);
       const currentCount = await this.repo.countItemsWithImage(input.restaurantId);
       if (currentCount >= max) {
-        // L'action layer mappe ce code en "max_photos" → CTA upgrade côté UI.
-        throw new Error(`max_photos_${Number.isFinite(max) ? max : "unlimited"}`);
+        throw new DomainError("max_photos", {
+          limit: Number.isFinite(max) ? max : undefined,
+          current: currentCount,
+          tier: restaurant.planTier,
+        });
       }
     }
 

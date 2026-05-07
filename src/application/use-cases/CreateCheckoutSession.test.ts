@@ -111,7 +111,10 @@ describe("CreateCheckoutSession", () => {
       gateway,
     );
 
-    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow("Restaurant introuvable");
+    await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "restaurant_not_found",
+    });
     expect(gateway.createCheckoutSession).not.toHaveBeenCalled();
   });
 
@@ -130,9 +133,10 @@ describe("CreateCheckoutSession", () => {
         gateway,
       );
 
-      await expect(useCase.execute(VALID_INPUT)).rejects.toThrow(
-        "Use the customer portal to change your plan",
-      );
+      await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
+        name: "DomainError",
+        code: "use_portal_to_change_plan",
+      });
       expect(gateway.createCheckoutSession).not.toHaveBeenCalled();
     },
   );

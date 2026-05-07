@@ -1,6 +1,7 @@
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { PaymentGateway } from "@/application/ports/PaymentGateway";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreateCheckoutSessionInput = {
   restaurantId: string;
@@ -23,7 +24,7 @@ export class CreateCheckoutSession {
   async execute(input: CreateCheckoutSessionInput): Promise<CreateCheckoutSessionOutput> {
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
-      throw new Error("Restaurant introuvable");
+      throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
     }
 
     // Le checkout n'est utilisé QUE pour la première souscription ou la resub après
@@ -31,7 +32,7 @@ export class CreateCheckoutSession {
     // Customer Portal qui appelle Stripe Subscriptions API et préserve la sub existante
     // (proration auto, idempotence). Voir étape 0.2 du plan d'exécution.
     if (restaurant.planStatus !== "FREE" && restaurant.planStatus !== "CANCELED") {
-      throw new Error("Use the customer portal to change your plan");
+      throw new DomainError("use_portal_to_change_plan");
     }
 
     const { url } = await this.paymentGateway.createCheckoutSession({

@@ -1,3 +1,5 @@
+import type { ValidationFailure } from "@/domain/errors/DomainError";
+
 export const MAX_ITEM_NAME_LENGTH = 100;
 export const MAX_ITEM_DESCRIPTION_LENGTH = 500;
 export const MIN_PRICE_CENTS = 0;
@@ -30,29 +32,28 @@ export type Allergen = (typeof ALLERGEN_VALUES)[number];
 const ALLERGEN_SET: ReadonlySet<string> = new Set(ALLERGEN_VALUES);
 
 export class ItemPolicy {
-  static validateName(value: string): string | null {
+  static validateName(value: string): ValidationFailure | null {
     const trimmed = value.trim();
-    if (!trimmed) return "Le nom est obligatoire";
-    if (trimmed.length > MAX_ITEM_NAME_LENGTH)
-      return `Le nom ne doit pas dépasser ${MAX_ITEM_NAME_LENGTH} caractères`;
+    if (!trimmed) return { field: "name", code: "name_required" };
+    if (trimmed.length > MAX_ITEM_NAME_LENGTH) return { field: "name", code: "name_too_long" };
     return null;
   }
 
-  static validateDescription(value: string): string | null {
+  static validateDescription(value: string): ValidationFailure | null {
     if (value.trim().length > MAX_ITEM_DESCRIPTION_LENGTH)
-      return `La description ne doit pas dépasser ${MAX_ITEM_DESCRIPTION_LENGTH} caractères`;
+      return { field: "description", code: "description_too_long" };
     return null;
   }
 
-  static validatePriceCents(value: number): string | null {
-    if (!Number.isInteger(value)) return "Le prix doit être un nombre entier";
-    if (value < MIN_PRICE_CENTS) return `Le prix doit être >= ${MIN_PRICE_CENTS}`;
-    if (value > MAX_PRICE_CENTS) return `Le prix doit être <= ${MAX_PRICE_CENTS}`;
+  static validatePriceCents(value: number): ValidationFailure | null {
+    if (!Number.isInteger(value)) return { field: "priceCents", code: "price_not_integer" };
+    if (value < MIN_PRICE_CENTS) return { field: "priceCents", code: "price_too_low" };
+    if (value > MAX_PRICE_CENTS) return { field: "priceCents", code: "price_too_high" };
     return null;
   }
 
-  static validateBadge(value: string): string | null {
-    if (!VALID_BADGES.includes(value)) return `Badge invalide : ${value}`;
+  static validateBadge(value: string): ValidationFailure | null {
+    if (!VALID_BADGES.includes(value)) return { field: "badge", code: "invalid_badge" };
     return null;
   }
 
@@ -64,14 +65,15 @@ export class ItemPolicy {
    */
   static validateAllergens(values: readonly string[]): {
     ok: Allergen[];
-    error: string | null;
+    error: ValidationFailure | null;
   } {
     if (values.length > ALLERGEN_VALUES.length) {
-      return { ok: [], error: `Au maximum ${ALLERGEN_VALUES.length} allergènes` };
+      return { ok: [], error: { field: "allergens", code: "too_many_allergens" } };
     }
     const seen = new Set<Allergen>();
     for (const v of values) {
-      if (!ALLERGEN_SET.has(v)) return { ok: [], error: `Allergène invalide : ${v}` };
+      if (!ALLERGEN_SET.has(v))
+        return { ok: [], error: { field: "allergens", code: "invalid_allergen" } };
       seen.add(v as Allergen);
     }
     return { ok: Array.from(seen), error: null };

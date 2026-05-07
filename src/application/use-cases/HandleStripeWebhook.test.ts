@@ -283,7 +283,10 @@ describe("HandleStripeWebhook", () => {
       webhookEventRepo,
     );
 
-    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow("Restaurant introuvable");
+    await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "restaurant_not_found",
+    });
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
     expect(webhookEventRepo.markProcessed).not.toHaveBeenCalled();
   });

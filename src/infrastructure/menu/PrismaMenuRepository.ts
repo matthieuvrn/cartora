@@ -2,6 +2,7 @@ import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { MenuOverview, MenuItemData, ItemTranslations } from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export class PrismaMenuRepository implements MenuRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -389,19 +390,15 @@ export class PrismaMenuRepository implements MenuRepository {
 }
 
 /**
- * Mappe une violation d'unicité Postgres (code 23505) ou Prisma (P2002) vers une erreur métier
- * `code: "duplicate_name"` consommable par les use cases / actions.
+ * Mappe une violation d'unicité Postgres (code 23505) ou Prisma (P2002) vers une `DomainError`
+ * avec code `"duplicate_name"`, consommable par les use cases / actions.
  */
 function mapDuplicateNameError(e: unknown): Error {
   const isPrismaUnique = e instanceof Error && (e as { code?: string }).code === "P2002";
   const isPgUnique =
     e instanceof Error && /23505|categories_menu_id_name_lower_idx/.test(e.message);
   if (isPrismaUnique || isPgUnique) {
-    const wrapped = new Error("Une catégorie avec ce nom existe déjà") as Error & {
-      code: "duplicate_name";
-    };
-    wrapped.code = "duplicate_name";
-    return wrapped;
+    return new DomainError("duplicate_name", { field: "name" });
   }
   return e instanceof Error ? e : new Error(String(e));
 }

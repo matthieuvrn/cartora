@@ -31,9 +31,10 @@ describe("RenameCategory", () => {
     const repo = createMockMenuRepo({ verifyCategoryOwnership: vi.fn(async () => false) });
     const uc = new RenameCategory(repo);
 
-    await expect(uc.execute(VALID_INPUT)).rejects.toThrow(
-      "Cette catégorie n'appartient pas à ce restaurant",
-    );
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "ownership_mismatch",
+    });
     expect(repo.renameCategory).not.toHaveBeenCalled();
   });
 
@@ -46,9 +47,10 @@ describe("RenameCategory", () => {
     });
     const uc = new RenameCategory(repo);
 
-    await expect(uc.execute({ ...VALID_INPUT, name: "Desserts" })).rejects.toThrow(
-      "Une catégorie avec ce nom existe déjà",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, name: "Desserts" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "duplicate_name",
+    });
     expect(repo.renameCategory).not.toHaveBeenCalled();
   });
 
@@ -68,8 +70,9 @@ describe("RenameCategory", () => {
 
   it("refuses empty name", async () => {
     const uc = new RenameCategory(createMockMenuRepo());
-    await expect(uc.execute({ ...VALID_INPUT, name: "" })).rejects.toThrow(
-      "Le nom est obligatoire",
-    );
+    await expect(uc.execute({ ...VALID_INPUT, name: "" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "name_required",
+    });
   });
 });

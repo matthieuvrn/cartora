@@ -1,5 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import { DomainError } from "@/domain/errors/DomainError";
 
 export type GetMenuForDashboardInput = {
   restaurantId: string;
@@ -14,7 +15,9 @@ export class GetMenuForDashboard {
     const menu = await this.repo.getMenuByRestaurantId(input.restaurantId);
 
     if (!menu) {
-      throw new Error(`Menu introuvable pour le restaurant ${input.restaurantId}`);
+      // L'appelant (server component dashboard) catch ce code et appelle `notFound()`
+      // pour rendre `not-found.tsx` au lieu de `error.tsx`.
+      throw new DomainError("menu_not_found", { entityId: input.restaurantId });
     }
 
     return menu;

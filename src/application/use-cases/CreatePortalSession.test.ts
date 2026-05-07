@@ -67,9 +67,10 @@ describe("CreatePortalSession", () => {
       gateway,
     );
 
-    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow(
-      "Aucune information de facturation trouvée",
-    );
+    await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "billing_missing",
+    });
     expect(gateway.createPortalSession).not.toHaveBeenCalled();
   });
 });

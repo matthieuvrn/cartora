@@ -1,4 +1,5 @@
 import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
+import type { ValidationFailure } from "@/domain/errors/DomainError";
 
 /**
  * Hard cap absolu (toutes formules confondues) pour la taille de l'UI / éviter les
@@ -15,12 +16,15 @@ export class CategoryPolicy {
       : collapsed;
   }
 
-  static validateName(value: string): string | null {
-    if (!value) return "Le nom est obligatoire";
-    if (value.length > MAX_CATEGORY_NAME_LENGTH)
-      return `Le nom ne doit pas dépasser ${MAX_CATEGORY_NAME_LENGTH} caractères`;
+  /**
+   * Valide un nom de catégorie. Renvoie `null` si OK, sinon un objet `{ field, code }`
+   * que les use cases convertissent en `DomainError` et que l'UI traduit via i18n.
+   */
+  static validateName(value: string): ValidationFailure | null {
+    if (!value) return { field: "name", code: "name_required" };
+    if (value.length > MAX_CATEGORY_NAME_LENGTH) return { field: "name", code: "name_too_long" };
     // Pas de caractères de contrôle (\x00-\x1F, \x7F).
-    if (/[\x00-\x1F\x7F]/.test(value)) return "Caractères de contrôle interdits";
+    if (/[\x00-\x1F\x7F]/.test(value)) return { field: "name", code: "name_control_chars" };
     return null;
   }
 

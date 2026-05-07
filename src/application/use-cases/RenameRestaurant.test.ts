@@ -42,16 +42,17 @@ describe("RenameRestaurant", () => {
   it("throws when display name is empty", async () => {
     const uc = new RenameRestaurant(createMockRepo());
 
-    await expect(uc.execute({ restaurantId: "resto-1", displayName: "" })).rejects.toThrow(
-      "Le nom du restaurant est obligatoire",
-    );
+    await expect(uc.execute({ restaurantId: "resto-1", displayName: "" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "display_name_required",
+    });
   });
 
   it("throws when display name is whitespace-only", async () => {
     const uc = new RenameRestaurant(createMockRepo());
 
-    await expect(uc.execute({ restaurantId: "resto-1", displayName: "   " })).rejects.toThrow(
-      "Le nom du restaurant est obligatoire",
+    await expect(uc.execute({ restaurantId: "resto-1", displayName: "   " })).rejects.toMatchObject(
+      { name: "DomainError", code: "display_name_required" },
     );
   });
 
