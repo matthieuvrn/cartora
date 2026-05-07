@@ -147,10 +147,20 @@
       "description": "Scannez ce QR code pour accéder à votre menu",
       "download": "Télécharger"
     },
-    "checkoutSuccessTitle": "Bienvenue sur Pro !",
-    "checkoutSuccessDescription": "Votre abonnement est actif. Vous pouvez maintenant publier votre carte.",
-    "checkoutCancelTitle": "Paiement annulé",
-    "checkoutCancelDescription": "Votre paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez.",
+    "checkoutSuccess": {
+      "STARTER": {
+        "title": "Bienvenue sur Starter !",
+        "description": "Votre abonnement Starter est actif. Vous pouvez publier votre carte."
+      },
+      "PRO": {
+        "title": "Bienvenue sur Pro !",
+        "description": "Votre abonnement Pro est actif. Vous pouvez publier votre carte."
+      }
+    },
+    "checkoutCancel": {
+      "title": "Paiement annulé",
+      "description": "Votre paiement a été annulé. Vous pouvez réessayer quand vous le souhaitez."
+    },
     "editName": "Modifier le nom",
     "saveName": "Enregistrer",
     "cancelEdit": "Annuler",

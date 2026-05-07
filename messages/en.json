@@ -147,10 +147,20 @@
       "description": "Scan this QR code to access your menu",
       "download": "Download"
     },
-    "checkoutSuccessTitle": "Welcome to Pro!",
-    "checkoutSuccessDescription": "Your subscription is active. You can now publish your menu.",
-    "checkoutCancelTitle": "Checkout cancelled",
-    "checkoutCancelDescription": "Your checkout was cancelled. You can try again anytime.",
+    "checkoutSuccess": {
+      "STARTER": {
+        "title": "Welcome to Starter!",
+        "description": "Your Starter subscription is active. You can now publish your menu."
+      },
+      "PRO": {
+        "title": "Welcome to Pro!",
+        "description": "Your Pro subscription is active. You can now publish your menu."
+      }
+    },
+    "checkoutCancel": {
+      "title": "Checkout cancelled",
+      "description": "Your checkout was cancelled. You can try again anytime."
+    },
     "editName": "Edit name",
     "saveName": "Save",
     "cancelEdit": "Cancel",

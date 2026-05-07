@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { CircleCheck, CircleX, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { logoutAction } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
 import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
@@ -25,6 +24,7 @@ import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
+import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { dismissActivationChecklistAction, publishMenuAction } from "./actions";
@@ -121,20 +121,12 @@ export default async function AppPage({
       </header>
 
       <div className="mx-auto max-w-4xl px-4 py-8">
-        {checkout === "success" && restaurant.planStatus === "ACTIVE" && (
-          <Alert className="mb-6">
-            <CircleCheck className="size-4" />
-            <AlertTitle>{t("checkoutSuccessTitle")}</AlertTitle>
-            <AlertDescription>{t("checkoutSuccessDescription")}</AlertDescription>
-          </Alert>
-        )}
-        {checkout === "cancel" && (
-          <Alert variant="destructive" className="mb-6">
-            <CircleX className="size-4" />
-            <AlertTitle>{t("checkoutCancelTitle")}</AlertTitle>
-            <AlertDescription>{t("checkoutCancelDescription")}</AlertDescription>
-          </Alert>
-        )}
+        {checkout === "success" &&
+          restaurant.planStatus === "ACTIVE" &&
+          restaurant.planTier !== "FREE" && (
+            <CheckoutResultBanner result="success" tier={restaurant.planTier} />
+          )}
+        {checkout === "cancel" && <CheckoutResultBanner result="cancel" />}
         <MenuDashboard
           menu={menu}
           restaurantName={restaurant.displayName}
