@@ -1,5 +1,5 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
-import type { MenuOverview } from "./MenuTypes";
+import type { MenuOverview, MenuTemplate } from "./MenuTypes";
 
 export type PublicMenuItem = {
   nameFr: string;
@@ -23,6 +23,12 @@ export type PublicMenuSnapshot = {
   restaurantName: string;
   categories: PublicMenuCategory[];
   publishedAt: string;
+  /**
+   * Template de rendu choisi par le restaurateur. Optionnel pour la rétro-compat
+   * avec les snapshots produits avant l'introduction de la feature S2.2 :
+   * `pickTemplate(undefined)` retourne `TemplateClassic` côté UI.
+   */
+  template?: MenuTemplate;
 };
 
 export function buildPublicSnapshot(
@@ -50,5 +56,5 @@ export function buildPublicSnapshot(
     }))
     .filter((category) => category.items.length > 0);
 
-  return { restaurantName, categories, publishedAt };
+  return { restaurantName, categories, publishedAt, template: menu.template };
 }

@@ -16,6 +16,7 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     getNextItemOrder: vi.fn(async () => 3),
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
+    updateTemplate: async () => {},
     listCategoryNames: vi.fn(async () => []),
     createCategory: vi.fn(async () => ({ id: "new-cat-id" })),
     renameCategory: vi.fn(async () => {}),

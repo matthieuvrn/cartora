@@ -9,7 +9,7 @@ import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
-import { MenuTemplate } from "./menu-template";
+import { MenuTemplateRenderer } from "./menu-template";
 import type { AllergenLabels } from "./AllergenIcons";
 import { Button } from "@/components/ui/button";
 import {
@@ -98,7 +98,7 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
             viewport !== "desktop" && "rounded-2xl border shadow-sm overflow-hidden",
           )}
         >
-          <MenuTemplate
+          <MenuTemplateRenderer
             snapshot={snapshot}
             locale={locale}
             showWatermark={PlanPolicy.shouldShowWatermark(planTier)}

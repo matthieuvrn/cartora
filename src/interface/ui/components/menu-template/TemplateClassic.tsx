@@ -5,6 +5,14 @@ import { Watermark } from "./Watermark";
 import { AllergenLegend } from "../AllergenLegend";
 import type { AllergenLabels } from "../AllergenIcons";
 
+/**
+ * Template "Classic" — rendu par défaut, hérité de la version pré-S2.2.
+ * Disponible sur tous les tiers. Style minimaliste, typo sans-serif, fond clair.
+ *
+ * ⚠ À chaque évolution du modèle PublicMenuSnapshot (allergens, photos, branding…),
+ * penser à propager la même feature dans TemplateElegant et TemplateModern. Le coût
+ * × 3 a été accepté sciemment (cf. plan d'exécution S2.2).
+ */
 type Props = {
   snapshot: PublicMenuSnapshot;
   locale: "fr" | "en";
@@ -16,7 +24,7 @@ type Props = {
   watermarkText?: string;
 };
 
-export function MenuTemplate({
+export function TemplateClassic({
   snapshot,
   locale,
   showWatermark = false,

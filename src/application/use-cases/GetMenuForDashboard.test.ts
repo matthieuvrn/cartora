@@ -7,6 +7,7 @@ const MENU_FIXTURE: MenuOverview = {
   menuId: "menu-1",
   restaurantId: "resto-1",
   status: "DRAFT",
+  template: "CLASSIC",
   publishedAt: null,
   categories: [
     {
@@ -51,6 +52,7 @@ function createMockRepo(menu: MenuOverview | null): MenuRepository {
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
+    updateTemplate: async () => {},
     listCategoryNames: async () => [],
     createCategory: async () => ({ id: "id" }),
     renameCategory: async () => {},

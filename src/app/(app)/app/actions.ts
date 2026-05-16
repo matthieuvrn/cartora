@@ -18,6 +18,8 @@ import { RenameCategory } from "@/application/use-cases/RenameCategory";
 import { DeleteCategory } from "@/application/use-cases/DeleteCategory";
 import { ReorderCategories } from "@/application/use-cases/ReorderCategories";
 import { PublishMenu } from "@/application/use-cases/PublishMenu";
+import { UpdateMenuTemplate } from "@/application/use-cases/UpdateMenuTemplate";
+import { MENU_TEMPLATE_VALUES } from "@/domain/menu/MenuTypes";
 import { DomainError, isDomainError } from "@/domain/errors/DomainError";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/domain/menu/CategoryPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -114,6 +116,10 @@ const ReorderCategoriesSchema = z.object({
 
 const RenameRestaurantSchema = z.object({
   displayName: z.string().min(1).max(MAX_DISPLAY_NAME_LENGTH),
+});
+
+const SetTemplateSchema = z.object({
+  template: z.enum(MENU_TEMPLATE_VALUES),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -722,6 +728,33 @@ export async function renameRestaurantAction(
     await menuRepo.markMenuAsDraft(restaurantId);
 
     revalidatePath("/app");
+    return { error: null, success: true };
+  });
+}
+
+export async function setTemplateAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  const parsed = SetTemplateSchema.safeParse({
+    template: formData.get("template"),
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "setTemplate", restaurantId }, async () => {
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    await new UpdateMenuTemplate(menuRepo, restaurantRepo).execute({
+      restaurantId,
+      template: parsed.data.template,
+    });
+    await menuRepo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    revalidatePath("/app/settings/template");
     return { error: null, success: true };
   });
 }

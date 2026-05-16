@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore, useCallback } from "react";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
-import { MenuTemplate } from "./MenuTemplate";
+import { MenuTemplateRenderer } from "./index";
 import { Button } from "@/components/ui/button";
 import type { AllergenLabels } from "../AllergenIcons";
 
@@ -62,7 +62,7 @@ export function PublicMenuClient({
           {locale === "fr" ? "EN" : "FR"}
         </Button>
       </div>
-      <MenuTemplate
+      <MenuTemplateRenderer
         snapshot={snapshot}
         locale={locale}
         showWatermark={showWatermark}

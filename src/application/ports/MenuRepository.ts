@@ -1,4 +1,4 @@
-import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import type { MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 
 // Note : la détection des collisions de nom passe désormais par
@@ -70,6 +70,13 @@ export interface MenuRepository {
   }): Promise<void>;
 
   markMenuAsDraft(restaurantId: string): Promise<void>;
+
+  /**
+   * Met à jour le template de rendu choisi pour le menu du restaurant.
+   * Le gating tier (CLASSIC libre / ELEGANT-MODERN PRO only) est vérifié
+   * en amont par le use case via `PlanPolicy.canUseTemplate`.
+   */
+  updateTemplate(params: { restaurantId: string; template: MenuTemplate }): Promise<void>;
 
   // ─ Catégories ──────────────────────────────────────────────────────────────
 

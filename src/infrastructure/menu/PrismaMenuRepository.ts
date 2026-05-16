@@ -1,5 +1,10 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
-import type { MenuOverview, MenuItemData, ItemTranslations } from "@/domain/menu/MenuTypes";
+import type {
+  MenuOverview,
+  MenuItemData,
+  ItemTranslations,
+  MenuTemplate,
+} from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { DomainError } from "@/domain/errors/DomainError";
@@ -14,6 +19,7 @@ export class PrismaMenuRepository implements MenuRepository {
         id: true,
         restaurantId: true,
         status: true,
+        template: true,
         publishedAt: true,
         categories: {
           orderBy: { order: "asc" },
@@ -73,6 +79,7 @@ export class PrismaMenuRepository implements MenuRepository {
       menuId: menu.id,
       restaurantId: menu.restaurantId,
       status: menu.status,
+      template: menu.template as MenuTemplate,
       publishedAt: menu.publishedAt?.toISOString() ?? null,
       categories: menu.categories.map((cat) => ({
         id: cat.id,
@@ -283,6 +290,13 @@ export class PrismaMenuRepository implements MenuRepository {
     await this.db.menu.update({
       where: { restaurantId },
       data: { status: "DRAFT" },
+    });
+  }
+
+  async updateTemplate(params: { restaurantId: string; template: MenuTemplate }): Promise<void> {
+    await this.db.menu.update({
+      where: { restaurantId: params.restaurantId },
+      data: { template: params.template },
     });
   }
 

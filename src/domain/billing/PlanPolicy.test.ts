@@ -101,6 +101,29 @@ describe("PlanPolicy", () => {
     });
   });
 
+  describe("canUseTemplate", () => {
+    it("allows CLASSIC for every tier", () => {
+      expect(PlanPolicy.canUseTemplate("FREE", "CLASSIC")).toBe(true);
+      expect(PlanPolicy.canUseTemplate("STARTER", "CLASSIC")).toBe(true);
+      expect(PlanPolicy.canUseTemplate("PRO", "CLASSIC")).toBe(true);
+    });
+
+    it("locks ELEGANT for FREE and STARTER tiers", () => {
+      expect(PlanPolicy.canUseTemplate("FREE", "ELEGANT")).toBe(false);
+      expect(PlanPolicy.canUseTemplate("STARTER", "ELEGANT")).toBe(false);
+    });
+
+    it("locks MODERN for FREE and STARTER tiers", () => {
+      expect(PlanPolicy.canUseTemplate("FREE", "MODERN")).toBe(false);
+      expect(PlanPolicy.canUseTemplate("STARTER", "MODERN")).toBe(false);
+    });
+
+    it("allows ELEGANT and MODERN for PRO tier", () => {
+      expect(PlanPolicy.canUseTemplate("PRO", "ELEGANT")).toBe(true);
+      expect(PlanPolicy.canUseTemplate("PRO", "MODERN")).toBe(true);
+    });
+  });
+
   describe("resolveTierFromPriceId", () => {
     beforeEach(() => {
       vi.stubEnv("STRIPE_PRICE_ID", "price_pro_id_123");

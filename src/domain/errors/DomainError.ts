@@ -58,6 +58,7 @@ export type DomainErrorCode =
   // Billing
   | "billing_missing"
   | "use_portal_to_change_plan"
+  | "template_not_allowed"
 
   // Règles structurelles
   | "must_keep_one_category"
@@ -87,6 +88,8 @@ export type DomainErrorMetadata = {
   field?: string;
   /** Valeur invalide pour un badge / allergène — utilisée pour le debug Sentry uniquement. */
   invalidValue?: string;
+  /** Template visé pour `template_not_allowed`. */
+  template?: "CLASSIC" | "ELEGANT" | "MODERN";
 };
 
 export class DomainError extends Error {

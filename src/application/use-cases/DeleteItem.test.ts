@@ -17,6 +17,7 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     getNextItemOrder: async () => 0,
     updateMenuStatus: async () => {},
     markMenuAsDraft: async () => {},
+    updateTemplate: async () => {},
     listCategoryNames: async () => [],
     createCategory: async () => ({ id: "id" }),
     renameCategory: async () => {},

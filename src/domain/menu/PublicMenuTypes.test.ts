@@ -36,6 +36,7 @@ function makeMenu(overrides: Partial<MenuOverview> = {}): MenuOverview {
     menuId: "menu-1",
     restaurantId: "resto-1",
     status: "DRAFT",
+    template: "CLASSIC",
     publishedAt: null,
     categories: [makeCategory()],
     ...overrides,
@@ -51,6 +52,7 @@ describe("buildPublicSnapshot", () => {
     expect(result).toEqual({
       restaurantName: "Mon Restaurant",
       publishedAt: PUBLISHED_AT,
+      template: "CLASSIC",
       categories: [
         {
           name: "Entrées",

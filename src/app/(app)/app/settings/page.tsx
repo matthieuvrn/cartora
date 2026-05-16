@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Palette } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,6 +42,21 @@ export default async function SettingsPage() {
               <p className="text-sm font-medium">{t("email")}</p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("appearance")}</CardTitle>
+            <CardDescription>{t("appearanceDescription")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/app/settings/template">
+              <Button variant="outline" className="gap-2">
+                <Palette className="size-4" />
+                {t("appearanceLinkLabel")}
+              </Button>
+            </Link>
           </CardContent>
         </Card>
 

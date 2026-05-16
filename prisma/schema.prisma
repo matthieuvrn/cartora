@@ -33,6 +33,14 @@ enum MenuStatus {
   @@map("menu_status")
 }
 
+enum MenuTemplate {
+  CLASSIC
+  ELEGANT
+  MODERN
+
+  @@map("menu_template")
+}
+
 enum ItemBadge {
   NONE
   NEW
@@ -132,12 +140,13 @@ model Restaurant {
 }
 
 model Menu {
-  id           String     @id @default(uuid()) @db.Uuid
-  restaurantId String     @unique @map("restaurant_id") @db.Uuid
-  status       MenuStatus @default(DRAFT)
-  publishedAt  DateTime?  @map("published_at")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+  id           String       @id @default(uuid()) @db.Uuid
+  restaurantId String       @unique @map("restaurant_id") @db.Uuid
+  status       MenuStatus   @default(DRAFT)
+  template     MenuTemplate @default(CLASSIC)
+  publishedAt  DateTime?    @map("published_at")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
 
   restaurant Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   categories Category[]

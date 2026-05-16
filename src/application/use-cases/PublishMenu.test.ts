@@ -21,6 +21,7 @@ const MENU_FIXTURE: MenuOverview = {
   menuId: "menu-1",
   restaurantId: "resto-1",
   status: "DRAFT",
+  template: "CLASSIC",
   publishedAt: null,
   categories: [
     {
@@ -65,6 +66,7 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     getNextItemOrder: async () => 0,
     updateMenuStatus: vi.fn(async () => {}),
     markMenuAsDraft: async () => {},
+    updateTemplate: async () => {},
     listCategoryNames: async () => [],
     createCategory: async () => ({ id: "id" }),
     renameCategory: async () => {},
@@ -123,6 +125,7 @@ describe("PublishMenu", () => {
       slug: "resto-abcd1234",
       snapshotData: {
         restaurantName: "Mon Restaurant",
+        template: "CLASSIC",
         categories: [
           {
             name: "Entrées",

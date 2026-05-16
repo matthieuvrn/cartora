@@ -1,4 +1,5 @@
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import type { MenuTemplate } from "@/domain/menu/MenuTypes";
 
 export type PlanTier = "FREE" | "STARTER" | "PRO";
 
@@ -45,6 +46,17 @@ export class PlanPolicy {
     if (tier === "FREE") return 5;
     if (tier === "STARTER") return 20;
     return Infinity;
+  }
+
+  /**
+   * Templates de rendu autorisés par tier. CLASSIC est libre pour tous,
+   * ELEGANT et MODERN sont réservés au tier PRO. Centralisé ici plutôt qu'un
+   * fichier séparé pour rester aligné avec la doctrine "PlanPolicy = source unique
+   * du gating tier" (cf. CLAUDE.md).
+   */
+  static canUseTemplate(tier: PlanTier, template: MenuTemplate): boolean {
+    if (template === "CLASSIC") return true;
+    return tier === "PRO";
   }
 
   /**

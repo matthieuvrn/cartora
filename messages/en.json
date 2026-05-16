@@ -411,7 +411,8 @@
     "too_many_allergens": "Too many allergens selected",
     "invalid_allergen": "Invalid allergen",
     "display_name_required": "Restaurant name is required",
-    "display_name_too_long": "Restaurant name is too long"
+    "display_name_too_long": "Restaurant name is too long",
+    "template_not_allowed": "This template requires the PRO plan"
   },
   "Settings": {
     "title": "Settings",
@@ -425,7 +426,32 @@
     "exportError": "Export failed, please try again.",
     "privacyLink": "View privacy policy",
     "dangerZone": "Danger zone",
-    "dangerZoneDescription": "Account deletion is immediate and irreversible."
+    "dangerZoneDescription": "Account deletion is immediate and irreversible.",
+    "appearance": "Appearance",
+    "appearanceDescription": "Choose how your public menu is rendered.",
+    "appearanceLinkLabel": "Customize template",
+    "template": {
+      "title": "Menu appearance",
+      "description": "Choose the visual rendering of your public menu. The Elegant and Modern templates require the PRO plan.",
+      "back": "Back to settings",
+      "lockedBadge": "PRO",
+      "lockedHint": "Available with the PRO plan",
+      "upgradeCta": "Upgrade to PRO",
+      "saveButton": "Pick this template",
+      "currentBadge": "Selected",
+      "draftNotice": "Your menu is back to draft — republish it to apply the change.",
+      "saveSuccess": "Template updated. Republish your menu to apply it.",
+      "names": {
+        "CLASSIC": "Classic",
+        "ELEGANT": "Elegant",
+        "MODERN": "Modern"
+      },
+      "descriptions": {
+        "CLASSIC": "Clean and readable, suits any kind of menu.",
+        "ELEGANT": "Dark and refined, gastronomic feel.",
+        "MODERN": "Colorful and warm, rounded cards."
+      }
+    }
   },
   "Footer": {
     "privacy": "Privacy policy",
