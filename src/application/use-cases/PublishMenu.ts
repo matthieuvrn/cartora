@@ -52,7 +52,7 @@ export class PublishMenu {
     }
 
     const now = this.clock.nowISO();
-    const snapshot = buildPublicSnapshot(menu, restaurant.displayName, now);
+    const snapshot = buildPublicSnapshot(menu, restaurant.displayName, now, restaurant.logoPath);
 
     await this.snapshotRepo.upsertSnapshot({
       menuId: menu.menuId,

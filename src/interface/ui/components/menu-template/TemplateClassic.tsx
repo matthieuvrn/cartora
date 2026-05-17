@@ -1,5 +1,7 @@
+import Image from "next/image";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { Allergen } from "@/domain/menu/ItemPolicy";
+import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
 import { Watermark } from "./Watermark";
 import { AllergenLegend } from "../AllergenLegend";
@@ -46,11 +48,27 @@ export function TemplateClassic({
     }
   }
 
+  const logoUrl = snapshot.restaurantLogoPath
+    ? restaurantLogoUrl(snapshot.restaurantLogoPath)
+    : null;
+
   return (
     <main
       className="mx-auto max-w-lg px-4 py-6 sm:px-6"
       aria-label={`Menu de ${snapshot.restaurantName}`}
     >
+      {logoUrl && (
+        <div className="relative mb-3 h-16 w-full">
+          <Image
+            src={logoUrl}
+            alt={snapshot.restaurantName}
+            fill
+            sizes="128px"
+            className="object-contain object-left"
+            priority
+          />
+        </div>
+      )}
       <h1 className="mb-6 text-2xl font-bold">{snapshot.restaurantName}</h1>
       <div className="space-y-8">
         {snapshot.categories.map((category) => (

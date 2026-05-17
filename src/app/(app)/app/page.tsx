@@ -140,6 +140,7 @@ export default async function AppPage({
         <MenuDashboard
           menu={menu}
           restaurantName={restaurant.displayName}
+          logoPath={restaurant.logoPath}
           planStatus={restaurant.planStatus}
           planTier={restaurant.planTier}
           slug={restaurant.slug}

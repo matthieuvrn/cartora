@@ -20,9 +20,12 @@ export interface RestaurantRepository {
     planStatus: PlanStatus;
     planTier: PlanTier;
     activationDismissedAt: Date | null;
+    logoPath: string | null;
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
+
+  updateLogoPath(params: { restaurantId: string; logoPath: string | null }): Promise<void>;
 
   markActivationDismissed(restaurantId: string): Promise<void>;
 

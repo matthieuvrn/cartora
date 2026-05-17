@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useActionState, useCallback } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
@@ -14,6 +15,7 @@ import {
   type PublishActionState,
 } from "@/app/(app)/app/actions";
 import type { ActionState } from "@/lib/action-result";
+import { restaurantLogoUrl } from "@/lib/storage-url";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
@@ -28,6 +30,7 @@ import { StatsCard } from "./StatsCard";
 type Props = {
   menu: MenuOverview;
   restaurantName: string;
+  logoPath: string | null;
   planStatus: PlanStatus;
   planTier: PlanTier;
   slug: string;
@@ -46,6 +49,7 @@ type Props = {
 export function MenuDashboard({
   menu,
   restaurantName,
+  logoPath,
   planStatus,
   planTier,
   slug,
@@ -92,9 +96,26 @@ export function MenuDashboard({
       )}
 
       <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <EditableRestaurantName currentName={restaurantName} />
-          <p className="text-sm text-muted-foreground">{t("title")}</p>
+        <div className="flex items-center gap-3">
+          {logoPath &&
+            (() => {
+              const url = restaurantLogoUrl(logoPath);
+              return url ? (
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <Image
+                    src={url}
+                    alt={restaurantName}
+                    fill
+                    sizes="40px"
+                    className="object-contain"
+                  />
+                </div>
+              ) : null;
+            })()}
+          <div className="space-y-1">
+            <EditableRestaurantName currentName={restaurantName} />
+            <p className="text-sm text-muted-foreground">{t("title")}</p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />

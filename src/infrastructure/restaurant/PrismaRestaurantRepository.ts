@@ -75,6 +75,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     planStatus: PlanStatus;
     planTier: PlanTier;
     activationDismissedAt: Date | null;
+    logoPath: string | null;
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
       where: { id },
@@ -85,6 +86,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         planStatus: true,
         planTier: true,
         activationDismissedAt: true,
+        logoPath: true,
       },
     });
 
@@ -97,12 +99,20 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       planStatus: restaurant.planStatus as PlanStatus,
       planTier: restaurant.planTier as PlanTier,
       activationDismissedAt: restaurant.activationDismissedAt,
+      logoPath: restaurant.logoPath,
     };
   }
   async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
     await this.db.restaurant.update({
       where: { id: params.restaurantId },
       data: { displayName: params.displayName },
+    });
+  }
+
+  async updateLogoPath(params: { restaurantId: string; logoPath: string | null }): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: params.restaurantId },
+      data: { logoPath: params.logoPath },
     });
   }
 

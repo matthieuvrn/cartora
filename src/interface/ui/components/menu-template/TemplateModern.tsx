@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Sparkles, Flame } from "lucide-react";
 import type { PublicMenuSnapshot, PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
-import { itemImageUrl } from "@/lib/storage-url";
+import { itemImageUrl, restaurantLogoUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 import { Watermark } from "./Watermark";
 
@@ -78,13 +78,29 @@ export function TemplateModern({
     }
   }
 
+  const logoUrl = snapshot.restaurantLogoPath
+    ? restaurantLogoUrl(snapshot.restaurantLogoPath)
+    : null;
+
   return (
     <div className="min-h-screen bg-orange-50 text-zinc-900">
       <main
         className="mx-auto max-w-xl px-4 py-8 sm:px-6"
         aria-label={`Menu de ${snapshot.restaurantName}`}
       >
-        <header className="mb-8">
+        <header className="mb-8 flex items-center gap-4">
+          {logoUrl && (
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white shadow-sm">
+              <Image
+                src={logoUrl}
+                alt={snapshot.restaurantName}
+                fill
+                sizes="56px"
+                className="object-contain p-1"
+                priority
+              />
+            </div>
+          )}
           <h1 className="text-3xl font-extrabold tracking-tight text-orange-600">
             {snapshot.restaurantName}
           </h1>

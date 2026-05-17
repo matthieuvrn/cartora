@@ -430,6 +430,26 @@
     "appearance": "Appearance",
     "appearanceDescription": "Choose how your public menu is rendered.",
     "appearanceLinkLabel": "Customize template",
+    "brandingLinkLabel": "Visual identity",
+    "branding": {
+      "title": "Visual identity",
+      "description": "Upload your logo. It will appear at the top of your public menu.",
+      "back": "Back to settings",
+      "logoLabel": "Restaurant logo",
+      "logoDescription": "JPG, PNG or WebP — 2 MB max. Square or rectangular format.",
+      "noLogo": "No logo",
+      "upload": "Upload",
+      "replace": "Replace",
+      "uploading": "Uploading…",
+      "delete": "Delete",
+      "constraints": "JPG, PNG, WebP — 2 MB max",
+      "freeNotice": "Your logo will be visible on your menu once published — upgrading to the Starter plan is required to publish.",
+      "errors": {
+        "wrongFormat": "Unsupported format. Use JPG, PNG or WebP.",
+        "tooLarge": "File too large (max 2 MB).",
+        "generic": "Failed to save the logo. Please try again."
+      }
+    },
     "template": {
       "title": "Menu appearance",
       "description": "Choose the visual rendering of your public menu. The Elegant and Modern templates require the PRO plan.",

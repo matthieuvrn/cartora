@@ -21,6 +21,11 @@ export type PublicMenuCategory = {
 
 export type PublicMenuSnapshot = {
   restaurantName: string;
+  /**
+   * Chemin storage du logo (bucket `restaurant-logos`), résolu via `restaurantLogoUrl()`
+   * côté UI. Optionnel pour la rétro-compat avec les snapshots produits avant S2.3.
+   */
+  restaurantLogoPath?: string;
   categories: PublicMenuCategory[];
   publishedAt: string;
   /**
@@ -35,6 +40,7 @@ export function buildPublicSnapshot(
   menu: MenuOverview,
   restaurantName: string,
   publishedAt: string,
+  restaurantLogoPath?: string | null,
 ): PublicMenuSnapshot {
   const categories: PublicMenuCategory[] = menu.categories
     .map((category) => ({
@@ -56,5 +62,11 @@ export function buildPublicSnapshot(
     }))
     .filter((category) => category.items.length > 0);
 
-  return { restaurantName, categories, publishedAt, template: menu.template };
+  return {
+    restaurantName,
+    ...(restaurantLogoPath ? { restaurantLogoPath } : {}),
+    categories,
+    publishedAt,
+    template: menu.template,
+  };
 }

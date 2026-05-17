@@ -12,6 +12,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => null,
     updateDisplayName: async () => {},
+    updateLogoPath: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,
@@ -26,6 +27,7 @@ function restaurantOf(tier: PlanTier) {
     planStatus: tier === "FREE" ? ("FREE" as const) : ("ACTIVE" as const),
     planTier: tier,
     activationDismissedAt: null,
+    logoPath: null,
   };
 }
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft, Palette } from "lucide-react";
+import { ArrowLeft, ImageIcon, Palette } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -50,11 +50,17 @@ export default async function SettingsPage() {
             <CardTitle>{t("appearance")}</CardTitle>
             <CardDescription>{t("appearanceDescription")}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex flex-wrap gap-2">
             <Link href="/app/settings/template">
               <Button variant="outline" className="gap-2">
                 <Palette className="size-4" />
                 {t("appearanceLinkLabel")}
+              </Button>
+            </Link>
+            <Link href="/app/settings/branding">
+              <Button variant="outline" className="gap-2">
+                <ImageIcon className="size-4" />
+                {t("brandingLinkLabel")}
               </Button>
             </Link>
           </CardContent>

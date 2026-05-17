@@ -27,7 +27,11 @@ import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapsh
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { ALLERGEN_VALUES, MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
 import { ALLOWED_IMAGE_MIME_TYPES, MAX_ALT_TEXT_LENGTH } from "@/domain/menu/ItemPhotoPolicy";
+import { ALLOWED_LOGO_MIME_TYPES } from "@/domain/restaurant/BrandingPolicy";
 import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
+import { CreateRestaurantLogoUploadUrl } from "@/application/use-cases/CreateRestaurantLogoUploadUrl";
+import { SetRestaurantLogo } from "@/application/use-cases/SetRestaurantLogo";
+import { DeleteRestaurantLogo } from "@/application/use-cases/DeleteRestaurantLogo";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
 import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
@@ -463,6 +467,97 @@ export async function deleteItemImageAction(input: {
       tags: { action: "deleteItemImage" },
       extra: { itemId: parsed.data.itemId },
     });
+    return { ok: false, error: "generic" };
+  }
+}
+
+// ─── Logo restaurant (S2.3) ─────────────────────────────────────────────────
+
+const CreateLogoUploadUrlSchema = z.object({
+  mime: z.enum(ALLOWED_LOGO_MIME_TYPES),
+});
+
+const SetLogoSchema = z.object({
+  logoPath: z.string().min(1).max(500),
+});
+
+export async function createRestaurantLogoUploadUrlAction(input: {
+  mime: string;
+}): Promise<ImageUploadUrlResult> {
+  const parsed = CreateLogoUploadUrlSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const storage = new SupabaseStorageService("restaurant-logos");
+    const useCase = new CreateRestaurantLogoUploadUrl(storage);
+
+    const result = await useCase.execute({
+      restaurantId,
+      mime: parsed.data.mime,
+    });
+
+    return { ok: true, ...result };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "createRestaurantLogoUploadUrl" },
+      extra: { mime: parsed.data.mime },
+    });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export async function setRestaurantLogoAction(input: {
+  logoPath: string;
+}): Promise<ImageMutationResult> {
+  const parsed = SetLogoSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("restaurant-logos");
+    const useCase = new SetRestaurantLogo(restaurantRepo, menuRepo, storage);
+
+    await useCase.execute({
+      restaurantId,
+      logoPath: parsed.data.logoPath,
+    });
+
+    revalidatePath("/app");
+    revalidatePath("/app/settings/branding");
+    return { ok: true };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, { tags: { action: "setRestaurantLogo" } });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export async function deleteRestaurantLogoAction(): Promise<ImageMutationResult> {
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("restaurant-logos");
+    const useCase = new DeleteRestaurantLogo(restaurantRepo, menuRepo, storage);
+
+    await useCase.execute({ restaurantId });
+
+    revalidatePath("/app");
+    revalidatePath("/app/settings/branding");
+    return { ok: true };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, { tags: { action: "deleteRestaurantLogo" } });
     return { ok: false, error: "generic" };
   }
 }

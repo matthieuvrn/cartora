@@ -122,6 +122,7 @@ model Restaurant {
   planStatus            PlanStatus      @default(FREE) @map("plan_status")
   planTier              PlanTier        @default(FREE) @map("plan_tier")
   restaurantType        RestaurantType? @map("restaurant_type")
+  logoPath              String?         @map("logo_path")
   activationDismissedAt DateTime?       @map("activation_dismissed_at")
   createdAt             DateTime        @default(now()) @map("created_at")
   updatedAt             DateTime        @updatedAt @map("updated_at")

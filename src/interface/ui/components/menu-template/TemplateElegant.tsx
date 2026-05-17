@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { PublicMenuSnapshot, PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { Allergen } from "@/domain/menu/ItemPolicy";
-import { itemImageUrl } from "@/lib/storage-url";
+import { itemImageUrl, restaurantLogoUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 import { Watermark } from "./Watermark";
 
@@ -70,6 +70,10 @@ export function TemplateElegant({
     }
   }
 
+  const logoUrl = snapshot.restaurantLogoPath
+    ? restaurantLogoUrl(snapshot.restaurantLogoPath)
+    : null;
+
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100">
       <main
@@ -77,6 +81,18 @@ export function TemplateElegant({
         aria-label={`Menu de ${snapshot.restaurantName}`}
       >
         <header className="mb-12 text-center">
+          {logoUrl && (
+            <div className="relative mx-auto mb-6 h-20 w-32">
+              <Image
+                src={logoUrl}
+                alt={snapshot.restaurantName}
+                fill
+                sizes="128px"
+                className="object-contain"
+                priority
+              />
+            </div>
+          )}
           <h1 className="text-4xl italic tracking-wide">{snapshot.restaurantName}</h1>
           <div className="mx-auto mt-4 h-px w-16 bg-amber-400/70" aria-hidden="true" />
         </header>

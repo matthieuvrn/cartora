@@ -80,6 +80,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => null,
     updateDisplayName: async () => {},
+    updateLogoPath: async () => {},
     markActivationDismissed: async () => {},
     delete: vi.fn(async () => {}),
     ...overrides,
@@ -100,6 +101,7 @@ function createUseCase(
     paymentGateway?: Partial<PaymentGateway>;
     qrStorage?: Partial<StorageService>;
     itemImageStorage?: Partial<StorageService>;
+    logoStorage?: Partial<StorageService>;
     restaurantRepo?: Partial<RestaurantRepository>;
     authAdmin?: Partial<AuthAdminService>;
   } = {},
@@ -109,6 +111,7 @@ function createUseCase(
   const paymentGateway = createMockPaymentGateway(overrides.paymentGateway);
   const qrStorage = createMockStorageService(overrides.qrStorage);
   const itemImageStorage = createMockStorageService(overrides.itemImageStorage);
+  const logoStorage = createMockStorageService(overrides.logoStorage);
   const restaurantRepo = createMockRestaurantRepo(overrides.restaurantRepo);
   const authAdmin = createMockAuthAdmin(overrides.authAdmin);
 
@@ -118,6 +121,7 @@ function createUseCase(
     paymentGateway,
     qrStorage,
     itemImageStorage,
+    logoStorage,
     restaurantRepo,
     authAdmin,
   );
@@ -129,15 +133,23 @@ function createUseCase(
     paymentGateway,
     qrStorage,
     itemImageStorage,
+    logoStorage,
     restaurantRepo,
     authAdmin,
   };
 }
 
 describe("DeleteRestaurant", () => {
-  it("performs full cleanup (billing + QR + item images + restaurant + user)", async () => {
-    const { uc, paymentGateway, qrStorage, itemImageStorage, restaurantRepo, authAdmin } =
-      createUseCase();
+  it("performs full cleanup (billing + QR + item images + logo + restaurant + user)", async () => {
+    const {
+      uc,
+      paymentGateway,
+      qrStorage,
+      itemImageStorage,
+      logoStorage,
+      restaurantRepo,
+      authAdmin,
+    } = createUseCase();
 
     const result = await uc.execute(VALID_INPUT);
 
@@ -146,6 +158,7 @@ describe("DeleteRestaurant", () => {
     expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
     expect(qrStorage.delete).toHaveBeenCalledWith("qr-codes/resto-1.png");
     expect(itemImageStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
+    expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });

@@ -12,6 +12,7 @@ const RESTAURANT_FIXTURE = {
   planStatus: "FREE" as PlanStatus,
   planTier: "FREE" as PlanTier,
   activationDismissedAt: null,
+  logoPath: null,
 };
 
 const VALID_INPUT = {
@@ -29,6 +30,7 @@ function createMockRestaurantRepo(
     createWithMenuAndCategories: async () => ({ id: "id" }),
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
+    updateLogoPath: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,

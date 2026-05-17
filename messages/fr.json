@@ -435,6 +435,26 @@
     "appearance": "Apparence",
     "appearanceDescription": "Choisissez le rendu de votre menu public.",
     "appearanceLinkLabel": "Personnaliser le template",
+    "brandingLinkLabel": "Identité visuelle",
+    "branding": {
+      "title": "Identité visuelle",
+      "description": "Téléversez votre logo. Il apparaît en haut de votre menu public.",
+      "back": "Retour aux paramètres",
+      "logoLabel": "Logo du restaurant",
+      "logoDescription": "JPG, PNG ou WebP — 2 Mo maximum. Format carré ou rectangulaire.",
+      "noLogo": "Aucun logo",
+      "upload": "Téléverser",
+      "replace": "Remplacer",
+      "uploading": "Envoi…",
+      "delete": "Supprimer",
+      "constraints": "JPG, PNG, WebP — 2 Mo max",
+      "freeNotice": "Votre logo sera visible sur votre menu une fois publié — un passage à la formule Starter est requis pour publier.",
+      "errors": {
+        "wrongFormat": "Format non supporté. Utilisez JPG, PNG ou WebP.",
+        "tooLarge": "Fichier trop lourd (max 2 Mo).",
+        "generic": "Erreur lors de l'enregistrement du logo. Réessayez."
+      }
+    },
     "template": {
       "title": "Apparence du menu",
       "description": "Choisissez le rendu visuel de votre menu public. Les templates Élégant et Moderne sont réservés à la formule PRO.",
