@@ -16,6 +16,9 @@ const RESTAURANT_FIXTURE = {
   planTier: "PRO" as PlanTier,
   activationDismissedAt: null,
   logoPath: null,
+  brandPrimary: null,
+  brandAccent: null,
+  brandBackground: null,
 };
 
 const MENU_FIXTURE: MenuOverview = {
@@ -88,6 +91,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,

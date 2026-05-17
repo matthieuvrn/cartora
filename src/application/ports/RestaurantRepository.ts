@@ -21,11 +21,21 @@ export interface RestaurantRepository {
     planTier: PlanTier;
     activationDismissedAt: Date | null;
     logoPath: string | null;
+    brandPrimary: string | null;
+    brandAccent: string | null;
+    brandBackground: string | null;
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
 
   updateLogoPath(params: { restaurantId: string; logoPath: string | null }): Promise<void>;
+
+  updateBrandColors(params: {
+    restaurantId: string;
+    primary: string | null;
+    accent: string | null;
+    background: string | null;
+  }): Promise<void>;
 
   markActivationDismissed(restaurantId: string): Promise<void>;
 

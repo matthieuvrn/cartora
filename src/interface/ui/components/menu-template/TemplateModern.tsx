@@ -83,7 +83,10 @@ export function TemplateModern({
     : null;
 
   return (
-    <div className="min-h-screen bg-orange-50 text-zinc-900">
+    <div
+      className="min-h-screen text-zinc-900"
+      style={{ backgroundColor: "var(--brand-bg, #fff7ed)" }}
+    >
       <main
         className="mx-auto max-w-xl px-4 py-8 sm:px-6"
         aria-label={`Menu de ${snapshot.restaurantName}`}
@@ -101,7 +104,10 @@ export function TemplateModern({
               />
             </div>
           )}
-          <h1 className="text-3xl font-extrabold tracking-tight text-orange-600">
+          <h1
+            className="text-3xl font-extrabold tracking-tight"
+            style={{ color: "var(--brand-primary, #ea580c)" }}
+          >
             {snapshot.restaurantName}
           </h1>
         </header>
@@ -110,7 +116,10 @@ export function TemplateModern({
           {snapshot.categories.map((category) => (
             <section key={category.name}>
               <div className="mb-4">
-                <span className="inline-block rounded-full bg-orange-600 px-4 py-1.5 text-sm font-bold tracking-wide text-white">
+                <span
+                  className="inline-block rounded-full px-4 py-1.5 text-sm font-bold tracking-wide text-white"
+                  style={{ backgroundColor: "var(--brand-primary, #ea580c)" }}
+                >
                   {category.name}
                 </span>
               </div>
@@ -136,14 +145,23 @@ export function TemplateModern({
 
         {presentAllergens.size > 0 && (
           <section className="mt-12 rounded-2xl bg-white p-5 shadow-sm">
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-orange-600">
+            <h2
+              className="mb-3 text-sm font-bold uppercase tracking-wide"
+              style={{ color: "var(--brand-primary, #ea580c)" }}
+            >
               {allergenLegendTitle}
             </h2>
             <ul className="flex flex-wrap gap-2">
               {Array.from(presentAllergens).map((a) => (
                 <li
                   key={a}
-                  className="inline-flex items-center rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-800"
+                  className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium"
+                  style={{
+                    // Pour rester proche du rendu historique `bg-orange-100 text-orange-800`,
+                    // on construit un fond et un texte dérivés de la primary via color-mix.
+                    backgroundColor: "color-mix(in srgb, var(--brand-primary, #ea580c) 15%, white)",
+                    color: "color-mix(in srgb, var(--brand-primary, #ea580c) 80%, black)",
+                  }}
                 >
                   {allergenLabels[a].legal}
                 </li>
@@ -183,7 +201,12 @@ function ModernItemCard({
   return (
     <li className="overflow-hidden rounded-2xl bg-white shadow-sm">
       {imageUrl && (
-        <div className="relative aspect-square w-full overflow-hidden bg-orange-100">
+        <div
+          className="relative aspect-square w-full overflow-hidden"
+          style={{
+            backgroundColor: "color-mix(in srgb, var(--brand-primary, #ea580c) 15%, white)",
+          }}
+        >
           <Image
             src={imageUrl}
             alt={altText}
@@ -223,7 +246,8 @@ function ModernItemCard({
             )}
           </div>
           <span
-            className="shrink-0 rounded-full bg-orange-600 px-3 py-1 text-sm font-bold text-white tabular-nums"
+            className="shrink-0 rounded-full px-3 py-1 text-sm font-bold text-white tabular-nums"
+            style={{ backgroundColor: "var(--brand-accent, #ea580c)" }}
             aria-label={formatPriceAria(item.priceCents, locale)}
           >
             {formatPrice(item.priceCents, locale)}

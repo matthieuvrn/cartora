@@ -14,6 +14,9 @@ const RESTAURANT_FIXTURE = {
   planTier: "PRO" as PlanTier,
   activationDismissedAt: null,
   logoPath: "resto-1/logo.webp" as string | null,
+  brandPrimary: null as string | null,
+  brandAccent: null as string | null,
+  brandBackground: null as string | null,
 };
 
 function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
@@ -51,6 +54,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
     updateLogoPath: vi.fn(async () => {}),
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,

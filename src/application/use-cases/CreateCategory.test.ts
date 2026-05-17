@@ -14,6 +14,9 @@ const RESTAURANT_FIXTURE = {
   planTier: "PRO" as PlanTier,
   activationDismissedAt: null,
   logoPath: null,
+  brandPrimary: null,
+  brandAccent: null,
+  brandBackground: null,
 };
 
 function createMockRestaurantRepo(
@@ -25,6 +28,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,

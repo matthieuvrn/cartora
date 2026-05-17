@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info, Lock } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { RestaurantLogoEditor } from "@/interface/ui/components/RestaurantLogoEditor";
+import { BrandColorsEditor } from "@/interface/ui/components/BrandColorsEditor";
+import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 
 export default async function BrandingSettingsPage() {
   const supabase = await createSupabaseServerClient();
@@ -27,6 +29,8 @@ export default async function BrandingSettingsPage() {
   if (!restaurant) redirect("/app");
 
   const t = await getTranslations("Settings.branding");
+  const tColors = await getTranslations("Settings.branding.colors");
+  const canUseBranding = PlanPolicy.canUseBranding(restaurant.planTier);
 
   return (
     <main className="min-h-screen bg-muted/40">
@@ -64,6 +68,39 @@ export default async function BrandingSettingsPage() {
               initialLogoPath={restaurant.logoPath}
               restaurantName={restaurant.displayName}
             />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle>{tColors("title")}</CardTitle>
+                <CardDescription>{tColors("description")}</CardDescription>
+              </div>
+              {!canUseBranding && (
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                  <Lock className="size-3" aria-hidden="true" />
+                  PRO
+                </span>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {canUseBranding ? (
+              <BrandColorsEditor
+                initialPrimary={restaurant.brandPrimary}
+                initialAccent={restaurant.brandAccent}
+                initialBackground={restaurant.brandBackground}
+              />
+            ) : (
+              <div className="space-y-3 text-sm text-muted-foreground">
+                <p>{tColors("proLocked")}</p>
+                <Link href="/app/settings/billing">
+                  <Button size="sm">{tColors("upgradeCta")}</Button>
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

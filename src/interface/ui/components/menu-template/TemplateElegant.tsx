@@ -75,7 +75,10 @@ export function TemplateElegant({
     : null;
 
   return (
-    <div className="min-h-screen bg-stone-950 text-stone-100">
+    <div
+      className="min-h-screen text-stone-100"
+      style={{ backgroundColor: "var(--brand-bg, #0c0a09)" }}
+    >
       <main
         className="mx-auto max-w-2xl px-6 py-12 font-serif"
         aria-label={`Menu de ${snapshot.restaurantName}`}
@@ -93,14 +96,26 @@ export function TemplateElegant({
               />
             </div>
           )}
-          <h1 className="text-4xl italic tracking-wide">{snapshot.restaurantName}</h1>
-          <div className="mx-auto mt-4 h-px w-16 bg-amber-400/70" aria-hidden="true" />
+          <h1
+            className="text-4xl italic tracking-wide"
+            style={{ color: "var(--brand-primary, currentColor)" }}
+          >
+            {snapshot.restaurantName}
+          </h1>
+          <div
+            className="mx-auto mt-4 h-px w-16 opacity-70"
+            style={{ backgroundColor: "var(--brand-accent, #fbbf24)" }}
+            aria-hidden="true"
+          />
         </header>
 
         <div className="space-y-12">
           {snapshot.categories.map((category) => (
             <section key={category.name}>
-              <h2 className="mb-6 text-center text-xs font-semibold uppercase tracking-[0.3em] text-amber-400">
+              <h2
+                className="mb-6 text-center text-xs font-semibold uppercase tracking-[0.3em]"
+                style={{ color: "var(--brand-accent, #fbbf24)" }}
+              >
                 {category.name}
               </h2>
               <ul className="space-y-8" role="list">
@@ -124,8 +139,16 @@ export function TemplateElegant({
         </div>
 
         {presentAllergens.size > 0 && (
-          <section className="mt-16 rounded-md border border-amber-400/20 bg-stone-900/40 p-5 text-stone-300">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-amber-400">
+          <section
+            className="mt-16 rounded-md border bg-stone-900/40 p-5 text-stone-300"
+            style={{
+              borderColor: "color-mix(in srgb, var(--brand-accent, #fbbf24) 20%, transparent)",
+            }}
+          >
+            <h2
+              className="mb-3 text-xs font-semibold uppercase tracking-[0.25em]"
+              style={{ color: "var(--brand-accent, #fbbf24)" }}
+            >
               {allergenLegendTitle}
             </h2>
             <ul className="grid grid-cols-1 gap-x-3 gap-y-1.5 text-sm sm:grid-cols-2">
@@ -174,7 +197,15 @@ function ElegantItemRow({
   return (
     <li className="space-y-3">
       {imageUrl && (
-        <div className="relative aspect-[21/9] w-full overflow-hidden rounded-sm ring-1 ring-amber-400/20">
+        <div
+          className="relative aspect-[21/9] w-full overflow-hidden rounded-sm ring-1"
+          style={{
+            // Tailwind `ring-amber-400/20` historique → 20% opacité.
+            // `color-mix` permet de garder l'effet en gardant la CSS var brandable.
+            boxShadow:
+              "inset 0 0 0 1px color-mix(in srgb, var(--brand-accent, #fbbf24) 20%, transparent)",
+          }}
+        >
           <Image
             src={imageUrl}
             alt={altText}
@@ -190,14 +221,18 @@ function ElegantItemRow({
           <div className="flex items-baseline gap-3">
             <span className="text-lg italic">{name}</span>
             {item.badge !== "NONE" && (
-              <span className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-amber-400">
+              <span
+                className="text-[0.65rem] font-semibold uppercase tracking-[0.2em]"
+                style={{ color: "var(--brand-accent, #fbbf24)" }}
+              >
                 {badgeLabels[item.badge]}
               </span>
             )}
           </div>
         </div>
         <span
-          className="shrink-0 text-base font-semibold tabular-nums text-amber-400"
+          className="shrink-0 text-base font-semibold tabular-nums"
+          style={{ color: "var(--brand-accent, #fbbf24)" }}
           aria-label={formatPriceAria(item.priceCents, locale)}
         >
           {formatPrice(item.priceCents, locale)}

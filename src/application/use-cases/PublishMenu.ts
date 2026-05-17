@@ -52,7 +52,20 @@ export class PublishMenu {
     }
 
     const now = this.clock.nowISO();
-    const snapshot = buildPublicSnapshot(menu, restaurant.displayName, now, restaurant.logoPath);
+    const branding = PlanPolicy.canUseBranding(restaurant.planTier)
+      ? {
+          primary: restaurant.brandPrimary ?? undefined,
+          accent: restaurant.brandAccent ?? undefined,
+          background: restaurant.brandBackground ?? undefined,
+        }
+      : null;
+    const snapshot = buildPublicSnapshot(
+      menu,
+      restaurant.displayName,
+      now,
+      restaurant.logoPath,
+      branding,
+    );
 
     await this.snapshotRepo.upsertSnapshot({
       menuId: menu.menuId,

@@ -56,6 +56,7 @@ export function TemplateClassic({
     <main
       className="mx-auto max-w-lg px-4 py-6 sm:px-6"
       aria-label={`Menu de ${snapshot.restaurantName}`}
+      style={{ backgroundColor: "var(--brand-bg, transparent)" }}
     >
       {logoUrl && (
         <div className="relative mb-3 h-16 w-full">
@@ -69,7 +70,12 @@ export function TemplateClassic({
           />
         </div>
       )}
-      <h1 className="mb-6 text-2xl font-bold">{snapshot.restaurantName}</h1>
+      <h1
+        className="mb-6 text-2xl font-bold"
+        style={{ color: "var(--brand-primary, currentColor)" }}
+      >
+        {snapshot.restaurantName}
+      </h1>
       <div className="space-y-8">
         {snapshot.categories.map((category) => (
           <MenuCategorySection

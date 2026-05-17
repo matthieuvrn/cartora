@@ -59,6 +59,11 @@ export type DomainErrorCode =
   | "billing_missing"
   | "use_portal_to_change_plan"
   | "template_not_allowed"
+  | "branding_not_allowed"
+
+  // Branding
+  | "invalid_brand_color"
+  | "low_brand_contrast"
 
   // Règles structurelles
   | "must_keep_one_category"

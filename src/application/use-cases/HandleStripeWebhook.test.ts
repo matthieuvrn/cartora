@@ -14,6 +14,9 @@ const RESTAURANT_FIXTURE = {
   planTier: "FREE" as PlanTier,
   activationDismissedAt: null,
   logoPath: null,
+  brandPrimary: null,
+  brandAccent: null,
+  brandBackground: null,
 };
 
 const STARTER_PRICE_ID = "price_starter_test_123";
@@ -46,6 +49,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => RESTAURANT_FIXTURE,
     updateDisplayName: async () => {},
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,

@@ -33,6 +33,7 @@ import { CreateRestaurantLogoUploadUrl } from "@/application/use-cases/CreateRes
 import { SetRestaurantLogo } from "@/application/use-cases/SetRestaurantLogo";
 import { DeleteRestaurantLogo } from "@/application/use-cases/DeleteRestaurantLogo";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
+import { UpdateBrandColors } from "@/application/use-cases/UpdateBrandColors";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
 import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
@@ -124,6 +125,20 @@ const RenameRestaurantSchema = z.object({
 
 const SetTemplateSchema = z.object({
   template: z.enum(MENU_TEMPLATE_VALUES),
+});
+
+const HexColorSchema = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/)
+  .or(z.literal(""))
+  .transform((v) => (v === "" ? null : v))
+  .nullable();
+
+const UpdateBrandColorsSchema = z.object({
+  primary: HexColorSchema,
+  accent: HexColorSchema,
+  background: HexColorSchema,
+  forceLowContrast: z.boolean().default(false),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -850,6 +865,46 @@ export async function setTemplateAction(
     await menuRepo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     revalidatePath("/app/settings/template");
+    return { error: null, success: true };
+  });
+}
+
+export async function updateBrandColorsAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  const parsed = UpdateBrandColorsSchema.safeParse({
+    primary: formData.get("primary") ?? "",
+    accent: formData.get("accent") ?? "",
+    background: formData.get("background") ?? "",
+    forceLowContrast: formData.get("forceLowContrast") === "true",
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "updateBrandColors", restaurantId }, async () => {
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const menuRepo = new PrismaMenuRepository(prisma);
+
+    const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
+    if (!restaurant) {
+      throw new DomainError("restaurant_not_found", { entityId: restaurantId });
+    }
+
+    await new UpdateBrandColors(restaurantRepo, menuRepo).execute({
+      restaurantId,
+      primary: parsed.data.primary,
+      accent: parsed.data.accent,
+      background: parsed.data.background,
+      forceLowContrast: parsed.data.forceLowContrast,
+    });
+
+    revalidatePath("/app");
+    revalidatePath("/app/settings/branding");
+    revalidateTag(`public-menu-${restaurant.slug}`, "default");
     return { error: null, success: true };
   });
 }

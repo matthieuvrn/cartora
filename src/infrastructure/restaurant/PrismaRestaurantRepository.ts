@@ -76,6 +76,9 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     planTier: PlanTier;
     activationDismissedAt: Date | null;
     logoPath: string | null;
+    brandPrimary: string | null;
+    brandAccent: string | null;
+    brandBackground: string | null;
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
       where: { id },
@@ -87,6 +90,9 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         planTier: true,
         activationDismissedAt: true,
         logoPath: true,
+        brandPrimary: true,
+        brandAccent: true,
+        brandBackground: true,
       },
     });
 
@@ -100,6 +106,9 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       planTier: restaurant.planTier as PlanTier,
       activationDismissedAt: restaurant.activationDismissedAt,
       logoPath: restaurant.logoPath,
+      brandPrimary: restaurant.brandPrimary,
+      brandAccent: restaurant.brandAccent,
+      brandBackground: restaurant.brandBackground,
     };
   }
   async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
@@ -113,6 +122,22 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     await this.db.restaurant.update({
       where: { id: params.restaurantId },
       data: { logoPath: params.logoPath },
+    });
+  }
+
+  async updateBrandColors(params: {
+    restaurantId: string;
+    primary: string | null;
+    accent: string | null;
+    background: string | null;
+  }): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: params.restaurantId },
+      data: {
+        brandPrimary: params.primary,
+        brandAccent: params.accent,
+        brandBackground: params.background,
+      },
     });
   }
 

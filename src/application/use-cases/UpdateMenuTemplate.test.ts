@@ -13,6 +13,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => null,
     updateDisplayName: async () => {},
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,
@@ -28,6 +29,9 @@ function restaurantOf(tier: PlanTier) {
     planTier: tier,
     activationDismissedAt: null,
     logoPath: null,
+    brandPrimary: null,
+    brandAccent: null,
+    brandBackground: null,
   };
 }
 

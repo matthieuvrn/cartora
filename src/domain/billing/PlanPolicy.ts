@@ -60,6 +60,16 @@ export class PlanPolicy {
   }
 
   /**
+   * Personnalisation des couleurs du menu (S2.4) — réservée au tier PRO.
+   * Distinct du logo (S2.3) qui reste accessible à tous les tiers : le logo
+   * est l'identité de base (équivalent favicon), les couleurs sont du branding
+   * avancé qui justifie l'upgrade PRO.
+   */
+  static canUseBranding(tier: PlanTier): boolean {
+    return tier === "PRO";
+  }
+
+  /**
    * Mappe un Stripe price.id vers le PlanTier correspondant en lisant les variables
    * d'environnement. Retourne null si le price n'est associé à aucun tier connu —
    * indique typiquement une configuration Stripe désynchronisée du code.

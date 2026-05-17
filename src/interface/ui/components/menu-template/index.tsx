@@ -37,19 +37,56 @@ type RendererProps = {
   watermarkText?: string;
 };
 
+/**
+ * Injecte les CSS custom properties de branding (S2.4) sur un wrapper local.
+ * Trois variables consommées par les templates via `var(--brand-*, <fallback>)`
+ * — quand absentes, chaque template applique sa palette par défaut.
+ *
+ * `style-src 'unsafe-inline'` est déjà autorisé dans le CSP (cf. next.config.ts).
+ * L'objet `style` React encode automatiquement les valeurs — pas d'injection HTML.
+ */
+function BrandingStyleScope({
+  branding,
+  children,
+}: {
+  branding: PublicMenuSnapshot["branding"];
+  children: React.ReactNode;
+}) {
+  if (!branding) return <>{children}</>;
+  const style: React.CSSProperties = {};
+  const styleAsRecord = style as Record<string, string>;
+  if (branding.primary) styleAsRecord["--brand-primary"] = branding.primary;
+  if (branding.accent) styleAsRecord["--brand-accent"] = branding.accent;
+  if (branding.background) styleAsRecord["--brand-bg"] = branding.background;
+  return <div style={style}>{children}</div>;
+}
+
 // Composant dispatcher (pas une fonction qui retourne un composant) pour
 // satisfaire `react-hooks/static-components` — les références aux Template*
 // restent statiques au site d'appel. Fallback CLASSIC pour les snapshots legacy
 // (pré-S2.2) sans champ `template` ; le défaut est aussi appliqué côté DB via
 // `template @default(CLASSIC)`.
 export function MenuTemplateRenderer(props: RendererProps) {
+  const branding = props.snapshot.branding;
   switch (props.snapshot.template) {
     case "ELEGANT":
-      return <TemplateElegant {...props} />;
+      return (
+        <BrandingStyleScope branding={branding}>
+          <TemplateElegant {...props} />
+        </BrandingStyleScope>
+      );
     case "MODERN":
-      return <TemplateModern {...props} />;
+      return (
+        <BrandingStyleScope branding={branding}>
+          <TemplateModern {...props} />
+        </BrandingStyleScope>
+      );
     case "CLASSIC":
     default:
-      return <TemplateClassic {...props} />;
+      return (
+        <BrandingStyleScope branding={branding}>
+          <TemplateClassic {...props} />
+        </BrandingStyleScope>
+      );
   }
 }

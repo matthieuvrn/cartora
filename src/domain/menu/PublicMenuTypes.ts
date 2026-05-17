@@ -19,6 +19,17 @@ export type PublicMenuCategory = {
   items: PublicMenuItem[];
 };
 
+/**
+ * Couleurs de marque (S2.4) — gated PRO. Chaque champ est optionnel :
+ * absent ⇒ le template utilise ses couleurs par défaut. Stocké en hex lowercase
+ * (validé par `BrandingPolicy.normalizeHexColor`).
+ */
+export type PublicMenuBranding = {
+  primary?: string;
+  accent?: string;
+  background?: string;
+};
+
 export type PublicMenuSnapshot = {
   restaurantName: string;
   /**
@@ -34,6 +45,11 @@ export type PublicMenuSnapshot = {
    * `pickTemplate(undefined)` retourne `TemplateClassic` côté UI.
    */
   template?: MenuTemplate;
+  /**
+   * Couleurs de marque (S2.4). Optionnel pour la rétro-compat avec les snapshots
+   * pré-S2.4 et pour les restaurateurs FREE/STARTER qui n'ont pas accès à la feature.
+   */
+  branding?: PublicMenuBranding;
 };
 
 export function buildPublicSnapshot(
@@ -41,6 +57,7 @@ export function buildPublicSnapshot(
   restaurantName: string,
   publishedAt: string,
   restaurantLogoPath?: string | null,
+  branding?: PublicMenuBranding | null,
 ): PublicMenuSnapshot {
   const categories: PublicMenuCategory[] = menu.categories
     .map((category) => ({
@@ -62,11 +79,23 @@ export function buildPublicSnapshot(
     }))
     .filter((category) => category.items.length > 0);
 
+  const trimmedBranding = trimBranding(branding);
+
   return {
     restaurantName,
     ...(restaurantLogoPath ? { restaurantLogoPath } : {}),
     categories,
     publishedAt,
     template: menu.template,
+    ...(trimmedBranding ? { branding: trimmedBranding } : {}),
   };
+}
+
+function trimBranding(branding?: PublicMenuBranding | null): PublicMenuBranding | undefined {
+  if (!branding) return undefined;
+  const out: PublicMenuBranding = {};
+  if (branding.primary) out.primary = branding.primary;
+  if (branding.accent) out.accent = branding.accent;
+  if (branding.background) out.background = branding.background;
+  return Object.keys(out).length > 0 ? out : undefined;
 }

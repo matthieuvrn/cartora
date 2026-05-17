@@ -81,6 +81,7 @@ function createMockRestaurantRepo(
     getRestaurantById: async () => null,
     updateDisplayName: async () => {},
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: vi.fn(async () => {}),
     ...overrides,

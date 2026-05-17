@@ -98,6 +98,7 @@ export function MenuItemRow({
         <span
           className="shrink-0 pt-0.5 text-sm font-semibold tabular-nums"
           aria-label={formatPriceAria(item.priceCents, locale)}
+          style={{ color: "var(--brand-accent, currentColor)" }}
         >
           {formatPrice(item.priceCents, locale)}
         </span>

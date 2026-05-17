@@ -57,4 +57,63 @@ describe("BrandingPolicy", () => {
       expect(BrandingPolicy.buildLogoStoragePath("uuid-abc", "png")).toBe("uuid-abc/logo.png");
     });
   });
+
+  describe("normalizeHexColor", () => {
+    it.each(["#000000", "#ffffff", "#a1B2c3", "#FF00FF", "  #aabbcc  "])(
+      "accepts %s and returns lowercase trimmed",
+      (input) => {
+        const result = BrandingPolicy.normalizeHexColor(input, "primary");
+        expect(result).toMatch(/^#[0-9a-f]{6}$/);
+      },
+    );
+
+    it("normalizes uppercase to lowercase", () => {
+      expect(BrandingPolicy.normalizeHexColor("#ABCDEF", "primary")).toBe("#abcdef");
+    });
+
+    it.each(["", "#", "#fff", "#ff00", "#ff00ff0", "abc123", "rgb(0,0,0)", "#zzzzzz"])(
+      "rejects %s",
+      (input) => {
+        expect(() => BrandingPolicy.normalizeHexColor(input, "primary")).toThrowError(
+          expect.objectContaining({ name: "DomainError", code: "invalid_brand_color" }),
+        );
+      },
+    );
+  });
+
+  describe("contrastRatio", () => {
+    it("returns 21 for black/white (extreme case)", () => {
+      expect(BrandingPolicy.contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 1);
+      expect(BrandingPolicy.contrastRatio("#ffffff", "#000000")).toBeCloseTo(21, 1);
+    });
+
+    it("returns 1 for identical colors (no contrast)", () => {
+      expect(BrandingPolicy.contrastRatio("#abcdef", "#abcdef")).toBeCloseTo(1, 5);
+    });
+
+    it("is symmetric", () => {
+      const ab = BrandingPolicy.contrastRatio("#ff0000", "#00ff00");
+      const ba = BrandingPolicy.contrastRatio("#00ff00", "#ff0000");
+      expect(ab).toBeCloseTo(ba, 5);
+    });
+  });
+
+  describe("meetsContrastAA", () => {
+    it("passes for black on white", () => {
+      expect(BrandingPolicy.meetsContrastAA("#000000", "#ffffff")).toBe(true);
+    });
+
+    it("fails for yellow on white (low contrast)", () => {
+      expect(BrandingPolicy.meetsContrastAA("#ffff00", "#ffffff")).toBe(false);
+    });
+
+    it("passes amber-400 on stone-950 (Elegant default)", () => {
+      // amber-400 ≈ #fbbf24, stone-950 ≈ #0c0a09
+      expect(BrandingPolicy.meetsContrastAA("#fbbf24", "#0c0a09")).toBe(true);
+    });
+
+    it("fails for medium gray on white (3:1)", () => {
+      expect(BrandingPolicy.meetsContrastAA("#999999", "#ffffff")).toBe(false);
+    });
+  });
 });

@@ -9,6 +9,7 @@ function createMockRepo(overrides: Partial<RestaurantRepository> = {}): Restaura
     getRestaurantById: async () => null,
     updateDisplayName: vi.fn(async () => {}),
     updateLogoPath: async () => {},
+    updateBrandColors: async () => {},
     markActivationDismissed: async () => {},
     delete: async () => {},
     ...overrides,
