@@ -186,13 +186,34 @@
     "deleteAccountConfirmWord": "SUPPRIMER",
     "deleteAccountConfirmLabel": "Tapez {word} pour confirmer",
     "deleteAccountConfirmButton": "Supprimer définitivement",
-    "deleteAccountError": "Une erreur est survenue lors de la suppression."
+    "deleteAccountError": "Une erreur est survenue lors de la suppression.",
+    "dailyMenu": {
+      "title": "Menu du jour",
+      "description": "Ajoutez un plat exclusif pour aujourd'hui. Visible en tête du menu public jusqu'à son expiration.",
+      "add": "Ajouter un plat du jour",
+      "edit": "Modifier le plat",
+      "delete": "Supprimer le plat",
+      "empty": "Aucun plat du jour pour le moment.",
+      "emptyExpired": "Tous vos plats du jour sont expirés.",
+      "expiresAt": "Expire le {date} à {time}",
+      "expired": "Expiré",
+      "validUntilLabel": "Expiration",
+      "validUntilHint": "Par défaut, fin de la journée (heure de Paris).",
+      "paywall": {
+        "title": "Disponible à partir de la formule Starter",
+        "description": "Passez à Starter ou Pro pour ajouter un plat du jour qui s'affiche en tête de votre menu public."
+      },
+      "deleteConfirm": "Supprimer ce plat du jour ?",
+      "publishHint": "Republiez votre menu pour que vos nouveaux plats du jour apparaissent."
+    }
   },
   "PublicMenu": {
     "badge": {
       "NEW": "Nouveau",
       "POPULAR": "Populaire"
     },
+    "todayMenu": "Aujourd'hui",
+    "todayMenuDescription": "Plats du jour disponibles aujourd'hui",
     "notFound": "Menu introuvable",
     "notFoundDescription": "Ce menu n'existe pas ou n'a pas encore été publié.",
     "unavailable": "Menu indisponible",
@@ -420,7 +441,10 @@
     "template_not_allowed": "Ce template nécessite la formule PRO",
     "branding_not_allowed": "La personnalisation des couleurs nécessite la formule PRO",
     "invalid_brand_color": "Couleur invalide (format attendu : #RRGGBB)",
-    "low_brand_contrast": "Contraste insuffisant entre la couleur principale et le fond (AA non atteint)"
+    "low_brand_contrast": "Contraste insuffisant entre la couleur principale et le fond (AA non atteint)",
+    "daily_menu_not_allowed": "Le menu du jour nécessite la formule Starter ou PRO",
+    "daily_until_in_past": "L'expiration doit être dans le futur",
+    "daily_until_too_far": "L'expiration ne peut pas dépasser 14 jours"
   },
   "Settings": {
     "title": "Paramètres",

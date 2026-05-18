@@ -60,6 +60,11 @@ export type DomainErrorCode =
   | "use_portal_to_change_plan"
   | "template_not_allowed"
   | "branding_not_allowed"
+  | "daily_menu_not_allowed"
+
+  // Menu du jour (S3.1)
+  | "daily_until_in_past"
+  | "daily_until_too_far"
 
   // Branding
   | "invalid_brand_color"

@@ -1,7 +1,9 @@
 import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
+import type { Clock } from "@/application/ports/Clock";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import { DailyMenuPolicy } from "@/domain/menu/DailyMenuPolicy";
 
 export type GetPublicMenuInput = {
   slug: string;
@@ -14,15 +16,43 @@ export type GetPublicMenuOutput = {
 } | null;
 
 export class GetPublicMenu {
-  constructor(private readonly repo: SnapshotRepository) {}
+  constructor(
+    private readonly repo: SnapshotRepository,
+    private readonly clock: Clock,
+  ) {}
 
   async execute(input: GetPublicMenuInput): Promise<GetPublicMenuOutput> {
     const result = await this.repo.getSnapshotBySlug(input.slug);
     if (!result) return null;
+
+    const snapshot = filterExpiredDailyItems(result.snapshotData, this.clock.nowISO());
+
     return {
-      snapshot: result.snapshotData,
+      snapshot,
       planStatus: result.planStatus,
       planTier: result.planTier,
     };
   }
+}
+
+/**
+ * Le snapshot publié est immuable, mais les daily items ont une `validUntilISO`.
+ * On filtre ici, à la lecture, pour éviter d'afficher un plat du jour expiré sans
+ * forcer le restaurateur à republier à minuit. Si tous les daily items sont expirés,
+ * on retire la clé `dailyItems` (l'UI sait alors ne pas rendre la section).
+ */
+function filterExpiredDailyItems(snapshot: PublicMenuSnapshot, nowISO: string): PublicMenuSnapshot {
+  if (!snapshot.dailyItems || snapshot.dailyItems.length === 0) {
+    if ("dailyItems" in snapshot) {
+      const { dailyItems: _drop, ...rest } = snapshot;
+      return rest;
+    }
+    return snapshot;
+  }
+
+  const active = snapshot.dailyItems.filter((entry) => DailyMenuPolicy.isActive(entry, nowISO));
+  if (active.length === snapshot.dailyItems.length) return snapshot;
+
+  const { dailyItems: _drop, ...rest } = snapshot;
+  return active.length > 0 ? { ...rest, dailyItems: active } : rest;
 }

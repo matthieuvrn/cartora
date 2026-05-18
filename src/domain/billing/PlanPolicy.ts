@@ -70,6 +70,16 @@ export class PlanPolicy {
   }
 
   /**
+   * Menu du jour (S3.1) — accessible à partir de STARTER. Le plat du jour est
+   * culturellement standard en restauration FR ; le bloquer derrière PRO crée
+   * une friction injustifiée pour un STARTER qui peut déjà publier. FREE seul
+   * est exclu (de toute façon, FREE ne peut pas publier — `canPublish` filtre déjà).
+   */
+  static canUseDailyMenu(tier: PlanTier): boolean {
+    return tier === "STARTER" || tier === "PRO";
+  }
+
+  /**
    * Mappe un Stripe price.id vers le PlanTier correspondant en lisant les variables
    * d'environnement. Retourne null si le price n'est associé à aucun tier connu —
    * indique typiquement une configuration Stripe désynchronisée du code.

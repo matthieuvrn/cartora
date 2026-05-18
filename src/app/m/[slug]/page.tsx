@@ -9,6 +9,7 @@ import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import type { AllergenLabels } from "@/interface/ui/components/AllergenIcons";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
+import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { TrackingBeacon } from "@/interface/ui/components/menu-template";
 import { PublicMenuClient } from "@/interface/ui/components/menu-template/PublicMenuClient";
 import frMessages from "../../../../messages/fr.json";
@@ -23,7 +24,8 @@ type Props = {
 // from DB — no stale-while-revalidate window like unstable_cache had.
 const getPublicMenuBySlug = cache(async (slug: string): Promise<GetPublicMenuOutput> => {
   const snapshotRepo = new PrismaSnapshotRepository(prisma);
-  const getPublicMenu = new GetPublicMenu(snapshotRepo);
+  // Clock injecté pour le filtrage à la lecture des daily entries (S3.1).
+  const getPublicMenu = new GetPublicMenu(snapshotRepo, new SystemClock());
   return getPublicMenu.execute({ slug });
 });
 
@@ -57,8 +59,46 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string) {
+function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string, todayLabel: string) {
   const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}`;
+
+  const categorySections = snapshot.categories.map((category) => ({
+    "@type": "MenuSection",
+    name: category.name,
+    hasMenuItem: category.items.map((item) => ({
+      "@type": "MenuItem",
+      name: item.nameFr,
+      description: item.descriptionFr || undefined,
+      offers: {
+        "@type": "Offer",
+        price: (item.priceCents / 100).toFixed(2),
+        priceCurrency: "EUR",
+      },
+    })),
+  }));
+
+  // S3.1 — Section "Aujourd'hui" en tête pour le SEO local. Les daily items
+  // déjà filtrés par expiration côté `GetPublicMenu`, donc tout ce qui arrive
+  // ici est valide à l'instant du rendu.
+  const dailySection =
+    snapshot.dailyItems && snapshot.dailyItems.length > 0
+      ? [
+          {
+            "@type": "MenuSection",
+            name: todayLabel,
+            hasMenuItem: snapshot.dailyItems.map((item) => ({
+              "@type": "MenuItem",
+              name: item.nameFr,
+              description: item.descriptionFr || undefined,
+              offers: {
+                "@type": "Offer",
+                price: (item.priceCents / 100).toFixed(2),
+                priceCurrency: "EUR",
+              },
+            })),
+          },
+        ]
+      : [];
 
   return {
     "@context": "https://schema.org",
@@ -68,20 +108,7 @@ function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string) {
     hasMenu: {
       "@type": "Menu",
       name: `Menu de ${snapshot.restaurantName}`,
-      hasMenuSection: snapshot.categories.map((category) => ({
-        "@type": "MenuSection",
-        name: category.name,
-        hasMenuItem: category.items.map((item) => ({
-          "@type": "MenuItem",
-          name: item.nameFr,
-          description: item.descriptionFr || undefined,
-          offers: {
-            "@type": "Offer",
-            price: (item.priceCents / 100).toFixed(2),
-            priceCurrency: "EUR",
-          },
-        })),
-      })),
+      hasMenuSection: [...dailySection, ...categorySections],
     },
   };
 }
@@ -129,6 +156,8 @@ export default async function PublicMenuPage({ params }: Props) {
     allergenSectionLabel: frMessages.Allergen.sectionTitle,
     allergenLegendTitle: frMessages.PublicMenu.allergenLegendTitle,
     watermarkText: frMessages.PublicMenu.watermark,
+    dailyMenuTitle: frMessages.PublicMenu.todayMenu,
+    dailyMenuDescription: frMessages.PublicMenu.todayMenuDescription,
   };
 
   const labelsEn = {
@@ -140,9 +169,11 @@ export default async function PublicMenuPage({ params }: Props) {
     allergenSectionLabel: enMessages.Allergen.sectionTitle,
     allergenLegendTitle: enMessages.PublicMenu.allergenLegendTitle,
     watermarkText: enMessages.PublicMenu.watermark,
+    dailyMenuTitle: enMessages.PublicMenu.todayMenu,
+    dailyMenuDescription: enMessages.PublicMenu.todayMenuDescription,
   };
 
-  const jsonLd = buildMenuJsonLd(result.snapshot, slug);
+  const jsonLd = buildMenuJsonLd(result.snapshot, slug, frMessages.PublicMenu.todayMenu);
 
   return (
     <>

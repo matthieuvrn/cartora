@@ -1,5 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type {
+  DailyMenuEntryData,
   MenuOverview,
   MenuItemData,
   ItemTranslations,
@@ -400,6 +401,120 @@ export class PrismaMenuRepository implements MenuRepository {
         });
       }
     });
+  }
+
+  // ─ Menu du jour (S3.1) ─────────────────────────────────────────────────────
+
+  async listDailyEntries(restaurantId: string): Promise<DailyMenuEntryData[]> {
+    const rows = await this.db.dailyMenuEntry.findMany({
+      where: { restaurantId },
+      orderBy: { order: "asc" },
+    });
+    return rows.map(
+      (row): DailyMenuEntryData => ({
+        id: row.id,
+        priceCents: row.priceCents,
+        badge: row.badge as ItemBadge,
+        allergens: row.allergens as Allergen[],
+        imagePath: row.imagePath,
+        altTextFr: row.altTextFr,
+        altTextEn: row.altTextEn,
+        validUntilISO: row.validUntil.toISOString(),
+        order: row.order,
+        translations: {
+          fr: { name: row.nameFr, description: row.descriptionFr },
+          en: { name: row.nameEn, description: row.descriptionEn },
+        },
+      }),
+    );
+  }
+
+  async getDailyEntry(params: {
+    entryId: string;
+    restaurantId: string;
+  }): Promise<{ imagePath: string | null } | null> {
+    const row = await this.db.dailyMenuEntry.findFirst({
+      where: { id: params.entryId, restaurantId: params.restaurantId },
+      select: { imagePath: true },
+    });
+    return row;
+  }
+
+  async createDailyEntry(
+    params: Parameters<MenuRepository["createDailyEntry"]>[0],
+  ): Promise<{ id: string }> {
+    const entry = await this.db.dailyMenuEntry.create({
+      data: {
+        restaurantId: params.restaurantId,
+        menuId: params.menuId,
+        priceCents: params.priceCents,
+        badge: params.badge,
+        allergens: params.allergens,
+        validUntil: new Date(params.validUntilISO),
+        order: params.order,
+        nameFr: params.translations.fr.name,
+        descriptionFr: params.translations.fr.description,
+        nameEn: params.translations.en.name,
+        descriptionEn: params.translations.en.description,
+      },
+      select: { id: true },
+    });
+    return entry;
+  }
+
+  async updateDailyEntry(params: Parameters<MenuRepository["updateDailyEntry"]>[0]): Promise<void> {
+    await this.db.dailyMenuEntry.update({
+      where: { id: params.entryId, restaurantId: params.restaurantId },
+      data: {
+        priceCents: params.priceCents,
+        badge: params.badge,
+        allergens: { set: params.allergens },
+        validUntil: new Date(params.validUntilISO),
+        nameFr: params.translations.fr.name,
+        descriptionFr: params.translations.fr.description,
+        nameEn: params.translations.en.name,
+        descriptionEn: params.translations.en.description,
+      },
+    });
+  }
+
+  async updateDailyEntryImage(params: {
+    entryId: string;
+    restaurantId: string;
+    imagePath: string | null;
+    altTextFr: string | null;
+    altTextEn: string | null;
+  }): Promise<void> {
+    await this.db.dailyMenuEntry.update({
+      where: { id: params.entryId, restaurantId: params.restaurantId },
+      data: {
+        imagePath: params.imagePath,
+        altTextFr: params.altTextFr,
+        altTextEn: params.altTextEn,
+      },
+    });
+  }
+
+  async deleteDailyEntry(params: { entryId: string; restaurantId: string }): Promise<void> {
+    await this.db.dailyMenuEntry.delete({
+      where: { id: params.entryId, restaurantId: params.restaurantId },
+    });
+  }
+
+  async reorderDailyEntries(params: { restaurantId: string; orderedIds: string[] }): Promise<void> {
+    const { restaurantId, orderedIds } = params;
+    await this.db.$transaction(async (tx) => {
+      for (const [index, id] of orderedIds.entries()) {
+        await tx.dailyMenuEntry.update({
+          where: { id, restaurantId },
+          data: { order: index },
+        });
+      }
+    });
+  }
+
+  async getNextDailyEntryOrder(restaurantId: string): Promise<number> {
+    return this.db.dailyMenuEntry.count({ where: { restaurantId } });
   }
 }
 

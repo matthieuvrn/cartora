@@ -139,6 +139,7 @@ model Restaurant {
   snapshots          MenuPublicSnapshot[]
   menuViewEvents     MenuViewEvent[]
   menuViewDailyStats MenuViewDailyStat[]
+  dailyMenuEntries   DailyMenuEntry[]
 
   @@map("restaurants")
 }
@@ -155,6 +156,7 @@ model Menu {
   restaurant Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   categories Category[]
   snapshots  MenuPublicSnapshot[]
+  dailyMenuEntries DailyMenuEntry[]
 
   @@map("menus")
 }
@@ -273,6 +275,36 @@ model MenuPublicSnapshot {
 
   @@index([menuId])
   @@map("menu_public_snapshots")
+}
+
+/// Plat du jour (S3.1). Item exclusif au jour, autonome (sans FK vers Item), avec
+/// expiration. La lecture publique filtre par `valid_until > now()` via le port Clock —
+/// le snapshot reste immuable mais le rendu est dynamique. Gating : STARTER + PRO.
+model DailyMenuEntry {
+  id            String     @id @default(uuid()) @db.Uuid
+  restaurantId  String     @map("restaurant_id") @db.Uuid
+  menuId        String     @map("menu_id") @db.Uuid
+  nameFr        String     @map("name_fr") @db.VarChar(100)
+  nameEn        String     @default("") @map("name_en") @db.VarChar(100)
+  descriptionFr String     @default("") @map("description_fr") @db.VarChar(500)
+  descriptionEn String     @default("") @map("description_en") @db.VarChar(500)
+  priceCents    Int        @map("price_cents")
+  badge         ItemBadge  @default(NONE)
+  allergens     Allergen[] @default([])
+  imagePath     String?    @map("image_path")
+  altTextFr     String?    @map("alt_text_fr")
+  altTextEn     String?    @map("alt_text_en")
+  validUntil    DateTime   @map("valid_until")
+  order         Int        @default(0)
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menu       Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@index([menuId, validUntil])
+  @@index([restaurantId])
+  @@map("daily_menu_entries")
 }
 
 model MenuViewEvent {

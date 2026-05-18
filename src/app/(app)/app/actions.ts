@@ -32,6 +32,13 @@ import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
 import { CreateRestaurantLogoUploadUrl } from "@/application/use-cases/CreateRestaurantLogoUploadUrl";
 import { SetRestaurantLogo } from "@/application/use-cases/SetRestaurantLogo";
 import { DeleteRestaurantLogo } from "@/application/use-cases/DeleteRestaurantLogo";
+import { CreateDailyEntry } from "@/application/use-cases/CreateDailyEntry";
+import { UpdateDailyEntry } from "@/application/use-cases/UpdateDailyEntry";
+import { DeleteDailyEntry } from "@/application/use-cases/DeleteDailyEntry";
+import { ReorderDailyEntries } from "@/application/use-cases/ReorderDailyEntries";
+import { CreateDailyEntryImageUploadUrl } from "@/application/use-cases/CreateDailyEntryImageUploadUrl";
+import { SetDailyEntryImage } from "@/application/use-cases/SetDailyEntryImage";
+import { DeleteDailyEntryImage } from "@/application/use-cases/DeleteDailyEntryImage";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { UpdateBrandColors } from "@/application/use-cases/UpdateBrandColors";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
@@ -139,6 +146,72 @@ const UpdateBrandColorsSchema = z.object({
   accent: HexColorSchema,
   background: HexColorSchema,
   forceLowContrast: z.boolean().default(false),
+});
+
+// Menu du jour (S3.1) — `validUntil` est ISO 8601 UTC. Vide ⇒ default = fin de
+// journée Europe/Paris calculé par DailyMenuPolicy.defaultExpirationISO côté use case.
+const ValidUntilSchema = z
+  .string()
+  .min(1)
+  .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" })
+  .or(z.literal(""))
+  .transform((v) => (v === "" ? undefined : v))
+  .optional();
+
+const CreateDailyEntrySchema = z.object({
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
+  badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  allergens: AllergensSchema,
+  validUntilISO: ValidUntilSchema,
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const UpdateDailyEntrySchema = z.object({
+  entryId: z.uuid(),
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
+  badge: z.enum(["NONE", "NEW", "POPULAR"]),
+  allergens: AllergensSchema,
+  validUntilISO: z
+    .string()
+    .min(1)
+    .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const DeleteDailyEntrySchema = z.object({
+  entryId: z.uuid(),
+});
+
+const ReorderDailyEntriesSchema = z.object({
+  orderedIds: z.array(z.uuid()).min(1),
+});
+
+const CreateDailyEntryImageUploadUrlSchema = z.object({
+  entryId: z.uuid(),
+  mime: z.enum(ALLOWED_IMAGE_MIME_TYPES),
+});
+
+const SetDailyEntryImageSchema = z.object({
+  entryId: z.uuid(),
+  imagePath: z.string().min(1).max(500),
+  altTextFr: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+  altTextEn: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+});
+
+const DeleteDailyEntryImageSchema = z.object({
+  entryId: z.uuid(),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -907,4 +980,260 @@ export async function updateBrandColorsAction(
     revalidateTag(`public-menu-${restaurant.slug}`, "default");
     return { error: null, success: true };
   });
+}
+
+// ─── Menu du jour (S3.1) ─────────────────────────────────────────────────────
+
+export type DailyEntryActionState = ActionState<{ success?: boolean; entryId?: string }>;
+
+export async function createDailyEntryAction(
+  _prev: DailyEntryActionState,
+  formData: FormData,
+): Promise<DailyEntryActionState> {
+  const parsed = CreateDailyEntrySchema.safeParse({
+    priceEur: formData.get("priceEur"),
+    badge: formData.get("badge") ?? "NONE",
+    allergens: formData.getAll("allergens"),
+    validUntilISO: formData.get("validUntilISO") ?? "",
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "createDailyEntry", restaurantId }, async () => {
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const clock = new SystemClock();
+    const useCase = new CreateDailyEntry(menuRepo, restaurantRepo, clock);
+
+    const { entryId } = await useCase.execute({
+      restaurantId,
+      priceCents: eurToCents(parsed.data.priceEur),
+      badge: parsed.data.badge,
+      allergens: parsed.data.allergens,
+      validUntilISO: parsed.data.validUntilISO,
+      translations: parsed.data.translations,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true, entryId };
+  });
+}
+
+export async function updateDailyEntryAction(
+  _prev: DailyEntryActionState,
+  formData: FormData,
+): Promise<DailyEntryActionState> {
+  const parsed = UpdateDailyEntrySchema.safeParse({
+    entryId: formData.get("entryId"),
+    priceEur: formData.get("priceEur"),
+    badge: formData.get("badge") ?? "NONE",
+    allergens: formData.getAll("allergens"),
+    validUntilISO: formData.get("validUntilISO") ?? "",
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "updateDailyEntry", restaurantId, input: { entryId: parsed.data.entryId } },
+    async () => {
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const restaurantRepo = new PrismaRestaurantRepository(prisma);
+      const clock = new SystemClock();
+      const useCase = new UpdateDailyEntry(menuRepo, restaurantRepo, clock);
+
+      await useCase.execute({
+        entryId: parsed.data.entryId,
+        restaurantId,
+        priceCents: eurToCents(parsed.data.priceEur),
+        badge: parsed.data.badge,
+        allergens: parsed.data.allergens,
+        validUntilISO: parsed.data.validUntilISO,
+        translations: parsed.data.translations,
+      });
+
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
+}
+
+export async function deleteDailyEntryAction(
+  _prev: DailyEntryActionState,
+  formData: FormData,
+): Promise<DailyEntryActionState> {
+  const parsed = DeleteDailyEntrySchema.safeParse({
+    entryId: formData.get("entryId"),
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "deleteDailyEntry", restaurantId, input: { entryId: parsed.data.entryId } },
+    async () => {
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const storage = new SupabaseStorageService("item-images");
+      const useCase = new DeleteDailyEntry(menuRepo, storage);
+
+      await useCase.execute({ entryId: parsed.data.entryId, restaurantId });
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
+}
+
+export async function reorderDailyEntriesAction(
+  _prev: DailyEntryActionState,
+  formData: FormData,
+): Promise<DailyEntryActionState> {
+  const raw = formData.get("orderedIds");
+  let orderedIds: unknown = [];
+  if (typeof raw === "string") {
+    try {
+      orderedIds = JSON.parse(raw);
+    } catch {
+      return { error: VALIDATION_ERROR };
+    }
+  }
+
+  const parsed = ReorderDailyEntriesSchema.safeParse({ orderedIds });
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "reorderDailyEntries", restaurantId }, async () => {
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const useCase = new ReorderDailyEntries(menuRepo);
+
+    await useCase.execute({ restaurantId, orderedIds: parsed.data.orderedIds });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  });
+}
+
+export async function createDailyEntryImageUploadUrlAction(input: {
+  entryId: string;
+  mime: string;
+}): Promise<ImageUploadUrlResult> {
+  const parsed = CreateDailyEntryImageUploadUrlSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new CreateDailyEntryImageUploadUrl(repo, storage);
+
+    const result = await useCase.execute({
+      restaurantId,
+      entryId: parsed.data.entryId,
+      mime: parsed.data.mime,
+    });
+
+    return { ok: true, ...result };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "createDailyEntryImageUploadUrl" },
+      extra: { entryId: parsed.data.entryId, mime: parsed.data.mime },
+    });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export async function setDailyEntryImageAction(input: {
+  entryId: string;
+  imagePath: string;
+  altTextFr?: string;
+  altTextEn?: string;
+}): Promise<ImageMutationResult> {
+  const parsed = SetDailyEntryImageSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new SetDailyEntryImage(repo, storage);
+
+    await useCase.execute({
+      restaurantId,
+      entryId: parsed.data.entryId,
+      imagePath: parsed.data.imagePath,
+      altTextFr: parsed.data.altTextFr,
+      altTextEn: parsed.data.altTextEn,
+    });
+
+    revalidatePath("/app");
+    return { ok: true };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "setDailyEntryImage" },
+      extra: { entryId: parsed.data.entryId },
+    });
+    return { ok: false, error: "generic" };
+  }
+}
+
+export async function deleteDailyEntryImageAction(input: {
+  entryId: string;
+}): Promise<ImageMutationResult> {
+  const parsed = DeleteDailyEntryImageSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "validation" };
+
+  try {
+    const restaurantId = await getAuthenticatedRestaurantId();
+    const repo = new PrismaMenuRepository(prisma);
+    const storage = new SupabaseStorageService("item-images");
+    const useCase = new DeleteDailyEntryImage(repo, storage);
+
+    await useCase.execute({ restaurantId, entryId: parsed.data.entryId });
+
+    revalidatePath("/app");
+    return { ok: true };
+  } catch (e) {
+    if (isDomainError(e)) {
+      return { ok: false, error: e.code };
+    }
+    Sentry.captureException(e, {
+      tags: { action: "deleteDailyEntryImage" },
+      extra: { entryId: parsed.data.entryId },
+    });
+    return { ok: false, error: "generic" };
+  }
 }

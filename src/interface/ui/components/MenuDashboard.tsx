@@ -4,7 +4,7 @@ import { startTransition, useActionState, useCallback } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
-import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import type { DailyMenuEntryData, MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
@@ -20,6 +20,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
 import { CategorySection } from "./CategorySection";
+import { DailyMenuSection } from "./DailyMenuSection";
 import { EditableRestaurantName } from "./EditableRestaurantName";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
@@ -44,6 +45,7 @@ type Props = {
   realtimeStats?: RealtimeStats;
   activationChecklist: ActivationChecklist | null;
   dismissActivationAction: () => Promise<void>;
+  dailyEntries: { active: DailyMenuEntryData[]; expired: DailyMenuEntryData[] };
 };
 
 export function MenuDashboard({
@@ -61,6 +63,7 @@ export function MenuDashboard({
   realtimeStats,
   activationChecklist,
   dismissActivationAction,
+  dailyEntries,
 }: Props) {
   const t = useTranslations("Dashboard");
 
@@ -153,6 +156,12 @@ export function MenuDashboard({
       {menu.publishedAt !== null && qrCodeUrl !== null && <QrCodeCard qrCodeUrl={qrCodeUrl} />}
 
       <StatsCard stats={stats} realtimeStats={realtimeStats} />
+
+      <DailyMenuSection
+        activeEntries={dailyEntries.active}
+        expiredEntries={dailyEntries.expired}
+        planTier={planTier}
+      />
 
       {menu.categories.map((category, index) => (
         <CategorySection

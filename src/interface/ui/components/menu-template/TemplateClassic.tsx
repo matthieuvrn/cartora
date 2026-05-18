@@ -3,6 +3,7 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { Allergen } from "@/domain/menu/ItemPolicy";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
+import { DailyMenuSection } from "./DailyMenuSection";
 import { Watermark } from "./Watermark";
 import { AllergenLegend } from "../AllergenLegend";
 import type { AllergenLabels } from "../AllergenIcons";
@@ -24,6 +25,8 @@ type Props = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
+  dailyMenuTitle: string;
+  dailyMenuDescription?: string;
 };
 
 export function TemplateClassic({
@@ -35,14 +38,24 @@ export function TemplateClassic({
   allergenSectionLabel,
   allergenLegendTitle,
   watermarkText,
+  dailyMenuTitle,
+  dailyMenuDescription,
 }: Props) {
   const presentAllergens = new Set<Allergen>();
+  // Les allergens des daily items doivent aussi alimenter la légende
+  // (réglementation INCO — légende partagée).
+  for (const daily of snapshot.dailyItems ?? []) {
+    for (const a of daily.allergens) presentAllergens.add(a);
+  }
+  // Priority loading : si un daily item a une photo, c'est lui qui prend le slot LCP
+  // (rendu en haut), sinon on retombe sur la 1re photo des catégories.
+  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
   let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
   for (const category of snapshot.categories) {
     for (let i = 0; i < category.items.length; i++) {
       const item = category.items[i];
       for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && item.imagePath) {
+      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
         firstPhotoLocator = { categoryName: category.name, itemIndex: i };
       }
     }
@@ -76,6 +89,17 @@ export function TemplateClassic({
       >
         {snapshot.restaurantName}
       </h1>
+      {snapshot.dailyItems && snapshot.dailyItems.length > 0 && (
+        <DailyMenuSection
+          items={snapshot.dailyItems}
+          locale={locale}
+          title={dailyMenuTitle}
+          description={dailyMenuDescription}
+          badgeLabels={badgeLabels}
+          allergenLabels={allergenLabels}
+          allergenSectionLabel={allergenSectionLabel}
+        />
+      )}
       <div className="space-y-8">
         {snapshot.categories.map((category) => (
           <MenuCategorySection

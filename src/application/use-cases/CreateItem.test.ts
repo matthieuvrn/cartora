@@ -24,6 +24,14 @@ function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository
     reorderCategories: vi.fn(async () => {}),
     getMenuIdByRestaurantId: vi.fn(async () => "menu-1"),
     countItemsWithImage: async () => 0,
+    listDailyEntries: async () => [],
+    getDailyEntry: async () => ({ imagePath: null }),
+    createDailyEntry: async () => ({ id: "id" }),
+    updateDailyEntry: async () => {},
+    updateDailyEntryImage: async () => {},
+    deleteDailyEntry: async () => {},
+    reorderDailyEntries: async () => {},
+    getNextDailyEntryOrder: async () => 0,
     ...overrides,
   };
 }

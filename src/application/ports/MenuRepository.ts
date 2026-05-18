@@ -1,4 +1,4 @@
-import type { MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
+import type { DailyMenuEntryData, MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 
 // Note : la détection des collisions de nom passe désormais par
@@ -110,4 +110,61 @@ export interface MenuRepository {
 
   /** Nombre d'items du restaurant qui ont une `imagePath` non-null (utilisé pour le paywall photos). */
   countItemsWithImage(restaurantId: string): Promise<number>;
+
+  // ─ Menu du jour (S3.1) ─────────────────────────────────────────────────────
+
+  /**
+   * Liste TOUTES les daily entries du restaurant, triées par `order` croissant.
+   * Le filtrage `validUntil > now()` n'est PAS fait ici — l'appelant (use case)
+   * passe le résultat à `DailyMenuPolicy.isActive` avec un `Clock` injecté.
+   */
+  listDailyEntries(restaurantId: string): Promise<DailyMenuEntryData[]>;
+
+  /** Retourne null si l'entrée n'existe pas ou ne lui appartient pas. */
+  getDailyEntry(params: {
+    entryId: string;
+    restaurantId: string;
+  }): Promise<{ imagePath: string | null } | null>;
+
+  createDailyEntry(params: {
+    restaurantId: string;
+    menuId: string;
+    priceCents: number;
+    badge: ItemBadge;
+    allergens: Allergen[];
+    validUntilISO: string;
+    order: number;
+    translations: {
+      fr: { name: string; description: string };
+      en: { name: string; description: string };
+    };
+  }): Promise<{ id: string }>;
+
+  updateDailyEntry(params: {
+    entryId: string;
+    restaurantId: string;
+    priceCents: number;
+    badge: ItemBadge;
+    allergens: Allergen[];
+    validUntilISO: string;
+    translations: {
+      fr: { name: string; description: string };
+      en: { name: string; description: string };
+    };
+  }): Promise<void>;
+
+  updateDailyEntryImage(params: {
+    entryId: string;
+    restaurantId: string;
+    imagePath: string | null;
+    altTextFr: string | null;
+    altTextEn: string | null;
+  }): Promise<void>;
+
+  deleteDailyEntry(params: { entryId: string; restaurantId: string }): Promise<void>;
+
+  reorderDailyEntries(params: { restaurantId: string; orderedIds: string[] }): Promise<void>;
+
+  /** Nombre de daily entries du restaurant — utilisé pour l'ordre d'insertion. */
+  getNextDailyEntryOrder(restaurantId: string): Promise<number>;
 }

@@ -186,13 +186,34 @@
     "deleteAccountConfirmWord": "DELETE",
     "deleteAccountConfirmLabel": "Type {word} to confirm",
     "deleteAccountConfirmButton": "Delete permanently",
-    "deleteAccountError": "An error occurred while deleting your account."
+    "deleteAccountError": "An error occurred while deleting your account.",
+    "dailyMenu": {
+      "title": "Today's specials",
+      "description": "Add an exclusive dish for today. Displayed at the top of your public menu until it expires.",
+      "add": "Add today's special",
+      "edit": "Edit dish",
+      "delete": "Delete dish",
+      "empty": "No specials yet.",
+      "emptyExpired": "All your specials have expired.",
+      "expiresAt": "Expires {date} at {time}",
+      "expired": "Expired",
+      "validUntilLabel": "Expiration",
+      "validUntilHint": "Defaults to end of day (Paris time).",
+      "paywall": {
+        "title": "Available from the Starter plan",
+        "description": "Upgrade to Starter or Pro to add today's specials at the top of your public menu."
+      },
+      "deleteConfirm": "Delete this special?",
+      "publishHint": "Re-publish your menu so new specials appear publicly."
+    }
   },
   "PublicMenu": {
     "badge": {
       "NEW": "New",
       "POPULAR": "Popular"
     },
+    "todayMenu": "Today",
+    "todayMenuDescription": "Specials available today",
     "notFound": "Menu not found",
     "notFoundDescription": "This menu does not exist or has not been published yet.",
     "unavailable": "Menu unavailable",
@@ -415,7 +436,10 @@
     "template_not_allowed": "This template requires the PRO plan",
     "branding_not_allowed": "Color customization requires the PRO plan",
     "invalid_brand_color": "Invalid color (expected format: #RRGGBB)",
-    "low_brand_contrast": "Insufficient contrast between the primary color and the background (WCAG AA not met)"
+    "low_brand_contrast": "Insufficient contrast between the primary color and the background (WCAG AA not met)",
+    "daily_menu_not_allowed": "Today's specials require the Starter or PRO plan",
+    "daily_until_in_past": "Expiration must be in the future",
+    "daily_until_too_far": "Expiration cannot be more than 14 days away"
   },
   "Settings": {
     "title": "Settings",

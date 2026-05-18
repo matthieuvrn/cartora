@@ -23,6 +23,7 @@ import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
 import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
+import { ListActiveDailyEntries } from "@/application/use-cases/ListActiveDailyEntries";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
@@ -98,6 +99,9 @@ export default async function AppPage({
   const getRealtimeStats = new GetRealtimeStats(analyticsRepo, clock);
   const realtimeStats = await getRealtimeStats.execute({ restaurantId });
 
+  const listDailyEntries = new ListActiveDailyEntries(menuRepo, clock);
+  const dailyEntries = await listDailyEntries.execute({ restaurantId });
+
   const totalItems = menu.categories.reduce((acc, c) => acc + c.items.length, 0);
   const checklist =
     restaurant.activationDismissedAt !== null
@@ -152,6 +156,7 @@ export default async function AppPage({
           realtimeStats={realtimeStats}
           activationChecklist={checklist}
           dismissActivationAction={dismissActivationChecklistAction}
+          dailyEntries={dailyEntries}
         />
 
         <div className="mt-16 border-t pt-8">

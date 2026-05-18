@@ -25,6 +25,8 @@ type Props = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
+  dailyMenuTitle: string;
+  dailyMenuDescription?: string;
 };
 
 const badgeConfig: Record<
@@ -65,18 +67,25 @@ export function TemplateModern({
   allergenSectionLabel,
   allergenLegendTitle,
   watermarkText,
+  dailyMenuTitle,
+  dailyMenuDescription,
 }: Props) {
   const presentAllergens = new Set<Allergen>();
+  for (const daily of snapshot.dailyItems ?? []) {
+    for (const a of daily.allergens) presentAllergens.add(a);
+  }
+  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
   let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
   for (const category of snapshot.categories) {
     for (let i = 0; i < category.items.length; i++) {
       const item = category.items[i];
       for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && item.imagePath) {
+      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
         firstPhotoLocator = { categoryName: category.name, itemIndex: i };
       }
     }
   }
+  const firstDailyPhotoIndex = (snapshot.dailyItems ?? []).findIndex((d) => d.imagePath);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -111,6 +120,36 @@ export function TemplateModern({
             {snapshot.restaurantName}
           </h1>
         </header>
+
+        {snapshot.dailyItems && snapshot.dailyItems.length > 0 && (
+          <section aria-labelledby="daily-menu-heading" className="mb-10">
+            <div className="mb-4">
+              <span
+                id="daily-menu-heading"
+                className="inline-block rounded-full px-4 py-1.5 text-sm font-bold tracking-wide text-white"
+                style={{ backgroundColor: "var(--brand-primary, #ea580c)" }}
+              >
+                {dailyMenuTitle}
+              </span>
+              {dailyMenuDescription && (
+                <p className="mt-1 text-xs text-zinc-600">{dailyMenuDescription}</p>
+              )}
+            </div>
+            <ul className="space-y-4" role="list">
+              {snapshot.dailyItems.map((item, index) => (
+                <ModernItemCard
+                  key={item.id}
+                  item={item}
+                  locale={locale}
+                  badgeLabels={badgeLabels}
+                  allergenLabels={allergenLabels}
+                  allergenSectionLabel={allergenSectionLabel}
+                  priority={index === firstDailyPhotoIndex}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="space-y-10">
           {snapshot.categories.map((category) => (

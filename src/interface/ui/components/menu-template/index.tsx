@@ -25,6 +25,7 @@ export { MenuCategorySection } from "./MenuCategorySection";
 export { MenuItemRow } from "./MenuItemRow";
 export { TrackingBeacon } from "./TrackingBeacon";
 export { Watermark } from "./Watermark";
+export { DailyMenuSection } from "./DailyMenuSection";
 
 type RendererProps = {
   snapshot: PublicMenuSnapshot;
@@ -35,6 +36,9 @@ type RendererProps = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
+  /** Titre de la section "Aujourd'hui" (S3.1) — i18n résolu côté page. */
+  dailyMenuTitle: string;
+  dailyMenuDescription?: string;
 };
 
 /**

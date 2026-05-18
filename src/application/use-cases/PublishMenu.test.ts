@@ -78,6 +78,14 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
     countItemsWithImage: async () => 0,
+    listDailyEntries: async () => [],
+    getDailyEntry: async () => ({ imagePath: null }),
+    createDailyEntry: async () => ({ id: "id" }),
+    updateDailyEntry: async () => {},
+    updateDailyEntryImage: async () => {},
+    deleteDailyEntry: async () => {},
+    reorderDailyEntries: async () => {},
+    getNextDailyEntryOrder: async () => 0,
     ...overrides,
   };
 }
@@ -206,6 +214,80 @@ describe("PublishMenu", () => {
       metadata: { tier: "PRO" },
     });
     expect(snapshotRepo.upsertSnapshot).not.toHaveBeenCalled();
+  });
+
+  it("includes daily entries in the snapshot when restaurant tier allows it (S3.1)", async () => {
+    const snapshotRepo = createMockSnapshotRepo();
+    const listDailyEntries = vi.fn(async () => [
+      {
+        id: "daily-1",
+        priceCents: 1500,
+        badge: "NONE" as const,
+        allergens: [],
+        imagePath: null,
+        altTextFr: null,
+        altTextEn: null,
+        validUntilISO: "2026-03-25T22:00:00.000Z",
+        order: 0,
+        translations: {
+          fr: { name: "Pot-au-feu", description: "Plat mijoté" },
+          en: { name: "Beef stew", description: "" },
+        },
+      },
+    ]);
+    const uc = new PublishMenu(
+      createMockMenuRepo({ listDailyEntries }),
+      createMockRestaurantRepo(),
+      snapshotRepo,
+      createMockClock(),
+    );
+
+    await uc.execute({ restaurantId: "resto-1" });
+
+    expect(listDailyEntries).toHaveBeenCalledWith("resto-1");
+    const call = (snapshotRepo.upsertSnapshot as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(call.snapshotData.dailyItems).toEqual([
+      {
+        id: "daily-1",
+        nameFr: "Pot-au-feu",
+        nameEn: "Beef stew",
+        descriptionFr: "Plat mijoté",
+        descriptionEn: "",
+        priceCents: 1500,
+        badge: "NONE",
+        allergens: [],
+        imagePath: null,
+        altTextFr: "",
+        altTextEn: "",
+        validUntilISO: "2026-03-25T22:00:00.000Z",
+      },
+    ]);
+  });
+
+  it("does not load daily entries for FREE tier (gating prunes call)", async () => {
+    const listDailyEntries = vi.fn(async () => []);
+    const uc = new PublishMenu(
+      createMockMenuRepo({ listDailyEntries }),
+      createMockRestaurantRepo({
+        // FREE tier ⇒ canPublish renvoie plan_free et on throw avant listDailyEntries.
+        // Cas plus intéressant : ACTIVE + STARTER, mais on veut tester gating tier sur les daily.
+        // On simule un PRO ACTIVE et on vérifie que listDailyEntries est appelé. Pour FREE
+        // canPublish rejette en amont, donc listDailyEntries n'est pas appelé.
+        getRestaurantById: async () => ({
+          ...RESTAURANT_FIXTURE,
+          planStatus: "FREE",
+          planTier: "FREE",
+        }),
+      }),
+      createMockSnapshotRepo(),
+      createMockClock(),
+    );
+
+    await expect(uc.execute({ restaurantId: "resto-1" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "plan_inactive",
+    });
+    expect(listDailyEntries).not.toHaveBeenCalled();
   });
 
   it("publishes for STARTER tier with ACTIVE status", async () => {

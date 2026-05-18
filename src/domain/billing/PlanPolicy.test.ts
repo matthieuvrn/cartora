@@ -124,6 +124,18 @@ describe("PlanPolicy", () => {
     });
   });
 
+  describe("canUseDailyMenu (S3.1)", () => {
+    it("forbids FREE", () => {
+      expect(PlanPolicy.canUseDailyMenu("FREE")).toBe(false);
+    });
+    it("allows STARTER", () => {
+      expect(PlanPolicy.canUseDailyMenu("STARTER")).toBe(true);
+    });
+    it("allows PRO", () => {
+      expect(PlanPolicy.canUseDailyMenu("PRO")).toBe(true);
+    });
+  });
+
   describe("resolveTierFromPriceId", () => {
     beforeEach(() => {
       vi.stubEnv("STRIPE_PRICE_ID", "price_pro_id_123");

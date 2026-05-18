@@ -24,6 +24,8 @@ type Props = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
+  dailyMenuTitle: string;
+  dailyMenuDescription?: string;
 };
 
 function formatPrice(cents: number, locale: "fr" | "en"): string {
@@ -56,19 +58,26 @@ export function TemplateElegant({
   allergenSectionLabel,
   allergenLegendTitle,
   watermarkText,
+  dailyMenuTitle,
+  dailyMenuDescription,
 }: Props) {
   // Collecte des allergènes présents (pour la légende) et du 1er item avec photo (priority loading).
   const presentAllergens = new Set<Allergen>();
+  for (const daily of snapshot.dailyItems ?? []) {
+    for (const a of daily.allergens) presentAllergens.add(a);
+  }
+  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
   let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
   for (const category of snapshot.categories) {
     for (let i = 0; i < category.items.length; i++) {
       const item = category.items[i];
       for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && item.imagePath) {
+      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
         firstPhotoLocator = { categoryName: category.name, itemIndex: i };
       }
     }
   }
+  const firstDailyPhotoIndex = (snapshot.dailyItems ?? []).findIndex((d) => d.imagePath);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -108,6 +117,36 @@ export function TemplateElegant({
             aria-hidden="true"
           />
         </header>
+
+        {snapshot.dailyItems && snapshot.dailyItems.length > 0 && (
+          <section aria-labelledby="daily-menu-heading" className="mb-12">
+            <h2
+              id="daily-menu-heading"
+              className="mb-2 text-center text-xs font-semibold uppercase tracking-[0.3em]"
+              style={{ color: "var(--brand-accent, #fbbf24)" }}
+            >
+              {dailyMenuTitle}
+            </h2>
+            {dailyMenuDescription && (
+              <p className="mb-6 text-center text-xs italic text-stone-400">
+                {dailyMenuDescription}
+              </p>
+            )}
+            <ul className="space-y-8" role="list">
+              {snapshot.dailyItems.map((item, index) => (
+                <ElegantItemRow
+                  key={item.id}
+                  item={item}
+                  locale={locale}
+                  badgeLabels={badgeLabels}
+                  allergenLabels={allergenLabels}
+                  allergenSectionLabel={allergenSectionLabel}
+                  priority={index === firstDailyPhotoIndex}
+                />
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="space-y-12">
           {snapshot.categories.map((category) => (

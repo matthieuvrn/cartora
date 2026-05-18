@@ -12,6 +12,10 @@ type Labels = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText: string;
+  /** Titre de la section "Aujourd'hui" (S3.1). */
+  dailyMenuTitle: string;
+  /** Sous-titre optionnel de la section "Aujourd'hui". */
+  dailyMenuDescription?: string;
 };
 
 type Props = {
@@ -71,6 +75,8 @@ export function PublicMenuClient({
         allergenSectionLabel={labels.allergenSectionLabel}
         allergenLegendTitle={labels.allergenLegendTitle}
         watermarkText={labels.watermarkText}
+        dailyMenuTitle={labels.dailyMenuTitle}
+        dailyMenuDescription={labels.dailyMenuDescription}
       />
     </>
   );
