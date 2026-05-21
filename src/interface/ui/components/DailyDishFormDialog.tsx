@@ -21,24 +21,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  createDailyEntryAction,
-  updateDailyEntryAction,
-  type DailyEntryActionState,
+  createDailyDishAction,
+  updateDailyDishAction,
+  type DailyDishActionState,
 } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
-import type { DailyMenuEntryData } from "@/domain/menu/MenuTypes";
+import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
-import { DailyMenuPolicy } from "@/domain/menu/DailyMenuPolicy";
-import { DailyEntryPhotoEditor } from "./DailyEntryPhotoEditor";
+import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
+import { DailyDishPhotoEditor } from "./DailyDishPhotoEditor";
 
 type Props = {
   mode: "create" | "edit";
-  entry?: DailyMenuEntryData;
+  dish?: DailyDishData;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-const initialState: DailyEntryActionState = { error: null };
+const initialState: DailyDishActionState = { error: null };
 
 /**
  * Convertit un ISO 8601 UTC vers le format `datetime-local` (YYYY-MM-DDTHH:MM)
@@ -50,25 +50,25 @@ function isoToDatetimeLocal(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props) {
+export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
   const t = useTranslations("Dashboard");
-  const tDaily = useTranslations("Dashboard.dailyMenu");
+  const tDaily = useTranslations("Dashboard.dailyDishes");
   const tAllergen = useTranslations("Allergen");
   const id = useId();
-  const selectedAllergens = new Set(entry?.allergens ?? []);
-  const serverAction = mode === "create" ? createDailyEntryAction : updateDailyEntryAction;
+  const selectedAllergens = new Set(dish?.allergens ?? []);
+  const serverAction = mode === "create" ? createDailyDishAction : updateDailyDishAction;
 
   // Default value pour le datetime-local : fin de journée Paris si création,
   // ou la valeur existante de l'entrée si édition.
   const defaultDatetimeLocal = useMemo(() => {
-    if (entry) return isoToDatetimeLocal(entry.validUntilISO);
-    return isoToDatetimeLocal(DailyMenuPolicy.defaultExpirationISO(new Date().toISOString()));
-  }, [entry]);
+    if (dish) return isoToDatetimeLocal(dish.validUntilISO);
+    return isoToDatetimeLocal(DailyDishPolicy.defaultExpirationISO(new Date().toISOString()));
+  }, [dish]);
 
   // Wrap l'action pour convertir le datetime-local → ISO avant d'envoyer.
   // Le navigateur expose une `value` au format `YYYY-MM-DDTHH:MM` ; on construit
   // un Date en TZ navigateur (sémantique attendue par l'utilisateur) puis ISO UTC.
-  async function wrappedAction(prev: DailyEntryActionState, formData: FormData) {
+  async function wrappedAction(prev: DailyDishActionState, formData: FormData) {
     const local = formData.get("validUntilLocal");
     if (typeof local === "string" && local.length > 0) {
       const iso = new Date(local).toISOString();
@@ -91,7 +91,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
         </DialogHeader>
 
         <form action={formAction} className="space-y-5">
-          {mode === "edit" && entry && <input type="hidden" name="entryId" value={entry.id} />}
+          {mode === "edit" && dish && <input type="hidden" name="dishId" value={dish.id} />}
 
           {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
@@ -105,7 +105,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
                 name="nameFr"
                 required
                 placeholder="ex : Pot-au-feu maison"
-                defaultValue={entry?.translations.fr.name ?? ""}
+                defaultValue={dish?.translations.fr.name ?? ""}
                 aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
               />
               {state.fieldErrors?.["translations.fr.name"] && (
@@ -119,7 +119,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
               <Textarea
                 id={`${id}-descFr`}
                 name="descriptionFr"
-                defaultValue={entry?.translations.fr.description ?? ""}
+                defaultValue={dish?.translations.fr.description ?? ""}
               />
             </div>
           </fieldset>
@@ -132,7 +132,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
               <Input
                 id={`${id}-nameEn`}
                 name="nameEn"
-                defaultValue={entry?.translations.en.name ?? ""}
+                defaultValue={dish?.translations.en.name ?? ""}
               />
             </div>
             <div className="space-y-1">
@@ -140,7 +140,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
               <Textarea
                 id={`${id}-descEn`}
                 name="descriptionEn"
-                defaultValue={entry?.translations.en.description ?? ""}
+                defaultValue={dish?.translations.en.description ?? ""}
               />
             </div>
           </fieldset>
@@ -159,7 +159,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
                   required
                   className="pr-8"
                   placeholder="0.00"
-                  defaultValue={entry ? (entry.priceCents / 100).toFixed(2) : ""}
+                  defaultValue={dish ? (dish.priceCents / 100).toFixed(2) : ""}
                   aria-invalid={!!state.fieldErrors?.priceEur}
                 />
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -172,7 +172,7 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
             </div>
             <div className="space-y-1">
               <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
-              <Select name="badge" defaultValue={entry?.badge ?? "NONE"}>
+              <Select name="badge" defaultValue={dish?.badge ?? "NONE"}>
                 <SelectTrigger id={`${id}-badge`} className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -229,12 +229,12 @@ export function DailyEntryFormDialog({ mode, entry, open, onOpenChange }: Props)
             )}
           </div>
 
-          {mode === "edit" && entry && (
-            <DailyEntryPhotoEditor
-              entryId={entry.id}
-              initialImagePath={entry.imagePath}
-              initialAltTextFr={entry.altTextFr}
-              initialAltTextEn={entry.altTextEn}
+          {mode === "edit" && dish && (
+            <DailyDishPhotoEditor
+              dishId={dish.id}
+              initialImagePath={dish.imagePath}
+              initialAltTextFr={dish.altTextFr}
+              initialAltTextEn={dish.altTextEn}
             />
           )}
 

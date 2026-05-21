@@ -63,8 +63,13 @@ export class PublishMenu {
     // Daily entries (S3.1) — sérialisées telles quelles dans le snapshot, sans
     // filtrage temporel. Le filtrage `validUntilISO > now()` est appliqué à la
     // lecture par `GetPublicMenu` via le port `Clock` (snapshot immuable, rendu dynamique).
-    const dailyEntries = PlanPolicy.canUseDailyMenu(restaurant.planTier)
-      ? await this.menuRepo.listDailyEntries(input.restaurantId)
+    const dailyDishes = PlanPolicy.canUseDailyDishes(restaurant.planTier)
+      ? await this.menuRepo.listDailyDishes(input.restaurantId)
+      : [];
+
+    // Formules (S3.2) — même logique que les daily entries.
+    const formulas = PlanPolicy.canUseFormulas(restaurant.planTier)
+      ? await this.menuRepo.listFormulas(input.restaurantId)
       : [];
 
     const snapshot = buildPublicSnapshot(
@@ -73,7 +78,8 @@ export class PublishMenu {
       now,
       restaurant.logoPath,
       branding,
-      dailyEntries,
+      dailyDishes,
+      formulas,
     );
 
     await this.snapshotRepo.upsertSnapshot({

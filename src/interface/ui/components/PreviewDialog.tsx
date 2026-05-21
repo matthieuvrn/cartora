@@ -107,8 +107,8 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
             allergenSectionLabel={tAllergen("sectionTitle")}
             allergenLegendTitle={tp("allergenLegendTitle")}
             watermarkText={tp("watermark")}
-            dailyMenuTitle={tp("todayMenu")}
-            dailyMenuDescription={tp("todayMenuDescription")}
+            todaySectionTitle={tp("todayMenu")}
+            todaySectionDescription={tp("todayMenuDescription")}
           />
         </div>
       </DialogContent>

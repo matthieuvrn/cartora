@@ -1,5 +1,5 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
-import type { DailyMenuEntryData, MenuOverview, MenuTemplate } from "./MenuTypes";
+import type { DailyDishData, FormulaData, MenuOverview, MenuTemplate } from "./MenuTypes";
 
 export type PublicMenuItem = {
   nameFr: string;
@@ -19,7 +19,7 @@ export type PublicMenuItem = {
  * mais la lecture publique filtre par `validUntilISO > now()` via `GetPublicMenu` +
  * Clock injecté. Les champs sont à plat (déjà résolus FR/EN) comme `PublicMenuItem`.
  */
-export type PublicMenuDailyItem = {
+export type PublicMenuDailyDish = {
   id: string;
   nameFr: string;
   nameEn: string;
@@ -31,6 +31,22 @@ export type PublicMenuDailyItem = {
   imagePath: string | null;
   altTextFr: string;
   altTextEn: string;
+  validUntilISO: string;
+};
+
+/**
+ * Formule (S3.2) sérialisée dans le snapshot. Pas d'image ni d'allergènes (cf.
+ * `FormulaData`). Composition embarquée dans `descriptionFr/En` (multi-ligne).
+ * Même logique d'expiration que `PublicMenuDailyDish` : `validUntilISO` est conservé
+ * pour le filtrage à la lecture.
+ */
+export type PublicMenuFormula = {
+  id: string;
+  nameFr: string;
+  nameEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  priceCents: number;
   validUntilISO: string;
 };
 
@@ -76,7 +92,13 @@ export type PublicMenuSnapshot = {
    * `validUntilISO > now()` est fait à la lecture par `GetPublicMenu` via le port `Clock`,
    * de sorte que le snapshot reste immuable mais le rendu reflète l'instant courant.
    */
-  dailyItems?: PublicMenuDailyItem[];
+  dailyItems?: PublicMenuDailyDish[];
+  /**
+   * Formules (S3.2). Optionnel pour rétro-compat. Même logique d'expiration et de
+   * filtrage à la lecture que `dailyItems`. Affichées dans la même section "Aujourd'hui"
+   * du menu public, juste sous les plats du jour.
+   */
+  formulas?: PublicMenuFormula[];
 };
 
 export function buildPublicSnapshot(
@@ -85,7 +107,8 @@ export function buildPublicSnapshot(
   publishedAt: string,
   restaurantLogoPath?: string | null,
   branding?: PublicMenuBranding | null,
-  dailyEntries: DailyMenuEntryData[] = [],
+  dailyDishes: DailyDishData[] = [],
+  formulaEntries: FormulaData[] = [],
 ): PublicMenuSnapshot {
   const categories: PublicMenuCategory[] = menu.categories
     .map((category) => ({
@@ -109,7 +132,7 @@ export function buildPublicSnapshot(
 
   const trimmedBranding = trimBranding(branding);
 
-  const dailyItems: PublicMenuDailyItem[] = [...dailyEntries]
+  const dailyItems: PublicMenuDailyDish[] = [...dailyDishes]
     .sort((a, b) => a.order - b.order)
     .map((entry) => ({
       id: entry.id,
@@ -126,6 +149,18 @@ export function buildPublicSnapshot(
       validUntilISO: entry.validUntilISO,
     }));
 
+  const formulas: PublicMenuFormula[] = [...formulaEntries]
+    .sort((a, b) => a.order - b.order)
+    .map((entry) => ({
+      id: entry.id,
+      nameFr: entry.translations.fr.name,
+      nameEn: entry.translations.en.name,
+      descriptionFr: entry.translations.fr.description,
+      descriptionEn: entry.translations.en.description,
+      priceCents: entry.priceCents,
+      validUntilISO: entry.validUntilISO,
+    }));
+
   return {
     restaurantName,
     ...(restaurantLogoPath ? { restaurantLogoPath } : {}),
@@ -134,6 +169,7 @@ export function buildPublicSnapshot(
     template: menu.template,
     ...(trimmedBranding ? { branding: trimmedBranding } : {}),
     ...(dailyItems.length > 0 ? { dailyItems } : {}),
+    ...(formulas.length > 0 ? { formulas } : {}),
   };
 }
 

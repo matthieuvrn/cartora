@@ -5,30 +5,29 @@ import { useTranslations } from "next-intl";
 import { Plus, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import type { DailyMenuEntryData } from "@/domain/menu/MenuTypes";
+import type { FormulaData } from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
-import { DailyEntryCard } from "./DailyEntryCard";
-import { DailyEntryFormDialog } from "./DailyEntryFormDialog";
+import { FormulaCard } from "./FormulaCard";
+import { FormulaFormDialog } from "./FormulaFormDialog";
 
 type Props = {
-  activeEntries: DailyMenuEntryData[];
-  expiredEntries: DailyMenuEntryData[];
+  activeFormulas: FormulaData[];
+  expiredFormulas: FormulaData[];
   planTier: PlanTier;
 };
 
 /**
- * Section "Menu du jour" du dashboard (S3.1). Pile :
- * - tier FREE  → paywall (CTA upgrade vers Starter).
- * - tier ≥ STARTER → liste des entrées actives + bouton "Ajouter" + (si présent) liste des expirées
- *   en bas, grisées, pour permettre suppression manuelle.
+ * Section "Formules" du dashboard (S3.2). Pile identique à `DailyDishesSection` :
+ * paywall si FREE, sinon liste active + bouton "Ajouter" + (si présentes) expirées
+ * en bloc dépliable pour suppression manuelle.
  */
-export function DailyMenuSection({ activeEntries, expiredEntries, planTier }: Props) {
-  const t = useTranslations("Dashboard.dailyMenu");
+export function FormulasSection({ activeFormulas, expiredFormulas, planTier }: Props) {
+  const t = useTranslations("Dashboard.formula");
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
 
-  const allowed = PlanPolicy.canUseDailyMenu(planTier);
+  const allowed = PlanPolicy.canUseFormulas(planTier);
 
   function handleAdd() {
     setCreateKey((k) => k + 1);
@@ -37,8 +36,8 @@ export function DailyMenuSection({ activeEntries, expiredEntries, planTier }: Pr
 
   if (!allowed) {
     return (
-      <section aria-labelledby="daily-menu-section-heading" className="space-y-3">
-        <h2 id="daily-menu-section-heading" className="text-lg font-semibold">
+      <section aria-labelledby="formulas-section-heading" className="space-y-3">
+        <h2 id="formulas-section-heading" className="text-lg font-semibold">
           {t("title")}
         </h2>
         <Alert>
@@ -51,10 +50,10 @@ export function DailyMenuSection({ activeEntries, expiredEntries, planTier }: Pr
   }
 
   return (
-    <section aria-labelledby="daily-menu-section-heading" className="space-y-3">
+    <section aria-labelledby="formulas-section-heading" className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h2 id="daily-menu-section-heading" className="text-lg font-semibold">
+          <h2 id="formulas-section-heading" className="text-lg font-semibold">
             {t("title")}
           </h2>
           <p className="text-sm text-muted-foreground">{t("description")}</p>
@@ -65,29 +64,29 @@ export function DailyMenuSection({ activeEntries, expiredEntries, planTier }: Pr
         </Button>
       </div>
 
-      {activeEntries.length === 0 ? (
+      {activeFormulas.length === 0 ? (
         <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
           {t("empty")}
         </p>
       ) : (
         <ul className="space-y-2" role="list">
-          {activeEntries.map((entry) => (
-            <li key={entry.id}>
-              <DailyEntryCard entry={entry} />
+          {activeFormulas.map((formula) => (
+            <li key={formula.id}>
+              <FormulaCard formula={formula} />
             </li>
           ))}
         </ul>
       )}
 
-      {expiredEntries.length > 0 && (
+      {expiredFormulas.length > 0 && (
         <details className="rounded-lg border bg-muted/40 p-3">
           <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
-            {t("emptyExpired")} ({expiredEntries.length})
+            {t("emptyExpired")} ({expiredFormulas.length})
           </summary>
           <ul className="mt-3 space-y-2" role="list">
-            {expiredEntries.map((entry) => (
-              <li key={entry.id}>
-                <DailyEntryCard entry={entry} isExpired />
+            {expiredFormulas.map((formula) => (
+              <li key={formula.id}>
+                <FormulaCard formula={formula} isExpired />
               </li>
             ))}
           </ul>
@@ -96,7 +95,7 @@ export function DailyMenuSection({ activeEntries, expiredEntries, planTier }: Pr
 
       <p className="text-xs text-muted-foreground italic">{t("publishHint")}</p>
 
-      <DailyEntryFormDialog
+      <FormulaFormDialog
         key={createKey}
         mode="create"
         open={createOpen}

@@ -32,13 +32,17 @@ import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
 import { CreateRestaurantLogoUploadUrl } from "@/application/use-cases/CreateRestaurantLogoUploadUrl";
 import { SetRestaurantLogo } from "@/application/use-cases/SetRestaurantLogo";
 import { DeleteRestaurantLogo } from "@/application/use-cases/DeleteRestaurantLogo";
-import { CreateDailyEntry } from "@/application/use-cases/CreateDailyEntry";
-import { UpdateDailyEntry } from "@/application/use-cases/UpdateDailyEntry";
-import { DeleteDailyEntry } from "@/application/use-cases/DeleteDailyEntry";
-import { ReorderDailyEntries } from "@/application/use-cases/ReorderDailyEntries";
-import { CreateDailyEntryImageUploadUrl } from "@/application/use-cases/CreateDailyEntryImageUploadUrl";
-import { SetDailyEntryImage } from "@/application/use-cases/SetDailyEntryImage";
-import { DeleteDailyEntryImage } from "@/application/use-cases/DeleteDailyEntryImage";
+import { CreateDailyDish } from "@/application/use-cases/CreateDailyDish";
+import { UpdateDailyDish } from "@/application/use-cases/UpdateDailyDish";
+import { DeleteDailyDish } from "@/application/use-cases/DeleteDailyDish";
+import { ReorderDailyDishes } from "@/application/use-cases/ReorderDailyDishes";
+import { CreateDailyDishImageUploadUrl } from "@/application/use-cases/CreateDailyDishImageUploadUrl";
+import { SetDailyDishImage } from "@/application/use-cases/SetDailyDishImage";
+import { DeleteDailyDishImage } from "@/application/use-cases/DeleteDailyDishImage";
+import { CreateFormula } from "@/application/use-cases/CreateFormula";
+import { UpdateFormula } from "@/application/use-cases/UpdateFormula";
+import { DeleteFormula } from "@/application/use-cases/DeleteFormula";
+import { ReorderFormulas } from "@/application/use-cases/ReorderFormulas";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { UpdateBrandColors } from "@/application/use-cases/UpdateBrandColors";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
@@ -149,7 +153,7 @@ const UpdateBrandColorsSchema = z.object({
 });
 
 // Menu du jour (S3.1) — `validUntil` est ISO 8601 UTC. Vide ⇒ default = fin de
-// journée Europe/Paris calculé par DailyMenuPolicy.defaultExpirationISO côté use case.
+// journée Europe/Paris calculé par DailyDishPolicy.defaultExpirationISO côté use case.
 const ValidUntilSchema = z
   .string()
   .min(1)
@@ -158,7 +162,7 @@ const ValidUntilSchema = z
   .transform((v) => (v === "" ? undefined : v))
   .optional();
 
-const CreateDailyEntrySchema = z.object({
+const CreateDailyDishSchema = z.object({
   priceEur: z.coerce
     .number()
     .min(0)
@@ -172,8 +176,8 @@ const CreateDailyEntrySchema = z.object({
   }),
 });
 
-const UpdateDailyEntrySchema = z.object({
-  entryId: z.uuid(),
+const UpdateDailyDishSchema = z.object({
+  dishId: z.uuid(),
   priceEur: z.coerce
     .number()
     .min(0)
@@ -190,28 +194,71 @@ const UpdateDailyEntrySchema = z.object({
   }),
 });
 
-const DeleteDailyEntrySchema = z.object({
-  entryId: z.uuid(),
+const DeleteDailyDishSchema = z.object({
+  dishId: z.uuid(),
 });
 
-const ReorderDailyEntriesSchema = z.object({
+const ReorderDailyDishesSchema = z.object({
   orderedIds: z.array(z.uuid()).min(1),
 });
 
-const CreateDailyEntryImageUploadUrlSchema = z.object({
-  entryId: z.uuid(),
+const CreateDailyDishImageUploadUrlSchema = z.object({
+  dishId: z.uuid(),
   mime: z.enum(ALLOWED_IMAGE_MIME_TYPES),
 });
 
-const SetDailyEntryImageSchema = z.object({
-  entryId: z.uuid(),
+const SetDailyDishImageSchema = z.object({
+  dishId: z.uuid(),
   imagePath: z.string().min(1).max(500),
   altTextFr: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
   altTextEn: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
 });
 
-const DeleteDailyEntryImageSchema = z.object({
-  entryId: z.uuid(),
+const DeleteDailyDishImageSchema = z.object({
+  dishId: z.uuid(),
+});
+
+// Formules (S3.2) — pas de badge ni d'allergens (cf. `FormulaData`). `validUntilISO`
+// obligatoire dès la création (différence vs daily où il est optionnel) : on impose
+// la date au formulaire pour qu'un restaurateur ne crée pas par erreur une formule
+// expirée le jour même.
+const CreateFormulaSchema = z.object({
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
+  validUntilISO: z
+    .string()
+    .min(1)
+    .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const UpdateFormulaSchema = z.object({
+  formulaId: z.uuid(),
+  priceEur: z.coerce
+    .number()
+    .min(0)
+    .max(MAX_PRICE_CENTS / 100),
+  validUntilISO: z
+    .string()
+    .min(1)
+    .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
+  translations: z.object({
+    fr: TranslationSchema,
+    en: TranslationSchema,
+  }),
+});
+
+const DeleteFormulaSchema = z.object({
+  formulaId: z.uuid(),
+});
+
+const ReorderFormulasSchema = z.object({
+  orderedIds: z.array(z.uuid()).min(1),
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -984,13 +1031,13 @@ export async function updateBrandColorsAction(
 
 // ─── Menu du jour (S3.1) ─────────────────────────────────────────────────────
 
-export type DailyEntryActionState = ActionState<{ success?: boolean; entryId?: string }>;
+export type DailyDishActionState = ActionState<{ success?: boolean; dishId?: string }>;
 
-export async function createDailyEntryAction(
-  _prev: DailyEntryActionState,
+export async function createDailyDishAction(
+  _prev: DailyDishActionState,
   formData: FormData,
-): Promise<DailyEntryActionState> {
-  const parsed = CreateDailyEntrySchema.safeParse({
+): Promise<DailyDishActionState> {
+  const parsed = CreateDailyDishSchema.safeParse({
     priceEur: formData.get("priceEur"),
     badge: formData.get("badge") ?? "NONE",
     allergens: formData.getAll("allergens"),
@@ -1012,13 +1059,13 @@ export async function createDailyEntryAction(
   }
 
   const restaurantId = await getAuthenticatedRestaurantId();
-  return withActionContext({ actionName: "createDailyEntry", restaurantId }, async () => {
+  return withActionContext({ actionName: "createDailyDish", restaurantId }, async () => {
     const menuRepo = new PrismaMenuRepository(prisma);
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const clock = new SystemClock();
-    const useCase = new CreateDailyEntry(menuRepo, restaurantRepo, clock);
+    const useCase = new CreateDailyDish(menuRepo, restaurantRepo, clock);
 
-    const { entryId } = await useCase.execute({
+    const { dishId } = await useCase.execute({
       restaurantId,
       priceCents: eurToCents(parsed.data.priceEur),
       badge: parsed.data.badge,
@@ -1028,16 +1075,16 @@ export async function createDailyEntryAction(
     });
 
     revalidatePath("/app");
-    return { error: null, success: true, entryId };
+    return { error: null, success: true, dishId };
   });
 }
 
-export async function updateDailyEntryAction(
-  _prev: DailyEntryActionState,
+export async function updateDailyDishAction(
+  _prev: DailyDishActionState,
   formData: FormData,
-): Promise<DailyEntryActionState> {
-  const parsed = UpdateDailyEntrySchema.safeParse({
-    entryId: formData.get("entryId"),
+): Promise<DailyDishActionState> {
+  const parsed = UpdateDailyDishSchema.safeParse({
+    dishId: formData.get("dishId"),
     priceEur: formData.get("priceEur"),
     badge: formData.get("badge") ?? "NONE",
     allergens: formData.getAll("allergens"),
@@ -1060,15 +1107,15 @@ export async function updateDailyEntryAction(
 
   const restaurantId = await getAuthenticatedRestaurantId();
   return withActionContext(
-    { actionName: "updateDailyEntry", restaurantId, input: { entryId: parsed.data.entryId } },
+    { actionName: "updateDailyDish", restaurantId, input: { dishId: parsed.data.dishId } },
     async () => {
       const menuRepo = new PrismaMenuRepository(prisma);
       const restaurantRepo = new PrismaRestaurantRepository(prisma);
       const clock = new SystemClock();
-      const useCase = new UpdateDailyEntry(menuRepo, restaurantRepo, clock);
+      const useCase = new UpdateDailyDish(menuRepo, restaurantRepo, clock);
 
       await useCase.execute({
-        entryId: parsed.data.entryId,
+        dishId: parsed.data.dishId,
         restaurantId,
         priceCents: eurToCents(parsed.data.priceEur),
         badge: parsed.data.badge,
@@ -1083,12 +1130,12 @@ export async function updateDailyEntryAction(
   );
 }
 
-export async function deleteDailyEntryAction(
-  _prev: DailyEntryActionState,
+export async function deleteDailyDishAction(
+  _prev: DailyDishActionState,
   formData: FormData,
-): Promise<DailyEntryActionState> {
-  const parsed = DeleteDailyEntrySchema.safeParse({
-    entryId: formData.get("entryId"),
+): Promise<DailyDishActionState> {
+  const parsed = DeleteDailyDishSchema.safeParse({
+    dishId: formData.get("dishId"),
   });
 
   if (!parsed.success) {
@@ -1097,23 +1144,23 @@ export async function deleteDailyEntryAction(
 
   const restaurantId = await getAuthenticatedRestaurantId();
   return withActionContext(
-    { actionName: "deleteDailyEntry", restaurantId, input: { entryId: parsed.data.entryId } },
+    { actionName: "deleteDailyDish", restaurantId, input: { dishId: parsed.data.dishId } },
     async () => {
       const menuRepo = new PrismaMenuRepository(prisma);
       const storage = new SupabaseStorageService("item-images");
-      const useCase = new DeleteDailyEntry(menuRepo, storage);
+      const useCase = new DeleteDailyDish(menuRepo, storage);
 
-      await useCase.execute({ entryId: parsed.data.entryId, restaurantId });
+      await useCase.execute({ dishId: parsed.data.dishId, restaurantId });
       revalidatePath("/app");
       return { error: null, success: true };
     },
   );
 }
 
-export async function reorderDailyEntriesAction(
-  _prev: DailyEntryActionState,
+export async function reorderDailyDishesAction(
+  _prev: DailyDishActionState,
   formData: FormData,
-): Promise<DailyEntryActionState> {
+): Promise<DailyDishActionState> {
   const raw = formData.get("orderedIds");
   let orderedIds: unknown = [];
   if (typeof raw === "string") {
@@ -1124,15 +1171,15 @@ export async function reorderDailyEntriesAction(
     }
   }
 
-  const parsed = ReorderDailyEntriesSchema.safeParse({ orderedIds });
+  const parsed = ReorderDailyDishesSchema.safeParse({ orderedIds });
   if (!parsed.success) {
     return { error: VALIDATION_ERROR };
   }
 
   const restaurantId = await getAuthenticatedRestaurantId();
-  return withActionContext({ actionName: "reorderDailyEntries", restaurantId }, async () => {
+  return withActionContext({ actionName: "reorderDailyDishes", restaurantId }, async () => {
     const menuRepo = new PrismaMenuRepository(prisma);
-    const useCase = new ReorderDailyEntries(menuRepo);
+    const useCase = new ReorderDailyDishes(menuRepo);
 
     await useCase.execute({ restaurantId, orderedIds: parsed.data.orderedIds });
 
@@ -1141,22 +1188,22 @@ export async function reorderDailyEntriesAction(
   });
 }
 
-export async function createDailyEntryImageUploadUrlAction(input: {
-  entryId: string;
+export async function createDailyDishImageUploadUrlAction(input: {
+  dishId: string;
   mime: string;
 }): Promise<ImageUploadUrlResult> {
-  const parsed = CreateDailyEntryImageUploadUrlSchema.safeParse(input);
+  const parsed = CreateDailyDishImageUploadUrlSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
 
   try {
     const restaurantId = await getAuthenticatedRestaurantId();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
-    const useCase = new CreateDailyEntryImageUploadUrl(repo, storage);
+    const useCase = new CreateDailyDishImageUploadUrl(repo, storage);
 
     const result = await useCase.execute({
       restaurantId,
-      entryId: parsed.data.entryId,
+      dishId: parsed.data.dishId,
       mime: parsed.data.mime,
     });
 
@@ -1166,31 +1213,31 @@ export async function createDailyEntryImageUploadUrlAction(input: {
       return { ok: false, error: e.code };
     }
     Sentry.captureException(e, {
-      tags: { action: "createDailyEntryImageUploadUrl" },
-      extra: { entryId: parsed.data.entryId, mime: parsed.data.mime },
+      tags: { action: "createDailyDishImageUploadUrl" },
+      extra: { dishId: parsed.data.dishId, mime: parsed.data.mime },
     });
     return { ok: false, error: "generic" };
   }
 }
 
-export async function setDailyEntryImageAction(input: {
-  entryId: string;
+export async function setDailyDishImageAction(input: {
+  dishId: string;
   imagePath: string;
   altTextFr?: string;
   altTextEn?: string;
 }): Promise<ImageMutationResult> {
-  const parsed = SetDailyEntryImageSchema.safeParse(input);
+  const parsed = SetDailyDishImageSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
 
   try {
     const restaurantId = await getAuthenticatedRestaurantId();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
-    const useCase = new SetDailyEntryImage(repo, storage);
+    const useCase = new SetDailyDishImage(repo, storage);
 
     await useCase.execute({
       restaurantId,
-      entryId: parsed.data.entryId,
+      dishId: parsed.data.dishId,
       imagePath: parsed.data.imagePath,
       altTextFr: parsed.data.altTextFr,
       altTextEn: parsed.data.altTextEn,
@@ -1203,26 +1250,26 @@ export async function setDailyEntryImageAction(input: {
       return { ok: false, error: e.code };
     }
     Sentry.captureException(e, {
-      tags: { action: "setDailyEntryImage" },
-      extra: { entryId: parsed.data.entryId },
+      tags: { action: "setDailyDishImage" },
+      extra: { dishId: parsed.data.dishId },
     });
     return { ok: false, error: "generic" };
   }
 }
 
-export async function deleteDailyEntryImageAction(input: {
-  entryId: string;
+export async function deleteDailyDishImageAction(input: {
+  dishId: string;
 }): Promise<ImageMutationResult> {
-  const parsed = DeleteDailyEntryImageSchema.safeParse(input);
+  const parsed = DeleteDailyDishImageSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
 
   try {
     const restaurantId = await getAuthenticatedRestaurantId();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
-    const useCase = new DeleteDailyEntryImage(repo, storage);
+    const useCase = new DeleteDailyDishImage(repo, storage);
 
-    await useCase.execute({ restaurantId, entryId: parsed.data.entryId });
+    await useCase.execute({ restaurantId, dishId: parsed.data.dishId });
 
     revalidatePath("/app");
     return { ok: true };
@@ -1231,9 +1278,159 @@ export async function deleteDailyEntryImageAction(input: {
       return { ok: false, error: e.code };
     }
     Sentry.captureException(e, {
-      tags: { action: "deleteDailyEntryImage" },
-      extra: { entryId: parsed.data.entryId },
+      tags: { action: "deleteDailyDishImage" },
+      extra: { dishId: parsed.data.dishId },
     });
     return { ok: false, error: "generic" };
   }
+}
+
+// ─── Formules (S3.2) ─────────────────────────────────────────────────────────
+
+export type FormulaActionState = ActionState<{ success?: boolean; formulaId?: string }>;
+
+export async function createFormulaAction(
+  _prev: FormulaActionState,
+  formData: FormData,
+): Promise<FormulaActionState> {
+  const parsed = CreateFormulaSchema.safeParse({
+    priceEur: formData.get("priceEur"),
+    validUntilISO: formData.get("validUntilISO") ?? "",
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "createFormula", restaurantId }, async () => {
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const clock = new SystemClock();
+    const useCase = new CreateFormula(menuRepo, restaurantRepo, clock);
+
+    const { formulaId } = await useCase.execute({
+      restaurantId,
+      priceCents: eurToCents(parsed.data.priceEur),
+      validUntilISO: parsed.data.validUntilISO,
+      translations: parsed.data.translations,
+    });
+
+    revalidatePath("/app");
+    return { error: null, success: true, formulaId };
+  });
+}
+
+export async function updateFormulaAction(
+  _prev: FormulaActionState,
+  formData: FormData,
+): Promise<FormulaActionState> {
+  const parsed = UpdateFormulaSchema.safeParse({
+    formulaId: formData.get("formulaId"),
+    priceEur: formData.get("priceEur"),
+    validUntilISO: formData.get("validUntilISO") ?? "",
+    translations: {
+      fr: {
+        name: formData.get("nameFr") ?? "",
+        description: formData.get("descriptionFr") ?? "",
+      },
+      en: {
+        name: formData.get("nameEn") ?? "",
+        description: formData.get("descriptionEn") ?? "",
+      },
+    },
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "updateFormula", restaurantId, input: { formulaId: parsed.data.formulaId } },
+    async () => {
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const restaurantRepo = new PrismaRestaurantRepository(prisma);
+      const clock = new SystemClock();
+      const useCase = new UpdateFormula(menuRepo, restaurantRepo, clock);
+
+      await useCase.execute({
+        formulaId: parsed.data.formulaId,
+        restaurantId,
+        priceCents: eurToCents(parsed.data.priceEur),
+        validUntilISO: parsed.data.validUntilISO,
+        translations: parsed.data.translations,
+      });
+
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
+}
+
+export async function deleteFormulaAction(
+  _prev: FormulaActionState,
+  formData: FormData,
+): Promise<FormulaActionState> {
+  const parsed = DeleteFormulaSchema.safeParse({
+    formulaId: formData.get("formulaId"),
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "deleteFormula", restaurantId, input: { formulaId: parsed.data.formulaId } },
+    async () => {
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const useCase = new DeleteFormula(menuRepo);
+
+      await useCase.execute({ formulaId: parsed.data.formulaId, restaurantId });
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
+}
+
+export async function reorderFormulasAction(
+  _prev: FormulaActionState,
+  formData: FormData,
+): Promise<FormulaActionState> {
+  const raw = formData.get("orderedIds");
+  let orderedIds: unknown = [];
+  if (typeof raw === "string") {
+    try {
+      orderedIds = JSON.parse(raw);
+    } catch {
+      return { error: VALIDATION_ERROR };
+    }
+  }
+
+  const parsed = ReorderFormulasSchema.safeParse({ orderedIds });
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "reorderFormulas", restaurantId }, async () => {
+    const menuRepo = new PrismaMenuRepository(prisma);
+    const useCase = new ReorderFormulas(menuRepo);
+
+    await useCase.execute({ restaurantId, orderedIds: parsed.data.orderedIds });
+
+    revalidatePath("/app");
+    return { error: null, success: true };
+  });
 }

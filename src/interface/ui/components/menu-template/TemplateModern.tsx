@@ -25,8 +25,10 @@ type Props = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
-  dailyMenuTitle: string;
-  dailyMenuDescription?: string;
+  todaySectionTitle: string;
+  todaySectionDescription?: string;
+  todaySectionDishesSubtitle?: string;
+  todaySectionFormulasSubtitle?: string;
 };
 
 const badgeConfig: Record<
@@ -67,8 +69,10 @@ export function TemplateModern({
   allergenSectionLabel,
   allergenLegendTitle,
   watermarkText,
-  dailyMenuTitle,
-  dailyMenuDescription,
+  todaySectionTitle,
+  todaySectionDescription,
+  todaySectionDishesSubtitle,
+  todaySectionFormulasSubtitle,
 }: Props) {
   const presentAllergens = new Set<Allergen>();
   for (const daily of snapshot.dailyItems ?? []) {
@@ -121,35 +125,98 @@ export function TemplateModern({
           </h1>
         </header>
 
-        {snapshot.dailyItems && snapshot.dailyItems.length > 0 && (
-          <section aria-labelledby="daily-menu-heading" className="mb-10">
-            <div className="mb-4">
-              <span
-                id="daily-menu-heading"
-                className="inline-block rounded-full px-4 py-1.5 text-sm font-bold tracking-wide text-white"
-                style={{ backgroundColor: "var(--brand-primary, #ea580c)" }}
-              >
-                {dailyMenuTitle}
-              </span>
-              {dailyMenuDescription && (
-                <p className="mt-1 text-xs text-zinc-600">{dailyMenuDescription}</p>
-              )}
-            </div>
-            <ul className="space-y-4" role="list">
-              {snapshot.dailyItems.map((item, index) => (
-                <ModernItemCard
-                  key={item.id}
-                  item={item}
-                  locale={locale}
-                  badgeLabels={badgeLabels}
-                  allergenLabels={allergenLabels}
-                  allergenSectionLabel={allergenSectionLabel}
-                  priority={index === firstDailyPhotoIndex}
-                />
-              ))}
-            </ul>
-          </section>
-        )}
+        {((snapshot.dailyItems && snapshot.dailyItems.length > 0) ||
+          (snapshot.formulas && snapshot.formulas.length > 0)) &&
+          (() => {
+            const hasDishes = !!(snapshot.dailyItems && snapshot.dailyItems.length > 0);
+            const hasFormulas = !!(snapshot.formulas && snapshot.formulas.length > 0);
+            const showSubtitles = hasDishes && hasFormulas;
+            return (
+              <section aria-labelledby="daily-menu-heading" className="mb-10">
+                <div className="mb-4">
+                  <span
+                    id="daily-menu-heading"
+                    className="inline-block rounded-full px-4 py-1.5 text-sm font-bold tracking-wide text-white"
+                    style={{ backgroundColor: "var(--brand-primary, #ea580c)" }}
+                  >
+                    {todaySectionTitle}
+                  </span>
+                  {todaySectionDescription && (
+                    <p className="mt-1 text-xs text-zinc-600">{todaySectionDescription}</p>
+                  )}
+                </div>
+                {hasDishes && (
+                  <>
+                    {showSubtitles && todaySectionDishesSubtitle && (
+                      <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        {todaySectionDishesSubtitle}
+                      </h3>
+                    )}
+                    <ul className="space-y-4" role="list">
+                      {snapshot.dailyItems!.map((item, index) => (
+                        <ModernItemCard
+                          key={item.id}
+                          item={item}
+                          locale={locale}
+                          badgeLabels={badgeLabels}
+                          allergenLabels={allergenLabels}
+                          allergenSectionLabel={allergenSectionLabel}
+                          priority={index === firstDailyPhotoIndex}
+                        />
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {hasFormulas && (
+                  <>
+                    {showSubtitles && todaySectionFormulasSubtitle && (
+                      <h3 className="mb-2 mt-4 text-xs font-bold uppercase tracking-wider text-zinc-500">
+                        {todaySectionFormulasSubtitle}
+                      </h3>
+                    )}
+                    <ul
+                      className={`space-y-3 ${hasDishes && !showSubtitles ? "mt-4" : ""}`}
+                      role="list"
+                    >
+                      {snapshot.formulas!.map((formula) => {
+                        const name =
+                          locale === "fr" ? formula.nameFr : formula.nameEn || formula.nameFr;
+                        const desc =
+                          locale === "fr"
+                            ? formula.descriptionFr
+                            : formula.descriptionEn || formula.descriptionFr;
+                        return (
+                          <li
+                            key={formula.id}
+                            className="rounded-2xl border-2 border-dashed p-4"
+                            style={{ borderColor: "var(--brand-primary, #ea580c)" }}
+                          >
+                            <div className="flex items-baseline justify-between gap-3">
+                              <h3 className="font-bold">{name}</h3>
+                              <span
+                                className="text-base font-extrabold tabular-nums"
+                                style={{ color: "var(--brand-primary, #ea580c)" }}
+                              >
+                                {new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+                                  style: "currency",
+                                  currency: "EUR",
+                                }).format(formula.priceCents / 100)}
+                              </span>
+                            </div>
+                            {desc && (
+                              <p className="mt-1 whitespace-pre-line text-sm text-zinc-700">
+                                {desc}
+                              </p>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+                )}
+              </section>
+            );
+          })()}
 
         <div className="space-y-10">
           {snapshot.categories.map((category) => (

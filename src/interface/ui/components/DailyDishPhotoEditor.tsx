@@ -14,14 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  createDailyEntryImageUploadUrlAction,
-  deleteDailyEntryImageAction,
-  setDailyEntryImageAction,
+  createDailyDishImageUploadUrlAction,
+  deleteDailyDishImageAction,
+  setDailyDishImageAction,
 } from "@/app/(app)/app/actions";
 import { itemImageUrl } from "@/lib/storage-url";
 
 type Props = {
-  entryId: string;
+  dishId: string;
   initialImagePath: string | null;
   initialAltTextFr: string | null;
   initialAltTextEn: string | null;
@@ -29,11 +29,11 @@ type Props = {
 
 /**
  * Photo editor pour un plat du jour (S3.1). Calque sur `ItemPhotoEditor` mais
- * appelle les actions `*DailyEntryImage*`. Le bucket Supabase est le même
+ * appelle les actions ``*DailyDishImage*``. Le bucket Supabase est le même
  * (`item-images`) avec un sous-chemin `daily/`.
  */
-export function DailyEntryPhotoEditor({
-  entryId,
+export function DailyDishPhotoEditor({
+  dishId,
   initialImagePath,
   initialAltTextFr,
   initialAltTextEn,
@@ -65,8 +65,8 @@ export function DailyEntryPhotoEditor({
 
     setIsUploading(true);
     try {
-      const signed = await createDailyEntryImageUploadUrlAction({
-        entryId,
+      const signed = await createDailyDishImageUploadUrlAction({
+        dishId,
         mime: file.type as AllowedImageMime,
       });
       if (!signed.ok) {
@@ -84,8 +84,8 @@ export function DailyEntryPhotoEditor({
         return;
       }
 
-      const persisted = await setDailyEntryImageAction({
-        entryId,
+      const persisted = await setDailyDishImageAction({
+        dishId,
         imagePath: signed.path,
         altTextFr: altFr.trim() || undefined,
         altTextEn: altEn.trim() || undefined,
@@ -107,7 +107,7 @@ export function DailyEntryPhotoEditor({
   function onDelete() {
     setError(null);
     startDeleting(async () => {
-      const result = await deleteDailyEntryImageAction({ entryId });
+      const result = await deleteDailyDishImageAction({ dishId });
       if (!result.ok) {
         setError(t("error.generic"));
         return;
@@ -122,8 +122,8 @@ export function DailyEntryPhotoEditor({
     if (!imagePath) return;
     setError(null);
     startSavingAlt(async () => {
-      const result = await setDailyEntryImageAction({
-        entryId,
+      const result = await setDailyDishImageAction({
+        dishId,
         imagePath,
         altTextFr: altFr.trim() || undefined,
         altTextEn: altEn.trim() || undefined,

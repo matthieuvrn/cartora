@@ -124,15 +124,27 @@ describe("PlanPolicy", () => {
     });
   });
 
-  describe("canUseDailyMenu (S3.1)", () => {
+  describe("canUseDailyDishes (S3.1)", () => {
     it("forbids FREE", () => {
-      expect(PlanPolicy.canUseDailyMenu("FREE")).toBe(false);
+      expect(PlanPolicy.canUseDailyDishes("FREE")).toBe(false);
     });
     it("allows STARTER", () => {
-      expect(PlanPolicy.canUseDailyMenu("STARTER")).toBe(true);
+      expect(PlanPolicy.canUseDailyDishes("STARTER")).toBe(true);
     });
     it("allows PRO", () => {
-      expect(PlanPolicy.canUseDailyMenu("PRO")).toBe(true);
+      expect(PlanPolicy.canUseDailyDishes("PRO")).toBe(true);
+    });
+  });
+
+  describe("canUseFormulas (S3.2)", () => {
+    it("forbids FREE", () => {
+      expect(PlanPolicy.canUseFormulas("FREE")).toBe(false);
+    });
+    it("allows STARTER", () => {
+      expect(PlanPolicy.canUseFormulas("STARTER")).toBe(true);
+    });
+    it("allows PRO", () => {
+      expect(PlanPolicy.canUseFormulas("PRO")).toBe(true);
     });
   });
 

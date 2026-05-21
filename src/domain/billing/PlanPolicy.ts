@@ -75,7 +75,17 @@ export class PlanPolicy {
    * une friction injustifiée pour un STARTER qui peut déjà publier. FREE seul
    * est exclu (de toute façon, FREE ne peut pas publier — `canPublish` filtre déjà).
    */
-  static canUseDailyMenu(tier: PlanTier): boolean {
+  static canUseDailyDishes(tier: PlanTier): boolean {
+    return tier === "STARTER" || tier === "PRO";
+  }
+
+  /**
+   * Formules de menu (S3.2) — accessible à partir de STARTER, même justification
+   * que `canUseDailyDishes` : feature culturellement standard en restauration FR
+   * (menu du midi, brunch, menu enfant). Bloquer derrière PRO créerait une friction
+   * injustifiée pour un STARTER qui peut déjà publier sa carte.
+   */
+  static canUseFormulas(tier: PlanTier): boolean {
     return tier === "STARTER" || tier === "PRO";
   }
 

@@ -187,14 +187,14 @@
     "deleteAccountConfirmLabel": "Type {word} to confirm",
     "deleteAccountConfirmButton": "Delete permanently",
     "deleteAccountError": "An error occurred while deleting your account.",
-    "dailyMenu": {
-      "title": "Today's specials",
-      "description": "Add an exclusive dish for today. Displayed at the top of your public menu until it expires.",
-      "add": "Add today's special",
+    "dailyDishes": {
+      "title": "Today's dishes",
+      "description": "Add an exclusive dish for today. Shown in the \"Today\" section of your public menu until it expires.",
+      "add": "Add today's dish",
       "edit": "Edit dish",
       "delete": "Delete dish",
-      "empty": "No specials yet.",
-      "emptyExpired": "All your specials have expired.",
+      "empty": "No dishes yet.",
+      "emptyExpired": "All your dishes have expired.",
       "expiresAt": "Expires {date} at {time}",
       "expired": "Expired",
       "validUntilLabel": "Expiration",
@@ -205,6 +205,33 @@
       },
       "deleteConfirm": "Delete this special?",
       "publishHint": "Re-publish your menu so new specials appear publicly."
+    },
+    "formula": {
+      "title": "Combo menus",
+      "description": "Create a combo (lunch deal, brunch…) shown in the \"Today\" section of your public menu.",
+      "add": "Add a combo",
+      "edit": "Edit combo",
+      "delete": "Delete combo",
+      "empty": "No combos yet.",
+      "emptyExpired": "All your combos have expired.",
+      "expiresAt": "Expires {date} at {time}",
+      "expired": "Expired",
+      "validUntilLabel": "Expiration",
+      "validUntilHint": "Defaults to end of day (Paris time).",
+      "nameLabel": "Name",
+      "namePlaceholder": "Lunch menu",
+      "compositionLabel": "Composition",
+      "compositionHint": "One component per line (e.g. \"Starter of your choice\").",
+      "compositionPlaceholder": "Starter of your choice\nMain dish\nCoffee",
+      "priceLabel": "Price (€)",
+      "nameEnLabel": "Name (English)",
+      "compositionEnLabel": "Composition (English)",
+      "paywall": {
+        "title": "Available from the Starter plan",
+        "description": "Upgrade to Starter or Pro to create flat-rate combo menus."
+      },
+      "deleteConfirm": "Delete this combo?",
+      "publishHint": "Re-publish your menu so new combos appear publicly."
     }
   },
   "PublicMenu": {
@@ -213,7 +240,9 @@
       "POPULAR": "Popular"
     },
     "todayMenu": "Today",
-    "todayMenuDescription": "Specials available today",
+    "todayMenuDescription": "Today's dishes and combos",
+    "todaySectionDishesSubtitle": "Today's dishes",
+    "todaySectionFormulasSubtitle": "Combos",
     "notFound": "Menu not found",
     "notFoundDescription": "This menu does not exist or has not been published yet.",
     "unavailable": "Menu unavailable",
@@ -437,9 +466,12 @@
     "branding_not_allowed": "Color customization requires the PRO plan",
     "invalid_brand_color": "Invalid color (expected format: #RRGGBB)",
     "low_brand_contrast": "Insufficient contrast between the primary color and the background (WCAG AA not met)",
-    "daily_menu_not_allowed": "Today's specials require the Starter or PRO plan",
-    "daily_until_in_past": "Expiration must be in the future",
-    "daily_until_too_far": "Expiration cannot be more than 14 days away"
+    "daily_dishes_not_allowed": "Today's specials require the Starter or PRO plan",
+    "daily_dish_until_in_past": "Expiration must be in the future",
+    "daily_dish_until_too_far": "Expiration cannot be more than 14 days away",
+    "formula_not_allowed": "Combo menus require the Starter or PRO plan",
+    "formula_until_in_past": "Expiration must be in the future",
+    "formula_until_too_far": "Expiration cannot be more than 14 days away"
   },
   "Settings": {
     "title": "Settings",

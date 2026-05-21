@@ -23,7 +23,8 @@ import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
 import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
-import { ListActiveDailyEntries } from "@/application/use-cases/ListActiveDailyEntries";
+import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDishes";
+import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
 import { Button } from "@/components/ui/button";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
@@ -99,8 +100,11 @@ export default async function AppPage({
   const getRealtimeStats = new GetRealtimeStats(analyticsRepo, clock);
   const realtimeStats = await getRealtimeStats.execute({ restaurantId });
 
-  const listDailyEntries = new ListActiveDailyEntries(menuRepo, clock);
-  const dailyEntries = await listDailyEntries.execute({ restaurantId });
+  const listDailyDishes = new ListActiveDailyDishes(menuRepo, clock);
+  const dailyDishes = await listDailyDishes.execute({ restaurantId });
+
+  const listFormulas = new ListActiveFormulas(menuRepo, clock);
+  const formulas = await listFormulas.execute({ restaurantId });
 
   const totalItems = menu.categories.reduce((acc, c) => acc + c.items.length, 0);
   const checklist =
@@ -156,7 +160,8 @@ export default async function AppPage({
           realtimeStats={realtimeStats}
           activationChecklist={checklist}
           dismissActivationAction={dismissActivationChecklistAction}
-          dailyEntries={dailyEntries}
+          dailyDishes={dailyDishes}
+          formulas={formulas}
         />
 
         <div className="mt-16 border-t pt-8">

@@ -1,4 +1,9 @@
-import type { DailyMenuEntryData, MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
+import type {
+  DailyDishData,
+  FormulaData,
+  MenuOverview,
+  MenuTemplate,
+} from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
 
 // Note : la détection des collisions de nom passe désormais par
@@ -116,17 +121,17 @@ export interface MenuRepository {
   /**
    * Liste TOUTES les daily entries du restaurant, triées par `order` croissant.
    * Le filtrage `validUntil > now()` n'est PAS fait ici — l'appelant (use case)
-   * passe le résultat à `DailyMenuPolicy.isActive` avec un `Clock` injecté.
+   * passe le résultat à `DailyDishPolicy.isActive` avec un `Clock` injecté.
    */
-  listDailyEntries(restaurantId: string): Promise<DailyMenuEntryData[]>;
+  listDailyDishes(restaurantId: string): Promise<DailyDishData[]>;
 
   /** Retourne null si l'entrée n'existe pas ou ne lui appartient pas. */
-  getDailyEntry(params: {
-    entryId: string;
+  getDailyDish(params: {
+    dishId: string;
     restaurantId: string;
   }): Promise<{ imagePath: string | null } | null>;
 
-  createDailyEntry(params: {
+  createDailyDish(params: {
     restaurantId: string;
     menuId: string;
     priceCents: number;
@@ -140,8 +145,8 @@ export interface MenuRepository {
     };
   }): Promise<{ id: string }>;
 
-  updateDailyEntry(params: {
-    entryId: string;
+  updateDailyDish(params: {
+    dishId: string;
     restaurantId: string;
     priceCents: number;
     badge: ItemBadge;
@@ -153,18 +158,60 @@ export interface MenuRepository {
     };
   }): Promise<void>;
 
-  updateDailyEntryImage(params: {
-    entryId: string;
+  updateDailyDishImage(params: {
+    dishId: string;
     restaurantId: string;
     imagePath: string | null;
     altTextFr: string | null;
     altTextEn: string | null;
   }): Promise<void>;
 
-  deleteDailyEntry(params: { entryId: string; restaurantId: string }): Promise<void>;
+  deleteDailyDish(params: { dishId: string; restaurantId: string }): Promise<void>;
 
-  reorderDailyEntries(params: { restaurantId: string; orderedIds: string[] }): Promise<void>;
+  reorderDailyDishes(params: { restaurantId: string; orderedIds: string[] }): Promise<void>;
 
   /** Nombre de daily entries du restaurant — utilisé pour l'ordre d'insertion. */
-  getNextDailyEntryOrder(restaurantId: string): Promise<number>;
+  getNextDailyDishOrder(restaurantId: string): Promise<number>;
+
+  // ─ Formules (S3.2) ─────────────────────────────────────────────────────────
+
+  /**
+   * Liste TOUTES les formules du restaurant, triées par `order` croissant.
+   * Pas de filtrage `validUntil > now()` ici — le use case applique
+   * `FormulaPolicy.isActive` avec un `Clock` injecté (cf. daily entries).
+   */
+  listFormulas(restaurantId: string): Promise<FormulaData[]>;
+
+  /** Retourne null si la formule n'existe pas ou ne lui appartient pas. */
+  getFormula(params: { formulaId: string; restaurantId: string }): Promise<{ id: string } | null>;
+
+  createFormula(params: {
+    restaurantId: string;
+    menuId: string;
+    priceCents: number;
+    validUntilISO: string;
+    order: number;
+    translations: {
+      fr: { name: string; description: string };
+      en: { name: string; description: string };
+    };
+  }): Promise<{ id: string }>;
+
+  updateFormula(params: {
+    formulaId: string;
+    restaurantId: string;
+    priceCents: number;
+    validUntilISO: string;
+    translations: {
+      fr: { name: string; description: string };
+      en: { name: string; description: string };
+    };
+  }): Promise<void>;
+
+  deleteFormula(params: { formulaId: string; restaurantId: string }): Promise<void>;
+
+  reorderFormulas(params: { restaurantId: string; orderedIds: string[] }): Promise<void>;
+
+  /** Nombre de formules du restaurant — utilisé pour l'ordre d'insertion. */
+  getNextFormulaOrder(restaurantId: string): Promise<number>;
 }

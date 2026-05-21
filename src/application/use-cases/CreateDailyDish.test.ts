@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { CreateDailyEntry } from "./CreateDailyEntry";
+import { CreateDailyDish } from "./CreateDailyDish";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { Clock } from "@/application/ports/Clock";
@@ -45,17 +45,17 @@ const VALID_INPUT = {
   translations: { fr: { name: "Pot-au-feu", description: "Plat mijoté" } },
 };
 
-describe("CreateDailyEntry", () => {
-  it("persists a new daily entry for a STARTER restaurant", async () => {
-    const createDailyEntry = vi.fn(async () => ({ id: "daily-1" }));
+describe("CreateDailyDish", () => {
+  it("persists a new daily dish for a STARTER restaurant", async () => {
+    const createDailyDish = vi.fn(async () => ({ id: "daily-1" }));
     const markMenuAsDraft = vi.fn(async () => {});
-    const menuRepo = createMockMenuRepo({ createDailyEntry, markMenuAsDraft });
-    const uc = new CreateDailyEntry(menuRepo, createMockRestaurantRepo("STARTER"), clock);
+    const menuRepo = createMockMenuRepo({ createDailyDish, markMenuAsDraft });
+    const uc = new CreateDailyDish(menuRepo, createMockRestaurantRepo("STARTER"), clock);
 
     const result = await uc.execute(VALID_INPUT);
 
-    expect(result.entryId).toBe("daily-1");
-    expect(createDailyEntry).toHaveBeenCalledWith(
+    expect(result.dishId).toBe("daily-1");
+    expect(createDailyDish).toHaveBeenCalledWith(
       expect.objectContaining({
         restaurantId: "resto-1",
         menuId: "menu-1",
@@ -68,29 +68,29 @@ describe("CreateDailyEntry", () => {
   });
 
   it("defaults validUntil to end-of-day Europe/Paris when omitted", async () => {
-    const createDailyEntry = vi.fn(async () => ({ id: "daily-1" }));
-    const menuRepo = createMockMenuRepo({ createDailyEntry });
-    const uc = new CreateDailyEntry(menuRepo, createMockRestaurantRepo("PRO"), clock);
+    const createDailyDish = vi.fn(async () => ({ id: "daily-1" }));
+    const menuRepo = createMockMenuRepo({ createDailyDish });
+    const uc = new CreateDailyDish(menuRepo, createMockRestaurantRepo("PRO"), clock);
 
     await uc.execute(VALID_INPUT);
 
     // FIXED_NOW = 2026-05-17 12:00 UTC = 14:00 Paris (CEST). Fin de journée Paris = 21:59:59.999 UTC.
-    expect(createDailyEntry).toHaveBeenCalledWith(
+    expect(createDailyDish).toHaveBeenCalledWith(
       expect.objectContaining({ validUntilISO: "2026-05-17T21:59:59.999Z" }),
     );
   });
 
-  it("rejects FREE tier with daily_menu_not_allowed", async () => {
-    const uc = new CreateDailyEntry(createMockMenuRepo(), createMockRestaurantRepo("FREE"), clock);
+  it("rejects FREE tier with daily_dishes_not_allowed", async () => {
+    const uc = new CreateDailyDish(createMockMenuRepo(), createMockRestaurantRepo("FREE"), clock);
 
     await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
       name: "DomainError",
-      code: "daily_menu_not_allowed",
+      code: "daily_dishes_not_allowed",
     });
   });
 
   it("rejects when validUntilISO is in the past", async () => {
-    const uc = new CreateDailyEntry(
+    const uc = new CreateDailyDish(
       createMockMenuRepo(),
       createMockRestaurantRepo("STARTER"),
       clock,
@@ -98,11 +98,11 @@ describe("CreateDailyEntry", () => {
 
     await expect(
       uc.execute({ ...VALID_INPUT, validUntilISO: "2026-05-17T11:00:00.000Z" }),
-    ).rejects.toMatchObject({ name: "DomainError", code: "daily_until_in_past" });
+    ).rejects.toMatchObject({ name: "DomainError", code: "daily_dish_until_in_past" });
   });
 
   it("rejects when name is empty", async () => {
-    const uc = new CreateDailyEntry(
+    const uc = new CreateDailyDish(
       createMockMenuRepo(),
       createMockRestaurantRepo("STARTER"),
       clock,

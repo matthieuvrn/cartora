@@ -3,7 +3,7 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { Allergen } from "@/domain/menu/ItemPolicy";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
-import { DailyMenuSection } from "./DailyMenuSection";
+import { TodaySection } from "./TodaySection";
 import { Watermark } from "./Watermark";
 import { AllergenLegend } from "../AllergenLegend";
 import type { AllergenLabels } from "../AllergenIcons";
@@ -25,8 +25,10 @@ type Props = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
-  dailyMenuTitle: string;
-  dailyMenuDescription?: string;
+  todaySectionTitle: string;
+  todaySectionDescription?: string;
+  todaySectionDishesSubtitle?: string;
+  todaySectionFormulasSubtitle?: string;
 };
 
 export function TemplateClassic({
@@ -38,8 +40,10 @@ export function TemplateClassic({
   allergenSectionLabel,
   allergenLegendTitle,
   watermarkText,
-  dailyMenuTitle,
-  dailyMenuDescription,
+  todaySectionTitle,
+  todaySectionDescription,
+  todaySectionDishesSubtitle,
+  todaySectionFormulasSubtitle,
 }: Props) {
   const presentAllergens = new Set<Allergen>();
   // Les allergens des daily items doivent aussi alimenter la légende
@@ -89,12 +93,16 @@ export function TemplateClassic({
       >
         {snapshot.restaurantName}
       </h1>
-      {snapshot.dailyItems && snapshot.dailyItems.length > 0 && (
-        <DailyMenuSection
-          items={snapshot.dailyItems}
+      {((snapshot.dailyItems && snapshot.dailyItems.length > 0) ||
+        (snapshot.formulas && snapshot.formulas.length > 0)) && (
+        <TodaySection
+          items={snapshot.dailyItems ?? []}
+          formulas={snapshot.formulas ?? []}
           locale={locale}
-          title={dailyMenuTitle}
-          description={dailyMenuDescription}
+          title={todaySectionTitle}
+          description={todaySectionDescription}
+          dishesSubtitle={todaySectionDishesSubtitle}
+          formulasSubtitle={todaySectionFormulasSubtitle}
           badgeLabels={badgeLabels}
           allergenLabels={allergenLabels}
           allergenSectionLabel={allergenSectionLabel}

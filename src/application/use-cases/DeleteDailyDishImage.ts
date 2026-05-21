@@ -2,23 +2,23 @@ import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { StorageService } from "@/application/ports/StorageService";
 import { DomainError } from "@/domain/errors/DomainError";
 
-export type DeleteDailyEntryImageInput = {
+export type DeleteDailyDishImageInput = {
   restaurantId: string;
-  entryId: string;
+  dishId: string;
 };
 
-export class DeleteDailyEntryImage {
+export class DeleteDailyDishImage {
   constructor(
     private readonly repo: MenuRepository,
     private readonly storage: StorageService,
   ) {}
 
-  async execute(input: DeleteDailyEntryImageInput): Promise<void> {
-    const entry = await this.repo.getDailyEntry({
-      entryId: input.entryId,
+  async execute(input: DeleteDailyDishImageInput): Promise<void> {
+    const entry = await this.repo.getDailyDish({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
     });
-    if (!entry) throw new DomainError("item_not_found", { entityId: input.entryId });
+    if (!entry) throw new DomainError("item_not_found", { entityId: input.dishId });
 
     if (entry.imagePath) {
       try {
@@ -28,8 +28,8 @@ export class DeleteDailyEntryImage {
       }
     }
 
-    await this.repo.updateDailyEntryImage({
-      entryId: input.entryId,
+    await this.repo.updateDailyDishImage({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
       imagePath: null,
       altTextFr: null,

@@ -4,7 +4,7 @@ import { startTransition, useActionState, useCallback } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
-import type { DailyMenuEntryData, MenuOverview } from "@/domain/menu/MenuTypes";
+import type { DailyDishData, FormulaData, MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
@@ -20,7 +20,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
 import { CategorySection } from "./CategorySection";
-import { DailyMenuSection } from "./DailyMenuSection";
+import { DailyDishesSection } from "./DailyDishesSection";
+import { FormulasSection } from "./FormulasSection";
 import { EditableRestaurantName } from "./EditableRestaurantName";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
@@ -45,7 +46,8 @@ type Props = {
   realtimeStats?: RealtimeStats;
   activationChecklist: ActivationChecklist | null;
   dismissActivationAction: () => Promise<void>;
-  dailyEntries: { active: DailyMenuEntryData[]; expired: DailyMenuEntryData[] };
+  dailyDishes: { active: DailyDishData[]; expired: DailyDishData[] };
+  formulas: { active: FormulaData[]; expired: FormulaData[] };
 };
 
 export function MenuDashboard({
@@ -63,7 +65,8 @@ export function MenuDashboard({
   realtimeStats,
   activationChecklist,
   dismissActivationAction,
-  dailyEntries,
+  dailyDishes,
+  formulas,
 }: Props) {
   const t = useTranslations("Dashboard");
 
@@ -157,9 +160,15 @@ export function MenuDashboard({
 
       <StatsCard stats={stats} realtimeStats={realtimeStats} />
 
-      <DailyMenuSection
-        activeEntries={dailyEntries.active}
-        expiredEntries={dailyEntries.expired}
+      <DailyDishesSection
+        activeDishes={dailyDishes.active}
+        expiredDishes={dailyDishes.expired}
+        planTier={planTier}
+      />
+
+      <FormulasSection
+        activeFormulas={formulas.active}
+        expiredFormulas={formulas.expired}
         planTier={planTier}
       />
 

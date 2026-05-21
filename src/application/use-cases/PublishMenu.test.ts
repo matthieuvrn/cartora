@@ -78,14 +78,21 @@ function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuReposi
     reorderCategories: async () => {},
     getMenuIdByRestaurantId: async () => "menu-1",
     countItemsWithImage: async () => 0,
-    listDailyEntries: async () => [],
-    getDailyEntry: async () => ({ imagePath: null }),
-    createDailyEntry: async () => ({ id: "id" }),
-    updateDailyEntry: async () => {},
-    updateDailyEntryImage: async () => {},
-    deleteDailyEntry: async () => {},
-    reorderDailyEntries: async () => {},
-    getNextDailyEntryOrder: async () => 0,
+    listDailyDishes: async () => [],
+    getDailyDish: async () => ({ imagePath: null }),
+    createDailyDish: async () => ({ id: "id" }),
+    updateDailyDish: async () => {},
+    updateDailyDishImage: async () => {},
+    deleteDailyDish: async () => {},
+    reorderDailyDishes: async () => {},
+    getNextDailyDishOrder: async () => 0,
+    listFormulas: async () => [],
+    getFormula: async () => ({ id: "formula-1" }),
+    createFormula: async () => ({ id: "formula-id" }),
+    updateFormula: async () => {},
+    deleteFormula: async () => {},
+    reorderFormulas: async () => {},
+    getNextFormulaOrder: async () => 0,
     ...overrides,
   };
 }
@@ -218,7 +225,7 @@ describe("PublishMenu", () => {
 
   it("includes daily entries in the snapshot when restaurant tier allows it (S3.1)", async () => {
     const snapshotRepo = createMockSnapshotRepo();
-    const listDailyEntries = vi.fn(async () => [
+    const listDailyDishes = vi.fn(async () => [
       {
         id: "daily-1",
         priceCents: 1500,
@@ -236,7 +243,7 @@ describe("PublishMenu", () => {
       },
     ]);
     const uc = new PublishMenu(
-      createMockMenuRepo({ listDailyEntries }),
+      createMockMenuRepo({ listDailyDishes }),
       createMockRestaurantRepo(),
       snapshotRepo,
       createMockClock(),
@@ -244,7 +251,7 @@ describe("PublishMenu", () => {
 
     await uc.execute({ restaurantId: "resto-1" });
 
-    expect(listDailyEntries).toHaveBeenCalledWith("resto-1");
+    expect(listDailyDishes).toHaveBeenCalledWith("resto-1");
     const call = (snapshotRepo.upsertSnapshot as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(call.snapshotData.dailyItems).toEqual([
       {
@@ -265,14 +272,14 @@ describe("PublishMenu", () => {
   });
 
   it("does not load daily entries for FREE tier (gating prunes call)", async () => {
-    const listDailyEntries = vi.fn(async () => []);
+    const listDailyDishes = vi.fn(async () => []);
     const uc = new PublishMenu(
-      createMockMenuRepo({ listDailyEntries }),
+      createMockMenuRepo({ listDailyDishes }),
       createMockRestaurantRepo({
-        // FREE tier ⇒ canPublish renvoie plan_free et on throw avant listDailyEntries.
+        // FREE tier ⇒ canPublish renvoie plan_free et on throw avant listDailyDishes.
         // Cas plus intéressant : ACTIVE + STARTER, mais on veut tester gating tier sur les daily.
-        // On simule un PRO ACTIVE et on vérifie que listDailyEntries est appelé. Pour FREE
-        // canPublish rejette en amont, donc listDailyEntries n'est pas appelé.
+        // On simule un PRO ACTIVE et on vérifie que listDailyDishes est appelé. Pour FREE
+        // canPublish rejette en amont, donc listDailyDishes n'est pas appelé.
         getRestaurantById: async () => ({
           ...RESTAURANT_FIXTURE,
           planStatus: "FREE",
@@ -287,7 +294,7 @@ describe("PublishMenu", () => {
       name: "DomainError",
       code: "plan_inactive",
     });
-    expect(listDailyEntries).not.toHaveBeenCalled();
+    expect(listDailyDishes).not.toHaveBeenCalled();
   });
 
   it("publishes for STARTER tier with ACTIVE status", async () => {

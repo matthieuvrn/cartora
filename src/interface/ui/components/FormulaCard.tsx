@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Clock } from "lucide-react";
-import type { DailyMenuEntryData } from "@/domain/menu/MenuTypes";
-import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
+import type { FormulaData } from "@/domain/menu/MenuTypes";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,14 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { deleteDailyEntryAction, type DailyEntryActionState } from "@/app/(app)/app/actions";
-import { itemImageUrl } from "@/lib/storage-url";
-import { DailyEntryFormDialog } from "./DailyEntryFormDialog";
-import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
+import { deleteFormulaAction, type FormulaActionState } from "@/app/(app)/app/actions";
+import { FormulaFormDialog } from "./FormulaFormDialog";
 
 type Props = {
-  entry: DailyMenuEntryData;
-  /** Si true, l'entrée est expirée — affichée en grisé avec un badge "Expiré". */
+  formula: FormulaData;
   isExpired?: boolean;
 };
 
@@ -44,23 +39,18 @@ function formatExpiration(validUntilISO: string): { date: string; time: string }
   return { date, time };
 }
 
-const deleteInitialState: DailyEntryActionState = { error: null };
+const deleteInitialState: FormulaActionState = { error: null };
 
-export function DailyEntryCard({ entry, isExpired = false }: Props) {
+export function FormulaCard({ formula, isExpired = false }: Props) {
   const t = useTranslations("Dashboard");
-  const tDaily = useTranslations("Dashboard.dailyMenu");
-  const tAllergen = useTranslations("Allergen");
-  const allergenLabels: AllergenLabels = ALLERGEN_VALUES.reduce((acc, a) => {
-    acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
-    return acc;
-  }, {} as AllergenLabels);
+  const tFormula = useTranslations("Dashboard.formula");
 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const wrappedDelete = useCallback(async (prev: DailyEntryActionState, formData: FormData) => {
-    const result = await deleteDailyEntryAction(prev, formData);
+  const wrappedDelete = useCallback(async (prev: FormulaActionState, formData: FormData) => {
+    const result = await deleteFormulaAction(prev, formData);
     if (result.success) setDeleteOpen(false);
     return result;
   }, []);
@@ -71,62 +61,44 @@ export function DailyEntryCard({ entry, isExpired = false }: Props) {
     setEditOpen(true);
   }
 
-  const thumbnailUrl = entry.imagePath ? itemImageUrl(entry.imagePath) : null;
-  const thumbnailAlt = entry.altTextFr || entry.altTextEn || entry.translations.fr.name;
-  const exp = formatExpiration(entry.validUntilISO);
+  const exp = formatExpiration(formula.validUntilISO);
 
   return (
     <>
       <div
         className={`flex items-start justify-between rounded-lg border p-3 gap-4 ${isExpired ? "opacity-60" : ""}`}
       >
-        {thumbnailUrl && (
-          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
-            <Image
-              src={thumbnailUrl}
-              alt={thumbnailAlt}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          </div>
-        )}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium truncate">{entry.translations.fr.name}</span>
+            <span className="font-medium truncate">{formula.translations.fr.name}</span>
             {isExpired && (
               <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {tDaily("expired")}
+                {tFormula("expired")}
               </span>
             )}
           </div>
-          {entry.translations.fr.description && (
-            <p className="text-sm text-foreground/80 line-clamp-2">
-              {entry.translations.fr.description}
+          {formula.translations.fr.description && (
+            <p className="whitespace-pre-line text-sm text-foreground/80 line-clamp-4">
+              {formula.translations.fr.description}
             </p>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="size-3" aria-hidden="true" />
-            <span>{tDaily("expiresAt", { date: exp.date, time: exp.time })}</span>
+            <span>{tFormula("expiresAt", { date: exp.date, time: exp.time })}</span>
           </div>
-          <AllergenIcons
-            allergens={entry.allergens}
-            labels={allergenLabels}
-            listLabel={tAllergen("sectionTitle")}
-          />
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-sm font-semibold tabular-nums">
-            {formatPrice(entry.priceCents)}
+            {formatPrice(formula.priceCents)}
           </span>
-          <Button variant="ghost" size="icon-xs" aria-label={tDaily("edit")} onClick={handleEdit}>
+          <Button variant="ghost" size="icon-xs" aria-label={tFormula("edit")} onClick={handleEdit}>
             <Pencil />
           </Button>
           <Button
             variant="ghost"
             size="icon-xs"
-            aria-label={tDaily("delete")}
+            aria-label={tFormula("delete")}
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 />
@@ -134,10 +106,10 @@ export function DailyEntryCard({ entry, isExpired = false }: Props) {
         </div>
       </div>
 
-      <DailyEntryFormDialog
+      <FormulaFormDialog
         key={editKey}
         mode="edit"
-        entry={entry}
+        formula={formula}
         open={editOpen}
         onOpenChange={setEditOpen}
       />
@@ -145,9 +117,9 @@ export function DailyEntryCard({ entry, isExpired = false }: Props) {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent aria-describedby={undefined}>
           <DialogHeader>
-            <DialogTitle>{tDaily("delete")}</DialogTitle>
+            <DialogTitle>{tFormula("delete")}</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">{tDaily("deleteConfirm")}</p>
+          <p className="text-sm text-muted-foreground">{tFormula("deleteConfirm")}</p>
           {deleteState.error && (
             <p role="alert" className="text-sm text-destructive">
               {t(`error.generic`)}
@@ -158,9 +130,9 @@ export function DailyEntryCard({ entry, isExpired = false }: Props) {
               {t("cancel")}
             </Button>
             <form action={deleteAction}>
-              <input type="hidden" name="entryId" value={entry.id} />
+              <input type="hidden" name="formulaId" value={formula.id} />
               <Button type="submit" variant="destructive" disabled={isDeleting}>
-                {isDeleting ? "…" : tDaily("delete")}
+                {isDeleting ? "…" : tFormula("delete")}
               </Button>
             </form>
           </DialogFooter>

@@ -3,26 +3,26 @@ import type { StorageService } from "@/application/ports/StorageService";
 import { ItemPhotoPolicy } from "@/domain/menu/ItemPhotoPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
-export type SetDailyEntryImageInput = {
+export type SetDailyDishImageInput = {
   restaurantId: string;
-  entryId: string;
+  dishId: string;
   imagePath: string;
   altTextFr?: string;
   altTextEn?: string;
 };
 
-export class SetDailyEntryImage {
+export class SetDailyDishImage {
   constructor(
     private readonly repo: MenuRepository,
     private readonly storage: StorageService,
   ) {}
 
-  async execute(input: SetDailyEntryImageInput): Promise<void> {
-    const entry = await this.repo.getDailyEntry({
-      entryId: input.entryId,
+  async execute(input: SetDailyDishImageInput): Promise<void> {
+    const dish = await this.repo.getDailyDish({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
     });
-    if (!entry) throw new DomainError("item_not_found", { entityId: input.entryId });
+    if (!dish) throw new DomainError("item_not_found", { entityId: input.dishId });
 
     const expectedPrefix = `${input.restaurantId}/daily/`;
     if (!input.imagePath.startsWith(expectedPrefix)) {
@@ -32,16 +32,16 @@ export class SetDailyEntryImage {
     const altFr = ItemPhotoPolicy.validateAltText(input.altTextFr ?? "").ok;
     const altEn = ItemPhotoPolicy.validateAltText(input.altTextEn ?? "").ok;
 
-    if (entry.imagePath && entry.imagePath !== input.imagePath) {
+    if (dish.imagePath && dish.imagePath !== input.imagePath) {
       try {
-        await this.storage.delete(entry.imagePath);
+        await this.storage.delete(dish.imagePath);
       } catch {
         // Non-fatal — on met quand même à jour la DB pour la cohérence visuelle.
       }
     }
 
-    await this.repo.updateDailyEntryImage({
-      entryId: input.entryId,
+    await this.repo.updateDailyDishImage({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
       imagePath: input.imagePath,
       altTextFr: altFr || null,

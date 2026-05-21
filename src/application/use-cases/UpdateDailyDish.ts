@@ -1,13 +1,13 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { Clock } from "@/application/ports/Clock";
-import { DailyMenuPolicy } from "@/domain/menu/DailyMenuPolicy";
+import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
 import { ItemPolicy } from "@/domain/menu/ItemPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
-export type UpdateDailyEntryInput = {
-  entryId: string;
+export type UpdateDailyDishInput = {
+  dishId: string;
   restaurantId: string;
   priceCents: number;
   badge: string;
@@ -19,38 +19,38 @@ export type UpdateDailyEntryInput = {
   };
 };
 
-export class UpdateDailyEntry {
+export class UpdateDailyDish {
   constructor(
     private readonly menuRepo: MenuRepository,
     private readonly restaurantRepo: RestaurantRepository,
     private readonly clock: Clock,
   ) {}
 
-  async execute(input: UpdateDailyEntryInput): Promise<void> {
+  async execute(input: UpdateDailyDishInput): Promise<void> {
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
       throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
     }
 
-    if (!PlanPolicy.canUseDailyMenu(restaurant.planTier)) {
-      throw new DomainError("daily_menu_not_allowed", { tier: restaurant.planTier });
+    if (!PlanPolicy.canUseDailyDishes(restaurant.planTier)) {
+      throw new DomainError("daily_dishes_not_allowed", { tier: restaurant.planTier });
     }
 
-    const existing = await this.menuRepo.getDailyEntry({
-      entryId: input.entryId,
+    const existing = await this.menuRepo.getDailyDish({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
     });
-    if (!existing) throw new DomainError("item_not_found", { entityId: input.entryId });
+    if (!existing) throw new DomainError("item_not_found", { entityId: input.dishId });
 
-    const frName = DailyMenuPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = DailyMenuPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = DailyMenuPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = DailyMenuPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const frName = DailyDishPolicy.sanitizeName(input.translations.fr.name);
+    const frDesc = DailyDishPolicy.sanitizeDescription(input.translations.fr.description);
+    const enName = DailyDishPolicy.sanitizeName(input.translations.en?.name ?? "");
+    const enDesc = DailyDishPolicy.sanitizeDescription(input.translations.en?.description ?? "");
 
-    const nameError = DailyMenuPolicy.validateName(frName);
+    const nameError = DailyDishPolicy.validateName(frName);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
-    const priceError = DailyMenuPolicy.validatePriceCents(input.priceCents);
+    const priceError = DailyDishPolicy.validatePriceCents(input.priceCents);
     if (priceError) throw new DomainError(priceError.code, { field: priceError.field });
 
     const badgeError = ItemPolicy.validateBadge(input.badge);
@@ -64,15 +64,15 @@ export class UpdateDailyEntry {
     if (allergens.error)
       throw new DomainError(allergens.error.code, { field: allergens.error.field });
 
-    const expirationError = DailyMenuPolicy.validateValidUntil(
+    const expirationError = DailyDishPolicy.validateValidUntil(
       input.validUntilISO,
       this.clock.nowISO(),
     );
     if (expirationError)
       throw new DomainError(expirationError.code, { field: expirationError.field });
 
-    await this.menuRepo.updateDailyEntry({
-      entryId: input.entryId,
+    await this.menuRepo.updateDailyDish({
+      dishId: input.dishId,
       restaurantId: input.restaurantId,
       priceCents: input.priceCents,
       badge: input.badge as "NONE" | "NEW" | "POPULAR",

@@ -1,6 +1,7 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type {
-  DailyMenuEntryData,
+  DailyDishData,
+  FormulaData,
   MenuOverview,
   MenuItemData,
   ItemTranslations,
@@ -405,13 +406,13 @@ export class PrismaMenuRepository implements MenuRepository {
 
   // ─ Menu du jour (S3.1) ─────────────────────────────────────────────────────
 
-  async listDailyEntries(restaurantId: string): Promise<DailyMenuEntryData[]> {
-    const rows = await this.db.dailyMenuEntry.findMany({
+  async listDailyDishes(restaurantId: string): Promise<DailyDishData[]> {
+    const rows = await this.db.dailyDish.findMany({
       where: { restaurantId },
       orderBy: { order: "asc" },
     });
     return rows.map(
-      (row): DailyMenuEntryData => ({
+      (row): DailyDishData => ({
         id: row.id,
         priceCents: row.priceCents,
         badge: row.badge as ItemBadge,
@@ -429,21 +430,21 @@ export class PrismaMenuRepository implements MenuRepository {
     );
   }
 
-  async getDailyEntry(params: {
-    entryId: string;
+  async getDailyDish(params: {
+    dishId: string;
     restaurantId: string;
   }): Promise<{ imagePath: string | null } | null> {
-    const row = await this.db.dailyMenuEntry.findFirst({
-      where: { id: params.entryId, restaurantId: params.restaurantId },
+    const row = await this.db.dailyDish.findFirst({
+      where: { id: params.dishId, restaurantId: params.restaurantId },
       select: { imagePath: true },
     });
     return row;
   }
 
-  async createDailyEntry(
-    params: Parameters<MenuRepository["createDailyEntry"]>[0],
+  async createDailyDish(
+    params: Parameters<MenuRepository["createDailyDish"]>[0],
   ): Promise<{ id: string }> {
-    const entry = await this.db.dailyMenuEntry.create({
+    const entry = await this.db.dailyDish.create({
       data: {
         restaurantId: params.restaurantId,
         menuId: params.menuId,
@@ -462,9 +463,9 @@ export class PrismaMenuRepository implements MenuRepository {
     return entry;
   }
 
-  async updateDailyEntry(params: Parameters<MenuRepository["updateDailyEntry"]>[0]): Promise<void> {
-    await this.db.dailyMenuEntry.update({
-      where: { id: params.entryId, restaurantId: params.restaurantId },
+  async updateDailyDish(params: Parameters<MenuRepository["updateDailyDish"]>[0]): Promise<void> {
+    await this.db.dailyDish.update({
+      where: { id: params.dishId, restaurantId: params.restaurantId },
       data: {
         priceCents: params.priceCents,
         badge: params.badge,
@@ -478,15 +479,15 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async updateDailyEntryImage(params: {
-    entryId: string;
+  async updateDailyDishImage(params: {
+    dishId: string;
     restaurantId: string;
     imagePath: string | null;
     altTextFr: string | null;
     altTextEn: string | null;
   }): Promise<void> {
-    await this.db.dailyMenuEntry.update({
-      where: { id: params.entryId, restaurantId: params.restaurantId },
+    await this.db.dailyDish.update({
+      where: { id: params.dishId, restaurantId: params.restaurantId },
       data: {
         imagePath: params.imagePath,
         altTextFr: params.altTextFr,
@@ -495,17 +496,17 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async deleteDailyEntry(params: { entryId: string; restaurantId: string }): Promise<void> {
-    await this.db.dailyMenuEntry.delete({
-      where: { id: params.entryId, restaurantId: params.restaurantId },
+  async deleteDailyDish(params: { dishId: string; restaurantId: string }): Promise<void> {
+    await this.db.dailyDish.delete({
+      where: { id: params.dishId, restaurantId: params.restaurantId },
     });
   }
 
-  async reorderDailyEntries(params: { restaurantId: string; orderedIds: string[] }): Promise<void> {
+  async reorderDailyDishes(params: { restaurantId: string; orderedIds: string[] }): Promise<void> {
     const { restaurantId, orderedIds } = params;
     await this.db.$transaction(async (tx) => {
       for (const [index, id] of orderedIds.entries()) {
-        await tx.dailyMenuEntry.update({
+        await tx.dailyDish.update({
           where: { id, restaurantId },
           data: { order: index },
         });
@@ -513,8 +514,96 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async getNextDailyEntryOrder(restaurantId: string): Promise<number> {
-    return this.db.dailyMenuEntry.count({ where: { restaurantId } });
+  async getNextDailyDishOrder(restaurantId: string): Promise<number> {
+    return this.db.dailyDish.count({ where: { restaurantId } });
+  }
+
+  // ─ Formules (S3.2) ─────────────────────────────────────────────────────────
+
+  async listFormulas(restaurantId: string): Promise<FormulaData[]> {
+    const rows = await this.db.formula.findMany({
+      where: { restaurantId },
+      orderBy: { order: "asc" },
+    });
+    return rows.map(
+      (row): FormulaData => ({
+        id: row.id,
+        priceCents: row.priceCents,
+        validUntilISO: row.validUntil.toISOString(),
+        order: row.order,
+        translations: {
+          fr: { name: row.nameFr, description: row.descriptionFr },
+          en: { name: row.nameEn, description: row.descriptionEn },
+        },
+      }),
+    );
+  }
+
+  async getFormula(params: {
+    formulaId: string;
+    restaurantId: string;
+  }): Promise<{ id: string } | null> {
+    const row = await this.db.formula.findFirst({
+      where: { id: params.formulaId, restaurantId: params.restaurantId },
+      select: { id: true },
+    });
+    return row;
+  }
+
+  async createFormula(
+    params: Parameters<MenuRepository["createFormula"]>[0],
+  ): Promise<{ id: string }> {
+    const formula = await this.db.formula.create({
+      data: {
+        restaurantId: params.restaurantId,
+        menuId: params.menuId,
+        priceCents: params.priceCents,
+        validUntil: new Date(params.validUntilISO),
+        order: params.order,
+        nameFr: params.translations.fr.name,
+        descriptionFr: params.translations.fr.description,
+        nameEn: params.translations.en.name,
+        descriptionEn: params.translations.en.description,
+      },
+      select: { id: true },
+    });
+    return formula;
+  }
+
+  async updateFormula(params: Parameters<MenuRepository["updateFormula"]>[0]): Promise<void> {
+    await this.db.formula.update({
+      where: { id: params.formulaId, restaurantId: params.restaurantId },
+      data: {
+        priceCents: params.priceCents,
+        validUntil: new Date(params.validUntilISO),
+        nameFr: params.translations.fr.name,
+        descriptionFr: params.translations.fr.description,
+        nameEn: params.translations.en.name,
+        descriptionEn: params.translations.en.description,
+      },
+    });
+  }
+
+  async deleteFormula(params: { formulaId: string; restaurantId: string }): Promise<void> {
+    await this.db.formula.delete({
+      where: { id: params.formulaId, restaurantId: params.restaurantId },
+    });
+  }
+
+  async reorderFormulas(params: { restaurantId: string; orderedIds: string[] }): Promise<void> {
+    const { restaurantId, orderedIds } = params;
+    await this.db.$transaction(async (tx) => {
+      for (const [index, id] of orderedIds.entries()) {
+        await tx.formula.update({
+          where: { id, restaurantId },
+          data: { order: index },
+        });
+      }
+    });
+  }
+
+  async getNextFormulaOrder(restaurantId: string): Promise<number> {
+    return this.db.formula.count({ where: { restaurantId } });
   }
 }
 

@@ -25,7 +25,7 @@ export { MenuCategorySection } from "./MenuCategorySection";
 export { MenuItemRow } from "./MenuItemRow";
 export { TrackingBeacon } from "./TrackingBeacon";
 export { Watermark } from "./Watermark";
-export { DailyMenuSection } from "./DailyMenuSection";
+export { TodaySection } from "./TodaySection";
 
 type RendererProps = {
   snapshot: PublicMenuSnapshot;
@@ -36,9 +36,15 @@ type RendererProps = {
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText?: string;
-  /** Titre de la section "Aujourd'hui" (S3.1) — i18n résolu côté page. */
-  dailyMenuTitle: string;
-  dailyMenuDescription?: string;
+  /** Titre de la section "Aujourd'hui" (S3.1 + S3.2) — i18n résolu côté page. */
+  todaySectionTitle: string;
+  todaySectionDescription?: string;
+  /**
+   * Sous-titres affichés UNIQUEMENT si plats du jour ET formules coexistent.
+   * Si l'un des deux manque, le titre principal "Aujourd'hui" suffit.
+   */
+  todaySectionDishesSubtitle?: string;
+  todaySectionFormulasSubtitle?: string;
 };
 
 /**

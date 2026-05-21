@@ -77,25 +77,39 @@ function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string, todayLabel:
     })),
   }));
 
-  // S3.1 — Section "Aujourd'hui" en tête pour le SEO local. Les daily items
-  // déjà filtrés par expiration côté `GetPublicMenu`, donc tout ce qui arrive
-  // ici est valide à l'instant du rendu.
+  // S3.1 + S3.2 — Section "Aujourd'hui" en tête pour le SEO local. Daily items
+  // ET formules sont filtrés par expiration côté `GetPublicMenu` ; tout ce qui
+  // arrive ici est valide à l'instant du rendu. Mêmes items combinés dans une
+  // seule section MenuSection (cohérent avec le rendu UI : tout est dans le même bloc).
+  const todayMenuItems = [
+    ...(snapshot.dailyItems ?? []).map((item) => ({
+      "@type": "MenuItem" as const,
+      name: item.nameFr,
+      description: item.descriptionFr || undefined,
+      offers: {
+        "@type": "Offer" as const,
+        price: (item.priceCents / 100).toFixed(2),
+        priceCurrency: "EUR" as const,
+      },
+    })),
+    ...(snapshot.formulas ?? []).map((formula) => ({
+      "@type": "MenuItem" as const,
+      name: formula.nameFr,
+      description: formula.descriptionFr || undefined,
+      offers: {
+        "@type": "Offer" as const,
+        price: (formula.priceCents / 100).toFixed(2),
+        priceCurrency: "EUR" as const,
+      },
+    })),
+  ];
   const dailySection =
-    snapshot.dailyItems && snapshot.dailyItems.length > 0
+    todayMenuItems.length > 0
       ? [
           {
             "@type": "MenuSection",
             name: todayLabel,
-            hasMenuItem: snapshot.dailyItems.map((item) => ({
-              "@type": "MenuItem",
-              name: item.nameFr,
-              description: item.descriptionFr || undefined,
-              offers: {
-                "@type": "Offer",
-                price: (item.priceCents / 100).toFixed(2),
-                priceCurrency: "EUR",
-              },
-            })),
+            hasMenuItem: todayMenuItems,
           },
         ]
       : [];
@@ -156,8 +170,10 @@ export default async function PublicMenuPage({ params }: Props) {
     allergenSectionLabel: frMessages.Allergen.sectionTitle,
     allergenLegendTitle: frMessages.PublicMenu.allergenLegendTitle,
     watermarkText: frMessages.PublicMenu.watermark,
-    dailyMenuTitle: frMessages.PublicMenu.todayMenu,
-    dailyMenuDescription: frMessages.PublicMenu.todayMenuDescription,
+    todaySectionTitle: frMessages.PublicMenu.todayMenu,
+    todaySectionDescription: frMessages.PublicMenu.todayMenuDescription,
+    todaySectionDishesSubtitle: frMessages.PublicMenu.todaySectionDishesSubtitle,
+    todaySectionFormulasSubtitle: frMessages.PublicMenu.todaySectionFormulasSubtitle,
   };
 
   const labelsEn = {
@@ -169,8 +185,10 @@ export default async function PublicMenuPage({ params }: Props) {
     allergenSectionLabel: enMessages.Allergen.sectionTitle,
     allergenLegendTitle: enMessages.PublicMenu.allergenLegendTitle,
     watermarkText: enMessages.PublicMenu.watermark,
-    dailyMenuTitle: enMessages.PublicMenu.todayMenu,
-    dailyMenuDescription: enMessages.PublicMenu.todayMenuDescription,
+    todaySectionTitle: enMessages.PublicMenu.todayMenu,
+    todaySectionDescription: enMessages.PublicMenu.todayMenuDescription,
+    todaySectionDishesSubtitle: enMessages.PublicMenu.todaySectionDishesSubtitle,
+    todaySectionFormulasSubtitle: enMessages.PublicMenu.todaySectionFormulasSubtitle,
   };
 
   const jsonLd = buildMenuJsonLd(result.snapshot, slug, frMessages.PublicMenu.todayMenu);
