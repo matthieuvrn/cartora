@@ -1,23 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { HandleStripeWebhook } from "./HandleStripeWebhook";
-import type { BillingRepository } from "@/application/ports/BillingRepository";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { WebhookEventRepository } from "@/application/ports/WebhookEventRepository";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PlanTier } from "@/domain/billing/PlanPolicy";
-
-const RESTAURANT_FIXTURE = {
-  id: "resto-1",
-  slug: "resto-abcd1234",
-  displayName: "Mon Restaurant",
-  planStatus: "FREE" as PlanStatus,
-  planTier: "FREE" as PlanTier,
-  activationDismissedAt: null,
-  logoPath: null,
-  brandPrimary: null,
-  brandAccent: null,
-  brandBackground: null,
-};
+import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
+import { createMockBillingRepo } from "./__fixtures__/billingRepoMock";
+import { createMockWebhookEventRepo } from "./__fixtures__/webhookEventRepoMock";
 
 const STARTER_PRICE_ID = "price_starter_test_123";
 const PRO_PRICE_ID = "price_pro_test_456";
@@ -31,40 +16,12 @@ const VALID_INPUT = {
   priceId: PRO_PRICE_ID,
 };
 
-function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): BillingRepository {
-  return {
-    upsertBilling: vi.fn(async () => {}),
-    findByRestaurantId: async () => null,
-    updateRestaurantPlan: vi.fn(async () => {}),
+/** Helper local : par défaut, les tests Stripe partent d'un restaurant FREE/FREE. */
+const freeRestaurantRepo = (overrides = {}) =>
+  createMockRestaurantRepo({
+    getRestaurantById: async () => restaurantFixture({ planStatus: "FREE", planTier: "FREE" }),
     ...overrides,
-  };
-}
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => RESTAURANT_FIXTURE,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockWebhookEventRepo(
-  overrides: Partial<WebhookEventRepository> = {},
-): WebhookEventRepository {
-  return {
-    isAlreadyProcessed: vi.fn(async () => false),
-    markProcessed: vi.fn(async () => {}),
-    ...overrides,
-  };
-}
+  });
 
 describe("HandleStripeWebhook", () => {
   beforeEach(() => {
@@ -79,11 +36,7 @@ describe("HandleStripeWebhook", () => {
   it("processes checkout.session.completed for FREE restaurant (PRO priceId)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      billingRepo,
-      createMockRestaurantRepo(),
-      webhookEventRepo,
-    );
+    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
 
     const result = await useCase.execute(VALID_INPUT);
 
@@ -107,7 +60,7 @@ describe("HandleStripeWebhook", () => {
     const billingRepo = createMockBillingRepo();
     const useCase = new HandleStripeWebhook(
       billingRepo,
-      createMockRestaurantRepo(),
+      freeRestaurantRepo(),
       createMockWebhookEventRepo(),
     );
 
@@ -124,11 +77,8 @@ describe("HandleStripeWebhook", () => {
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "ACTIVE",
-          planTier: "STARTER",
-        }),
+        getRestaurantById: async () =>
+          restaurantFixture({ planStatus: "ACTIVE", planTier: "STARTER" }),
       }),
       createMockWebhookEventRepo(),
     );
@@ -150,7 +100,7 @@ describe("HandleStripeWebhook", () => {
     const billingRepo = createMockBillingRepo();
     const useCase = new HandleStripeWebhook(
       billingRepo,
-      createMockRestaurantRepo(),
+      freeRestaurantRepo(),
       createMockWebhookEventRepo(),
     );
 
@@ -171,11 +121,8 @@ describe("HandleStripeWebhook", () => {
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "ACTIVE",
-          planTier: "STARTER",
-        }),
+        getRestaurantById: async () =>
+          restaurantFixture({ planStatus: "ACTIVE", planTier: "STARTER" }),
       }),
       createMockWebhookEventRepo(),
     );
@@ -199,11 +146,7 @@ describe("HandleStripeWebhook", () => {
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "ACTIVE",
-          planTier: "PRO",
-        }),
+        getRestaurantById: async () => restaurantFixture({ planStatus: "ACTIVE", planTier: "PRO" }),
       }),
       createMockWebhookEventRepo(),
     );
@@ -224,11 +167,7 @@ describe("HandleStripeWebhook", () => {
   it("skips when priceId is unknown (broken Stripe config)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      billingRepo,
-      createMockRestaurantRepo(),
-      webhookEventRepo,
-    );
+    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
 
     const result = await useCase.execute({
       ...VALID_INPUT,
@@ -243,9 +182,8 @@ describe("HandleStripeWebhook", () => {
 
   it("skips unhandled event types", async () => {
     const billingRepo = createMockBillingRepo();
-    const restaurantRepo = createMockRestaurantRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(billingRepo, restaurantRepo, webhookEventRepo);
+    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
 
     const result = await useCase.execute({ ...VALID_INPUT, eventType: "customer.updated" });
 
@@ -258,13 +196,7 @@ describe("HandleStripeWebhook", () => {
   it("skips when transition is invalid (FREE → PAST_DUE)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(
-      billingRepo,
-      createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planStatus: "FREE" }),
-      }),
-      webhookEventRepo,
-    );
+    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
 
     const result = await useCase.execute({
       ...VALID_INPUT,
@@ -302,11 +234,7 @@ describe("HandleStripeWebhook", () => {
     const webhookEventRepo = createMockWebhookEventRepo({
       isAlreadyProcessed: vi.fn(async () => true),
     });
-    const useCase = new HandleStripeWebhook(
-      billingRepo,
-      createMockRestaurantRepo(),
-      webhookEventRepo,
-    );
+    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
 
     const result = await useCase.execute(VALID_INPUT);
 

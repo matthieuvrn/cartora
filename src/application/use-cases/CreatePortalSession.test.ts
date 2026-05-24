@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreatePortalSession } from "./CreatePortalSession";
-import type { BillingRepository } from "@/application/ports/BillingRepository";
-import type { PaymentGateway } from "@/application/ports/PaymentGateway";
+import { createMockBillingRepo } from "./__fixtures__/billingRepoMock";
+import { createMockPaymentGateway } from "./__fixtures__/paymentGatewayMock";
 
 const BILLING_FIXTURE = {
   restaurantId: "resto-1",
@@ -14,42 +14,17 @@ const VALID_INPUT = {
   baseUrl: "https://cartora.app",
 };
 
-function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): BillingRepository {
-  return {
-    upsertBilling: async () => {},
-    findByRestaurantId: async () => BILLING_FIXTURE,
-    updateRestaurantPlan: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): PaymentGateway {
-  return {
-    createCheckoutSession: async () => ({ url: "" }),
-    createPortalSession: vi.fn(async () => ({
-      url: "https://billing.stripe.com/portal_123",
-    })),
-    verifyWebhookSignature: () => ({
-      id: "",
-      type: "",
-      created: 0,
-      data: {},
-      priceId: null,
-      customerId: null,
-      subscriptionId: null,
-      restaurantIdMetadata: null,
-    }),
-    fetchSubscriptionPriceId: async () => null,
-    cancelSubscription: async () => {},
-    deleteCustomer: async () => {},
-    ...overrides,
-  };
-}
+const billingRepoWithFixture = () =>
+  createMockBillingRepo({ findByRestaurantId: async () => BILLING_FIXTURE });
 
 describe("CreatePortalSession", () => {
   it("creates portal session when billing exists", async () => {
-    const gateway = createMockPaymentGateway();
-    const useCase = new CreatePortalSession(createMockBillingRepo(), gateway);
+    const gateway = createMockPaymentGateway({
+      createPortalSession: vi.fn(async () => ({
+        url: "https://billing.stripe.com/portal_123",
+      })),
+    });
+    const useCase = new CreatePortalSession(billingRepoWithFixture(), gateway);
 
     const result = await useCase.execute(VALID_INPUT);
 
@@ -62,10 +37,7 @@ describe("CreatePortalSession", () => {
 
   it("throws when billing info not found", async () => {
     const gateway = createMockPaymentGateway();
-    const useCase = new CreatePortalSession(
-      createMockBillingRepo({ findByRestaurantId: async () => null }),
-      gateway,
-    );
+    const useCase = new CreatePortalSession(createMockBillingRepo(), gateway);
 
     await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
       name: "DomainError",

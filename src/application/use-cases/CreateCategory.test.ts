@@ -1,39 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateCategory } from "./CreateCategory";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
 import { MAX_CATEGORIES } from "@/domain/menu/CategoryPolicy";
-
-const RESTAURANT_FIXTURE = {
-  id: "resto-1",
-  slug: "resto-abcd1234",
-  displayName: "Mon Restaurant",
-  planStatus: "ACTIVE" as PlanStatus,
-  planTier: "PRO" as PlanTier,
-  activationDismissedAt: null,
-  logoPath: null,
-  brandPrimary: null,
-  brandAccent: null,
-  brandBackground: null,
-};
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => RESTAURANT_FIXTURE,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
 
 const VALID_INPUT = {
   restaurantId: "resto-1",
@@ -68,9 +37,12 @@ describe("CreateCategory", () => {
 
     await uc.execute({ ...VALID_INPUT, name: "  Plats   du   jour  " });
 
-    expect(repo.createCategory).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Plats du jour" }),
-    );
+    expect(repo.createCategory).toHaveBeenCalledWith({
+      menuId: "menu-1",
+      restaurantId: "resto-1",
+      name: "Plats du jour",
+      order: 0,
+    });
   });
 
   it("refuses empty name", async () => {
@@ -102,7 +74,7 @@ describe("CreateCategory", () => {
     const uc = new CreateCategory(
       repo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "FREE" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "FREE" }),
       }),
     );
 
@@ -123,7 +95,7 @@ describe("CreateCategory", () => {
     const uc = new CreateCategory(
       repo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "STARTER" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "STARTER" }),
       }),
     );
 
@@ -144,7 +116,7 @@ describe("CreateCategory", () => {
     const uc = new CreateCategory(
       repo,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "PRO" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "PRO" }),
       }),
     );
 

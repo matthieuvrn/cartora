@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { DeleteRestaurant } from "./DeleteRestaurant";
+import { createMockBillingRepo } from "./__fixtures__/billingRepoMock";
+import { createMockRestaurantRepo } from "./__fixtures__/restaurantRepoMock";
+import { createMockPaymentGateway } from "./__fixtures__/paymentGatewayMock";
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
+import { createMockQrAssetRepo } from "./__fixtures__/qrAssetRepoMock";
 import type { BillingRepository } from "@/application/ports/BillingRepository";
 import type { QrAssetRepository } from "@/application/ports/QrAssetRepository";
 import type { PaymentGateway } from "@/application/ports/PaymentGateway";
@@ -23,71 +28,9 @@ const QR_ASSET_FIXTURE = {
   storagePath: "qr-codes/resto-1.png",
 };
 
-function createMockBillingRepo(overrides: Partial<BillingRepository> = {}): BillingRepository {
-  return {
-    upsertBilling: async () => {},
-    findByRestaurantId: async () => BILLING_FIXTURE,
-    updateRestaurantPlan: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockQrAssetRepo(overrides: Partial<QrAssetRepository> = {}): QrAssetRepository {
-  return {
-    save: async () => {},
-    findByRestaurantId: async () => QR_ASSET_FIXTURE,
-    ...overrides,
-  };
-}
-
-function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): PaymentGateway {
-  return {
-    createCheckoutSession: async () => ({ url: "" }),
-    createPortalSession: async () => ({ url: "" }),
-    verifyWebhookSignature: () => ({
-      id: "",
-      type: "",
-      created: 0,
-      data: {},
-      priceId: null,
-      customerId: null,
-      subscriptionId: null,
-      restaurantIdMetadata: null,
-    }),
-    fetchSubscriptionPriceId: async () => null,
-    cancelSubscription: vi.fn(async () => {}),
-    deleteCustomer: vi.fn(async () => {}),
-    ...overrides,
-  };
-}
-
-function createMockStorageService(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: async () => {},
-    getPublicUrl: () => "",
-    delete: vi.fn(async () => {}),
-    createSignedUploadUrl: async () => ({ uploadUrl: "", token: "", path: "" }),
-    deleteByPrefix: vi.fn(async () => {}),
-    ...overrides,
-  };
-}
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => null,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: vi.fn(async () => {}),
-    ...overrides,
-  };
-}
-
+/**
+ * AuthAdminService est utilisé uniquement ici — fixture local plutôt que dédié.
+ */
 function createMockAuthAdmin(overrides: Partial<AuthAdminService> = {}): AuthAdminService {
   return {
     deleteUser: vi.fn(async () => {}),
@@ -107,13 +50,22 @@ function createUseCase(
     authAdmin?: Partial<AuthAdminService>;
   } = {},
 ) {
-  const billingRepo = createMockBillingRepo(overrides.billingRepo);
-  const qrAssetRepo = createMockQrAssetRepo(overrides.qrAssetRepo);
+  const billingRepo = createMockBillingRepo({
+    findByRestaurantId: async () => BILLING_FIXTURE,
+    ...overrides.billingRepo,
+  });
+  const qrAssetRepo = createMockQrAssetRepo({
+    findByRestaurantId: async () => QR_ASSET_FIXTURE,
+    ...overrides.qrAssetRepo,
+  });
   const paymentGateway = createMockPaymentGateway(overrides.paymentGateway);
   const qrStorage = createMockStorageService(overrides.qrStorage);
   const itemImageStorage = createMockStorageService(overrides.itemImageStorage);
   const logoStorage = createMockStorageService(overrides.logoStorage);
-  const restaurantRepo = createMockRestaurantRepo(overrides.restaurantRepo);
+  const restaurantRepo = createMockRestaurantRepo({
+    getRestaurantById: async () => null,
+    ...overrides.restaurantRepo,
+  });
   const authAdmin = createMockAuthAdmin(overrides.authAdmin);
 
   const uc = new DeleteRestaurant(

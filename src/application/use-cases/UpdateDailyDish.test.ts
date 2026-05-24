@@ -1,40 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 import { UpdateDailyDish } from "./UpdateDailyDish";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
+import {
+  createMockRestaurantRepo,
+  restaurantFixtureForTier,
+} from "./__fixtures__/restaurantRepoMock";
 import type { Clock } from "@/application/ports/Clock";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 
 const FIXED_NOW = "2026-05-17T12:00:00.000Z";
 const clock: Clock = { nowISO: () => FIXED_NOW };
 
-function restaurantOf(tier: PlanTier) {
-  return {
-    id: "resto-1",
-    slug: "resto-abcd1234",
-    displayName: "Mon Restaurant",
-    planStatus: (tier === "FREE" ? "FREE" : "ACTIVE") as PlanStatus,
-    planTier: tier,
-    activationDismissedAt: null,
-    logoPath: null,
-    brandPrimary: null,
-    brandAccent: null,
-    brandBackground: null,
-  };
-}
-
-function createMockRestaurantRepo(tier: PlanTier = "STARTER"): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => restaurantOf(tier),
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-  };
+function restaurantRepoOf(tier: PlanTier) {
+  return createMockRestaurantRepo({
+    getRestaurantById: async () => restaurantFixtureForTier(tier),
+  });
 }
 
 const VALID_INPUT = {
@@ -56,19 +36,28 @@ describe("UpdateDailyDish", () => {
       updateDailyDish,
       markMenuAsDraft,
     });
-    const uc = new UpdateDailyDish(menuRepo, createMockRestaurantRepo("STARTER"), clock);
+    const uc = new UpdateDailyDish(menuRepo, restaurantRepoOf("STARTER"), clock);
 
     await uc.execute(VALID_INPUT);
 
-    expect(updateDailyDish).toHaveBeenCalledWith(
-      expect.objectContaining({ dishId: "daily-1", priceCents: 1500 }),
-    );
+    expect(updateDailyDish).toHaveBeenCalledWith({
+      dishId: "daily-1",
+      restaurantId: "resto-1",
+      priceCents: 1500,
+      badge: "NONE",
+      allergens: [],
+      validUntilISO: "2026-05-17T20:00:00.000Z",
+      translations: {
+        fr: { name: "Pot-au-feu", description: "" },
+        en: { name: "", description: "" },
+      },
+    });
     expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
 
   it("throws item_not_found when the dish does not belong to the restaurant", async () => {
     const menuRepo = createMockMenuRepo({ getDailyDish: async () => null });
-    const uc = new UpdateDailyDish(menuRepo, createMockRestaurantRepo("STARTER"), clock);
+    const uc = new UpdateDailyDish(menuRepo, restaurantRepoOf("STARTER"), clock);
 
     await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
       name: "DomainError",
@@ -77,7 +66,7 @@ describe("UpdateDailyDish", () => {
   });
 
   it("rejects FREE tier", async () => {
-    const uc = new UpdateDailyDish(createMockMenuRepo(), createMockRestaurantRepo("FREE"), clock);
+    const uc = new UpdateDailyDish(createMockMenuRepo(), restaurantRepoOf("FREE"), clock);
 
     await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
       name: "DomainError",
@@ -86,11 +75,7 @@ describe("UpdateDailyDish", () => {
   });
 
   it("rejects expired validUntil", async () => {
-    const uc = new UpdateDailyDish(
-      createMockMenuRepo(),
-      createMockRestaurantRepo("STARTER"),
-      clock,
-    );
+    const uc = new UpdateDailyDish(createMockMenuRepo(), restaurantRepoOf("STARTER"), clock);
 
     await expect(
       uc.execute({ ...VALID_INPUT, validUntilISO: "2026-05-17T11:00:00.000Z" }),

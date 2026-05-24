@@ -1,25 +1,10 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CreateRestaurantLogoUploadUrl } from "./CreateRestaurantLogoUploadUrl";
-import type { StorageService } from "@/application/ports/StorageService";
-
-function createMockStorage(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: async () => {},
-    getPublicUrl: () => "",
-    delete: async () => {},
-    createSignedUploadUrl: vi.fn(async (path: string) => ({
-      uploadUrl: `https://upload.test/${path}`,
-      token: "token-abc",
-      path,
-    })),
-    deleteByPrefix: async () => {},
-    ...overrides,
-  };
-}
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
 
 describe("CreateRestaurantLogoUploadUrl", () => {
   it("returns a signed URL for the path <restaurantId>/logo.<ext>", async () => {
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateRestaurantLogoUploadUrl(storage);
 
     const out = await uc.execute({ restaurantId: "resto-1", mime: "image/webp" });
@@ -33,7 +18,7 @@ describe("CreateRestaurantLogoUploadUrl", () => {
     ["image/png", "png"],
     ["image/webp", "webp"],
   ])("maps %s to .%s", async (mime, ext) => {
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateRestaurantLogoUploadUrl(storage);
 
     const out = await uc.execute({ restaurantId: "r", mime });
@@ -44,7 +29,7 @@ describe("CreateRestaurantLogoUploadUrl", () => {
   it.each(["image/svg+xml", "image/gif", "application/pdf", ""])(
     "throws unsupported_mime on %s",
     async (mime) => {
-      const storage = createMockStorage();
+      const storage = createMockStorageService();
       const uc = new CreateRestaurantLogoUploadUrl(storage);
 
       await expect(uc.execute({ restaurantId: "r", mime })).rejects.toMatchObject({

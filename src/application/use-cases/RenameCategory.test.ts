@@ -65,7 +65,11 @@ describe("RenameCategory", () => {
 
     await uc.execute({ ...VALID_INPUT, name: "Plats" });
 
-    expect(repo.renameCategory).toHaveBeenCalledWith(expect.objectContaining({ name: "Plats" }));
+    expect(repo.renameCategory).toHaveBeenCalledWith({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      name: "Plats",
+    });
   });
 
   it("refuses empty name", async () => {

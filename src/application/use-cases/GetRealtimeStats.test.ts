@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetRealtimeStats } from "./GetRealtimeStats";
-import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
+import { createMockAnalyticsRepo } from "./__fixtures__/analyticsRepoMock";
 import type { Clock } from "@/application/ports/Clock";
 
 const NOW = "2026-03-28T14:30:00.000Z";
@@ -18,16 +18,8 @@ const EVENTS_FIXTURE: { createdAt: Date }[] = [
   { createdAt: new Date("2026-03-28T14:20:00.000Z") },
 ];
 
-function createMockAnalyticsRepo(
-  overrides: Partial<AnalyticsRepository> = {},
-): AnalyticsRepository {
-  return {
-    recordView: vi.fn(async () => {}),
-    getDailyStats: vi.fn(async () => []),
-    getEventTimestamps: vi.fn(async () => EVENTS_FIXTURE),
-    ...overrides,
-  };
-}
+const defaultAnalyticsRepo = () =>
+  createMockAnalyticsRepo({ getEventTimestamps: vi.fn(async () => EVENTS_FIXTURE) });
 
 function createMockClock(iso = NOW): Clock {
   return { nowISO: () => iso };
@@ -35,19 +27,19 @@ function createMockClock(iso = NOW): Clock {
 
 describe("GetRealtimeStats", () => {
   it("counts views in last 60 minutes", async () => {
-    const uc = new GetRealtimeStats(createMockAnalyticsRepo(), createMockClock());
+    const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
     expect(result.viewsLast60Min).toBe(2);
   });
 
   it("counts views in last 24 hours", async () => {
-    const uc = new GetRealtimeStats(createMockAnalyticsRepo(), createMockClock());
+    const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
     expect(result.viewsLast24h).toBe(3);
   });
 
   it("builds hourly distribution with 24 entries", async () => {
-    const uc = new GetRealtimeStats(createMockAnalyticsRepo(), createMockClock());
+    const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
     expect(result.hourlyDistribution).toHaveLength(24);
     // hour 10 has 2 events, hour 18 has 1, hour 14 has 2
@@ -59,14 +51,14 @@ describe("GetRealtimeStats", () => {
   });
 
   it("identifies peak hour", async () => {
-    const uc = new GetRealtimeStats(createMockAnalyticsRepo(), createMockClock());
+    const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
     // hours 10 and 14 both have 2 events; peak is the first one encountered (10)
     expect(result.peakHour).toBe(10);
   });
 
   it("calls getEventTimestamps with 7-day window", async () => {
-    const repo = createMockAnalyticsRepo();
+    const repo = defaultAnalyticsRepo();
     const uc = new GetRealtimeStats(repo, createMockClock());
     await uc.execute({ restaurantId: "resto-1" });
 
@@ -77,10 +69,7 @@ describe("GetRealtimeStats", () => {
   });
 
   it("returns null peakHour when no events", async () => {
-    const uc = new GetRealtimeStats(
-      createMockAnalyticsRepo({ getEventTimestamps: vi.fn(async () => []) }),
-      createMockClock(),
-    );
+    const uc = new GetRealtimeStats(createMockAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
 
     expect(result.viewsLast60Min).toBe(0);

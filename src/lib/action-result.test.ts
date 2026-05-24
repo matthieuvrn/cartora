@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// `unstable_rethrow` de next/navigation : on mock un comportement minimal —
-// re-throw si le digest commence par "NEXT_", sinon no-op.
+// CONTRAT TESTÉ : on assume que `unstable_rethrow` re-throw les erreurs dont le
+// `digest` commence par "NEXT_REDIRECT", "NEXT_NOT_FOUND" ou
+// "NEXT_HTTP_ERROR_FALLBACK", et ne fait rien sinon. Si Next change cette
+// convention dans une future version, ce mock devra être mis à jour
+// (cf. https://github.com/vercel/next.js/blob/canary/packages/next/src/client/components/redirect.ts).
 vi.mock("next/navigation", () => ({
   unstable_rethrow: (e: unknown) => {
     if (

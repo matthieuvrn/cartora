@@ -1,40 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { UpdateBrandColors } from "./UpdateBrandColors";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import {
+  createMockRestaurantRepo,
+  restaurantFixtureForTier,
+} from "./__fixtures__/restaurantRepoMock";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
-
-function restaurantOf(tier: PlanTier) {
-  return {
-    id: "resto-1",
-    slug: "resto-abcd1234",
-    displayName: "Mon Restaurant",
-    planStatus: (tier === "FREE" ? "FREE" : "ACTIVE") as PlanStatus,
-    planTier: tier,
-    activationDismissedAt: null,
-    logoPath: null,
-    brandPrimary: null,
-    brandAccent: null,
-    brandBackground: null,
-  };
-}
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => restaurantOf("PRO"),
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: vi.fn(async () => {}),
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
 
 describe("UpdateBrandColors", () => {
   it("persists normalized hex colors for a PRO restaurant and marks menu as draft", async () => {
@@ -83,7 +54,7 @@ describe("UpdateBrandColors", () => {
     "rejects %s with branding_not_allowed",
     async (tier) => {
       const restaurantRepo = createMockRestaurantRepo({
-        getRestaurantById: async () => restaurantOf(tier),
+        getRestaurantById: async () => restaurantFixtureForTier(tier),
       });
       const menuRepo = createMockMenuRepo();
       const uc = new UpdateBrandColors(restaurantRepo, menuRepo);

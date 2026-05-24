@@ -1,18 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { DeleteDailyDish } from "./DeleteDailyDish";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
-import type { StorageService } from "@/application/ports/StorageService";
-
-function createMockStorage(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: async () => {},
-    getPublicUrl: () => "",
-    delete: vi.fn(async () => {}),
-    createSignedUploadUrl: async () => ({ uploadUrl: "", token: "", path: "" }),
-    deleteByPrefix: async () => {},
-    ...overrides,
-  };
-}
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
 
 describe("DeleteDailyDish", () => {
   it("deletes dish and marks menu as draft", async () => {
@@ -23,7 +12,7 @@ describe("DeleteDailyDish", () => {
       deleteDailyDish,
       markMenuAsDraft,
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new DeleteDailyDish(menuRepo, storage);
 
     await uc.execute({ dishId: "daily-1", restaurantId: "resto-1" });
@@ -37,16 +26,15 @@ describe("DeleteDailyDish", () => {
   });
 
   it("attempts to remove storage object when dish had a photo", async () => {
-    const deleteFromStorage = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({
       getDailyDish: async () => ({ imagePath: "resto-1/daily/daily-1.webp" }),
-      deleteDailyDish: async () => {},
     });
-    const uc = new DeleteDailyDish(menuRepo, createMockStorage({ delete: deleteFromStorage }));
+    const storage = createMockStorageService();
+    const uc = new DeleteDailyDish(menuRepo, storage);
 
     await uc.execute({ dishId: "daily-1", restaurantId: "resto-1" });
 
-    expect(deleteFromStorage).toHaveBeenCalledWith("resto-1/daily/daily-1.webp");
+    expect(storage.delete).toHaveBeenCalledWith("resto-1/daily/daily-1.webp");
   });
 
   it("still deletes DB row when storage.delete throws (non-fatal)", async () => {
@@ -55,10 +43,10 @@ describe("DeleteDailyDish", () => {
       getDailyDish: async () => ({ imagePath: "resto-1/daily/daily-1.webp" }),
       deleteDailyDish,
     });
-    const storage = createMockStorage({
-      delete: async () => {
+    const storage = createMockStorageService({
+      delete: vi.fn(async () => {
         throw new Error("storage down");
-      },
+      }),
     });
     const uc = new DeleteDailyDish(menuRepo, storage);
 
@@ -69,7 +57,7 @@ describe("DeleteDailyDish", () => {
 
   it("throws item_not_found when dish does not belong to restaurant", async () => {
     const menuRepo = createMockMenuRepo({ getDailyDish: async () => null });
-    const uc = new DeleteDailyDish(menuRepo, createMockStorage());
+    const uc = new DeleteDailyDish(menuRepo, createMockStorageService());
 
     await expect(uc.execute({ dishId: "daily-1", restaurantId: "resto-1" })).rejects.toMatchObject({
       name: "DomainError",

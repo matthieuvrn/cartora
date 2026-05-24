@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { EnsureRestaurantExists } from "./EnsureRestaurantExists";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
+import { createMockRestaurantRepo } from "./__fixtures__/restaurantRepoMock";
 import {
   DEFAULT_DISPLAY_NAME,
   generateSlug,
@@ -22,23 +22,9 @@ const PIZZERIA_RESOLVED: InitialCategory[] = [
   { name: "Boissons", order: 4 },
 ];
 
-function createMockRepo(overrides: Partial<RestaurantRepository> = {}): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: vi.fn(async () => ({ id: "resto-new" })),
-    getRestaurantById: async () => null,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
-
 describe("EnsureRestaurantExists", () => {
   it("returns existing restaurant without creating a new one", async () => {
-    const repo = createMockRepo({
+    const repo = createMockRestaurantRepo({
       findByOwnerUserId: async () => ({ id: "resto-existing" }),
     });
     const uc = new EnsureRestaurantExists(repo);
@@ -54,7 +40,9 @@ describe("EnsureRestaurantExists", () => {
 
   it("creates a new restaurant with the provided categories and null type by default", async () => {
     const userId = "550e8400-e29b-41d4-a716-446655440000";
-    const repo = createMockRepo();
+    const repo = createMockRestaurantRepo({
+      createWithMenuAndCategories: vi.fn(async () => ({ id: "resto-new" })),
+    });
     const uc = new EnsureRestaurantExists(repo);
 
     const result = await uc.execute({
@@ -74,7 +62,9 @@ describe("EnsureRestaurantExists", () => {
 
   it("propagates the restaurantType and pizzeria categories when provided", async () => {
     const userId = "550e8400-e29b-41d4-a716-446655440000";
-    const repo = createMockRepo();
+    const repo = createMockRestaurantRepo({
+      createWithMenuAndCategories: vi.fn(async () => ({ id: "resto-new" })),
+    });
     const uc = new EnsureRestaurantExists(repo);
 
     await uc.execute({

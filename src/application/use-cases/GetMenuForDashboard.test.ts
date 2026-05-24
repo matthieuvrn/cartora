@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { GetMenuForDashboard } from "./GetMenuForDashboard";
-import type { MenuRepository } from "@/application/ports/MenuRepository";
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 
 const MENU_FIXTURE: MenuOverview = {
@@ -38,49 +38,10 @@ const MENU_FIXTURE: MenuOverview = {
   ],
 };
 
-function createMockRepo(menu: MenuOverview | null): MenuRepository {
-  return {
-    getMenuByRestaurantId: async () => menu,
-    createItem: async () => ({ id: "new-id" }),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: async () => {},
-    verifyCategoryOwnership: async () => true,
-    verifyMenuOwnership: async () => true,
-    getNextItemOrder: async () => 0,
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: async () => {},
-    updateTemplate: async () => {},
-    listCategoryNames: async () => [],
-    createCategory: async () => ({ id: "id" }),
-    renameCategory: async () => {},
-    deleteCategory: async () => {},
-    reorderCategories: async () => {},
-    getMenuIdByRestaurantId: async () => "menu-1",
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
-  };
-}
-
 describe("GetMenuForDashboard", () => {
   it("returns the menu when it exists", async () => {
-    const uc = new GetMenuForDashboard(createMockRepo(MENU_FIXTURE));
+    const repo = createMockMenuRepo({ getMenuByRestaurantId: async () => MENU_FIXTURE });
+    const uc = new GetMenuForDashboard(repo);
 
     const result = await uc.execute({ restaurantId: "resto-1" });
 
@@ -88,7 +49,7 @@ describe("GetMenuForDashboard", () => {
   });
 
   it("throws when menu is not found", async () => {
-    const uc = new GetMenuForDashboard(createMockRepo(null));
+    const uc = new GetMenuForDashboard(createMockMenuRepo());
 
     await expect(uc.execute({ restaurantId: "unknown" })).rejects.toMatchObject({
       name: "DomainError",

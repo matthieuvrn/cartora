@@ -1,22 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateCheckoutSession } from "./CreateCheckoutSession";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { PaymentGateway } from "@/application/ports/PaymentGateway";
+import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
+import { createMockPaymentGateway } from "./__fixtures__/paymentGatewayMock";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PlanTier } from "@/domain/billing/PlanPolicy";
-
-const RESTAURANT_FIXTURE = {
-  id: "resto-1",
-  slug: "resto-abcd1234",
-  displayName: "Mon Restaurant",
-  planStatus: "FREE" as PlanStatus,
-  planTier: "FREE" as PlanTier,
-  activationDismissedAt: null,
-  logoPath: null,
-  brandPrimary: null,
-  brandAccent: null,
-  brandBackground: null,
-};
 
 const VALID_INPUT = {
   restaurantId: "resto-1",
@@ -25,49 +11,20 @@ const VALID_INPUT = {
   targetTier: "PRO" as const,
 };
 
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => RESTAURANT_FIXTURE,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockPaymentGateway(overrides: Partial<PaymentGateway> = {}): PaymentGateway {
-  return {
-    createCheckoutSession: vi.fn(async () => ({
-      url: "https://checkout.stripe.com/session_123",
-    })),
-    createPortalSession: async () => ({ url: "" }),
-    verifyWebhookSignature: () => ({
-      id: "",
-      type: "",
-      created: 0,
-      data: {},
-      priceId: null,
-      customerId: null,
-      subscriptionId: null,
-      restaurantIdMetadata: null,
-    }),
-    fetchSubscriptionPriceId: async () => null,
-    cancelSubscription: async () => {},
-    deleteCustomer: async () => {},
-    ...overrides,
-  };
-}
+/** Restaurants partant d'un état FREE (le cas standard pour démarrer un checkout). */
+const freeRestaurantRepo = () =>
+  createMockRestaurantRepo({
+    getRestaurantById: async () => restaurantFixture({ planStatus: "FREE", planTier: "FREE" }),
+  });
 
 describe("CreateCheckoutSession", () => {
   it("creates checkout session for FREE plan, PRO tier", async () => {
-    const gateway = createMockPaymentGateway();
-    const useCase = new CreateCheckoutSession(createMockRestaurantRepo(), gateway);
+    const gateway = createMockPaymentGateway({
+      createCheckoutSession: vi.fn(async () => ({
+        url: "https://checkout.stripe.com/session_123",
+      })),
+    });
+    const useCase = new CreateCheckoutSession(freeRestaurantRepo(), gateway);
 
     const result = await useCase.execute(VALID_INPUT);
 
@@ -83,24 +40,25 @@ describe("CreateCheckoutSession", () => {
 
   it("creates checkout session for FREE plan, STARTER tier", async () => {
     const gateway = createMockPaymentGateway();
-    const useCase = new CreateCheckoutSession(createMockRestaurantRepo(), gateway);
+    const useCase = new CreateCheckoutSession(freeRestaurantRepo(), gateway);
 
     await useCase.execute({ ...VALID_INPUT, targetTier: "STARTER" });
 
-    expect(gateway.createCheckoutSession).toHaveBeenCalledWith(
-      expect.objectContaining({ tier: "STARTER" }),
-    );
+    expect(gateway.createCheckoutSession).toHaveBeenCalledWith({
+      restaurantId: "resto-1",
+      customerEmail: "owner@example.com",
+      successUrl: "https://cartora.app/app?checkout=success",
+      cancelUrl: "https://cartora.app/app?checkout=cancel",
+      tier: "STARTER",
+    });
   });
 
   it("allows checkout when planStatus is CANCELED (resub flow)", async () => {
     const gateway = createMockPaymentGateway();
     const useCase = new CreateCheckoutSession(
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "CANCELED",
-          planTier: "FREE",
-        }),
+        getRestaurantById: async () =>
+          restaurantFixture({ planStatus: "CANCELED", planTier: "FREE" }),
       }),
       gateway,
     );
@@ -130,11 +88,7 @@ describe("CreateCheckoutSession", () => {
       const gateway = createMockPaymentGateway();
       const useCase = new CreateCheckoutSession(
         createMockRestaurantRepo({
-          getRestaurantById: async () => ({
-            ...RESTAURANT_FIXTURE,
-            planStatus,
-            planTier: "STARTER",
-          }),
+          getRestaurantById: async () => restaurantFixture({ planStatus, planTier: "STARTER" }),
         }),
         gateway,
       );

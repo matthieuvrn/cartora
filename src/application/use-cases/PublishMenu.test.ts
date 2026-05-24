@@ -1,25 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { PublishMenu } from "./PublishMenu";
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
+import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
+import { createMockSnapshotRepo } from "./__fixtures__/snapshotRepoMock";
 import type { MenuRepository } from "@/application/ports/MenuRepository";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
 import type { Clock } from "@/application/ports/Clock";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PlanTier } from "@/domain/billing/PlanPolicy";
-
-const RESTAURANT_FIXTURE = {
-  id: "resto-1",
-  slug: "resto-abcd1234",
-  displayName: "Mon Restaurant",
-  planStatus: "ACTIVE" as PlanStatus,
-  planTier: "PRO" as PlanTier,
-  activationDismissedAt: null,
-  logoPath: null,
-  brandPrimary: null,
-  brandAccent: null,
-  brandBackground: null,
-};
 
 const MENU_FIXTURE: MenuOverview = {
   menuId: "menu-1",
@@ -56,70 +42,15 @@ const MENU_FIXTURE: MenuOverview = {
   ],
 };
 
-function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
-  return {
+/**
+ * Override par défaut pour PublishMenu : le menu doit exister. Tous les tests
+ * de ce fichier en ont besoin sauf celui qui vérifie explicitement le cas null.
+ */
+function createPublishableMenuRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
+  return createMockMenuRepo({
     getMenuByRestaurantId: async () => MENU_FIXTURE,
-    createItem: async () => ({ id: "id" }),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: async () => {},
-    verifyCategoryOwnership: async () => true,
-    verifyMenuOwnership: async () => true,
-    getNextItemOrder: async () => 0,
-    updateMenuStatus: vi.fn(async () => {}),
-    markMenuAsDraft: async () => {},
-    updateTemplate: async () => {},
-    listCategoryNames: async () => [],
-    createCategory: async () => ({ id: "id" }),
-    renameCategory: async () => {},
-    deleteCategory: async () => {},
-    reorderCategories: async () => {},
-    getMenuIdByRestaurantId: async () => "menu-1",
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
     ...overrides,
-  };
-}
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => RESTAURANT_FIXTURE,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): SnapshotRepository {
-  return {
-    upsertSnapshot: vi.fn(async () => {}),
-    getSnapshotBySlug: async () => null,
-    listPublished: async () => [],
-    ...overrides,
-  };
+  });
 }
 
 function createMockClock(iso = "2026-03-25T12:00:00.000Z"): Clock {
@@ -128,7 +59,7 @@ function createMockClock(iso = "2026-03-25T12:00:00.000Z"): Clock {
 
 describe("PublishMenu", () => {
   it("publishes menu for ACTIVE plan with items", async () => {
-    const menuRepo = createMockMenuRepo();
+    const menuRepo = createPublishableMenuRepo();
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
       menuRepo,
@@ -180,13 +111,9 @@ describe("PublishMenu", () => {
   it("throws plan_inactive for FREE tier", async () => {
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
-      createMockMenuRepo(),
+      createPublishableMenuRepo(),
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "FREE",
-          planTier: "FREE",
-        }),
+        getRestaurantById: async () => restaurantFixture({ planStatus: "FREE", planTier: "FREE" }),
       }),
       snapshotRepo,
       createMockClock(),
@@ -203,13 +130,10 @@ describe("PublishMenu", () => {
   it("throws plan_inactive for PAST_DUE billing (Pro tier but billing issue)", async () => {
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
-      createMockMenuRepo(),
+      createPublishableMenuRepo(),
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "PAST_DUE",
-          planTier: "PRO",
-        }),
+        getRestaurantById: async () =>
+          restaurantFixture({ planStatus: "PAST_DUE", planTier: "PRO" }),
       }),
       snapshotRepo,
       createMockClock(),
@@ -243,7 +167,7 @@ describe("PublishMenu", () => {
       },
     ]);
     const uc = new PublishMenu(
-      createMockMenuRepo({ listDailyDishes }),
+      createPublishableMenuRepo({ listDailyDishes }),
       createMockRestaurantRepo(),
       snapshotRepo,
       createMockClock(),
@@ -274,17 +198,10 @@ describe("PublishMenu", () => {
   it("does not load daily entries for FREE tier (gating prunes call)", async () => {
     const listDailyDishes = vi.fn(async () => []);
     const uc = new PublishMenu(
-      createMockMenuRepo({ listDailyDishes }),
+      createPublishableMenuRepo({ listDailyDishes }),
       createMockRestaurantRepo({
         // FREE tier ⇒ canPublish renvoie plan_free et on throw avant listDailyDishes.
-        // Cas plus intéressant : ACTIVE + STARTER, mais on veut tester gating tier sur les daily.
-        // On simule un PRO ACTIVE et on vérifie que listDailyDishes est appelé. Pour FREE
-        // canPublish rejette en amont, donc listDailyDishes n'est pas appelé.
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "FREE",
-          planTier: "FREE",
-        }),
+        getRestaurantById: async () => restaurantFixture({ planStatus: "FREE", planTier: "FREE" }),
       }),
       createMockSnapshotRepo(),
       createMockClock(),
@@ -300,13 +217,10 @@ describe("PublishMenu", () => {
   it("publishes for STARTER tier with ACTIVE status", async () => {
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
-      createMockMenuRepo(),
+      createPublishableMenuRepo(),
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({
-          ...RESTAURANT_FIXTURE,
-          planStatus: "ACTIVE",
-          planTier: "STARTER",
-        }),
+        getRestaurantById: async () =>
+          restaurantFixture({ planStatus: "ACTIVE", planTier: "STARTER" }),
       }),
       snapshotRepo,
       createMockClock(),
@@ -326,7 +240,7 @@ describe("PublishMenu", () => {
       })),
     };
     const uc = new PublishMenu(
-      createMockMenuRepo({
+      createPublishableMenuRepo({
         getMenuByRestaurantId: async () => menuWithNoItems,
       }),
       createMockRestaurantRepo(),
@@ -342,7 +256,7 @@ describe("PublishMenu", () => {
 
   it("throws when restaurant not found", async () => {
     const uc = new PublishMenu(
-      createMockMenuRepo(),
+      createPublishableMenuRepo(),
       createMockRestaurantRepo({ getRestaurantById: async () => null }),
       createMockSnapshotRepo(),
       createMockClock(),
@@ -415,7 +329,7 @@ describe("PublishMenu", () => {
     };
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(
-      createMockMenuRepo({
+      createPublishableMenuRepo({
         getMenuByRestaurantId: async () => menuWithMixed,
       }),
       createMockRestaurantRepo(),
@@ -425,17 +339,35 @@ describe("PublishMenu", () => {
 
     await uc.execute({ restaurantId: "resto-1" });
 
-    expect(snapshotRepo.upsertSnapshot).toHaveBeenCalledWith(
-      expect.objectContaining({
-        snapshotData: expect.objectContaining({
-          categories: [
-            {
-              name: "Entrées",
-              items: [expect.objectContaining({ nameFr: "Soupe" })],
-            },
-          ],
-        }),
-      }),
-    );
+    expect(snapshotRepo.upsertSnapshot).toHaveBeenCalledWith({
+      menuId: "menu-1",
+      restaurantId: "resto-1",
+      slug: "resto-abcd1234",
+      snapshotData: {
+        restaurantName: "Mon Restaurant",
+        template: "CLASSIC",
+        categories: [
+          {
+            name: "Entrées",
+            items: [
+              {
+                nameFr: "Soupe",
+                nameEn: "Soup",
+                descriptionFr: "Soupe du jour",
+                descriptionEn: "Soup of the day",
+                priceCents: 850,
+                badge: "NONE",
+                allergens: [],
+                imagePath: null,
+                altTextFr: "",
+                altTextEn: "",
+              },
+            ],
+          },
+        ],
+        publishedAt: "2026-03-25T12:00:00.000Z",
+      },
+      publishedAt: "2026-03-25T12:00:00.000Z",
+    });
   });
 });

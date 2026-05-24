@@ -2,23 +2,34 @@ import { vi } from "vitest";
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 
 /**
- * Default mock implementing every method of MenuRepository as no-op or sensible default.
- * Pass `overrides` to spec specific behaviors per test.
+ * Convention d'assertions sur les mocks de cette suite :
+ *  - `toEqual(value)` pour les valeurs de retour des use cases.
+ *  - `toHaveBeenCalledWith({ ...full payload })` pour les calls de mock : STRICT par
+ *    défaut. Le but est de détecter les régressions où un use case enverrait un champ
+ *    inattendu (ex : ajout par erreur d'un `auditLog` dans la payload).
+ *  - `toMatchObject({ name: "DomainError", code, metadata })` pour les `rejects` de
+ *    DomainError — on tolère que la classe Error ait d'autres propriétés (`stack`, etc.).
+ *  - `expect.objectContaining` UNIQUEMENT si un champ est intrinsèquement variable
+ *    (ID généré, timestamp non-injecté via Clock). Sinon : strict.
+ *
+ * Toutes les méthodes sont des `vi.fn()` plutôt que de simples async functions afin
+ * de permettre `expect(repo.method).not.toHaveBeenCalled()` partout — utile pour
+ * vérifier qu'une mutation parasite n'a pas eu lieu.
  */
 export function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
   return {
-    getMenuByRestaurantId: async () => null,
+    getMenuByRestaurantId: vi.fn(async () => null),
     createItem: vi.fn(async () => ({ id: "new-item-id" })),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: async () => {},
+    updateItem: vi.fn(async () => {}),
+    deleteItem: vi.fn(async () => {}),
+    getItem: vi.fn(async () => ({ imagePath: null })),
+    updateItemImage: vi.fn(async () => {}),
+    reorderItems: vi.fn(async () => {}),
     verifyCategoryOwnership: vi.fn(async () => true),
     verifyMenuOwnership: vi.fn(async () => true),
     getNextItemOrder: vi.fn(async () => 3),
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: async () => {},
+    updateMenuStatus: vi.fn(async () => {}),
+    markMenuAsDraft: vi.fn(async () => {}),
     updateTemplate: vi.fn(async () => {}),
     listCategoryNames: vi.fn(async () => []),
     createCategory: vi.fn(async () => ({ id: "new-cat-id" })),

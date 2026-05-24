@@ -1,47 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateItem } from "./CreateItem";
-import type { MenuRepository } from "@/application/ports/MenuRepository";
-
-function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
-  return {
-    getMenuByRestaurantId: async () => null,
-    createItem: vi.fn(async () => ({ id: "new-item-id" })),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: async () => {},
-    verifyCategoryOwnership: vi.fn(async () => true),
-    verifyMenuOwnership: vi.fn(async () => true),
-    getNextItemOrder: vi.fn(async () => 3),
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: async () => {},
-    updateTemplate: async () => {},
-    listCategoryNames: vi.fn(async () => []),
-    createCategory: vi.fn(async () => ({ id: "new-cat-id" })),
-    renameCategory: vi.fn(async () => {}),
-    deleteCategory: vi.fn(async () => {}),
-    reorderCategories: vi.fn(async () => {}),
-    getMenuIdByRestaurantId: vi.fn(async () => "menu-1"),
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
-    ...overrides,
-  };
-}
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
 
 const VALID_INPUT = {
   categoryId: "cat-1",
@@ -56,7 +15,7 @@ const VALID_INPUT = {
 
 describe("CreateItem", () => {
   it("creates an item with valid input", async () => {
-    const repo = createMockRepo();
+    const repo = createMockMenuRepo();
     const uc = new CreateItem(repo);
 
     const result = await uc.execute(VALID_INPUT);
@@ -79,18 +38,28 @@ describe("CreateItem", () => {
   });
 
   it("propagates allergens to the repo", async () => {
-    const repo = createMockRepo();
+    const repo = createMockMenuRepo();
     const uc = new CreateItem(repo);
 
     await uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "EGGS"] });
 
-    expect(repo.createItem).toHaveBeenCalledWith(
-      expect.objectContaining({ allergens: ["GLUTEN", "EGGS"] }),
-    );
+    expect(repo.createItem).toHaveBeenCalledWith({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      priceCents: 1200,
+      badge: "NEW",
+      allergens: ["GLUTEN", "EGGS"],
+      isAvailable: true,
+      order: 3,
+      translations: {
+        fr: { name: "Salade César", description: "Laitue, parmesan" },
+        en: { name: "Caesar Salad", description: "Lettuce, parmesan" },
+      },
+    });
   });
 
   it("rejects an invalid allergen value", async () => {
-    const uc = new CreateItem(createMockRepo());
+    const uc = new CreateItem(createMockMenuRepo());
 
     await expect(
       uc.execute({ ...VALID_INPUT, allergens: ["GLUTEN", "PEPPER"] }),
@@ -98,7 +67,7 @@ describe("CreateItem", () => {
   });
 
   it("defaults EN translations to empty strings when omitted", async () => {
-    const repo = createMockRepo();
+    const repo = createMockMenuRepo();
     const uc = new CreateItem(repo);
 
     await uc.execute({
@@ -108,18 +77,23 @@ describe("CreateItem", () => {
       },
     });
 
-    expect(repo.createItem).toHaveBeenCalledWith(
-      expect.objectContaining({
-        translations: {
-          fr: { name: "Soupe", description: "Soupe du jour" },
-          en: { name: "", description: "" },
-        },
-      }),
-    );
+    expect(repo.createItem).toHaveBeenCalledWith({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      priceCents: 1200,
+      badge: "NEW",
+      allergens: [],
+      isAvailable: true,
+      order: 3,
+      translations: {
+        fr: { name: "Soupe", description: "Soupe du jour" },
+        en: { name: "", description: "" },
+      },
+    });
   });
 
   it("throws when FR name is empty", async () => {
-    const uc = new CreateItem(createMockRepo());
+    const uc = new CreateItem(createMockMenuRepo());
 
     await expect(
       uc.execute({ ...VALID_INPUT, translations: { fr: { name: "", description: "" } } }),
@@ -131,7 +105,7 @@ describe("CreateItem", () => {
   });
 
   it("throws when price is negative", async () => {
-    const uc = new CreateItem(createMockRepo());
+    const uc = new CreateItem(createMockMenuRepo());
 
     await expect(uc.execute({ ...VALID_INPUT, priceCents: -1 })).rejects.toMatchObject({
       name: "DomainError",
@@ -140,7 +114,7 @@ describe("CreateItem", () => {
   });
 
   it("throws when badge is invalid", async () => {
-    const uc = new CreateItem(createMockRepo());
+    const uc = new CreateItem(createMockMenuRepo());
 
     await expect(uc.execute({ ...VALID_INPUT, badge: "TRENDING" })).rejects.toMatchObject({
       name: "DomainError",
@@ -149,7 +123,7 @@ describe("CreateItem", () => {
   });
 
   it("throws when categoryId does not belong to restaurantId", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       verifyCategoryOwnership: vi.fn(async () => false),
     });
     const uc = new CreateItem(repo);
@@ -162,7 +136,7 @@ describe("CreateItem", () => {
   });
 
   it("calls verifyCategoryOwnership with correct arguments", async () => {
-    const repo = createMockRepo();
+    const repo = createMockMenuRepo();
     const uc = new CreateItem(repo);
 
     await uc.execute(VALID_INPUT);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetDashboardStats } from "./GetDashboardStats";
-import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
+import { createMockAnalyticsRepo } from "./__fixtures__/analyticsRepoMock";
 import type { Clock } from "@/application/ports/Clock";
 import type { DailyStatRow } from "@/domain/analytics/AnalyticsTypes";
 
@@ -11,16 +11,8 @@ const ROWS_FIXTURE: DailyStatRow[] = [
   { date: "2026-03-28", locale: "fr", deviceType: "MOBILE", source: "QR", viewCount: 7 },
 ];
 
-function createMockAnalyticsRepo(
-  overrides: Partial<AnalyticsRepository> = {},
-): AnalyticsRepository {
-  return {
-    recordView: vi.fn(async () => {}),
-    getDailyStats: vi.fn(async () => ROWS_FIXTURE),
-    getEventTimestamps: vi.fn(async () => []),
-    ...overrides,
-  };
-}
+const defaultAnalyticsRepo = () =>
+  createMockAnalyticsRepo({ getDailyStats: vi.fn(async () => ROWS_FIXTURE) });
 
 function createMockClock(iso = "2026-03-28T14:00:00.000Z"): Clock {
   return { nowISO: () => iso };
@@ -28,7 +20,7 @@ function createMockClock(iso = "2026-03-28T14:00:00.000Z"): Clock {
 
 describe("GetDashboardStats", () => {
   it("returns aggregated stats for 7-day window", async () => {
-    const uc = new GetDashboardStats(createMockAnalyticsRepo(), createMockClock());
+    const uc = new GetDashboardStats(defaultAnalyticsRepo(), createMockClock());
 
     const result = await uc.execute({ restaurantId: "resto-1" });
 
@@ -44,7 +36,7 @@ describe("GetDashboardStats", () => {
   });
 
   it("calls getDailyStats with correct date range", async () => {
-    const analyticsRepo = createMockAnalyticsRepo();
+    const analyticsRepo = defaultAnalyticsRepo();
     const uc = new GetDashboardStats(analyticsRepo, createMockClock());
 
     await uc.execute({ restaurantId: "resto-1" });
@@ -53,10 +45,7 @@ describe("GetDashboardStats", () => {
   });
 
   it("returns zero stats when no rows", async () => {
-    const uc = new GetDashboardStats(
-      createMockAnalyticsRepo({ getDailyStats: vi.fn(async () => []) }),
-      createMockClock(),
-    );
+    const uc = new GetDashboardStats(createMockAnalyticsRepo(), createMockClock());
 
     const result = await uc.execute({ restaurantId: "resto-1" });
 

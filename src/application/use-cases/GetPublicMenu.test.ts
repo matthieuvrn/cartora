@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { GetPublicMenu } from "./GetPublicMenu";
-import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
+import { createMockSnapshotRepo } from "./__fixtures__/snapshotRepoMock";
 import type { Clock } from "@/application/ports/Clock";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 
@@ -31,9 +31,9 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
   publishedAt: "2026-03-25T12:00:00.000Z",
 };
 
-function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): SnapshotRepository {
-  return {
-    upsertSnapshot: async () => {},
+/** Snapshot par défaut pour les tests GetPublicMenu : PRO ACTIVE avec snapshot trivial. */
+const defaultSnapshotRepo = () =>
+  createMockSnapshotRepo({
     getSnapshotBySlug: async () => ({
       restaurantId: "resto-1",
       snapshotData: SNAPSHOT_FIXTURE,
@@ -41,14 +41,11 @@ function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): Sn
       planStatus: "ACTIVE" as const,
       planTier: "PRO" as const,
     }),
-    listPublished: async () => [],
-    ...overrides,
-  };
-}
+  });
 
 describe("GetPublicMenu", () => {
   it("returns snapshot, planStatus and planTier for existing slug", async () => {
-    const uc = new GetPublicMenu(createMockSnapshotRepo(), clock);
+    const uc = new GetPublicMenu(defaultSnapshotRepo(), clock);
 
     const result = await uc.execute({ slug: "resto-abcd1234" });
 
@@ -60,10 +57,7 @@ describe("GetPublicMenu", () => {
   });
 
   it("returns null for unknown slug", async () => {
-    const uc = new GetPublicMenu(
-      createMockSnapshotRepo({ getSnapshotBySlug: async () => null }),
-      clock,
-    );
+    const uc = new GetPublicMenu(createMockSnapshotRepo(), clock);
 
     const result = await uc.execute({ slug: "unknown" });
 
@@ -163,7 +157,7 @@ describe("GetPublicMenu", () => {
     });
 
     it("passes through snapshots without dailyItems (pre-S3.1 retro-compat)", async () => {
-      const uc = new GetPublicMenu(createMockSnapshotRepo(), clock);
+      const uc = new GetPublicMenu(defaultSnapshotRepo(), clock);
       const result = await uc.execute({ slug: "resto-abcd1234" });
       expect(result?.snapshot).toEqual(SNAPSHOT_FIXTURE);
       expect("dailyItems" in (result?.snapshot ?? {})).toBe(false);

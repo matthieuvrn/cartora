@@ -1,50 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { ReorderItems } from "./ReorderItems";
-import type { MenuRepository } from "@/application/ports/MenuRepository";
-
-function createMockRepo(): MenuRepository {
-  return {
-    getMenuByRestaurantId: async () => null,
-    createItem: async () => ({ id: "id" }),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: vi.fn(async () => {}),
-    verifyCategoryOwnership: vi.fn(async () => true),
-    verifyMenuOwnership: async () => true,
-    getNextItemOrder: async () => 0,
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: async () => {},
-    updateTemplate: async () => {},
-    listCategoryNames: async () => [],
-    createCategory: async () => ({ id: "id" }),
-    renameCategory: async () => {},
-    deleteCategory: async () => {},
-    reorderCategories: async () => {},
-    getMenuIdByRestaurantId: async () => "menu-1",
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
-  };
-}
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
 
 describe("ReorderItems", () => {
   it("delegates ordered list to repo", async () => {
-    const repo = createMockRepo();
+    const repo = createMockMenuRepo();
     const uc = new ReorderItems(repo);
 
     await uc.execute({
@@ -61,7 +21,7 @@ describe("ReorderItems", () => {
   });
 
   it("throws when itemIds is empty", async () => {
-    const uc = new ReorderItems(createMockRepo());
+    const uc = new ReorderItems(createMockMenuRepo());
 
     await expect(
       uc.execute({ categoryId: "cat-1", restaurantId: "resto-1", itemIds: [] }),
@@ -69,8 +29,7 @@ describe("ReorderItems", () => {
   });
 
   it("throws when categoryId does not belong to restaurantId", async () => {
-    const repo = createMockRepo();
-    repo.verifyCategoryOwnership = vi.fn(async () => false);
+    const repo = createMockMenuRepo({ verifyCategoryOwnership: vi.fn(async () => false) });
     const uc = new ReorderItems(repo);
 
     await expect(

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { RecordMenuView } from "./RecordMenuView";
-import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
-import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
+import { createMockAnalyticsRepo } from "./__fixtures__/analyticsRepoMock";
+import { createMockSnapshotRepo } from "./__fixtures__/snapshotRepoMock";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 
 const SNAPSHOT_FIXTURE = {
@@ -16,30 +16,13 @@ const SNAPSHOT_FIXTURE = {
   planTier: "PRO" as const,
 };
 
-function createMockAnalyticsRepo(
-  overrides: Partial<AnalyticsRepository> = {},
-): AnalyticsRepository {
-  return {
-    recordView: vi.fn(async () => {}),
-    getDailyStats: vi.fn(async () => []),
-    getEventTimestamps: vi.fn(async () => []),
-    ...overrides,
-  };
-}
-
-function createMockSnapshotRepo(overrides: Partial<SnapshotRepository> = {}): SnapshotRepository {
-  return {
-    upsertSnapshot: async () => {},
-    getSnapshotBySlug: async () => SNAPSHOT_FIXTURE,
-    listPublished: async () => [],
-    ...overrides,
-  };
-}
+const defaultSnapshotRepo = () =>
+  createMockSnapshotRepo({ getSnapshotBySlug: async () => SNAPSHOT_FIXTURE });
 
 describe("RecordMenuView", () => {
   it("records a view for an existing slug", async () => {
     const analyticsRepo = createMockAnalyticsRepo();
-    const uc = new RecordMenuView(analyticsRepo, createMockSnapshotRepo());
+    const uc = new RecordMenuView(analyticsRepo, defaultSnapshotRepo());
 
     const result = await uc.execute({
       slug: "resto-abcd1234",
@@ -61,10 +44,7 @@ describe("RecordMenuView", () => {
 
   it("returns recorded: false for unknown slug", async () => {
     const analyticsRepo = createMockAnalyticsRepo();
-    const uc = new RecordMenuView(
-      analyticsRepo,
-      createMockSnapshotRepo({ getSnapshotBySlug: async () => null }),
-    );
+    const uc = new RecordMenuView(analyticsRepo, createMockSnapshotRepo());
 
     const result = await uc.execute({
       slug: "unknown",
@@ -78,7 +58,7 @@ describe("RecordMenuView", () => {
 
   it("parses desktop device and direct source", async () => {
     const analyticsRepo = createMockAnalyticsRepo();
-    const uc = new RecordMenuView(analyticsRepo, createMockSnapshotRepo());
+    const uc = new RecordMenuView(analyticsRepo, defaultSnapshotRepo());
 
     await uc.execute({
       slug: "resto-abcd1234",
@@ -87,14 +67,18 @@ describe("RecordMenuView", () => {
       locale: "en",
     });
 
-    expect(analyticsRepo.recordView).toHaveBeenCalledWith(
-      expect.objectContaining({ deviceType: "DESKTOP", source: "DIRECT" }),
-    );
+    expect(analyticsRepo.recordView).toHaveBeenCalledWith({
+      restaurantId: "resto-1",
+      slug: "resto-abcd1234",
+      locale: "en",
+      deviceType: "DESKTOP",
+      source: "DIRECT",
+    });
   });
 
   it("parses link source from referrer", async () => {
     const analyticsRepo = createMockAnalyticsRepo();
-    const uc = new RecordMenuView(analyticsRepo, createMockSnapshotRepo());
+    const uc = new RecordMenuView(analyticsRepo, defaultSnapshotRepo());
 
     await uc.execute({
       slug: "resto-abcd1234",
@@ -103,8 +87,12 @@ describe("RecordMenuView", () => {
       referrer: "https://google.com",
     });
 
-    expect(analyticsRepo.recordView).toHaveBeenCalledWith(
-      expect.objectContaining({ source: "LINK" }),
-    );
+    expect(analyticsRepo.recordView).toHaveBeenCalledWith({
+      restaurantId: "resto-1",
+      slug: "resto-abcd1234",
+      locale: "fr",
+      deviceType: "DESKTOP",
+      source: "LINK",
+    });
   });
 });

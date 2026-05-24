@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { GenerateQrCode } from "./GenerateQrCode";
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
+import { createMockQrAssetRepo } from "./__fixtures__/qrAssetRepoMock";
 import type { QrCodeGenerator } from "@/application/ports/QrCodeGenerator";
-import type { StorageService } from "@/application/ports/StorageService";
-import type { QrAssetRepository } from "@/application/ports/QrAssetRepository";
 
 const INPUT_FIXTURE = {
   restaurantId: "resto-1",
@@ -20,29 +20,10 @@ function createMockQrCodeGenerator(overrides: Partial<QrCodeGenerator> = {}): Qr
   };
 }
 
-function createMockStorageService(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: vi.fn(async () => {}),
-    getPublicUrl: vi.fn(() => PUBLIC_URL),
-    delete: async () => {},
-    createSignedUploadUrl: async () => ({ uploadUrl: "", token: "", path: "" }),
-    deleteByPrefix: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockQrAssetRepo(overrides: Partial<QrAssetRepository> = {}): QrAssetRepository {
-  return {
-    save: vi.fn(async () => {}),
-    findByRestaurantId: async () => null,
-    ...overrides,
-  };
-}
-
 describe("GenerateQrCode", () => {
   it("generates and stores a QR when none exists", async () => {
     const generator = createMockQrCodeGenerator();
-    const storage = createMockStorageService();
+    const storage = createMockStorageService({ getPublicUrl: vi.fn(() => PUBLIC_URL) });
     const qrAssetRepo = createMockQrAssetRepo();
     const uc = new GenerateQrCode(generator, storage, qrAssetRepo);
 
@@ -57,7 +38,7 @@ describe("GenerateQrCode", () => {
 
   it("returns existing URL without regenerating (idempotent)", async () => {
     const generator = createMockQrCodeGenerator();
-    const storage = createMockStorageService();
+    const storage = createMockStorageService({ getPublicUrl: vi.fn(() => PUBLIC_URL) });
     const qrAssetRepo = createMockQrAssetRepo({
       findByRestaurantId: async () => ({
         restaurantId: "resto-1",

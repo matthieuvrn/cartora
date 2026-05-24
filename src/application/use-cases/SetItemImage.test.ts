@@ -1,64 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { SetItemImage } from "./SetItemImage";
-import type { MenuRepository } from "@/application/ports/MenuRepository";
-import type { StorageService } from "@/application/ports/StorageService";
-
-function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
-  return {
-    getMenuByRestaurantId: async () => null,
-    createItem: async () => ({ id: "id" }),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: vi.fn(async () => {}),
-    reorderItems: async () => {},
-    verifyCategoryOwnership: async () => true,
-    verifyMenuOwnership: async () => true,
-    getNextItemOrder: async () => 0,
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: vi.fn(async () => {}),
-    updateTemplate: async () => {},
-    listCategoryNames: async () => [],
-    createCategory: async () => ({ id: "id" }),
-    renameCategory: async () => {},
-    deleteCategory: async () => {},
-    reorderCategories: async () => {},
-    getMenuIdByRestaurantId: async () => "menu-1",
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
-    ...overrides,
-  };
-}
-
-function createMockStorage(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: async () => {},
-    getPublicUrl: () => "",
-    delete: vi.fn(async () => {}),
-    createSignedUploadUrl: async () => ({ uploadUrl: "", token: "", path: "" }),
-    deleteByPrefix: async () => {},
-    ...overrides,
-  };
-}
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
 
 describe("SetItemImage", () => {
   it("persists imagePath + alt text and marks the menu as draft", async () => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await uc.execute({
@@ -80,8 +28,8 @@ describe("SetItemImage", () => {
   });
 
   it("normalizes empty alt text to null", async () => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await uc.execute({
@@ -100,8 +48,8 @@ describe("SetItemImage", () => {
   });
 
   it("rejects path that does not start with the restaurant prefix", async () => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await expect(
@@ -115,8 +63,8 @@ describe("SetItemImage", () => {
   });
 
   it("rejects unknown item", async () => {
-    const repo = createMockRepo({ getItem: async () => null });
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo({ getItem: async () => null });
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await expect(
@@ -129,10 +77,10 @@ describe("SetItemImage", () => {
   });
 
   it("deletes previous file when path changes (e.g. ext switch)", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: "resto-1/item-2.jpg" }),
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await uc.execute({
@@ -146,10 +94,10 @@ describe("SetItemImage", () => {
   });
 
   it("does NOT delete when the path is unchanged (overwrite via upsert)", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: "resto-1/item-2.webp" }),
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
 
     await uc.execute({
@@ -162,10 +110,10 @@ describe("SetItemImage", () => {
   });
 
   it("still updates DB when previous file deletion fails", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: "resto-1/item-2.jpg" }),
     });
-    const storage = createMockStorage({
+    const storage = createMockStorageService({
       delete: vi.fn(async () => {
         throw new Error("storage down");
       }),

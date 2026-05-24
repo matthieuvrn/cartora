@@ -1,100 +1,13 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateItemImageUploadUrl } from "./CreateItemImageUploadUrl";
-import type { MenuRepository } from "@/application/ports/MenuRepository";
-import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
-import type { StorageService } from "@/application/ports/StorageService";
-import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
-import type { PlanTier } from "@/domain/billing/PlanPolicy";
-
-const RESTAURANT_FIXTURE = {
-  id: "resto-1",
-  slug: "resto-abcd1234",
-  displayName: "Mon Restaurant",
-  planStatus: "ACTIVE" as PlanStatus,
-  planTier: "PRO" as PlanTier,
-  activationDismissedAt: null,
-  logoPath: null,
-  brandPrimary: null,
-  brandAccent: null,
-  brandBackground: null,
-};
-
-function createMockRepo(overrides: Partial<MenuRepository> = {}): MenuRepository {
-  return {
-    getMenuByRestaurantId: async () => null,
-    createItem: async () => ({ id: "id" }),
-    updateItem: async () => {},
-    deleteItem: async () => {},
-    getItem: async () => ({ imagePath: null }),
-    updateItemImage: async () => {},
-    reorderItems: async () => {},
-    verifyCategoryOwnership: async () => true,
-    verifyMenuOwnership: async () => true,
-    getNextItemOrder: async () => 0,
-    updateMenuStatus: async () => {},
-    markMenuAsDraft: async () => {},
-    updateTemplate: async () => {},
-    listCategoryNames: async () => [],
-    createCategory: async () => ({ id: "id" }),
-    renameCategory: async () => {},
-    deleteCategory: async () => {},
-    reorderCategories: async () => {},
-    getMenuIdByRestaurantId: async () => "menu-1",
-    countItemsWithImage: async () => 0,
-    listDailyDishes: async () => [],
-    getDailyDish: async () => ({ imagePath: null }),
-    createDailyDish: async () => ({ id: "id" }),
-    updateDailyDish: async () => {},
-    updateDailyDishImage: async () => {},
-    deleteDailyDish: async () => {},
-    reorderDailyDishes: async () => {},
-    getNextDailyDishOrder: async () => 0,
-    listFormulas: async () => [],
-    getFormula: async () => ({ id: "formula-1" }),
-    createFormula: async () => ({ id: "formula-id" }),
-    updateFormula: async () => {},
-    deleteFormula: async () => {},
-    reorderFormulas: async () => {},
-    getNextFormulaOrder: async () => 0,
-    ...overrides,
-  };
-}
-
-function createMockRestaurantRepo(
-  overrides: Partial<RestaurantRepository> = {},
-): RestaurantRepository {
-  return {
-    findByOwnerUserId: async () => null,
-    createWithMenuAndCategories: async () => ({ id: "id" }),
-    getRestaurantById: async () => RESTAURANT_FIXTURE,
-    updateDisplayName: async () => {},
-    updateLogoPath: async () => {},
-    updateBrandColors: async () => {},
-    markActivationDismissed: async () => {},
-    delete: async () => {},
-    ...overrides,
-  };
-}
-
-function createMockStorage(overrides: Partial<StorageService> = {}): StorageService {
-  return {
-    upload: async () => {},
-    getPublicUrl: () => "",
-    delete: async () => {},
-    createSignedUploadUrl: vi.fn(async (path: string) => ({
-      uploadUrl: `https://upload.test/${path}`,
-      token: "token-abc",
-      path,
-    })),
-    deleteByPrefix: async () => {},
-    ...overrides,
-  };
-}
+import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
+import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
+import { createMockStorageService } from "./__fixtures__/storageServiceMock";
 
 describe("CreateItemImageUploadUrl", () => {
   it("returns a signed URL for the path <restaurantId>/<itemId>.<ext>", async () => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     const out = await uc.execute({
@@ -112,8 +25,8 @@ describe("CreateItemImageUploadUrl", () => {
     ["image/png", "png"],
     ["image/webp", "webp"],
   ])("maps %s to .%s", async (mime, ext) => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     const out = await uc.execute({ restaurantId: "r", itemId: "i", mime });
@@ -122,8 +35,8 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("throws on unsupported mime", async () => {
-    const repo = createMockRepo();
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     await expect(
@@ -133,8 +46,8 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("throws when item does not belong to the restaurant", async () => {
-    const repo = createMockRepo({ getItem: async () => null });
-    const storage = createMockStorage();
+    const repo = createMockMenuRepo({ getItem: async () => null });
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     await expect(
@@ -144,16 +57,16 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("rejects when FREE tier reaches 5 photos quota", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: null }),
       countItemsWithImage: async () => 5,
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(
       repo,
       storage,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "FREE" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "FREE", planStatus: "FREE" }),
       }),
     );
 
@@ -168,16 +81,16 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("rejects when STARTER tier reaches 20 photos quota", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: null }),
       countItemsWithImage: async () => 20,
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(
       repo,
       storage,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "STARTER" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "STARTER" }),
       }),
     );
 
@@ -191,11 +104,11 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("PRO tier has no photo cap (countItemsWithImage = 1000 still allowed)", async () => {
-    const repo = createMockRepo({
+    const repo = createMockMenuRepo({
       getItem: async () => ({ imagePath: null }),
       countItemsWithImage: async () => 1000,
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(repo, storage, createMockRestaurantRepo());
 
     await expect(
@@ -204,17 +117,17 @@ describe("CreateItemImageUploadUrl", () => {
   });
 
   it("does NOT count toward quota when replacing an existing photo (re-upload)", async () => {
-    const countSpy = vi.fn(async () => 5); // already at FREE quota
-    const repo = createMockRepo({
-      getItem: async () => ({ imagePath: "r/i.webp" }), // item already has a photo
-      countItemsWithImage: countSpy,
+    const countItemsWithImage = vi.fn(async () => 5);
+    const repo = createMockMenuRepo({
+      getItem: async () => ({ imagePath: "r/i.webp" }),
+      countItemsWithImage,
     });
-    const storage = createMockStorage();
+    const storage = createMockStorageService();
     const uc = new CreateItemImageUploadUrl(
       repo,
       storage,
       createMockRestaurantRepo({
-        getRestaurantById: async () => ({ ...RESTAURANT_FIXTURE, planTier: "FREE" }),
+        getRestaurantById: async () => restaurantFixture({ planTier: "FREE", planStatus: "FREE" }),
       }),
     );
 
@@ -223,6 +136,6 @@ describe("CreateItemImageUploadUrl", () => {
       uc.execute({ restaurantId: "r", itemId: "i", mime: "image/jpeg" }),
     ).resolves.toBeDefined();
     // Le count n'a même pas besoin d'être appelé puisqu'on skip la check.
-    expect(countSpy).not.toHaveBeenCalled();
+    expect(countItemsWithImage).not.toHaveBeenCalled();
   });
 });
