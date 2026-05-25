@@ -360,63 +360,6 @@
       ]
     }
   },
-  "Landing": {
-    "header": {
-      "login": "Sign in",
-      "cta": "Create my menu"
-    },
-    "hero": {
-      "eyebrow": "For independent restaurant owners",
-      "title": "Your menu online. In 5 minutes. No developer.",
-      "subtitle": "Build your digital menu, generate your QR code, update your dishes in a single click. Your guests scan, your sales grow.",
-      "ctaPrimary": "Create my menu for free",
-      "ctaSecondary": "See an example",
-      "trust": "No credit card · 5-minute setup · Cancel anytime"
-    },
-    "features": {
-      "title": "Everything you need. Nothing more.",
-      "editor": {
-        "title": "Dead-simple editor",
-        "description": "Add, edit and reorder your dishes in a few clicks. No training required."
-      },
-      "qr": {
-        "title": "Custom QR code",
-        "description": "Print your QR code, stick it on your tables, and you're live. Your guests scan, that's it."
-      },
-      "stats": {
-        "title": "Real-time analytics",
-        "description": "See which dishes are hits, at what time, from which device. Make the right calls."
-      }
-    },
-    "pricing": {
-      "title": "Simple pricing, no surprises",
-      "subtitle": "Try it free. Go Pro when you're ready to publish."
-    },
-    "faq": {
-      "title": "Frequently asked questions",
-      "subtitle": "Everything you need to know before getting started",
-      "howItWorks": {
-        "q": "How does it work?",
-        "a": "Create a free account, add your dishes, publish your menu and share it via a unique QR code to print on your tables."
-      },
-      "techSkills": {
-        "q": "Do I need technical skills?",
-        "a": "No. The interface is built for restaurant owners, not developers. Your menu is ready in minutes, without writing a single line of code."
-      },
-      "commitment": {
-        "q": "Am I tied in?",
-        "a": "No. The Pro plan is monthly and you can cancel anytime from your billing portal, in one click."
-      },
-      "itemsLimit": {
-        "q": "How many dishes can I add?",
-        "a": "Unlimited, even on the free plan. Add as many starters, mains, desserts and drinks as you want."
-      },
-      "watermark": {
-        "q": "Why a watermark on the free plan?",
-        "a": "The free plan lets you create and preview your menu freely. To publish without the watermark and get your QR code, upgrade to Pro."
-      }
-    }
-  },
   "NotFound": {
     "title": "Page not found",
     "description": "The page you are looking for does not exist or has been moved.",
