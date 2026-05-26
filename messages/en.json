@@ -400,19 +400,19 @@
       "supportFr": "French-speaking support"
     },
     "audience": {
-      "title": "",
-      "subtitle": "",
+      "title": "Cartora adapts to your type of establishment",
+      "subtitle": "Restaurant, pizzeria, brasserie, bar, café, creperie, fast food, bakery — eight ready-to-use profiles with pre-filled categories.",
       "types": {
-        "traditional": "",
-        "pizzeria": "",
-        "brasserie": "",
-        "bar": "",
-        "cafe": "",
-        "creperie": "",
-        "fastfood": "",
-        "bakery": ""
+        "traditional": "Traditional restaurant",
+        "pizzeria": "Pizzeria",
+        "brasserie": "Brasserie",
+        "bar": "Bar",
+        "cafe": "Café",
+        "creperie": "Creperie",
+        "fastfood": "Fast food",
+        "bakery": "Bakery"
       },
-      "footnote": ""
+      "footnote": "Pick your type at signup: Cartora pre-fills the matching categories (starters/mains/desserts for a traditional restaurant, pizzas/pasta/antipasti for a pizzeria, etc.)."
     },
     "problem": {
       "title": "",

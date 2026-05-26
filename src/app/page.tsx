@@ -1,3 +1,4 @@
+import { LandingAudience } from "@/interface/ui/landing/LandingAudience";
 import { LandingFaqV2 } from "@/interface/ui/landing/LandingFaqV2";
 import { LandingFinalCta } from "@/interface/ui/landing/LandingFinalCta";
 import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
@@ -13,6 +14,7 @@ export default function HomePage() {
       <main>
         <LandingHero />
         <LandingTrustStrip />
+        <LandingAudience />
         <LandingPricing />
         <LandingTrustSafety />
         <LandingFaqV2 />
