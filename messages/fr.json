@@ -367,19 +367,19 @@
   },
   "Landing": {
     "header": {
-      "navTarifs": "",
-      "navDemo": "",
-      "loginCta": "",
-      "signupCta": "",
+      "navTarifs": "Tarifs",
+      "navDemo": "Démo",
+      "loginCta": "Se connecter",
+      "signupCta": "Créer ma carte gratuitement",
       "loggedInCta": ""
     },
     "hero": {
-      "title": "",
-      "subtitle": "",
-      "ctaPrimary": "",
-      "ctaSecondary": "",
-      "microTrust": "",
-      "demoImageAlt": ""
+      "title": "Votre carte en ligne. Mise à jour à la seconde. Scannée par un QR.",
+      "subtitle": "Créez votre menu numérique en moins de 10 minutes, sans compétence technique. Vos clients scannent, vous éditez en direct, votre carte ne ment jamais.",
+      "ctaPrimary": "Créer ma carte gratuitement",
+      "ctaSecondary": "Voir un menu en direct",
+      "microTrust": "Sans carte bancaire · Configuration en 10 minutes · Résiliable à tout moment",
+      "demoImageAlt": "Aperçu du menu Cartora affiché sur téléphone"
     },
     "trustStrip": {
       "hostingEu": "",

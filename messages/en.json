@@ -362,19 +362,19 @@
   },
   "Landing": {
     "header": {
-      "navTarifs": "",
-      "navDemo": "",
-      "loginCta": "",
-      "signupCta": "",
+      "navTarifs": "Pricing",
+      "navDemo": "Demo",
+      "loginCta": "Log in",
+      "signupCta": "Create my menu for free",
       "loggedInCta": ""
     },
     "hero": {
-      "title": "",
-      "subtitle": "",
-      "ctaPrimary": "",
-      "ctaSecondary": "",
-      "microTrust": "",
-      "demoImageAlt": ""
+      "title": "Your menu, online. Updated in real time. One QR scan away.",
+      "subtitle": "Build your digital menu in under 10 minutes — no technical skills required. Your guests scan, you edit live, your menu is never out of date.",
+      "ctaPrimary": "Create my menu for free",
+      "ctaSecondary": "See a live menu",
+      "microTrust": "No credit card · 10-minute setup · Cancel anytime",
+      "demoImageAlt": "Cartora menu preview on mobile"
     },
     "trustStrip": {
       "hostingEu": "",
