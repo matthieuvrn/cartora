@@ -365,6 +365,130 @@
       ]
     }
   },
+  "Landing": {
+    "header": {
+      "navTarifs": "",
+      "navDemo": "",
+      "loginCta": "",
+      "signupCta": "",
+      "loggedInCta": ""
+    },
+    "hero": {
+      "title": "",
+      "subtitle": "",
+      "ctaPrimary": "",
+      "ctaSecondary": "",
+      "microTrust": "",
+      "demoImageAlt": ""
+    },
+    "trustStrip": {
+      "hostingEu": "",
+      "stripe": "",
+      "rgpd": "",
+      "supportFr": ""
+    },
+    "audience": {
+      "title": "",
+      "subtitle": "",
+      "types": {
+        "traditional": "",
+        "pizzeria": "",
+        "brasserie": "",
+        "bar": "",
+        "cafe": "",
+        "creperie": "",
+        "fastfood": "",
+        "bakery": ""
+      },
+      "footnote": ""
+    },
+    "problem": {
+      "title": "",
+      "pains": {
+        "ardoise": { "title": "", "body": "" },
+        "pdf": { "title": "", "body": "" },
+        "wix": { "title": "", "body": "" },
+        "allergens": { "title": "", "body": "" }
+      }
+    },
+    "howItWorks": {
+      "title": "",
+      "step1": { "title": "", "body": "" },
+      "step2": { "title": "", "body": "" },
+      "step3": { "title": "", "body": "" }
+    },
+    "features": {
+      "title": "",
+      "editor": { "title": "", "body": "", "tier": "" },
+      "qr": { "title": "", "body": "", "tier": "" },
+      "allergens": { "title": "", "body": "", "tier": "" },
+      "bilingual": { "title": "", "body": "", "tier": "" },
+      "daily": { "title": "", "body": "", "tier": "" },
+      "branding": { "title": "", "body": "", "tier": "" }
+    },
+    "demo": {
+      "title": "",
+      "subtitle": "",
+      "imageAlt": "",
+      "openCta": "",
+      "footnote": ""
+    },
+    "comparison": {
+      "title": "",
+      "subtitle": "",
+      "columns": {
+        "paper": "",
+        "wix": "",
+        "qrFree": "",
+        "cartora": ""
+      },
+      "criteria": {
+        "realtime": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
+        "allergens": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
+        "bilingual": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
+        "analytics": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
+        "cost": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
+        "skills": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" }
+      }
+    },
+    "pricing": {
+      "title": "",
+      "subtitle": "",
+      "freeTagline": "",
+      "starterTagline": "",
+      "proTagline": "",
+      "starterBadge": "",
+      "footer": ""
+    },
+    "trustSafety": {
+      "title": "",
+      "hostingEu": { "title": "", "body": "" },
+      "stripe": { "title": "", "body": "" },
+      "rgpd": { "title": "", "body": "" },
+      "founder": { "title": "", "body": "" }
+    },
+    "faq": {
+      "title": "",
+      "items": {
+        "noCc": { "q": "", "a": "" },
+        "commitment": { "q": "", "a": "" },
+        "qrAgeingClients": { "q": "", "a": "" },
+        "allergens": { "q": "", "a": "" },
+        "bilingual": { "q": "", "a": "" },
+        "dataHosting": { "q": "", "a": "" },
+        "cancel": { "q": "", "a": "" },
+        "supportFr": { "q": "", "a": "" },
+        "multiRestaurants": { "q": "", "a": "" },
+        "qrPrinting": { "q": "", "a": "" }
+      }
+    },
+    "finalCta": {
+      "title": "",
+      "ctaPrimary": "",
+      "ctaSecondary": "",
+      "microTrust": ""
+    }
+  },
   "NotFound": {
     "title": "Page introuvable",
     "description": "La page que vous cherchez n'existe pas ou a été déplacée.",

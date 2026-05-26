@@ -14,6 +14,7 @@ export default defineConfig({
       "src/application/**/*.test.ts",
       "src/infrastructure/rate-limit/**/*.test.ts",
       "src/lib/**/*.test.ts",
+      "src/i18n/**/*.test.ts",
     ],
   },
 });
