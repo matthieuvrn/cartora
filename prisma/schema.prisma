@@ -368,3 +368,24 @@ model MenuViewDailyStat {
   @@index([restaurantId, date])
   @@map("menu_view_daily_stats")
 }
+
+/// Landing page tracking events. Anonymous (no restaurant FK), purged after 30 days
+/// via pg_cron. RLS: anon/authenticated peuvent INSERT, lecture réservée au
+/// service_role. Le champ `eventName` est contraint côté application via le union
+/// TS `LandingEventName` (cf. src/domain/analytics/LandingEventNames.ts) + Zod enum
+/// au boundary /api/track.
+model LandingEvent {
+  id         String     @id @default(uuid()) @db.Uuid
+  eventName  String     @map("event_name") @db.VarChar(64)
+  locale     Locale
+  deviceType DeviceType @map("device_type")
+  source     String?    @db.VarChar(32)
+  metadata   Json?
+  userAgent  String?    @map("user_agent") @db.VarChar(500)
+  referer    String?    @db.VarChar(500)
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@index([eventName, createdAt])
+  @@index([createdAt])
+  @@map("landing_events")
+}
