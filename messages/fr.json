@@ -472,25 +472,64 @@
       "footer": "Sans engagement · Résiliable en 1 clic · TVA incluse"
     },
     "trustSafety": {
-      "title": "",
-      "hostingEu": { "title": "", "body": "" },
-      "stripe": { "title": "", "body": "" },
-      "rgpd": { "title": "", "body": "" },
-      "founder": { "title": "", "body": "" }
+      "title": "Vos données, votre confiance",
+      "hostingEu": {
+        "title": "Vos données restent en Europe",
+        "body": "Le contenu de votre carte (plats, allergènes, photos) est stocké chez Supabase, dans des centres de données situés en France et en Allemagne."
+      },
+      "stripe": {
+        "title": "Paiements traités par Stripe",
+        "body": "Si vous passez en STARTER ou PRO, Stripe encaisse directement. Cartora ne voit jamais votre numéro de carte et ne le stocke jamais."
+      },
+      "rgpd": {
+        "title": "Vous restez maître de vos données",
+        "body": "Export, suppression de compte et résiliation depuis votre espace, en un clic. Conforme au Règlement général sur la protection des données (RGPD).",
+        "linkLabel": "Lire notre politique de confidentialité"
+      }
     },
     "faq": {
-      "title": "",
+      "title": "Questions fréquentes",
       "items": {
-        "noCc": { "q": "", "a": "" },
-        "commitment": { "q": "", "a": "" },
-        "qrAgeingClients": { "q": "", "a": "" },
-        "allergens": { "q": "", "a": "" },
-        "bilingual": { "q": "", "a": "" },
-        "dataHosting": { "q": "", "a": "" },
-        "cancel": { "q": "", "a": "" },
-        "supportFr": { "q": "", "a": "" },
-        "multiRestaurants": { "q": "", "a": "" },
-        "qrPrinting": { "q": "", "a": "" }
+        "noCc": {
+          "q": "Faut-il une carte bancaire pour s'inscrire ?",
+          "a": "Non. Vous créez votre compte et votre menu entièrement gratuitement, sans carte bancaire. Le paiement n'intervient que si vous décidez de publier votre carte (à partir de 9,90 €/mois)."
+        },
+        "commitment": {
+          "q": "Suis-je engagé sur une durée ?",
+          "a": "Aucune durée d'engagement. Les abonnements STARTER et PRO sont mensuels, résiliables en un clic depuis votre compte, à tout moment."
+        },
+        "qrAgeingClients": {
+          "q": "Mes clients sauront-ils scanner un QR code ?",
+          "a": "Oui. Les QR codes se sont généralisés au restaurant après 2020 et la majorité des smartphones les scannent directement depuis l'appareil photo. Si un client n'y arrive pas, l'URL de votre carte fonctionne aussi sans QR."
+        },
+        "allergens": {
+          "q": "Comment Cartora gère-t-il les allergènes ?",
+          "a": "Les 14 allergènes du règlement européen 1169/2011 sont intégrés. Vous cochez ceux présents dans chaque plat, et vos clients les voient directement sur la carte. Conforme à l'obligation légale d'information."
+        },
+        "bilingual": {
+          "q": "Puis-je proposer ma carte en français et en anglais ?",
+          "a": "Oui, le bilingue FR/EN est natif. Vous saisissez chaque plat dans les deux langues et vos clients voient automatiquement leur langue selon les réglages de leur navigateur."
+        },
+        "dataHosting": {
+          "q": "Où sont stockées les données de mon restaurant ?",
+          "a": "Sur Supabase, en France et en Allemagne, exclusivement dans l'Union européenne. Vos données ne quittent jamais l'UE. Vous pouvez les exporter ou les supprimer à tout moment depuis votre compte."
+        },
+        "cancel": {
+          "q": "Comment je résilie ?",
+          "a": "Depuis votre espace client, en un clic. La résiliation est immédiate, sans frais et sans justification à fournir. Vous gardez l'accès en mode gratuit."
+        },
+        "supportFr": {
+          "q": "Le support est-il en français ?",
+          "a": "Oui. Cartora est édité en France et chaque demande envoyée à contact@cartora.app reçoit une réponse en français, sous 48h ouvrées."
+        },
+        "multiRestaurants": {
+          "q": "Puis-je gérer plusieurs restaurants avec un seul compte ?",
+          "a": "Pas pour le moment : un compte correspond à un restaurant. Si vous en gérez plusieurs, écrivez-nous à contact@cartora.app, nous étudions chaque cas."
+        },
+        "qrPrinting": {
+          "q": "Comment imprimer le QR code et où le placer ?",
+          "a": "Cartora génère un QR code haute définition téléchargeable depuis votre tableau de bord. Vous l'imprimez sur les supports de votre choix : sets de table, chevalets, vitrine, additions. Toutes les impressions renvoient vers la version à jour de votre carte."
+        }
       }
     },
     "finalCta": {

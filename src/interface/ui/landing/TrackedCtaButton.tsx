@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
+import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "default" | "lg";
@@ -34,19 +35,6 @@ const sizeClasses: Record<Size, string> = {
   lg: "h-11 px-6 text-base",
 };
 
-function fireBeacon(payload: string) {
-  if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
-    const blob = new Blob([payload], { type: "application/json" });
-    if (navigator.sendBeacon("/api/track", blob)) return;
-  }
-  void fetch("/api/track", {
-    method: "POST",
-    body: payload,
-    keepalive: true,
-    headers: { "Content-Type": "application/json" },
-  }).catch(() => {});
-}
-
 export function TrackedCtaButton({
   event,
   href,
@@ -60,13 +48,7 @@ export function TrackedCtaButton({
   const locale = useLocale();
 
   const handleClick = React.useCallback(() => {
-    const payload = JSON.stringify({
-      type: "landing",
-      event,
-      locale: locale === "en" ? "en" : "fr",
-      ...(metadata ? { metadata } : {}),
-    });
-    fireBeacon(payload);
+    trackLandingEvent({ event, locale, metadata });
   }, [event, locale, metadata]);
 
   const classes = cn(baseClasses, variantClasses[variant], sizeClasses[size], className);

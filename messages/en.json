@@ -472,25 +472,64 @@
       "footer": "No commitment · Cancel in 1 click · VAT included"
     },
     "trustSafety": {
-      "title": "",
-      "hostingEu": { "title": "", "body": "" },
-      "stripe": { "title": "", "body": "" },
-      "rgpd": { "title": "", "body": "" },
-      "founder": { "title": "", "body": "" }
+      "title": "Your data, your trust",
+      "hostingEu": {
+        "title": "Your data stays in Europe",
+        "body": "Your menu content (dishes, allergens, photos) is stored with Supabase, in data centres located in France and Germany."
+      },
+      "stripe": {
+        "title": "Payments handled by Stripe",
+        "body": "When you upgrade to STARTER or PRO, Stripe processes the payment directly. Cartora never sees or stores your card number."
+      },
+      "rgpd": {
+        "title": "You stay in control of your data",
+        "body": "Export, account deletion and cancellation are all available from your account, in one click. Compliant with the General Data Protection Regulation (GDPR).",
+        "linkLabel": "Read our privacy policy"
+      }
     },
     "faq": {
-      "title": "",
+      "title": "Frequently asked questions",
       "items": {
-        "noCc": { "q": "", "a": "" },
-        "commitment": { "q": "", "a": "" },
-        "qrAgeingClients": { "q": "", "a": "" },
-        "allergens": { "q": "", "a": "" },
-        "bilingual": { "q": "", "a": "" },
-        "dataHosting": { "q": "", "a": "" },
-        "cancel": { "q": "", "a": "" },
-        "supportFr": { "q": "", "a": "" },
-        "multiRestaurants": { "q": "", "a": "" },
-        "qrPrinting": { "q": "", "a": "" }
+        "noCc": {
+          "q": "Do I need a credit card to sign up?",
+          "a": "No. You create your account and build your menu entirely for free, without a credit card. You only pay if you decide to publish your menu (from €9.90/month)."
+        },
+        "commitment": {
+          "q": "Am I locked into a contract?",
+          "a": "No commitment period. STARTER and PRO subscriptions are monthly and can be cancelled with one click from your account, at any time."
+        },
+        "qrAgeingClients": {
+          "q": "Will my customers know how to scan a QR code?",
+          "a": "Yes. QR codes became standard in restaurants after 2020 and most smartphones scan them directly from the camera app. If a customer can't scan, your menu URL also works without a QR."
+        },
+        "allergens": {
+          "q": "How does Cartora handle allergens?",
+          "a": "The 14 allergens listed in EU regulation 1169/2011 are built in. You tick the ones present in each dish, and your customers see them right on the menu. Fully compliant with the legal disclosure requirement."
+        },
+        "bilingual": {
+          "q": "Can I offer my menu in French and English?",
+          "a": "Yes, bilingual FR/EN is native. You enter each dish in both languages, and your customers automatically see theirs based on their browser settings."
+        },
+        "dataHosting": {
+          "q": "Where is my restaurant's data stored?",
+          "a": "On Supabase, in France and Germany — exclusively within the European Union. Your data never leaves the EU. You can export or delete it at any time from your account."
+        },
+        "cancel": {
+          "q": "How do I cancel?",
+          "a": "From your account, in one click. Cancellation is immediate, with no fee and no justification required. You keep free-tier access afterwards."
+        },
+        "supportFr": {
+          "q": "Is there French support?",
+          "a": "Yes. Cartora is built in France, and every request sent to contact@cartora.app gets a reply in French within 48 business hours."
+        },
+        "multiRestaurants": {
+          "q": "Can I manage multiple restaurants with one account?",
+          "a": "Not yet — one account is one restaurant. If you manage several, write to us at contact@cartora.app; we review each case."
+        },
+        "qrPrinting": {
+          "q": "How do I print the QR code and where should I place it?",
+          "a": "Cartora generates a high-resolution QR code downloadable from your dashboard. Print it on whatever you like: table mats, easels, window displays, receipts. Every printed copy always points to the latest version of your menu."
+        }
       }
     },
     "finalCta": {
