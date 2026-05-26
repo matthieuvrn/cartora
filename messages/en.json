@@ -377,10 +377,10 @@
       "demoImageAlt": "Cartora menu preview on mobile"
     },
     "trustStrip": {
-      "hostingEu": "",
-      "stripe": "",
-      "rgpd": "",
-      "supportFr": ""
+      "hostingEu": "Hosted in France & EU (Supabase)",
+      "stripe": "Secure payments via Stripe",
+      "rgpd": "GDPR-compliant",
+      "supportFr": "French-speaking support"
     },
     "audience": {
       "title": "",
@@ -478,10 +478,10 @@
       }
     },
     "finalCta": {
-      "title": "",
-      "ctaPrimary": "",
-      "ctaSecondary": "",
-      "microTrust": ""
+      "title": "Ready to digitize your menu?",
+      "ctaPrimary": "Create my menu for free",
+      "ctaSecondary": "See a live menu",
+      "microTrust": "No credit card · 10-minute setup · Cancel anytime"
     }
   },
   "NotFound": {

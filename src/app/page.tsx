@@ -1,5 +1,7 @@
+import { LandingFinalCta } from "@/interface/ui/landing/LandingFinalCta";
 import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
 import { LandingHero } from "@/interface/ui/landing/LandingHero";
+import { LandingTrustStrip } from "@/interface/ui/landing/LandingTrustStrip";
 
 export default function HomePage() {
   return (
@@ -7,6 +9,8 @@ export default function HomePage() {
       <LandingHeader />
       <main>
         <LandingHero />
+        <LandingTrustStrip />
+        <LandingFinalCta />
       </main>
     </>
   );

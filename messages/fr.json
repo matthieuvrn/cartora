@@ -382,10 +382,10 @@
       "demoImageAlt": "Aperçu du menu Cartora affiché sur téléphone"
     },
     "trustStrip": {
-      "hostingEu": "",
-      "stripe": "",
-      "rgpd": "",
-      "supportFr": ""
+      "hostingEu": "Hébergé en France & UE (Supabase)",
+      "stripe": "Paiements sécurisés Stripe",
+      "rgpd": "Conforme RGPD",
+      "supportFr": "Support en français"
     },
     "audience": {
       "title": "",
@@ -483,10 +483,10 @@
       }
     },
     "finalCta": {
-      "title": "",
-      "ctaPrimary": "",
-      "ctaSecondary": "",
-      "microTrust": ""
+      "title": "Prêt à digitaliser votre carte ?",
+      "ctaPrimary": "Créer ma carte gratuitement",
+      "ctaSecondary": "Voir un menu en direct",
+      "microTrust": "Sans carte bancaire · Configuration en 10 minutes · Résiliable à tout moment"
     }
   },
   "NotFound": {
