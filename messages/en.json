@@ -330,18 +330,33 @@
   "Pricing": {
     "title": "Choose your plan",
     "description": "Publish your menu online and share it via QR code.",
-    "popular": "Popular",
+    "recommended": "Recommended",
     "free": {
       "name": "Free",
-      "price": "$0",
+      "price": "€0",
       "period": "",
-      "features": ["Create your menu", "Preview with watermark", "Unlimited items"]
+      "features": [
+        "Full menu builder",
+        "Built-in QR code",
+        "14 EU allergens",
+        "Bilingual FR / EN",
+        "Up to 6 categories",
+        "Preview with watermark",
+        "Publishing not included"
+      ]
     },
     "pro": {
       "name": "Pro",
-      "price": "$29.90",
+      "price": "€29.90",
       "period": "/ month",
-      "features": ["Online publication", "Custom QR code", "No watermark", "Priority support"]
+      "features": [
+        "Everything in STARTER",
+        "Unlimited categories",
+        "Unlimited photos",
+        "3 premium templates",
+        "Brand colors",
+        "Priority support"
+      ]
     },
     "ctaCurrent": "Current plan",
     "ctaChoose": "Choose",
@@ -349,14 +364,16 @@
     "ctaStartPro": "Create my account",
     "starter": {
       "name": "Starter",
-      "price": "$9.90",
+      "price": "€9.90",
       "period": "/ month",
       "features": [
-        "Online publication",
-        "QR code",
-        "No watermark",
-        "10 categories",
-        "20 item photos"
+        "Everything in FREE",
+        "Publish without watermark",
+        "Up to 10 categories",
+        "Up to 20 item photos",
+        "Daily dishes & set menus",
+        "Real-time analytics",
+        "French-speaking support"
       ]
     }
   },
@@ -447,13 +464,12 @@
       }
     },
     "pricing": {
-      "title": "",
-      "subtitle": "",
-      "freeTagline": "",
-      "starterTagline": "",
-      "proTagline": "",
-      "starterBadge": "",
-      "footer": ""
+      "title": "Fair pricing, no surprises.",
+      "subtitle": "Start for free. Pay only when you publish.",
+      "freeTagline": "To explore",
+      "starterTagline": "To publish with confidence",
+      "proTagline": "To go further",
+      "footer": "No commitment · Cancel in 1 click · VAT included"
     },
     "trustSafety": {
       "title": "",

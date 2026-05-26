@@ -330,21 +330,31 @@
   "Pricing": {
     "title": "Choisissez votre plan",
     "description": "Publiez votre carte en ligne et partagez-la via QR code.",
-    "popular": "Populaire",
+    "recommended": "Recommandé",
     "free": {
       "name": "Gratuit",
       "price": "0 €",
       "period": "",
-      "features": ["Créer votre carte", "Aperçu avec watermark", "Items illimités"]
+      "features": [
+        "Création de carte complète",
+        "QR code intégré",
+        "14 allergènes UE",
+        "Bilingue FR / EN",
+        "Jusqu'à 6 catégories",
+        "Aperçu avec filigrane",
+        "Publication non incluse"
+      ]
     },
     "pro": {
       "name": "Pro",
       "price": "29,90 €",
       "period": "/ mois",
       "features": [
-        "Publication en ligne",
-        "QR code personnalisé",
-        "Sans watermark",
+        "Tout STARTER inclus",
+        "Catégories illimitées",
+        "Photos illimitées",
+        "3 templates premium",
+        "Couleurs de marque",
         "Support prioritaire"
       ]
     },
@@ -357,11 +367,13 @@
       "price": "9,90 €",
       "period": "/ mois",
       "features": [
-        "Publication en ligne",
-        "QR code",
-        "Sans watermark",
-        "10 catégories",
-        "20 photos d'items"
+        "Tout FREE inclus",
+        "Publication sans filigrane",
+        "Jusqu'à 10 catégories",
+        "Jusqu'à 20 photos d'items",
+        "Menus du jour & formules",
+        "Statistiques temps réel",
+        "Support en français"
       ]
     }
   },
@@ -452,13 +464,12 @@
       }
     },
     "pricing": {
-      "title": "",
-      "subtitle": "",
-      "freeTagline": "",
-      "starterTagline": "",
-      "proTagline": "",
-      "starterBadge": "",
-      "footer": ""
+      "title": "Un prix juste, sans surprise.",
+      "subtitle": "Démarrez gratuitement. Vous ne payez qu'au moment de publier.",
+      "freeTagline": "Pour découvrir",
+      "starterTagline": "Pour publier sereinement",
+      "proTagline": "Pour aller plus loin",
+      "footer": "Sans engagement · Résiliable en 1 clic · TVA incluse"
     },
     "trustSafety": {
       "title": "",
