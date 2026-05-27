@@ -451,13 +451,37 @@
       }
     },
     "features": {
-      "title": "",
-      "editor": { "title": "", "body": "", "tier": "" },
-      "qr": { "title": "", "body": "", "tier": "" },
-      "allergens": { "title": "", "body": "", "tier": "" },
-      "bilingual": { "title": "", "body": "", "tier": "" },
-      "daily": { "title": "", "body": "", "tier": "" },
-      "branding": { "title": "", "body": "", "tier": "" }
+      "title": "Everything you need to serve your menu online",
+      "editor": {
+        "title": "Editor with no learning curve",
+        "body": "Dishes, categories, allergens, prices: fill your menu without a tutorial. Edits go live to the second.",
+        "tier": "All plans"
+      },
+      "qr": {
+        "title": "QR code with analytics",
+        "body": "One QR per restaurant, to print on tables or in the window. Track scans (time, device, source) from your dashboard.",
+        "tier": "All plans"
+      },
+      "allergens": {
+        "title": "14 EU allergens and photos",
+        "body": "The 14 allergens from EU regulation 1169/2011, built into every dish. Photos available based on your plan (5 / 20 / unlimited).",
+        "tier": "All plans"
+      },
+      "bilingual": {
+        "title": "French-English bilingual",
+        "body": "Each dish entered in both languages. Your guest sees their own automatically, based on their browser.",
+        "tier": "All plans"
+      },
+      "daily": {
+        "title": "Daily specials and set menus",
+        "body": "Time-limited daily dishes (up to 14 days) and set menus with detailed descriptions. Auto-removed on expiry.",
+        "tier": "STARTER and PRO"
+      },
+      "branding": {
+        "title": "Premium templates and brand colors",
+        "body": "Three designs (Classic, Elegant, Modern) and three customizable colors. WCAG AA contrast check to stay legible.",
+        "tier": "PRO"
+      }
     },
     "demo": {
       "title": "",
