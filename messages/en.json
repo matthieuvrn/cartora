@@ -415,12 +415,24 @@
       "footnote": "Pick your type at signup: Cartora pre-fills the matching categories (starters/mains/desserts for a traditional restaurant, pizzas/pasta/antipasti for a pizzeria, etc.)."
     },
     "problem": {
-      "title": "",
+      "title": "Today, your menu lives on…",
       "pains": {
-        "ardoise": { "title": "", "body": "" },
-        "pdf": { "title": "", "body": "" },
-        "wix": { "title": "", "body": "" },
-        "allergens": { "title": "", "body": "" }
+        "ardoise": {
+          "title": "A chalkboard wiped at every service",
+          "body": "Tuesday's daily special is still showing on Thursday. One rain shower, one sponge swipe, and half your offer is gone."
+        },
+        "pdf": {
+          "title": "A PDF printed six months ago",
+          "body": "Prices have changed, two dishes are off the menu, but the corner copy shop keeps printing the same version."
+        },
+        "wix": {
+          "title": "A website only your agency can update",
+          "body": "Every menu change costs €80 to your agency. After three months, you stop bothering."
+        },
+        "allergens": {
+          "title": "A menu without allergens",
+          "body": "EU Regulation 1169/2011 has required them since 2014. On paper, you improvise out loud — at every single service."
+        }
       }
     },
     "howItWorks": {

@@ -415,12 +415,24 @@
       "footnote": "Indiquez votre type à l'inscription : Cartora pré-remplit les catégories adaptées (entrées/plats/desserts pour un restaurant traditionnel, pizzas/pâtes/antipasti pour une pizzeria, etc.)."
     },
     "problem": {
-      "title": "",
+      "title": "Votre carte vit aujourd'hui sur…",
       "pains": {
-        "ardoise": { "title": "", "body": "" },
-        "pdf": { "title": "", "body": "" },
-        "wix": { "title": "", "body": "" },
-        "allergens": { "title": "", "body": "" }
+        "ardoise": {
+          "title": "Une ardoise effacée à chaque service",
+          "body": "Le plat du jour de mardi reste affiché le jeudi. Une averse, un coup d'éponge, et la moitié de votre offre disparaît."
+        },
+        "pdf": {
+          "title": "Un PDF imprimé il y a six mois",
+          "body": "Les prix ont bougé, deux plats ne sont plus servis, mais le pressing du coin imprime toujours la même version."
+        },
+        "wix": {
+          "title": "Un site qu'il faut faire updater à l'extérieur",
+          "body": "Chaque changement de carte coûte 80 € à votre agence. Vous laissez tomber au bout de trois mois."
+        },
+        "allergens": {
+          "title": "Une carte sans allergènes",
+          "body": "Le règlement UE 1169/2011 vous y oblige depuis 2014. Sur papier, vous improvisez à l'oral. À chaque service."
+        }
       }
     },
     "howItWorks": {
