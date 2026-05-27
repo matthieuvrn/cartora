@@ -1,4 +1,5 @@
 import { LandingAudience } from "@/interface/ui/landing/LandingAudience";
+import { LandingComparison } from "@/interface/ui/landing/LandingComparison";
 import { LandingDemoPreview } from "@/interface/ui/landing/LandingDemoPreview";
 import { LandingFaqV2 } from "@/interface/ui/landing/LandingFaqV2";
 import { LandingFeatures } from "@/interface/ui/landing/LandingFeatures";
@@ -23,6 +24,7 @@ export default function HomePage() {
         <LandingHowItWorks />
         <LandingFeatures />
         <LandingDemoPreview />
+        <LandingComparison />
         <LandingPricing />
         <LandingTrustSafety />
         <LandingFaqV2 />

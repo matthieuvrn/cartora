@@ -491,21 +491,21 @@
       "footnote": "This demo is a real Cartora menu, built in 8 minutes."
     },
     "comparison": {
-      "title": "",
-      "subtitle": "",
-      "columns": {
-        "paper": "",
-        "wix": "",
-        "qrFree": "",
-        "cartora": ""
-      },
-      "criteria": {
-        "realtime": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "allergens": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "bilingual": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "analytics": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "cost": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "skills": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" }
+      "title": "How Cartora compares",
+      "subtitle": "Three concrete cases depending on what you use today for your menu.",
+      "cards": {
+        "paper": {
+          "label": "If you still use a paper menu",
+          "body": "Paper has a tangible charm and never crashes. But every price or dish change means reprinting, allergens stay handled by hand (with the legal risk that comes with it), and the menu ages fast. Cartora keeps the menu accurate without a single reprint."
+        },
+        "website": {
+          "label": "If you already have a website",
+          "body": "Your website still earns its place for general info: address, opening hours, ambient photos. But a website isn't built for a menu that moves: every change goes through edit mode, allergens aren't structured, and per-dish bilingual is rarely native. Cartora slots in alongside, it doesn't replace your site."
+        },
+        "other": {
+          "label": "If you're comparing other digital menus",
+          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, per-dish bilingual, and no commitment. Up to you to compare what matters for your venue."
+        }
       }
     },
     "pricing": {

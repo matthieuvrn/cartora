@@ -491,21 +491,21 @@
       "footnote": "Cette démo est un vrai menu Cartora, créé en 8 minutes."
     },
     "comparison": {
-      "title": "",
-      "subtitle": "",
-      "columns": {
-        "paper": "",
-        "wix": "",
-        "qrFree": "",
-        "cartora": ""
-      },
-      "criteria": {
-        "realtime": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "allergens": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "bilingual": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "analytics": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "cost": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" },
-        "skills": { "label": "", "paper": "", "wix": "", "qrFree": "", "cartora": "" }
+      "title": "Comment Cartora se compare",
+      "subtitle": "Trois cas concrets selon ce que vous utilisez aujourd'hui pour votre carte.",
+      "cards": {
+        "paper": {
+          "label": "Si vous avez encore une carte papier",
+          "body": "La carte papier a un charme tangible et ne plante jamais. Mais chaque changement de prix ou de plat oblige à réimprimer, les allergènes restent gérés à la main (avec le risque légal qui va avec), et la carte vieillit vite. Cartora garde la carte juste sans rien réimprimer."
+        },
+        "website": {
+          "label": "Si vous avez déjà un site web",
+          "body": "Votre site reste utile pour vos informations générales : adresse, horaires, photos d'ambiance. Mais un site n'est pas conçu pour une carte qui bouge : chaque modification passe par l'éditeur, les allergènes ne sont pas structurés, et le bilingue par plat est rarement natif. Cartora se branche en complément, sans remplacer votre site."
+        },
+        "other": {
+          "label": "Si vous comparez d'autres menus digitaux",
+          "body": "D'autres outils existent et certains font très bien leur travail. Ce qui guide Cartora : conçu en France, hébergement en Europe, 14 allergènes EU natifs, bilingue par plat, et sans engagement. À vous de comparer ce qui compte pour votre établissement."
+        }
       }
     },
     "pricing": {
