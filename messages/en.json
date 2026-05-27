@@ -436,10 +436,19 @@
       }
     },
     "howItWorks": {
-      "title": "",
-      "step1": { "title": "", "body": "" },
-      "step2": { "title": "", "body": "" },
-      "step3": { "title": "", "body": "" }
+      "title": "Three steps, your menu is online",
+      "step1": {
+        "title": "Create your free account",
+        "body": "Email, password, that's it — no credit card needed. You're in the editor in under a minute."
+      },
+      "step2": {
+        "title": "Fill in your menu",
+        "body": "Dishes, categories, allergens, photos: the editor works without any training. A full menu takes about 10 minutes."
+      },
+      "step3": {
+        "title": "Print your QR code",
+        "body": "Customers scan it. Every price or dish edit goes live to the second — with no reprint needed."
+      }
     },
     "features": {
       "title": "",

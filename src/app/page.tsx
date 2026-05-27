@@ -3,6 +3,7 @@ import { LandingFaqV2 } from "@/interface/ui/landing/LandingFaqV2";
 import { LandingFinalCta } from "@/interface/ui/landing/LandingFinalCta";
 import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
 import { LandingHero } from "@/interface/ui/landing/LandingHero";
+import { LandingHowItWorks } from "@/interface/ui/landing/LandingHowItWorks";
 import { LandingPricing } from "@/interface/ui/landing/LandingPricing";
 import { LandingProblem } from "@/interface/ui/landing/LandingProblem";
 import { LandingTrustSafety } from "@/interface/ui/landing/LandingTrustSafety";
@@ -17,6 +18,7 @@ export default function HomePage() {
         <LandingTrustStrip />
         <LandingAudience />
         <LandingProblem />
+        <LandingHowItWorks />
         <LandingPricing />
         <LandingTrustSafety />
         <LandingFaqV2 />

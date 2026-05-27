@@ -436,10 +436,19 @@
       }
     },
     "howItWorks": {
-      "title": "",
-      "step1": { "title": "", "body": "" },
-      "step2": { "title": "", "body": "" },
-      "step3": { "title": "", "body": "" }
+      "title": "En trois étapes, votre carte est en ligne",
+      "step1": {
+        "title": "Vous créez votre compte gratuit",
+        "body": "Email, mot de passe, c'est tout — pas de carte bancaire demandée. Vous êtes dans l'éditeur en moins d'une minute."
+      },
+      "step2": {
+        "title": "Vous remplissez votre carte",
+        "body": "Plats, catégories, allergènes, photos : l'éditeur est conçu pour fonctionner sans formation. Une carte complète prend environ 10 minutes."
+      },
+      "step3": {
+        "title": "Vous imprimez votre QR code",
+        "body": "Vos clients scannent. À chaque correction de prix ou de plat, votre carte est à jour à la seconde — sans rien réimprimer."
+      }
     },
     "features": {
       "title": "",
