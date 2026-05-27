@@ -181,3 +181,44 @@ function trimBranding(branding?: PublicMenuBranding | null): PublicMenuBranding 
   if (branding.background) out.background = branding.background;
   return Object.keys(out).length > 0 ? out : undefined;
 }
+
+/**
+ * Comble les champs items qui peuvent manquer dans les snapshots écrits avant
+ * `allergens` (commit 29a988a) ou les photos d'item (commit 005f4d5). Le contrat
+ * `PublicMenuItem` reste strict côté consommateur ; cette normalisation, appliquée
+ * au boundary de lecture (`PrismaSnapshotRepository`), rend ce contrat vrai au runtime
+ * même pour des JSON legacy. No-op sur les snapshots récents produits par
+ * `buildPublicSnapshot`.
+ */
+export function normalizePublicSnapshot(snapshot: PublicMenuSnapshot): PublicMenuSnapshot {
+  return {
+    ...snapshot,
+    categories: snapshot.categories.map((category) => ({
+      ...category,
+      items: category.items.map(normalizePublicItem),
+    })),
+    ...(snapshot.dailyItems
+      ? { dailyItems: snapshot.dailyItems.map(normalizePublicDailyDish) }
+      : {}),
+  };
+}
+
+function normalizePublicItem(item: PublicMenuItem): PublicMenuItem {
+  return {
+    ...item,
+    allergens: item.allergens ?? [],
+    imagePath: item.imagePath ?? null,
+    altTextFr: item.altTextFr ?? "",
+    altTextEn: item.altTextEn ?? "",
+  };
+}
+
+function normalizePublicDailyDish(dish: PublicMenuDailyDish): PublicMenuDailyDish {
+  return {
+    ...dish,
+    allergens: dish.allergens ?? [],
+    imagePath: dish.imagePath ?? null,
+    altTextFr: dish.altTextFr ?? "",
+    altTextEn: dish.altTextEn ?? "",
+  };
+}

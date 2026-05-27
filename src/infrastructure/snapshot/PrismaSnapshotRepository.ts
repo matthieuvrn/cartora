@@ -1,5 +1,6 @@
 import type { SnapshotRepository } from "@/application/ports/SnapshotRepository";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { normalizePublicSnapshot } from "@/domain/menu/PublicMenuTypes";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PrismaClient, Prisma } from "@/generated/prisma/client";
@@ -53,7 +54,7 @@ export class PrismaSnapshotRepository implements SnapshotRepository {
 
     return {
       restaurantId: row.restaurantId,
-      snapshotData: row.snapshotData as unknown as PublicMenuSnapshot,
+      snapshotData: normalizePublicSnapshot(row.snapshotData as unknown as PublicMenuSnapshot),
       publishedAt: row.publishedAt.toISOString(),
       planStatus: row.restaurant.planStatus as PlanStatus,
       planTier: row.restaurant.planTier as PlanTier,

@@ -25,12 +25,7 @@ export function LandingDemoPreview() {
             </div>
           </div>
           {/* TODO: remplacer par <Image src="/landing/demo-desktop.webp" .../> dès l'asset produit (2400×1600 WebP). */}
-          <div
-            role="img"
-            aria-label={t("imageAlt")}
-            className="aspect-[3/2] w-full bg-muted/40"
-          />
-
+          <div role="img" aria-label={t("imageAlt")} className="aspect-[3/2] w-full bg-muted/40" />
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3">

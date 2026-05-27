@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { buildPublicSnapshot } from "./PublicMenuTypes";
+import { buildPublicSnapshot, normalizePublicSnapshot } from "./PublicMenuTypes";
+import type { PublicMenuSnapshot } from "./PublicMenuTypes";
 import type { MenuOverview, MenuItemData, MenuCategoryData } from "./MenuTypes";
 
 function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
@@ -201,5 +202,90 @@ describe("buildPublicSnapshot", () => {
     expect(result.categories[0].name).toBe("Entrées");
     expect(result.categories[1].name).toBe("Desserts");
     expect(result.categories[1].items[0].badge).toBe("NEW");
+  });
+});
+
+describe("normalizePublicSnapshot", () => {
+  it("fills allergens, imagePath and altText on legacy items lacking them", () => {
+    // Simule un snapshot écrit avant les commits 29a988a (allergens) et 005f4d5 (photos).
+    const legacy = {
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [
+        {
+          name: "Entrées",
+          items: [
+            {
+              nameFr: "Salade",
+              nameEn: "Salad",
+              descriptionFr: "",
+              descriptionEn: "",
+              priceCents: 1200,
+              badge: "NONE",
+            },
+          ],
+        },
+      ],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(legacy);
+
+    expect(result.categories[0].items[0]).toEqual({
+      nameFr: "Salade",
+      nameEn: "Salad",
+      descriptionFr: "",
+      descriptionEn: "",
+      priceCents: 1200,
+      badge: "NONE",
+      allergens: [],
+      imagePath: null,
+      altTextFr: "",
+      altTextEn: "",
+    });
+  });
+
+  it("leaves a complete snapshot unchanged at the value level", () => {
+    const complete = buildPublicSnapshot(makeMenu(), "R", PUBLISHED_AT);
+    expect(normalizePublicSnapshot(complete)).toEqual(complete);
+  });
+
+  it("normalizes daily items missing allergens / imagePath / altText", () => {
+    const legacy = {
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [],
+      dailyItems: [
+        {
+          id: "d-1",
+          nameFr: "Plat du jour",
+          nameEn: "Today's special",
+          descriptionFr: "",
+          descriptionEn: "",
+          priceCents: 1500,
+          badge: "NONE",
+          validUntilISO: "2026-12-31T23:59:59.000Z",
+        },
+      ],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(legacy);
+
+    expect(result.dailyItems?.[0]).toMatchObject({
+      allergens: [],
+      imagePath: null,
+      altTextFr: "",
+      altTextEn: "",
+    });
+  });
+
+  it("does not introduce a dailyItems key when absent", () => {
+    const noDaily = {
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(noDaily);
+    expect("dailyItems" in result).toBe(false);
   });
 });
