@@ -19,6 +19,7 @@ export const LANDING_EVENT_NAMES = [
   "cta_pricing_pro",
   "cta_final_signup",
   "cta_final_demo",
+  "demo_link_click",
   "faq_opened",
   "scroll_depth_75",
   "locale_switched",

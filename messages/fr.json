@@ -484,11 +484,11 @@
       }
     },
     "demo": {
-      "title": "",
-      "subtitle": "",
-      "imageAlt": "",
-      "openCta": "",
-      "footnote": ""
+      "title": "Voici à quoi ressemble une carte Cartora publiée.",
+      "subtitle": "Cliquez pour ouvrir une vraie carte en ligne, dans un nouvel onglet. Vous y testerez la navigation, le bilingue, les allergènes et le QR code.",
+      "imageAlt": "Aperçu desktop d'un menu Cartora publié, avec entrées, plats et formules du jour.",
+      "openCta": "Ouvrir la démo",
+      "footnote": "Cette démo est un vrai menu Cartora, créé en 8 minutes."
     },
     "comparison": {
       "title": "",

@@ -484,11 +484,11 @@
       }
     },
     "demo": {
-      "title": "",
-      "subtitle": "",
-      "imageAlt": "",
-      "openCta": "",
-      "footnote": ""
+      "title": "Here's what a published Cartora menu looks like.",
+      "subtitle": "Click to open a real live menu in a new tab. You can test the navigation, bilingual switch, allergens and QR flow.",
+      "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today's specials.",
+      "openCta": "Open the demo",
+      "footnote": "This demo is a real Cartora menu, built in 8 minutes."
     },
     "comparison": {
       "title": "",
