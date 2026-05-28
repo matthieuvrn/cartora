@@ -2,14 +2,20 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useConsent } from "./ConsentContext";
 
 export function CookieBanner() {
   const { status, accept, refuse } = useConsent();
+  const searchParams = useSearchParams();
   const t = useTranslations("Consent");
 
   if (status !== "pending") return null;
+  // Escape hatch for asset captures and e2e tooling: ?noBanner=1 suppresses
+  // the banner without affecting consent state. Harmless in prod (the query
+  // param is opt-in and obvious; users never type it).
+  if (searchParams.get("noBanner") === "1") return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t bg-background p-4 shadow-lg sm:p-6">

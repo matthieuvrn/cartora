@@ -1,5 +1,7 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
+import demoMobile from "../../../../public/landing/demo-mobile-hero.png";
 
 export function LandingHero() {
   const t = useTranslations("Landing.hero");
@@ -37,11 +39,16 @@ export function LandingHero() {
       </div>
 
       <div className="flex justify-center md:justify-end">
-        <div
-          role="img"
-          aria-label={t("demoImageAlt")}
-          className="aspect-[9/19.5] w-full max-w-[280px] rounded-[2rem] border border-border bg-muted/40"
-        />
+        <div className="w-full max-w-[280px] overflow-hidden rounded-[2rem] border border-border bg-muted/40">
+          <Image
+            src={demoMobile}
+            alt={t("demoImageAlt")}
+            priority
+            sizes="(min-width: 768px) 280px, 60vw"
+            className="h-auto w-full"
+            placeholder="blur"
+          />
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,8 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
+import demoDesktop from "../../../../public/landing/demo-desktop.png";
 
 export function LandingDemoPreview() {
   const t = useTranslations("Landing.demo");
@@ -24,8 +26,14 @@ export function LandingDemoPreview() {
               cartora.app/m/demo-cartora
             </div>
           </div>
-          {/* TODO: remplacer par <Image src="/landing/demo-desktop.webp" .../> dès l'asset produit (2400×1600 WebP). */}
-          <div role="img" aria-label={t("imageAlt")} className="aspect-[3/2] w-full bg-muted/40" />
+          <Image
+            src={demoDesktop}
+            alt={t("imageAlt")}
+            loading="lazy"
+            sizes="(min-width: 768px) 896px, 100vw"
+            className="h-auto w-full"
+            placeholder="blur"
+          />
         </div>
 
         <div className="mt-8 flex flex-col items-center gap-3">

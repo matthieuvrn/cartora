@@ -8,7 +8,7 @@ const DESKTOP_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36";
 
 describe("RecordLandingEvent", () => {
-  it("enregistre un event mobile avec source direct par défaut", async () => {
+  it("enregistre un event mobile avec source direct par défaut (UA non persisté)", async () => {
     const repo = createMockLandingEventRepo();
     const uc = new RecordLandingEvent(repo);
 
@@ -25,7 +25,7 @@ describe("RecordLandingEvent", () => {
       deviceType: "MOBILE",
       source: "direct",
       metadata: null,
-      userAgent: IPHONE_UA,
+      userAgent: null,
       referer: null,
     });
   });
@@ -47,12 +47,12 @@ describe("RecordLandingEvent", () => {
       deviceType: "DESKTOP",
       source: "qr",
       metadata: null,
-      userAgent: DESKTOP_UA,
+      userAgent: null,
       referer: null,
     });
   });
 
-  it("enregistre source=link quand un referrer est présent et propage metadata", async () => {
+  it("enregistre source=link quand un referrer est présent et n'en garde que le host", async () => {
     const repo = createMockLandingEventRepo();
     const uc = new RecordLandingEvent(repo);
 
@@ -60,7 +60,7 @@ describe("RecordLandingEvent", () => {
       eventName: "faq_opened",
       locale: "fr",
       userAgent: DESKTOP_UA,
-      referer: "https://google.com",
+      referer: "https://www.google.com/search?q=carte+restaurant+qr&pii=abc",
       metadata: { questionId: "q3" },
     });
 
@@ -70,27 +70,24 @@ describe("RecordLandingEvent", () => {
       deviceType: "DESKTOP",
       source: "link",
       metadata: { questionId: "q3" },
-      userAgent: DESKTOP_UA,
-      referer: "https://google.com",
+      userAgent: null,
+      referer: "www.google.com",
     });
   });
 
-  it("locale défaut 'fr' quand non fourni et tronque userAgent / referer à 500 chars", async () => {
+  it("locale défaut 'fr' quand non fourni et drop un referer non parseable", async () => {
     const repo = createMockLandingEventRepo();
     const uc = new RecordLandingEvent(repo);
 
-    const longUa = "a".repeat(800);
-    const longReferer = `https://example.com/${"x".repeat(800)}`;
-
     await uc.execute({
       eventName: "scroll_depth_75",
-      userAgent: longUa,
-      referer: longReferer,
+      userAgent: "a".repeat(800),
+      referer: "not-a-url",
     });
 
     const call = vi.mocked(repo.record).mock.calls[0][0];
     expect(call.locale).toBe("fr");
-    expect(call.userAgent).toHaveLength(500);
-    expect(call.referer).toHaveLength(500);
+    expect(call.userAgent).toBeNull();
+    expect(call.referer).toBeNull();
   });
 });

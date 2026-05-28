@@ -52,4 +52,33 @@ describe("AnalyticsPolicy", () => {
       expect(AnalyticsPolicy.parseViewSource(undefined, "")).toBe("DIRECT");
     });
   });
+
+  describe("sanitizeRefererToHost", () => {
+    it("returns the bare hostname for a full URL", () => {
+      expect(AnalyticsPolicy.sanitizeRefererToHost("https://www.google.com/search?q=foo")).toBe(
+        "www.google.com",
+      );
+    });
+
+    it("returns null for undefined or empty input", () => {
+      expect(AnalyticsPolicy.sanitizeRefererToHost(undefined)).toBeNull();
+      expect(AnalyticsPolicy.sanitizeRefererToHost("")).toBeNull();
+    });
+
+    it("returns null for unparseable input", () => {
+      expect(AnalyticsPolicy.sanitizeRefererToHost("not-a-url")).toBeNull();
+    });
+
+    it("returns null for non-http(s) schemes", () => {
+      expect(AnalyticsPolicy.sanitizeRefererToHost("javascript:alert(1)")).toBeNull();
+      expect(AnalyticsPolicy.sanitizeRefererToHost("file:///etc/passwd")).toBeNull();
+    });
+
+    it("caps host length at 100 chars defensively", () => {
+      const long = `https://${"a".repeat(150)}.com/`;
+      const result = AnalyticsPolicy.sanitizeRefererToHost(long);
+      expect(result).not.toBeNull();
+      expect(result!.length).toBeLessThanOrEqual(100);
+    });
+  });
 });

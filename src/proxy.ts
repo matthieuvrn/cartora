@@ -8,8 +8,11 @@ export default async function proxy(request: NextRequest) {
   const { user, response } = await createSupabaseMiddlewareClient(request);
   const { pathname } = request.nextUrl;
 
-  // Not authenticated → protect /app/**
-  if (!user && pathname.startsWith(PROTECTED_PREFIX)) {
+  // Not authenticated → protect /app and /app/**
+  // (substring check would also match siblings like /apple-icon — guard with
+  // an exact match or a trailing slash to keep it boundary-aware).
+  const isProtected = pathname === PROTECTED_PREFIX || pathname.startsWith(`${PROTECTED_PREFIX}/`);
+  if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

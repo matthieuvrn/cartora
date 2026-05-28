@@ -8,32 +8,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
+import { FAQ_ITEMS } from "@/interface/ui/landing/faqItems";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
-
-export type FaqItemKey =
-  | "noCc"
-  | "commitment"
-  | "qrAgeingClients"
-  | "allergens"
-  | "bilingual"
-  | "dataHosting"
-  | "cancel"
-  | "supportFr"
-  | "multiRestaurants"
-  | "qrPrinting";
-
-export const FAQ_ITEMS: readonly FaqItemKey[] = [
-  "noCc",
-  "commitment",
-  "qrAgeingClients",
-  "allergens",
-  "bilingual",
-  "dataHosting",
-  "cancel",
-  "supportFr",
-  "multiRestaurants",
-  "qrPrinting",
-] as const;
 
 export function LandingFaqV2() {
   const t = useTranslations("Landing.faq");

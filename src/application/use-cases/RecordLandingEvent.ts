@@ -23,14 +23,18 @@ export class RecordLandingEvent {
     const viewSource = AnalyticsPolicy.parseViewSource(input.utmSource, input.referer);
     const source = viewSource.toLowerCase();
 
+    // RGPD anonymisation: the parsed `deviceType` already captures everything
+    // we need from the UA — we never persist the full string. Likewise we
+    // collapse `referer` down to its hostname so an opaque query/path can't
+    // smuggle PII into our analytics table.
     await this.repo.record({
       eventName: input.eventName,
       locale: input.locale ?? "fr",
       deviceType,
       source,
       metadata: input.metadata ?? null,
-      userAgent: input.userAgent.length > 0 ? input.userAgent.slice(0, 500) : null,
-      referer: input.referer ? input.referer.slice(0, 500) : null,
+      userAgent: null,
+      referer: AnalyticsPolicy.sanitizeRefererToHost(input.referer),
     });
 
     return { recorded: true };
