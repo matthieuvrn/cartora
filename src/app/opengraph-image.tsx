@@ -1,13 +1,25 @@
 import { ImageResponse } from "next/og";
 
-// Next.js file-based metadata: served at /opengraph-image and auto-injected
-// as og:image (1200×630, summary_large_image-compatible). Static composition
-// in FR — the dominant locale. EN visitors share the FR card; honest 2026
-// trade-off given hreflang is intentionally skipped J1 (see step 15 plan).
+// Next.js file-based metadata: served at /opengraph-image and auto-injected as og:image
+// (1200×630, summary_large_image). Composition statique en FR (locale dominante).
+//
+// Police : satori (le moteur d'ImageResponse) ne lit que TTF/OTF/WOFF — pas le WOFF2
+// variable de @fontsource-variable/fraunces. On assume donc une stack serif (Georgia) pour
+// le display plutôt que d'embarquer un binaire statique ou un fetch réseau au build (build
+// hermétique). NB : le doc UI 2026 fetchait le CSS Google Fonts sans jamais le passer à
+// `fonts:` — Fraunces n'y était jamais rendue (fallback serif silencieux). On fait pareil,
+// mais explicitement.
 
 export const alt = "Cartora — Menu digital pour restaurateurs indépendants";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const CANARD = "#2c5a66";
+const SAPIN = "#1f4a3a";
+const CREAM = "#fbfaf7";
+const INK = "#181d22";
+const SAND_MUTED = "#6f6a5e";
+const SERIF = "Georgia, 'Times New Roman', serif";
 
 export default function OpenGraphImage() {
   return new ImageResponse(
@@ -15,72 +27,69 @@ export default function OpenGraphImage() {
       style={{
         width: "100%",
         height: "100%",
-        background: "#0a0a0a",
+        background: `radial-gradient(ellipse at top left, ${CANARD}22 0%, ${CREAM} 50%)`,
         display: "flex",
         flexDirection: "column",
-        padding: "80px",
-        color: "white",
-        fontFamily: "system-ui, sans-serif",
+        padding: "88px 96px",
+        color: INK,
+        fontFamily: SERIF,
+        position: "relative",
       }}
     >
-      {/* Logo mark */}
-      <div
-        style={{
-          width: 96,
-          height: 96,
-          background: "#1a1a1a",
-          border: "1px solid #2a2a2a",
-          borderRadius: 24,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 64,
-          fontWeight: 700,
-          letterSpacing: "-0.05em",
-        }}
-      >
-        C
+      {/* Lockup logo — point canard + wordmark */}
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        <div style={{ width: 56, height: 56, borderRadius: "50%", background: CANARD }} />
+        <span style={{ fontSize: 44, fontWeight: 500, letterSpacing: "-0.02em", color: INK }}>
+          Cartora
+        </span>
       </div>
 
-      {/* Brand name + tagline */}
+      {/* Punchline */}
       <div
         style={{
           marginTop: "auto",
           display: "flex",
           flexDirection: "column",
           gap: 24,
+          maxWidth: 920,
         }}
       >
         <div
           style={{
-            fontSize: 96,
-            fontWeight: 700,
-            letterSpacing: "-0.04em",
-            lineHeight: 1,
+            display: "flex",
+            flexWrap: "wrap",
+            fontSize: 92,
+            fontWeight: 500,
+            lineHeight: 1.05,
+            letterSpacing: "-0.035em",
+            color: INK,
           }}
         >
-          Cartora
+          Votre carte en ligne. Mise à jour à la&nbsp;
+          <span style={{ color: SAPIN, fontStyle: "italic" }}>seconde</span>.
         </div>
         <div
           style={{
-            fontSize: 40,
-            color: "#a1a1aa",
-            lineHeight: 1.2,
-            maxWidth: 900,
+            fontSize: 30,
+            lineHeight: 1.3,
+            color: SAND_MUTED,
+            fontFamily: "system-ui, sans-serif",
+            fontWeight: 400,
           }}
         >
-          Menu digital pour restaurateurs indépendants
+          Sans carte bancaire · Configuration en 10 minutes · 100% RGPD français
         </div>
       </div>
 
-      {/* Footer URL */}
+      {/* URL discret en haut droite */}
       <div
         style={{
           position: "absolute",
-          top: 80,
-          right: 80,
+          top: 96,
+          right: 96,
           fontSize: 22,
-          color: "#71717a",
+          color: SAND_MUTED,
+          fontFamily: "ui-monospace, 'JetBrains Mono', monospace",
         }}
       >
         cartora.app

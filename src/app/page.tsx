@@ -139,22 +139,26 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
       />
-      <LandingHeader />
-      <main>
-        <LandingHero />
-        <LandingTrustStrip />
-        <LandingAudience />
-        <LandingProblem />
-        <LandingHowItWorks />
-        <LandingFeatures />
-        <LandingDemoPreview />
-        <LandingComparison />
-        <LandingPricing />
-        <LandingTrustSafety />
-        <LandingFaqV2 />
-        <LandingFinalCta />
-        <ScrollDepthTracker />
-      </main>
+      {/* Thème Cartora scopé à la landing (cf. globals.css .theme-cartora) — le dashboard
+          /app et les menus publics /m/[slug] gardent le thème neutre. */}
+      <div className="theme-cartora bg-background text-foreground">
+        <LandingHeader />
+        <main>
+          <LandingHero />
+          <LandingTrustStrip />
+          <LandingAudience />
+          <LandingProblem />
+          <LandingHowItWorks />
+          <LandingFeatures />
+          <LandingDemoPreview />
+          <LandingComparison />
+          <LandingPricing />
+          <LandingTrustSafety />
+          <LandingFaqV2 />
+          <LandingFinalCta />
+          <ScrollDepthTracker />
+        </main>
+      </div>
     </>
   );
 }

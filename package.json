@@ -18,6 +18,8 @@
     "db:seed-demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@iconify-icons/mdi": "^1.2.48",
     "@iconify/react": "^6.0.2",
     "@prisma/adapter-pg": "^7.8.0",
@@ -31,6 +33,7 @@
     "clsx": "^2.1.1",
     "geist": "^1.7.0",
     "lucide-react": "^1.11.0",
+    "motion": "^12.40.0",
     "next": "16.2.6",
     "next-intl": "^4.9.1",
     "qrcode": "^1.5.4",

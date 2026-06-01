@@ -16,15 +16,11 @@ export default function AppleIcon() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#1a1a1a",
-        color: "white",
-        fontSize: 112,
-        fontWeight: 700,
-        letterSpacing: "-0.05em",
-        borderRadius: 40,
+        background: "#fbfaf7",
       }}
     >
-      C
+      {/* Point canard centré — diamètre 112px dans 180×180 (safe-area iOS ~22px/bord) */}
+      <div style={{ width: 112, height: 112, borderRadius: "50%", background: "#2c5a66" }} />
     </div>,
     { ...size },
   );
