@@ -150,7 +150,14 @@ html {
   --text-display-2xl--letter-spacing: -0.04em;
   --text-display-2xl--font-weight: 500;
 
-  /* === Ombre signature (additif — utility shadow-glow) === */
+  /* === Ombres teintées canard (additif — utilities shadow-md/lg/xl/glow) ===
+     Réutilisées par le hero (PhoneMockup), DemoPreview, Pricing… Valeurs littérales
+     identiques partout, additives : ne touchent ni :root ni .theme-cartora. */
+  --shadow-md: 0 6px 14px -3px oklch(0.18 0.05 200 / 0.08), 0 2px 4px 0 oklch(0.18 0.05 200 / 0.05);
+  --shadow-lg:
+    0 18px 32px -6px oklch(0.18 0.05 200 / 0.12), 0 6px 10px 0 oklch(0.18 0.05 200 / 0.06);
+  --shadow-xl:
+    0 28px 54px -10px oklch(0.18 0.05 200 / 0.18), 0 10px 18px 0 oklch(0.18 0.05 200 / 0.08);
   --shadow-glow: 0 0 0 1px oklch(0.42 0.058 198 / 0.18), 0 0 32px -4px oklch(0.42 0.058 198 / 0.35);
 
   /* === Tokens motion (additif — var(--ease-out-expo), var(--duration-200), …) === */

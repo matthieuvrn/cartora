@@ -386,7 +386,7 @@
       "loggedInCta": ""
     },
     "hero": {
-      "title": "Your menu, online. Updated in real time. One QR scan away.",
+      "title": "Your menu, online. Updated in <em>real time</em>. One QR scan away.",
       "subtitle": "Build your digital menu in under 10 minutes — no technical skills required. Your guests scan, you edit live, your menu is never out of date.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",

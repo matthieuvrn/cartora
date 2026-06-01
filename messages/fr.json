@@ -386,7 +386,7 @@
       "loggedInCta": ""
     },
     "hero": {
-      "title": "Votre carte en ligne. Mise à jour à la seconde. Scannée par un QR.",
+      "title": "Votre carte en ligne. Mise à jour à la <em>seconde</em>. Scannée par un QR.",
       "subtitle": "Créez votre menu numérique en moins de 10 minutes, sans compétence technique. Vos clients scannent, vous éditez en direct, votre carte ne ment jamais.",
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Voir un menu en direct",
