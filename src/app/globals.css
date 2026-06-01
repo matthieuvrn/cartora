@@ -172,6 +172,19 @@ html {
   --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-snappy: cubic-bezier(0.6, 0, 0.4, 1);
   --ease-editorial: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Marquee TrustStrip mobile (durée surchargée inline). Le track contient 2 copies
+     identiques → -50% boucle sans couture. Voir Marquee.tsx. */
+  --animate-marquee: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 :root {

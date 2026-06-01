@@ -11,6 +11,7 @@ import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
 import { LandingHero } from "@/interface/ui/landing/LandingHero";
 import { LandingHowItWorks } from "@/interface/ui/landing/LandingHowItWorks";
 import { LandingPricing } from "@/interface/ui/landing/LandingPricing";
+import { MotionSection } from "@/interface/ui/landing/MotionSection";
 import { LandingProblem } from "@/interface/ui/landing/LandingProblem";
 import { LandingTrustSafety } from "@/interface/ui/landing/LandingTrustSafety";
 import { LandingTrustStrip } from "@/interface/ui/landing/LandingTrustStrip";
@@ -145,11 +146,23 @@ export default async function HomePage() {
         <LandingHeader />
         <main>
           <LandingHero />
-          <LandingTrustStrip />
-          <LandingAudience />
-          <LandingProblem />
-          <LandingHowItWorks />
-          <LandingFeatures />
+          {/* Reveal-on-scroll par section. Pas de delay cumulatif : chaque section apparaît à
+              son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold. */}
+          <MotionSection>
+            <LandingTrustStrip />
+          </MotionSection>
+          <MotionSection>
+            <LandingAudience />
+          </MotionSection>
+          <MotionSection>
+            <LandingProblem />
+          </MotionSection>
+          <MotionSection>
+            <LandingHowItWorks />
+          </MotionSection>
+          <MotionSection>
+            <LandingFeatures />
+          </MotionSection>
           <LandingDemoPreview />
           <LandingComparison />
           <LandingPricing />
