@@ -308,6 +308,13 @@ html {
   --ring: oklch(0.74 0.034 198 / 0.55);
 }
 
+/* Footer global ([data-global-footer], rendu via layout.tsx) masqué sur la landing, qui rend
+   son propre <LandingFooter/> riche. `.theme-cartora` n'existe que sur la landing → détecteur
+   fiable. Règle non-layered : prioritaire sur les utilities (pas de double footer possible). */
+body:has(.theme-cartora) [data-global-footer] {
+  display: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -323,6 +330,23 @@ html {
   .theme-cartora :is(h1, h2, .display) {
     font-family: var(--font-display);
     font-optical-sizing: auto;
+  }
+
+  /* Focus visible — SCOPÉ à la landing (cohérent avec le thème scopé : aucune fuite de la
+     couleur de marque canard dans le dashboard / les menus publics). Anneau 2px crème + 2px
+     canard. Les éléments portant déjà un `focus-visible:ring-*` Tailwind gardent le leur
+     (layer utilities > base). Cf. docs/ui-refonte-2026.md §12. */
+  .theme-cartora :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-sand-50),
+      0 0 0 4px var(--color-canard-600);
+    border-radius: var(--radius-md);
+  }
+  .dark .theme-cartora :focus-visible {
+    box-shadow:
+      0 0 0 2px var(--color-canard-950),
+      0 0 0 4px var(--color-canard-300);
   }
 
   @media (prefers-reduced-motion: reduce) {

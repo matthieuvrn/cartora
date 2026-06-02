@@ -6,7 +6,9 @@ export async function Footer() {
   const t = await getTranslations("Footer");
 
   return (
-    <footer className="border-t">
+    // Footer minimal global (toutes routes hors landing). Sur la landing, masqué par CSS au profit
+    // de <LandingFooter/> (cf. globals.css : body:has(.theme-cartora) [data-global-footer]).
+    <footer data-global-footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-8 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between">
         <p>&copy; {new Date().getFullYear()} Cartora</p>
         <nav className="flex flex-wrap items-center justify-center gap-4">

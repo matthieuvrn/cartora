@@ -15,7 +15,9 @@ import { MotionSection } from "@/interface/ui/landing/MotionSection";
 import { LandingProblem } from "@/interface/ui/landing/LandingProblem";
 import { LandingTrustSafety } from "@/interface/ui/landing/LandingTrustSafety";
 import { LandingTrustStrip } from "@/interface/ui/landing/LandingTrustStrip";
+import { LandingFooter } from "@/interface/ui/components/LandingFooter";
 import { ScrollDepthTracker } from "@/interface/ui/landing/ScrollDepthTracker";
+import { StickyMobileCTA } from "@/interface/ui/landing/StickyMobileCTA";
 
 const FR_TITLE = "Cartora — Menu digital pour restaurateurs indépendants";
 const FR_DESCRIPTION =
@@ -53,6 +55,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://cartora.app";
   const t = await getTranslations("Landing.faq");
+  const tLanding = await getTranslations("Landing");
 
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -143,8 +146,14 @@ export default async function HomePage() {
       {/* Thème Cartora scopé à la landing (cf. globals.css .theme-cartora) — le dashboard
           /app et les menus publics /m/[slug] gardent le thème neutre. */}
       <div className="theme-cartora bg-background text-foreground">
+        <a
+          href="#main"
+          className="sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-canard-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-sand-50 focus:not-sr-only"
+        >
+          {tLanding("skipToContent")}
+        </a>
         <LandingHeader />
-        <main>
+        <main id="main">
           <LandingHero />
           {/* Reveal-on-scroll par section. Pas de delay cumulatif : chaque section apparaît à
               son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold. */}
@@ -171,11 +180,19 @@ export default async function HomePage() {
           <MotionSection>
             <LandingPricing />
           </MotionSection>
-          <LandingTrustSafety />
-          <LandingFaqV2 />
-          <LandingFinalCta />
+          <MotionSection>
+            <LandingTrustSafety />
+          </MotionSection>
+          <MotionSection>
+            <LandingFaqV2 />
+          </MotionSection>
+          <MotionSection>
+            <LandingFinalCta />
+          </MotionSection>
           <ScrollDepthTracker />
         </main>
+        <LandingFooter />
+        <StickyMobileCTA />
       </div>
     </>
   );

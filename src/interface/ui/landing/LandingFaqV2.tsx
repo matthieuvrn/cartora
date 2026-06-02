@@ -27,18 +27,22 @@ export function LandingFaqV2() {
   return (
     <LandingSection id="faq">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight">{t("title")}</h2>
+        <h2 className="text-h1 md:text-h2">{t("title")}</h2>
       </header>
       <Accordion
         type="single"
         collapsible
         onValueChange={handleValueChange}
-        className="mx-auto max-w-3xl"
+        className="mx-auto max-w-2xl"
       >
         {FAQ_ITEMS.map((key) => (
-          <AccordionItem key={key} value={key}>
-            <AccordionTrigger className="text-left">{t(`items.${key}.q`)}</AccordionTrigger>
-            <AccordionContent>{t(`items.${key}.a`)}</AccordionContent>
+          <AccordionItem key={key} value={key} className="data-[state=open]:border-sapin-500">
+            <AccordionTrigger className="font-display text-h3 hover:text-canard-700">
+              {t(`items.${key}.q`)}
+            </AccordionTrigger>
+            <AccordionContent className="pt-2 pb-6 text-body leading-relaxed text-sand-700">
+              {t(`items.${key}.a`)}
+            </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

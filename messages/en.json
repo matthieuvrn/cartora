@@ -378,6 +378,7 @@
     }
   },
   "Landing": {
+    "skipToContent": "Skip to content",
     "header": {
       "navTarifs": "Pricing",
       "navDemo": "Demo",
@@ -740,7 +741,19 @@
     "privacy": "Privacy policy",
     "legal": "Legal notice",
     "terms": "Terms of service",
-    "manageCookies": "Manage cookies"
+    "manageCookies": "Manage cookies",
+    "tagline": "Your menu, to the second.",
+    "colProduct": "Product",
+    "colResources": "Resources",
+    "colLegal": "Legal",
+    "colAccount": "Account",
+    "linkPricing": "Pricing",
+    "linkDemo": "Demo",
+    "linkFeatures": "Features",
+    "linkFaq": "FAQ",
+    "linkSupport": "Support",
+    "linkLogin": "Log in",
+    "linkSignup": "Create an account"
   },
   "Privacy": {
     "title": "Privacy policy",

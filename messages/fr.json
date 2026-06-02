@@ -378,6 +378,7 @@
     }
   },
   "Landing": {
+    "skipToContent": "Aller au contenu",
     "header": {
       "navTarifs": "Tarifs",
       "navDemo": "Démo",
@@ -740,7 +741,19 @@
     "privacy": "Politique de confidentialité",
     "legal": "Mentions légales",
     "terms": "CGU",
-    "manageCookies": "Gérer mes cookies"
+    "manageCookies": "Gérer mes cookies",
+    "tagline": "Votre carte, à la seconde.",
+    "colProduct": "Produit",
+    "colResources": "Ressources",
+    "colLegal": "Légal",
+    "colAccount": "Compte",
+    "linkPricing": "Tarifs",
+    "linkDemo": "Démo",
+    "linkFeatures": "Fonctionnalités",
+    "linkFaq": "Questions fréquentes",
+    "linkSupport": "Support",
+    "linkLogin": "Se connecter",
+    "linkSignup": "Créer un compte"
   },
   "Privacy": {
     "title": "Politique de confidentialité",

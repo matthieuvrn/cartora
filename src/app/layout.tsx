@@ -72,6 +72,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
+      data-scroll-behavior="smooth"
       className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
     >
       <body className="font-sans antialiased">
