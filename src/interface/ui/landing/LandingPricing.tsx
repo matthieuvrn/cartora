@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
@@ -12,22 +11,17 @@ type TierConfig = {
   key: TierKey;
   event: LandingEventName;
   href: string;
-  variant: "primary" | "secondary";
+  variant: "primary" | "outline";
   highlighted: boolean;
   ctaKey: "ctaStartFree" | "ctaChoose";
   taglineKey: "freeTagline" | "starterTagline" | "proTagline";
+  /** Ordre desktop (≥ md). En DOM, Starter est premier → mis en avant au scroll mobile. */
+  mdOrder: string;
 };
 
+// Ordre DOM = ordre mobile : Starter d'abord (l'option recommandée vue en premier).
+// Ordre desktop rétabli en Free / Starter / Pro via les classes md:order-*.
 const TIERS: readonly TierConfig[] = [
-  {
-    key: "free",
-    event: "cta_pricing_free",
-    href: "/signup?plan=free",
-    variant: "secondary",
-    highlighted: false,
-    ctaKey: "ctaStartFree",
-    taglineKey: "freeTagline",
-  },
   {
     key: "starter",
     event: "cta_pricing_starter",
@@ -36,15 +30,27 @@ const TIERS: readonly TierConfig[] = [
     highlighted: true,
     ctaKey: "ctaChoose",
     taglineKey: "starterTagline",
+    mdOrder: "md:order-2",
+  },
+  {
+    key: "free",
+    event: "cta_pricing_free",
+    href: "/signup?plan=free",
+    variant: "outline",
+    highlighted: false,
+    ctaKey: "ctaStartFree",
+    taglineKey: "freeTagline",
+    mdOrder: "md:order-1",
   },
   {
     key: "pro",
     event: "cta_pricing_pro",
     href: "/signup?plan=pro",
-    variant: "secondary",
+    variant: "outline",
     highlighted: false,
     ctaKey: "ctaChoose",
     taglineKey: "proTagline",
+    mdOrder: "md:order-3",
   },
 ] as const;
 
@@ -53,70 +59,74 @@ export function LandingPricing() {
   const tPricing = useTranslations("Pricing");
 
   return (
-    <LandingSection id="pricing">
+    <LandingSection id="pricing" innerClassName="py-20 md:py-32">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight">{tLanding("title")}</h2>
-        <p className="mt-3 text-muted-foreground">{tLanding("subtitle")}</p>
+        <h2 className="text-h1 md:text-h2">{tLanding("title")}</h2>
+        <p className="mt-3 text-body-lg text-sand-700">{tLanding("subtitle")}</p>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3 md:items-center">
         {TIERS.map((tier) => {
           const titleId = `pricing-${tier.key}-title`;
           const period = tPricing(`${tier.key}.period`);
           return (
-            <Card
+            <article
               key={tier.key}
               aria-labelledby={titleId}
               className={cn(
-                "relative flex flex-col",
-                tier.highlighted ? "border-primary shadow-md" : "border-muted",
+                "relative flex flex-col overflow-hidden rounded-xl border p-7",
+                tier.mdOrder,
+                tier.highlighted
+                  ? "z-10 scale-[1.02] border-sapin-500 bg-sand-50 shadow-xl ring-2 ring-sapin-500 shadow-[var(--shadow-glow)] lg:scale-105"
+                  : "border-canard-100 bg-card shadow-sm",
               )}
             >
               {tier.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                <span className="absolute top-0 right-0 rounded-tr-xl rounded-bl-lg bg-sapin-600 px-3 py-1 text-caption font-medium text-sand-50">
                   {tPricing("recommended")}
                 </span>
               )}
-              <CardHeader>
-                <CardTitle id={titleId} className="text-lg">
-                  {tPricing(`${tier.key}.name`)}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">{tLanding(tier.taglineKey)}</p>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tracking-tight">
-                    {tPricing(`${tier.key}.price`)}
-                  </span>
-                  {period && <span className="text-sm text-muted-foreground">{period}</span>}
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <ul className="space-y-3 text-sm">
-                  {(tPricing.raw(`${tier.key}.features`) as string[]).map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-primary" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-              <CardFooter>
-                <TrackedCtaButton
-                  event={tier.event}
-                  href={tier.href}
-                  variant={tier.variant}
-                  size="lg"
-                  metadata={{ plan: tier.key }}
-                  className="w-full"
-                >
-                  {tPricing(tier.ctaKey)}
-                </TrackedCtaButton>
-              </CardFooter>
-            </Card>
+
+              <h3 id={titleId} className="text-h3 text-canard-900">
+                {tPricing(`${tier.key}.name`)}
+              </h3>
+              <p className="mt-1 text-body-sm text-sand-600">{tLanding(tier.taglineKey)}</p>
+
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="font-display text-display-lg font-medium tracking-[-0.04em] text-canard-900 tabular-nums">
+                  {tPricing(`${tier.key}.price`)}
+                </span>
+                {period && <span className="text-body text-sand-600">{period}</span>}
+              </div>
+
+              <ul className="mt-6 flex-1 space-y-3">
+                {(tPricing.raw(`${tier.key}.features`) as string[]).map((feature) => (
+                  <li key={feature} className="flex items-start gap-2 text-body-sm text-canard-800">
+                    <Check
+                      className="mt-0.5 size-4 shrink-0 stroke-[2] text-sapin-500"
+                      aria-hidden="true"
+                    />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <TrackedCtaButton
+                event={tier.event}
+                href={tier.href}
+                variant={tier.variant}
+                size="lg"
+                metadata={{ plan: tier.key }}
+                className="mt-8 w-full"
+              >
+                {tPricing(tier.ctaKey)}
+              </TrackedCtaButton>
+            </article>
           );
         })}
       </div>
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">{tLanding("footer")}</p>
+      <p className="mt-8 text-center text-body-sm text-canard-700">{tLanding("footer")}</p>
     </LandingSection>
   );
 }

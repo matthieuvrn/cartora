@@ -163,9 +163,14 @@ export default async function HomePage() {
           <MotionSection>
             <LandingFeatures />
           </MotionSection>
-          <LandingDemoPreview />
+          <MotionSection>
+            <LandingDemoPreview />
+          </MotionSection>
+          {/* Comparison gère son propre reveal (cascade des lignes) → pas de MotionSection ici. */}
           <LandingComparison />
-          <LandingPricing />
+          <MotionSection>
+            <LandingPricing />
+          </MotionSection>
           <LandingTrustSafety />
           <LandingFaqV2 />
           <LandingFinalCta />

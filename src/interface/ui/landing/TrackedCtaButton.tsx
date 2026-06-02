@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
 
-type Variant = "primary" | "secondary" | "ghost";
+type Variant = "primary" | "secondary" | "ghost" | "outline";
 type Size = "default" | "lg";
 
 interface TrackedCtaButtonProps {
@@ -28,6 +28,7 @@ const variantClasses: Record<Variant, string> = {
   primary: "bg-primary text-primary-foreground hover:bg-primary/90",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
   ghost: "hover:bg-accent hover:text-accent-foreground",
+  outline: "border border-canard-200 text-canard-700 hover:bg-canard-50",
 };
 
 const sizeClasses: Record<Size, string> = {
