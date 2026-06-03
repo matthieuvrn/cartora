@@ -272,8 +272,10 @@ html {
   --primary-foreground: var(--color-sand-50);
   --secondary: var(--color-sand-100);
   --secondary-foreground: var(--color-canard-700);
-  --accent: var(--color-sapin-600);
-  --accent-foreground: var(--color-sand-50);
+  /* Hover des actions secondaires (boutons ghost, items dropdown) : wash teal clair plutôt
+     qu'un aplat coloré. Le sapin reste réservé aux accents texte/icône (utilities sapin-*). */
+  --accent: var(--color-canard-100);
+  --accent-foreground: var(--color-canard-700);
 
   --muted: var(--color-sand-100);
   --muted-foreground: var(--color-sand-500);
@@ -296,8 +298,9 @@ html {
   --primary-foreground: oklch(0.14 0.03 204);
   --secondary: oklch(0.2 0.04 202);
   --secondary-foreground: var(--color-canard-100);
-  --accent: var(--color-sapin-400);
-  --accent-foreground: oklch(0.13 0.03 204);
+  /* cf. note .theme-cartora light : hover secondaire en teal léger, pas en aplat coloré */
+  --accent: oklch(0.24 0.045 200);
+  --accent-foreground: var(--color-canard-100);
 
   --muted: oklch(0.2 0.04 202);
   --muted-foreground: oklch(0.68 0.018 60);
