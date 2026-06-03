@@ -10,8 +10,10 @@ import { ManageCookiesButton } from "@/interface/ui/components/consent/ManageCoo
 
 type FooterLink = { href: string; label: string; external?: boolean };
 
+// Cible tactile 44px sur mobile (WCAG 2.5.5) ; resserré au pointeur sur desktop (md+),
+// où le minimum WCAG tombe à 24px — évite des colonnes de footer trop aérées.
 const linkClass =
-  "inline-flex min-h-[44px] items-center text-body-sm text-sand-600 transition-colors hover:text-canard-700";
+  "inline-flex min-h-[44px] items-center text-body-sm text-sand-600 transition-colors hover:text-canard-700 md:min-h-0 md:py-1.5";
 
 export async function LandingFooter() {
   const t = await getTranslations("Footer");
@@ -96,7 +98,7 @@ export async function LandingFooter() {
                   {t("terms")}
                 </Link>
               </li>
-              <li className="flex min-h-[44px] items-center">
+              <li className="flex min-h-[44px] items-center md:min-h-0 md:py-1.5">
                 <ManageCookiesButton />
               </li>
             </ul>
