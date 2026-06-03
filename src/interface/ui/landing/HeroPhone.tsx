@@ -47,7 +47,9 @@ export function HeroPhone({ src, alt, priority = false, tilt = 0, className }: H
     />
   );
 
-  const phone = <PhoneMockup src={src} alt={alt} priority={priority} tilt={tilt} className="w-full" />;
+  const phone = (
+    <PhoneMockup src={src} alt={alt} priority={priority} tilt={tilt} className="w-full" />
+  );
 
   if (reduce) {
     return (

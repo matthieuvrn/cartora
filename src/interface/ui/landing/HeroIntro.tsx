@@ -32,9 +32,7 @@ export function HeroIntro() {
     .map((label) => label.trim())
     .filter(Boolean);
 
-  const subtitle = (
-    <p className="mt-7 max-w-[34rem] text-body-lg text-sand-700">{t("subtitle")}</p>
-  );
+  const subtitle = <p className="mt-7 max-w-[34rem] text-body-lg text-sand-700">{t("subtitle")}</p>;
 
   const ctas = (
     <div className="mt-9 flex flex-wrap items-center gap-4">
