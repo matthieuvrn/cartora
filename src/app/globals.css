@@ -259,8 +259,10 @@ html {
 /* === Thème Cartora — SCOPÉ à la landing ===========================================
    Surcharge les variables de backing sémantiques sur le sous-arbre .theme-cartora
    uniquement. Le dashboard /app et les menus publics /m/[slug] conservent le thème
-   neutre (:root/.dark intacts ci-dessus). Migration globale = étape ultérieure. */
-.theme-cartora {
+   neutre (:root/.dark intacts ci-dessus). La landing porte .theme-cartora ; l'app produit
+   (shell (app)/(auth)) porte .theme-app — même bloc de marque, scope distinct. */
+.theme-cartora,
+.theme-app {
   --background: var(--color-sand-50);
   --foreground: oklch(0.18 0.05 200);
   --card: oklch(1 0 0);
@@ -284,9 +286,18 @@ html {
   --border: var(--color-sand-200);
   --input: var(--color-sand-200);
   --ring: oklch(0.42 0.058 198 / 0.45);
+
+  /* Charts recharts (dashboard) en canard/sapin/sand — sinon les graphes restent en bleu/orange
+     génériques de :root au milieu d'une app canard. La landing ne consomme aucun --chart-*. */
+  --chart-1: var(--color-canard-600);
+  --chart-2: var(--color-sapin-500);
+  --chart-3: var(--color-canard-300);
+  --chart-4: oklch(0.78 0.13 78);
+  --chart-5: var(--color-sapin-300);
 }
 
-.dark .theme-cartora {
+.dark .theme-cartora,
+.dark .theme-app {
   --background: oklch(0.13 0.03 204);
   --foreground: var(--color-sand-100);
   --card: oklch(0.17 0.038 202);
@@ -309,12 +320,19 @@ html {
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.74 0.034 198 / 0.55);
+
+  --chart-1: var(--color-canard-300);
+  --chart-2: var(--color-sapin-400);
+  --chart-3: var(--color-canard-500);
+  --chart-4: oklch(0.8 0.14 78);
+  --chart-5: var(--color-sapin-200);
 }
 
-/* Footer global ([data-global-footer], rendu via layout.tsx) masqué sur la landing, qui rend
-   son propre <LandingFooter/> riche. `.theme-cartora` n'existe que sur la landing → détecteur
-   fiable. Règle non-layered : prioritaire sur les utilities (pas de double footer possible). */
-body:has(.theme-cartora) [data-global-footer] {
+/* Footer global ([data-global-footer], rendu via layout.tsx) masqué sur la landing (qui rend son
+   propre <LandingFooter/> riche) ET sur le shell dashboard ([data-app-shell]). Les pages auth
+   portent .theme-app mais PAS [data-app-shell] → elles conservent le footer légal/cookies.
+   Règle non-layered : prioritaire sur les utilities (pas de double footer possible). */
+body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
   display: none;
 }
 
@@ -326,27 +344,28 @@ body:has(.theme-cartora) [data-global-footer] {
     @apply bg-background text-foreground;
   }
 
-  /* Display Fraunces sur les titres — scopé à la landing */
-  .theme-cartora {
+  /* Display Fraunces sur les titres — scopé à la landing (.theme-cartora) et à l'app (.theme-app) */
+  .theme-cartora,
+  .theme-app {
     font-feature-settings: "ss01", "ss02", "cv11"; /* formes alternatives Geist */
   }
-  .theme-cartora :is(h1, h2, .display) {
+  :is(.theme-cartora, .theme-app) :is(h1, h2, .display) {
     font-family: var(--font-display);
     font-optical-sizing: auto;
   }
 
-  /* Focus visible — SCOPÉ à la landing (cohérent avec le thème scopé : aucune fuite de la
-     couleur de marque canard dans le dashboard / les menus publics). Anneau 2px crème + 2px
-     canard. Les éléments portant déjà un `focus-visible:ring-*` Tailwind gardent le leur
-     (layer utilities > base). Cf. docs/ui-refonte-2026.md §12. */
-  .theme-cartora :focus-visible {
+  /* Focus visible — SCOPÉ au thème de marque (landing .theme-cartora + app .theme-app). Aucune
+     fuite de la couleur canard dans les menus publics /m/[slug] (sur :root neutre). Anneau 2px
+     crème + 2px canard. Les éléments portant déjà un `focus-visible:ring-*` Tailwind gardent le
+     leur (layer utilities > base). Cf. docs/ui-refonte-2026.md §12. */
+  :is(.theme-cartora, .theme-app) :focus-visible {
     outline: none;
     box-shadow:
       0 0 0 2px var(--color-sand-50),
       0 0 0 4px var(--color-canard-600);
     border-radius: var(--radius-md);
   }
-  .dark .theme-cartora :focus-visible {
+  .dark :is(.theme-cartora, .theme-app) :focus-visible {
     box-shadow:
       0 0 0 2px var(--color-canard-950),
       0 0 0 4px var(--color-canard-300);
