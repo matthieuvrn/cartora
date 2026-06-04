@@ -50,10 +50,10 @@ export default async function BrandingSettingsPage() {
 
       <div className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         {restaurant.planTier === "FREE" && (
-          <Card className="border-amber-200 bg-amber-50/60 dark:border-amber-900/40 dark:bg-amber-950/20">
+          <Card className="border-warning/30 bg-warning/10">
             <CardContent className="flex gap-3 pt-6">
-              <Info className="mt-0.5 size-4 shrink-0 text-amber-600" />
-              <p className="text-sm text-amber-900 dark:text-amber-200">{t("freeNotice")}</p>
+              <Info className="mt-0.5 size-4 shrink-0 text-warning" />
+              <p className="text-sm text-foreground">{t("freeNotice")}</p>
             </CardContent>
           </Card>
         )}

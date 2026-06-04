@@ -117,7 +117,9 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-semibold tabular-nums">{formatPrice(dish.priceCents)}</span>
+          <span className="text-sm font-mono font-semibold tabular-nums">
+            {formatPrice(dish.priceCents)}
+          </span>
           <Button variant="ghost" size="icon-xs" aria-label={tDaily("edit")} onClick={handleEdit}>
             <Pencil />
           </Button>

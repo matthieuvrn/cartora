@@ -67,9 +67,9 @@ export function PublishButton({ planTier, menuStatus, publishAction, regenerateQ
       {state.warning?.code === "qr_failed" && !regenState.success && (
         <div
           role="status"
-          className="flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+          className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
         >
-          <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />
+          <AlertTriangle className="size-4 shrink-0 text-warning" aria-hidden="true" />
           <span className="flex-1">{t("publishWarning.qr_failed")}</span>
           <form action={regenAction}>
             <Button
@@ -91,7 +91,7 @@ export function PublishButton({ planTier, menuStatus, publishAction, regenerateQ
       )}
 
       {regenState.success && (
-        <p role="status" className="flex items-center gap-1 text-sm text-emerald-700">
+        <p role="status" className="flex items-center gap-1 text-sm text-success">
           <Check className="size-4" aria-hidden="true" />
           {t("publishWarning.regenerated")}
         </p>

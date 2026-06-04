@@ -179,7 +179,7 @@ export function BrandColorsEditor({ initialPrimary, initialAccent, initialBackgr
       </section>
 
       {lowContrast && (
-        <div className="space-y-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-200">
+        <div className="space-y-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
           <p>{t("contrastWarning")}</p>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -200,7 +200,7 @@ export function BrandColorsEditor({ initialPrimary, initialAccent, initialBackgr
       )}
 
       {success && (
-        <p className="rounded-md border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-200">
+        <p className="rounded-md border border-success/30 bg-success/10 p-3 text-sm text-success">
           {t("saved")}
         </p>
       )}

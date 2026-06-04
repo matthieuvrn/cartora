@@ -89,7 +89,7 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-semibold tabular-nums">
+          <span className="text-sm font-mono font-semibold tabular-nums">
             {formatPrice(formula.priceCents)}
           </span>
           <Button variant="ghost" size="icon-xs" aria-label={tFormula("edit")} onClick={handleEdit}>

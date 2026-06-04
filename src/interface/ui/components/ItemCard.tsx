@@ -38,8 +38,8 @@ const badgeConfig: Record<
   Exclude<ItemBadge, "NONE">,
   { icon: typeof Sparkles; className: string }
 > = {
-  NEW: { icon: Sparkles, className: "bg-blue-100 text-blue-700" },
-  POPULAR: { icon: Flame, className: "bg-orange-100 text-orange-700" },
+  NEW: { icon: Sparkles, className: "bg-canard-100 text-canard-700" },
+  POPULAR: { icon: Flame, className: "bg-sapin-100 text-sapin-700" },
 };
 
 function BadgeChip({ badge, label }: { badge: Exclude<ItemBadge, "NONE">; label: string }) {
@@ -130,7 +130,7 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
             )}
             <span
               className={`inline-block size-2 shrink-0 rounded-full ${
-                item.isAvailable ? "bg-green-500" : "bg-muted-foreground/40"
+                item.isAvailable ? "bg-success" : "bg-muted-foreground/40"
               }`}
               title={t("available")}
             />
@@ -151,7 +151,9 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-semibold tabular-nums">{formatPrice(item.priceCents)}</span>
+          <span className="text-sm font-mono font-semibold tabular-nums">
+            {formatPrice(item.priceCents)}
+          </span>
           <Button variant="ghost" size="icon-xs" aria-label={t("editItem")} onClick={handleEdit}>
             <Pencil />
           </Button>

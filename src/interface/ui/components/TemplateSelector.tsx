@@ -88,7 +88,7 @@ export function TemplateSelector({ currentTemplate, planTier }: Props) {
       <ErrorMessage error={state.error} />
 
       {state.success && (
-        <p role="status" className="text-sm text-emerald-600">
+        <p role="status" className="text-sm text-success">
           {t("saveSuccess")}
         </p>
       )}

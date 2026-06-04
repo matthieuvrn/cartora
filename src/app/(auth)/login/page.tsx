@@ -63,7 +63,7 @@ export default function LoginPage() {
             </p>
 
             {resendState.success && (
-              <p role="status" className="text-sm text-green-600">
+              <p role="status" className="text-sm text-success">
                 {t("error.resend_success")}
               </p>
             )}
