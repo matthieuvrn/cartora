@@ -11,9 +11,9 @@ type Props = {
 export function KpiCard({ title, value, icon: Icon, description }: Props) {
   return (
     <Card>
-      <CardContent className="p-4">
+      <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-muted-foreground truncate">{title}</span>
+          <span className="text-caption text-muted-foreground truncate">{title}</span>
           <Icon className="size-4 shrink-0 text-muted-foreground" />
         </div>
         <p className="mt-2 text-2xl font-mono font-bold tabular-nums truncate">{value}</p>

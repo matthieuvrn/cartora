@@ -121,7 +121,7 @@ export function MenuDashboard({
             })()}
           <div className="space-y-1">
             <EditableRestaurantName currentName={restaurantName} />
-            <p className="text-sm text-muted-foreground">{t("title")}</p>
+            <p className="text-caption text-muted-foreground">{t("title")}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

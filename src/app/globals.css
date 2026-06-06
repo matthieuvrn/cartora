@@ -294,6 +294,13 @@ html {
   --chart-3: var(--color-canard-300);
   --chart-4: oklch(0.78 0.13 78);
   --chart-5: var(--color-sapin-300);
+
+  /* Ombre de carte au repos, teintée canard. SCOPÉE (pas en @theme) : un --shadow-sm global
+     créerait une utility Tailwind qui fuirait dans /m/[slug] (TemplateModern utilise shadow-sm).
+     Consommée par la règle non-layered [data-slot="card"] plus bas → cartes sous .theme-app/
+     .theme-cartora teintées, :root (menus publics) inchangé. */
+  --card-shadow:
+    0 1px 2px 0 oklch(0.18 0.05 200 / 0.04), 0 2px 6px -1px oklch(0.18 0.05 200 / 0.06);
 }
 
 .dark .theme-cartora,
@@ -326,6 +333,9 @@ html {
   --chart-3: var(--color-canard-500);
   --chart-4: oklch(0.8 0.14 78);
   --chart-5: var(--color-sapin-200);
+
+  /* En sombre, l'ombre doit s'appuyer sur du noir plus opaque pour rester perceptible. */
+  --card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 6px -1px oklch(0 0 0 / 0.35);
 }
 
 /* Footer global ([data-global-footer], rendu via layout.tsx) masqué sur la landing (qui rend son
@@ -334,6 +344,13 @@ html {
    Règle non-layered : prioritaire sur les utilities (pas de double footer possible). */
 body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
   display: none;
+}
+
+/* Ombre de carte teintée canard sous le thème de marque. Règle non-layered → prioritaire sur
+   l'utility `shadow-sm` de shadcn (card.tsx), comme la règle footer ci-dessus. Scopée : les menus
+   publics /m/[slug] (sur :root) conservent leur shadow-sm gris d'origine, aucune fuite de marque. */
+:is(.theme-cartora, .theme-app) [data-slot="card"] {
+  box-shadow: var(--card-shadow);
 }
 
 @layer base {

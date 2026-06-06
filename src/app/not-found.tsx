@@ -6,10 +6,10 @@ export default async function NotFound() {
   const t = await getTranslations("NotFound");
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      <h1 className="mb-2 text-4xl font-bold">404</h1>
-      <p className="mb-1 text-lg font-semibold">{t("title")}</p>
-      <p className="mb-6 text-muted-foreground">{t("description")}</p>
+    <main className="theme-app flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center text-foreground">
+      <h1 className="mb-2 text-h1">404</h1>
+      <p className="display mb-1 text-h3">{t("title")}</p>
+      <p className="mb-6 text-body text-muted-foreground">{t("description")}</p>
       <Button asChild>
         <Link href="/app">{t("backHome")}</Link>
       </Button>

@@ -82,11 +82,11 @@ export function StatsCard({ stats, realtimeStats }: Props) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{t("title")}</CardTitle>
+          <CardTitle className="display">{t("title")}</CardTitle>
           <CardDescription>{t("last7Days")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+          <p className="text-body-sm text-muted-foreground">{t("empty")}</p>
         </CardContent>
       </Card>
     );
@@ -153,7 +153,7 @@ export function StatsCard({ stats, realtimeStats }: Props) {
       {/* Area chart — daily views */}
       <Card>
         <CardHeader>
-          <CardTitle>{t("chartTitle")}</CardTitle>
+          <CardTitle className="display">{t("chartTitle")}</CardTitle>
           <CardDescription>{t("last7Days")}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -165,7 +165,7 @@ export function StatsCard({ stats, realtimeStats }: Props) {
       {realtimeStats && (
         <Card>
           <CardHeader>
-            <CardTitle>{t("hourlyTitle")}</CardTitle>
+            <CardTitle className="display">{t("hourlyTitle")}</CardTitle>
             <CardDescription>{t("hourlyDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -182,21 +182,21 @@ export function StatsCard({ stats, realtimeStats }: Props) {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {deviceEntries.length > 0 && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 sm:p-5">
                 <BreakdownSection title={t("deviceBreakdown")} entries={deviceEntries} />
               </CardContent>
             </Card>
           )}
           {sourceEntries.length > 0 && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 sm:p-5">
                 <BreakdownSection title={t("sourceBreakdown")} entries={sourceEntries} />
               </CardContent>
             </Card>
           )}
           {localeEntries.length > 0 && (
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-4 sm:p-5">
                 <BreakdownSection title={t("localeBreakdown")} entries={localeEntries} />
               </CardContent>
             </Card>

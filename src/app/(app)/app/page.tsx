@@ -26,6 +26,7 @@ import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
 import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDishes";
 import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/interface/ui/components/Logo";
 import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
@@ -119,11 +120,13 @@ export default async function AppPage({
   const t = await getTranslations("Dashboard");
 
   return (
-    <main className="min-h-screen bg-muted/40">
-      <header className="border-b bg-background px-6 py-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold">Cartora</h1>
+    <main className="min-h-screen">
+      <header className="flex min-h-16 items-center justify-between border-b bg-background px-6 py-4">
+        <Link href="/app" aria-label="Cartora">
+          <Logo variant="lockup" className="h-7" />
+        </Link>
         <div className="flex items-center gap-4">
-          <p className="text-sm text-muted-foreground">{user.email}</p>
+          <p className="hidden text-sm text-muted-foreground sm:block">{user.email}</p>
           <Link href="/app/settings">
             <Button variant="ghost" size="icon" aria-label={t("settings")}>
               <Settings className="h-4 w-4" />

@@ -29,7 +29,7 @@ export function EditableRestaurantName({ currentName }: Props) {
   if (!editing) {
     return (
       <div className="flex items-center gap-2">
-        <h2 className="text-2xl font-bold">{currentName}</h2>
+        <h1 className="text-h2">{currentName}</h1>
         <Button
           variant="ghost"
           size="icon"
@@ -53,7 +53,7 @@ export function EditableRestaurantName({ currentName }: Props) {
         required
         maxLength={50}
         autoFocus
-        className="h-9 w-64 text-base font-bold"
+        className="h-9 w-64 text-lg"
         disabled={isPending}
       />
       <Button

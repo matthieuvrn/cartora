@@ -22,8 +22,8 @@ export default function DashboardError({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
-      <h1 className="mb-2 text-2xl font-bold">{t("title")}</h1>
-      <p className="mb-6 text-muted-foreground">{t("description")}</p>
+      <h1 className="mb-2 text-h1">{t("title")}</h1>
+      <p className="mb-6 text-body text-muted-foreground">{t("description")}</p>
       <Button onClick={reset}>{t("retry")}</Button>
     </main>
   );

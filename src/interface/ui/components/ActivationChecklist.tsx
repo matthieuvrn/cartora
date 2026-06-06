@@ -30,7 +30,7 @@ export function ActivationChecklistCard({ checklist, dismissAction }: Props) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2">
-          <span>{t("title")}</span>
+          <span className="display text-h3">{t("title")}</span>
           <span className="text-sm font-normal text-muted-foreground">
             {t("progress", { done: checklist.doneCount, total: checklist.totalCount })}
           </span>
@@ -49,11 +49,11 @@ export function ActivationChecklistCard({ checklist, dismissAction }: Props) {
             {checklist.steps.map((step) => (
               <li key={step.id} className="flex items-center gap-2 text-sm">
                 {step.done ? (
-                  <CircleCheck className="size-4 text-primary" aria-hidden />
+                  <CircleCheck className="size-4 text-success" aria-hidden />
                 ) : (
                   <Circle className="size-4 text-muted-foreground" aria-hidden />
                 )}
-                <span className={step.done ? "text-muted-foreground line-through" : ""}>
+                <span className={step.done ? "text-muted-foreground" : ""}>
                   {t(`step.${step.id}`)}
                 </span>
               </li>

@@ -3,10 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardLoading() {
   return (
-    <main className="min-h-screen bg-muted/40">
+    <main className="min-h-screen">
       {/* Header */}
-      <header className="flex items-center justify-between border-b bg-background px-6 py-4">
-        <Skeleton className="h-5 w-20" />
+      <header className="flex min-h-16 items-center justify-between border-b bg-background px-6 py-4">
+        <Skeleton className="h-7 w-28" />
         <div className="flex items-center gap-4">
           <Skeleton className="h-4 w-32" />
           <Skeleton className="h-8 w-24 rounded-md" />
@@ -34,7 +34,7 @@ export default function DashboardLoading() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <Card key={i}>
-              <CardContent className="space-y-2 p-4">
+              <CardContent className="space-y-2 p-4 sm:p-5">
                 <Skeleton className="h-3 w-20" />
                 <Skeleton className="h-7 w-16" />
               </CardContent>
