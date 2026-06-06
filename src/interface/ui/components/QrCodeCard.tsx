@@ -16,7 +16,7 @@ export function QrCodeCard({ qrCodeUrl }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("qrCode.title")}</CardTitle>
+        <CardTitle className="display">{t("qrCode.title")}</CardTitle>
         <CardDescription>{t("qrCode.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col items-center gap-4">

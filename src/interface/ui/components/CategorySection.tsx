@@ -2,7 +2,7 @@
 
 import { startTransition, useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import type { MenuCategoryData } from "@/domain/menu/MenuTypes";
 import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,7 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="display flex items-center gap-2">
           <span>{category.name}</span>
           <div className="flex items-center gap-1">
             <Button
@@ -106,7 +106,18 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
       </CardHeader>
       <CardContent>
         {category.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4">{t("emptyCategory")}</p>
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <UtensilsCrossed
+              className="size-8 text-canard-400"
+              strokeWidth={1.75}
+              aria-hidden="true"
+            />
+            <p className="text-body-sm text-muted-foreground">{t("emptyCategory")}</p>
+            <Button variant="outline" size="sm" onClick={handleAdd}>
+              <Plus />
+              {t("addItem")}
+            </Button>
+          </div>
         ) : (
           <div className="space-y-3">
             {category.items.map((item, index) => (

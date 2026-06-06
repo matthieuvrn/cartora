@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Lock } from "lucide-react";
+import { Plus, Lock, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
@@ -65,9 +65,14 @@ export function FormulasSection({ activeFormulas, expiredFormulas, planTier }: P
       </div>
 
       {activeFormulas.length === 0 ? (
-        <p className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-          {t("empty")}
-        </p>
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center">
+          <Layers className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
+          <p className="text-body-sm text-muted-foreground">{t("empty")}</p>
+          <Button variant="outline" size="sm" onClick={handleAdd}>
+            <Plus />
+            {t("add")}
+          </Button>
+        </div>
       ) : (
         <ul className="space-y-2" role="list">
           {activeFormulas.map((formula) => (

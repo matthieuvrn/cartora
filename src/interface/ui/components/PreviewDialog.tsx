@@ -68,14 +68,22 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
           {t("preview")}
         </Button>
       </DialogTrigger>
+      {/* brandScope={false} : le DialogContent reste neutre (:root) pour que le menu prévisualisé
+          rende EXACTEMENT comme /m/[slug] — y compris la serif de TemplateElegant. Seule la chrome
+          Cartora (titre, sélecteur de viewport) porte `.theme-app` (titre Fraunces, boutons canard). */}
       <DialogContent
+        brandScope={false}
         className="sm:max-w-5xl max-h-[90vh] overflow-y-auto"
         aria-describedby={undefined}
       >
-        <DialogHeader>
+        <DialogHeader className="theme-app">
           <DialogTitle>{t("previewTitle")}</DialogTitle>
         </DialogHeader>
-        <div className="flex justify-center gap-1 pb-2" role="group" aria-label={t("previewTitle")}>
+        <div
+          className="theme-app flex justify-center gap-1 pb-2"
+          role="group"
+          aria-label={t("previewTitle")}
+        >
           {viewports.map(({ id, icon: Icon, label }) => (
             <Button
               key={id}
@@ -93,9 +101,9 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
         </div>
         <div
           className={cn(
-            "mx-auto w-full transition-[max-width] duration-200",
+            "mx-auto w-full transition-[max-width] duration-200 ease-[var(--ease-out-expo)]",
             VIEWPORT_MAX_WIDTH[viewport],
-            viewport !== "desktop" && "rounded-2xl border shadow-sm overflow-hidden",
+            viewport !== "desktop" && "rounded-2xl border shadow-lg overflow-hidden",
           )}
         >
           <MenuTemplateRenderer

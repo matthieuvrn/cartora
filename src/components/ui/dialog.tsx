@@ -43,9 +43,16 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  brandScope = true,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
+  /**
+   * Monte le scope de marque `.theme-app` sur le contenu du dialog (défaut). À passer `false`
+   * UNIQUEMENT pour un dialog qui héberge du contenu hors-marque — en pratique PreviewDialog, qui
+   * rend le menu public et doit rester fidèle à `/m/[slug]` (cf. note `theme-app` ci-dessous).
+   */
+  brandScope?: boolean;
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -53,6 +60,14 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
+          // `theme-app` : le portail Radix rend dans <body>, HORS du scope de marque monté sur le
+          // <div> (app)/(auth). Sans cette classe, le contenu retombe sur :root → bouton primary noir,
+          // titre (h2) en Geist, focus natif au lieu de l'anneau de marque. theme-app ≡ theme-cartora
+          // (mêmes tokens) donc sûr sur landing/app/legal ; aucun dialog n'est rendu sur /m/[slug].
+          // ⚠ Le scope porte AUSSI des règles par sélecteur (Fraunces sur h1/h2/.display, anneau de
+          // focus) : un simple reset de tokens ne suffit pas à les annuler. PreviewDialog passe donc
+          // `brandScope={false}` et n'habille que sa propre chrome — le menu prévisualisé reste neutre.
+          brandScope && "theme-app",
           "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
           className,
         )}
