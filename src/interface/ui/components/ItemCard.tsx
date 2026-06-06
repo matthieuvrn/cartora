@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Sparkles, Flame, ChevronUp, ChevronDown } from "lucide-react";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES, type ItemBadge } from "@/domain/menu/ItemPolicy";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,22 +37,20 @@ function formatPrice(cents: number): string {
 
 const badgeConfig: Record<
   Exclude<ItemBadge, "NONE">,
-  { icon: typeof Sparkles; className: string }
+  { icon: typeof Sparkles; variant: "canard" | "sapin" }
 > = {
-  NEW: { icon: Sparkles, className: "bg-canard-100 text-canard-700" },
-  POPULAR: { icon: Flame, className: "bg-sapin-100 text-sapin-700" },
+  NEW: { icon: Sparkles, variant: "canard" },
+  POPULAR: { icon: Flame, variant: "sapin" },
 };
 
 function BadgeChip({ badge, label }: { badge: Exclude<ItemBadge, "NONE">; label: string }) {
   const config = badgeConfig[badge];
   const Icon = config.icon;
   return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}
-    >
-      <Icon className="size-3" />
+    <Badge variant={config.variant}>
+      <Icon />
       {label}
-    </span>
+    </Badge>
   );
 }
 

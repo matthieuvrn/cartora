@@ -4,6 +4,7 @@ import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -71,11 +72,7 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium truncate">{formula.translations.fr.name}</span>
-            {isExpired && (
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {tFormula("expired")}
-              </span>
-            )}
+            {isExpired && <Badge variant="warning">{tFormula("expired")}</Badge>}
           </div>
           {formula.translations.fr.description && (
             <p className="whitespace-pre-line text-sm text-foreground/80 line-clamp-4">

@@ -17,6 +17,7 @@ import {
 import type { ActionState } from "@/lib/action-result";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
 import { CategorySection } from "./CategorySection";
@@ -131,9 +132,9 @@ export function MenuDashboard({
             publishAction={publishAction}
             regenerateQrAction={regenerateQrAction}
           />
-          <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+          <Badge variant={menu.status === "PUBLISHED" ? "success" : "warning"}>
             {t(`status.${menu.status}`)}
-          </span>
+          </Badge>
         </div>
       </div>
 

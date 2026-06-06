@@ -7,6 +7,7 @@ import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { createPortalAction } from "@/app/(app)/app/billing-actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PricingModal } from "./PricingModal";
 
@@ -28,9 +29,7 @@ export function BillingStatus({ planStatus, planTier, hasBilling }: Props) {
     return (
       <div className="flex items-center justify-between rounded-lg border bg-background p-4">
         <div className="flex items-center gap-3">
-          <span className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
-            {tierLabel}
-          </span>
+          <Badge variant="success">{tierLabel}</Badge>
           <p className="text-sm text-muted-foreground">{tierDescription}</p>
         </div>
         <form action={createPortalAction}>
@@ -66,9 +65,7 @@ export function BillingStatus({ planStatus, planTier, hasBilling }: Props) {
       <>
         <div className="flex items-center justify-between rounded-lg border border-destructive/50 bg-background p-4">
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-destructive px-3 py-1 text-xs font-medium text-destructive-foreground">
-              {t("canceledBadge")}
-            </span>
+            <Badge variant="danger">{t("canceledBadge")}</Badge>
             <p className="text-sm text-muted-foreground">{t("canceledDescription")}</p>
           </div>
           {hasBilling ? (
@@ -91,9 +88,7 @@ export function BillingStatus({ planStatus, planTier, hasBilling }: Props) {
   // FREE — badge only, no action (PricingModal handles upgrade via PublishButton)
   return (
     <div className="flex items-center gap-3 rounded-lg border bg-background p-4">
-      <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
-        {t("freeBadge")}
-      </span>
+      <Badge variant="default">{t("freeBadge")}</Badge>
       <p className="text-sm text-muted-foreground">{t("freeDescription")}</p>
     </div>
   );

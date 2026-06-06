@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -94,11 +95,7 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium truncate">{dish.translations.fr.name}</span>
-            {isExpired && (
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                {tDaily("expired")}
-              </span>
-            )}
+            {isExpired && <Badge variant="warning">{tDaily("expired")}</Badge>}
           </div>
           {dish.translations.fr.description && (
             <p className="text-sm text-foreground/80 line-clamp-2">
