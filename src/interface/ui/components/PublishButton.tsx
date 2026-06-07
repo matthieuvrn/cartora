@@ -8,6 +8,7 @@ import type { PublishActionState } from "@/app/(app)/app/actions";
 import type { ActionState } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "./ErrorMessage";
+import { PopIn } from "./PopIn";
 import { PricingModal } from "./PricingModal";
 
 type RegenerateState = ActionState<{ success?: boolean }>;
@@ -92,7 +93,9 @@ export function PublishButton({ planTier, menuStatus, publishAction, regenerateQ
 
       {regenState.success && (
         <p role="status" className="flex items-center gap-1 text-sm text-success">
-          <Check className="size-4" aria-hidden="true" />
+          <PopIn>
+            <Check className="size-4" aria-hidden="true" />
+          </PopIn>
           {t("publishWarning.regenerated")}
         </p>
       )}

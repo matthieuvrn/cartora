@@ -353,6 +353,28 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
   box-shadow: var(--card-shadow);
 }
 
+/* Skeleton shimmer canard — SCOPÉ au thème de marque. La primitive Skeleton reste `animate-pulse
+   bg-accent` neutre sur :root → les skeletons de /m/[slug] (canvas restaurateur) gardent leur pulse
+   gris, aucune fuite de marque. Règle non-layered → prioritaire sur les utilities `animate-pulse`/
+   `bg-accent`, comme la règle card-shadow ci-dessus. Tokens sémantiques (--muted/--accent) → la teinte
+   s'adapte light ET dark sous .theme-app/.dark. Reduced-motion : le @media global (plus bas, anim-
+   duration !important) fige le balayage, exactement comme animate-pulse. */
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+:is(.theme-cartora, .theme-app) [data-slot="skeleton"] {
+  background-color: var(--muted);
+  background-image: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: skeleton-shimmer var(--duration-1000) linear infinite;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

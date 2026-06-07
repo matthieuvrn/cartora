@@ -29,6 +29,7 @@ import { PublishButton } from "./PublishButton";
 import { QrCodeCard } from "./QrCodeCard";
 import { BillingStatus } from "./BillingStatus";
 import { StatsCard } from "./StatsCard";
+import { StaggerReveal } from "./StaggerReveal";
 
 type Props = {
   menu: MenuOverview;
@@ -94,7 +95,7 @@ export function MenuDashboard({
   }
 
   return (
-    <div className="space-y-8">
+    <StaggerReveal className="space-y-8">
       {activationChecklist && (
         <ActivationChecklistCard
           checklist={activationChecklist}
@@ -188,6 +189,6 @@ export function MenuDashboard({
       <div className="flex justify-center pt-4">
         <AddCategoryButton categoriesCount={menu.categories.length} planTier={planTier} />
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
