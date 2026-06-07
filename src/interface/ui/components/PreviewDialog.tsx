@@ -2,15 +2,9 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { useLocale } from "next-intl";
 import { Eye, Smartphone, Tablet, Monitor } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
-import { PlanPolicy } from "@/domain/billing/PlanPolicy";
-import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
-import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
-import { MenuTemplateRenderer } from "./menu-template";
-import type { AllergenLabels } from "./AllergenIcons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { MenuPreviewPane } from "./MenuPreviewPane";
 
 type Props = {
   menu: MenuOverview;
@@ -37,22 +32,7 @@ const VIEWPORT_MAX_WIDTH: Record<Viewport, string> = {
 
 export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
   const t = useTranslations("Dashboard");
-  const tp = useTranslations("PublicMenu");
-  const tAllergen = useTranslations("Allergen");
-  const locale = useLocale() as "fr" | "en";
   const [viewport, setViewport] = useState<Viewport>("mobile");
-
-  const snapshot = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
-
-  const badgeLabels: Record<"NEW" | "POPULAR", string> = {
-    NEW: tp("badge.NEW"),
-    POPULAR: tp("badge.POPULAR"),
-  };
-
-  const allergenLabels: AllergenLabels = ALLERGEN_VALUES.reduce((acc, a) => {
-    acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
-    return acc;
-  }, {} as AllergenLabels);
 
   const viewports: { id: Viewport; icon: typeof Smartphone; label: string }[] = [
     { id: "mobile", icon: Smartphone, label: t("previewViewportMobile") },
@@ -69,8 +49,8 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
         </Button>
       </DialogTrigger>
       {/* brandScope={false} : le DialogContent reste neutre (:root) pour que le menu prévisualisé
-          rende EXACTEMENT comme /m/[slug] — y compris la serif de TemplateElegant. Seule la chrome
-          Cartora (titre, sélecteur de viewport) porte `.theme-app` (titre Fraunces, boutons canard). */}
+          rende EXACTEMENT comme /m/[slug]. Seule la chrome Cartora (titre, sélecteur de viewport)
+          porte `.theme-app`. Le rendu lui-même est délégué à MenuPreviewPane (source unique). */}
       <DialogContent
         brandScope={false}
         className="sm:max-w-5xl max-h-[90vh] overflow-y-auto"
@@ -99,26 +79,16 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
             </Button>
           ))}
         </div>
-        <div
+        <MenuPreviewPane
+          menu={menu}
+          restaurantName={restaurantName}
+          planTier={planTier}
           className={cn(
             "mx-auto w-full transition-[max-width] duration-200 ease-[var(--ease-out-expo)]",
             VIEWPORT_MAX_WIDTH[viewport],
-            viewport !== "desktop" && "rounded-2xl border shadow-lg overflow-hidden",
+            viewport !== "desktop" && "overflow-hidden rounded-2xl border shadow-lg",
           )}
-        >
-          <MenuTemplateRenderer
-            snapshot={snapshot}
-            locale={locale}
-            showWatermark={PlanPolicy.shouldShowWatermark(planTier)}
-            badgeLabels={badgeLabels}
-            allergenLabels={allergenLabels}
-            allergenSectionLabel={tAllergen("sectionTitle")}
-            allergenLegendTitle={tp("allergenLegendTitle")}
-            watermarkText={tp("watermark")}
-            todaySectionTitle={tp("todayMenu")}
-            todaySectionDescription={tp("todayMenuDescription")}
-          />
-        </div>
+        />
       </DialogContent>
     </Dialog>
   );

@@ -3,13 +3,8 @@
 import { useActionState, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2, Upload } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -145,264 +140,276 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
   );
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
   const isBusy = isPending || isUploadingPhoto;
+  const frNameError = state.fieldErrors?.["translations.fr.name"];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{mode === "create" ? t("addItem") : t("editItem")}</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        aria-describedby={undefined}
+        className="flex w-full flex-col gap-0 sm:max-w-lg"
+      >
+        <SheetHeader>
+          <SheetTitle>{mode === "create" ? t("addItem") : t("editItem")}</SheetTitle>
+        </SheetHeader>
 
-        <form action={formAction} className="space-y-5">
-          <input type="hidden" name="categoryId" value={categoryId} />
-          {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
+        <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
+            <input type="hidden" name="categoryId" value={categoryId} />
+            {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
 
-          {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
+            {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-          {/* FR fields */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">Français</legend>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
-              <Input
-                id={`${id}-nameFr`}
-                name="nameFr"
-                required
-                placeholder="ex: Spaghetti Carbonara"
-                defaultValue={item?.translations.fr.name ?? ""}
-                aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
-              />
-              {state.fieldErrors?.["translations.fr.name"] && (
-                <p className="text-xs text-destructive">
-                  {state.fieldErrors["translations.fr.name"]}
-                </p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
-              <Textarea
-                id={`${id}-descFr`}
-                name="descriptionFr"
-                placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
-                defaultValue={item?.translations.fr.description ?? ""}
-              />
-            </div>
-          </fieldset>
-
-          {/* EN fields */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">English</legend>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
-              <Input
-                id={`${id}-nameEn`}
-                name="nameEn"
-                placeholder="ex: Spaghetti Carbonara"
-                defaultValue={item?.translations.en.name ?? ""}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
-              <Textarea
-                id={`${id}-descEn`}
-                name="descriptionEn"
-                placeholder="ex: Fresh pasta, pancetta, parmesan..."
-                defaultValue={item?.translations.en.description ?? ""}
-              />
-            </div>
-          </fieldset>
-
-          {/* Price + Badge row */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-price`}>{t("price")}</Label>
-              <div className="relative">
-                <Input
-                  id={`${id}-price`}
-                  name="priceEur"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  className="pr-8"
-                  placeholder="0.00"
-                  defaultValue={item ? (item.priceCents / 100).toFixed(2) : ""}
-                  aria-invalid={!!state.fieldErrors?.priceEur}
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                  €
-                </span>
-              </div>
-              {state.fieldErrors?.priceEur && (
-                <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
-              <Select name="badge" defaultValue={item?.badge ?? "NONE"}>
-                <SelectTrigger id={`${id}-badge`} className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
-                  <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
-                  <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <fieldset className="space-y-2">
-            <legend className="text-sm font-medium">{tAllergen("sectionTitle")}</legend>
-            <p className="text-xs text-muted-foreground">{tAllergen("selectLabel")}</p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
-              {ALLERGEN_VALUES.map((a) => {
-                const checkboxId = `${id}-allergen-${a}`;
-                return (
-                  <label
-                    key={a}
-                    htmlFor={checkboxId}
-                    className="flex cursor-pointer items-center gap-2 text-sm"
-                  >
-                    <input
-                      id={checkboxId}
-                      type="checkbox"
-                      name="allergens"
-                      value={a}
-                      defaultChecked={selectedAllergens.has(a)}
-                      className="size-4 rounded border-input"
-                    />
-                    <span>{tAllergen(`${a}.short`)}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-
-          {mode === "edit" && (
-            <div className="flex items-center gap-2">
-              <Switch
-                id={`${id}-available`}
-                name="isAvailable"
-                value="true"
-                defaultChecked={item?.isAvailable ?? true}
-              />
-              <Label htmlFor={`${id}-available`}>{t("available")}</Label>
-            </div>
-          )}
-
-          {mode === "edit" && item && (
-            <ItemPhotoEditor
-              itemId={item.id}
-              initialImagePath={item.imagePath}
-              initialAltTextFr={item.altTextFr}
-              initialAltTextEn={item.altTextEn}
-            />
-          )}
-
-          {mode === "create" && (
-            <fieldset className="space-y-3 rounded-lg border p-3">
-              <legend className="px-2 text-sm font-medium">
-                {t("photo.title")}{" "}
-                <span className="font-normal text-muted-foreground">
-                  {t("photo.optionalLabel")}
-                </span>
-              </legend>
-              {pendingFileError && (
-                <p role="alert" className="text-sm text-destructive">
-                  {pendingFileError}
-                </p>
-              )}
-              <div className="flex items-start gap-3">
-                <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-md bg-muted">
-                  {previewUrl ? (
-                    // Local object URL preview, no need for next/image optimization here.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={previewUrl}
-                      alt={pendingAltFr || pendingAltEn || ""}
-                      className="absolute inset-0 size-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                      {t("photo.noPhoto")}
-                    </div>
+            {/* Nom + description par langue. forceMount + data-[state=inactive]:hidden : les deux
+                langues restent montées (donc soumises) même onglet inactif. */}
+            <Tabs defaultValue="fr">
+              <TabsList>
+                <TabsTrigger value="fr">
+                  Français
+                  {frNameError && (
+                    <span aria-hidden className="ml-1.5 size-1.5 rounded-full bg-destructive" />
                   )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={ALLOWED_IMAGE_MIME_TYPES.join(",")}
-                    className="hidden"
-                    onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                </TabsTrigger>
+                <TabsTrigger value="en">English</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="fr" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
+                  <Input
+                    id={`${id}-nameFr`}
+                    name="nameFr"
+                    placeholder="ex: Spaghetti Carbonara"
+                    defaultValue={item?.translations.fr.name ?? ""}
+                    aria-invalid={!!frNameError}
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isBusy}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="size-4" />
-                    {pendingFile ? t("photo.replace") : t("photo.upload")}
-                  </Button>
-                  {pendingFile && (
+                  {frNameError && <p className="text-xs text-destructive">{frNameError}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
+                  <Textarea
+                    id={`${id}-descFr`}
+                    name="descriptionFr"
+                    placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
+                    defaultValue={item?.translations.fr.description ?? ""}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="en" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
+                  <Input
+                    id={`${id}-nameEn`}
+                    name="nameEn"
+                    placeholder="ex: Spaghetti Carbonara"
+                    defaultValue={item?.translations.en.name ?? ""}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
+                  <Textarea
+                    id={`${id}-descEn`}
+                    name="descriptionEn"
+                    placeholder="ex: Fresh pasta, pancetta, parmesan..."
+                    defaultValue={item?.translations.en.description ?? ""}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            {/* Price + Badge row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-price`}>{t("price")}</Label>
+                <div className="relative">
+                  <Input
+                    id={`${id}-price`}
+                    name="priceEur"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    className="pr-8"
+                    placeholder="0.00"
+                    defaultValue={item ? (item.priceCents / 100).toFixed(2) : ""}
+                    aria-invalid={!!state.fieldErrors?.priceEur}
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    €
+                  </span>
+                </div>
+                {state.fieldErrors?.priceEur && (
+                  <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
+                <Select name="badge" defaultValue={item?.badge ?? "NONE"}>
+                  <SelectTrigger id={`${id}-badge`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
+                    <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
+                    <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">{tAllergen("sectionTitle")}</legend>
+              <p className="text-xs text-muted-foreground">{tAllergen("selectLabel")}</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
+                {ALLERGEN_VALUES.map((a) => {
+                  const checkboxId = `${id}-allergen-${a}`;
+                  return (
+                    <label
+                      key={a}
+                      htmlFor={checkboxId}
+                      className="flex cursor-pointer items-center gap-2 text-sm"
+                    >
+                      <input
+                        id={checkboxId}
+                        type="checkbox"
+                        name="allergens"
+                        value={a}
+                        defaultChecked={selectedAllergens.has(a)}
+                        className="size-4 rounded border-input"
+                      />
+                      <span>{tAllergen(`${a}.short`)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {mode === "edit" && (
+              <div className="flex items-center gap-2">
+                <Switch
+                  id={`${id}-available`}
+                  name="isAvailable"
+                  value="true"
+                  defaultChecked={item?.isAvailable ?? true}
+                />
+                <Label htmlFor={`${id}-available`}>{t("available")}</Label>
+              </div>
+            )}
+
+            {mode === "edit" && item && (
+              <ItemPhotoEditor
+                itemId={item.id}
+                initialImagePath={item.imagePath}
+                initialAltTextFr={item.altTextFr}
+                initialAltTextEn={item.altTextEn}
+              />
+            )}
+
+            {mode === "create" && (
+              <fieldset className="space-y-3 rounded-lg border p-3">
+                <legend className="px-2 text-sm font-medium">
+                  {t("photo.title")}{" "}
+                  <span className="font-normal text-muted-foreground">
+                    {t("photo.optionalLabel")}
+                  </span>
+                </legend>
+                {pendingFileError && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {pendingFileError}
+                  </p>
+                )}
+                <div className="flex items-start gap-3">
+                  <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-md bg-muted">
+                    {previewUrl ? (
+                      // Local object URL preview, no need for next/image optimization here.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={previewUrl}
+                        alt={pendingAltFr || pendingAltEn || ""}
+                        className="absolute inset-0 size-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                        {t("photo.noPhoto")}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={ALLOWED_IMAGE_MIME_TYPES.join(",")}
+                      className="hidden"
+                      onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                    />
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
                       disabled={isBusy}
-                      onClick={clearPendingFile}
+                      onClick={() => fileInputRef.current?.click()}
                     >
-                      <Trash2 className="size-4" />
-                      {t("photo.remove")}
+                      <Upload className="size-4" />
+                      {pendingFile ? t("photo.replace") : t("photo.upload")}
                     </Button>
-                  )}
-                </div>
-              </div>
-
-              {pendingFile && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">{t("photo.altTextHint")}</p>
-                  <div className="space-y-1">
-                    <Label htmlFor={`${id}-create-altFr`}>{t("photo.altTextFr")}</Label>
-                    <Input
-                      id={`${id}-create-altFr`}
-                      value={pendingAltFr}
-                      maxLength={MAX_ALT_TEXT_LENGTH}
-                      disabled={isBusy}
-                      onChange={(e) => setPendingAltFr(e.target.value)}
-                      placeholder="ex : assiette de salade verte avec tomates"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor={`${id}-create-altEn`}>{t("photo.altTextEn")}</Label>
-                    <Input
-                      id={`${id}-create-altEn`}
-                      value={pendingAltEn}
-                      maxLength={MAX_ALT_TEXT_LENGTH}
-                      disabled={isBusy}
-                      onChange={(e) => setPendingAltEn(e.target.value)}
-                      placeholder="e.g. plate of green salad with tomatoes"
-                    />
+                    {pendingFile && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={isBusy}
+                        onClick={clearPendingFile}
+                      >
+                        <Trash2 className="size-4" />
+                        {t("photo.remove")}
+                      </Button>
+                    )}
                   </div>
                 </div>
-              )}
-            </fieldset>
-          )}
 
-          <DialogFooter>
+                {pendingFile && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">{t("photo.altTextHint")}</p>
+                    <div className="space-y-1">
+                      <Label htmlFor={`${id}-create-altFr`}>{t("photo.altTextFr")}</Label>
+                      <Input
+                        id={`${id}-create-altFr`}
+                        value={pendingAltFr}
+                        maxLength={MAX_ALT_TEXT_LENGTH}
+                        disabled={isBusy}
+                        onChange={(e) => setPendingAltFr(e.target.value)}
+                        placeholder="ex : assiette de salade verte avec tomates"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`${id}-create-altEn`}>{t("photo.altTextEn")}</Label>
+                      <Input
+                        id={`${id}-create-altEn`}
+                        value={pendingAltEn}
+                        maxLength={MAX_ALT_TEXT_LENGTH}
+                        disabled={isBusy}
+                        onChange={(e) => setPendingAltEn(e.target.value)}
+                        placeholder="e.g. plate of green salad with tomatoes"
+                      />
+                    </div>
+                  </div>
+                )}
+              </fieldset>
+            )}
+          </div>
+
+          <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("cancel")}
             </Button>
             <Button type="submit" disabled={isBusy}>
               {isBusy ? "…" : t("save")}
             </Button>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -1,4 +1,21 @@
 {
+  "Nav": {
+    "navigation": "Navigation",
+    "openMenu": "Ouvrir le menu",
+    "logout": "Se déconnecter",
+    "menu": "Ma carte",
+    "stats": "Statistiques",
+    "apparence": "Apparence",
+    "partage": "Partage",
+    "abonnement": "Abonnement",
+    "reglages": "Réglages"
+  },
+  "Share": {
+    "title": "Partage",
+    "description": "Diffusez votre carte : lien public et QR code à imprimer pour vos tables.",
+    "notPublishedTitle": "Pas encore de QR code",
+    "notPublishedDescription": "Publiez votre carte depuis l'onglet « Ma carte » pour générer votre lien public et votre QR code."
+  },
   "Auth": {
     "login": "Se connecter",
     "signup": "Créer un compte",
@@ -130,6 +147,9 @@
     "confirmDelete": "Supprimer cet item ? Cette action est irréversible.",
     "publish": "Publier",
     "preview": "Aperçu",
+    "livePreview": "Aperçu en direct",
+    "showPreview": "Afficher l'aperçu",
+    "hidePreview": "Masquer l'aperçu",
     "previewTitle": "Aperçu du menu",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablette",
@@ -311,6 +331,8 @@
     }
   },
   "Billing": {
+    "sectionTitle": "Abonnement",
+    "sectionDescription": "Gérez votre formule et vos informations de paiement.",
     "freeBadge": "Gratuit",
     "freeDescription": "Passez au plan Pro pour publier votre carte.",
     "activeDescription": "Votre abonnement Pro est actif.",

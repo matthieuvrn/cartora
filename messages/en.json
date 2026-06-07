@@ -1,4 +1,21 @@
 {
+  "Nav": {
+    "navigation": "Navigation",
+    "openMenu": "Open menu",
+    "logout": "Log out",
+    "menu": "My menu",
+    "stats": "Statistics",
+    "apparence": "Appearance",
+    "partage": "Share",
+    "abonnement": "Subscription",
+    "reglages": "Settings"
+  },
+  "Share": {
+    "title": "Share",
+    "description": "Get your menu out there: public link and a printable QR code for your tables.",
+    "notPublishedTitle": "No QR code yet",
+    "notPublishedDescription": "Publish your menu from the \"My menu\" tab to generate your public link and QR code."
+  },
   "Auth": {
     "login": "Sign in",
     "signup": "Create an account",
@@ -130,6 +147,9 @@
     "confirmDelete": "Delete this item? This action cannot be undone.",
     "publish": "Publish",
     "preview": "Preview",
+    "livePreview": "Live preview",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview",
     "previewTitle": "Menu preview",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablet",
@@ -311,6 +331,8 @@
     }
   },
   "Billing": {
+    "sectionTitle": "Subscription",
+    "sectionDescription": "Manage your plan and payment details.",
     "freeBadge": "Free",
     "freeDescription": "Upgrade to Pro to publish your menu.",
     "activeDescription": "Your Pro subscription is active.",

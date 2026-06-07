@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin();
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  // Autorise le serveur de dev depuis le LAN (test sur mobile). Next 16 bloque par défaut les
+  // requêtes cross-origin vers les ressources dev (/_next/*). À adapter si l'IP locale change.
+  allowedDevOrigins: ["192.168.1.11"],
   images: {
     remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
       ? [

@@ -4,7 +4,7 @@ import { startTransition, useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import type { MenuCategoryData } from "@/domain/menu/MenuTypes";
-import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { HIT_AREA } from "@/lib/utils";
 import { reorderItemsAction, type ItemActionState } from "@/app/(app)/app/actions";
@@ -56,58 +56,54 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="display flex items-center gap-2">
-          <span>{category.name}</span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={HIT_AREA}
-              aria-label={t("category.moveUp")}
-              onClick={onMoveUp}
-              disabled={!onMoveUp}
-            >
-              <ArrowUp className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={HIT_AREA}
-              aria-label={t("category.moveDown")}
-              onClick={onMoveDown}
-              disabled={!onMoveDown}
-            >
-              <ArrowDown className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={HIT_AREA}
-              aria-label={t("category.rename")}
-              onClick={() => setRenameOpen(true)}
-            >
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={HIT_AREA}
-              aria-label={t("category.delete")}
-              onClick={() => setDeleteOpen(true)}
-              disabled={!canDelete}
-              title={!canDelete ? t("category.deleteLast") : undefined}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </div>
-        </CardTitle>
-        <CardAction>
-          <Button variant="outline" size="sm" onClick={handleAdd}>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3">
+        <CardTitle className="display">{category.name}</CardTitle>
+        <div className="flex flex-wrap items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={HIT_AREA}
+            aria-label={t("category.moveUp")}
+            onClick={onMoveUp}
+            disabled={!onMoveUp}
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={HIT_AREA}
+            aria-label={t("category.moveDown")}
+            onClick={onMoveDown}
+            disabled={!onMoveDown}
+          >
+            <ArrowDown className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={HIT_AREA}
+            aria-label={t("category.rename")}
+            onClick={() => setRenameOpen(true)}
+          >
+            <Pencil className="size-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={HIT_AREA}
+            aria-label={t("category.delete")}
+            onClick={() => setDeleteOpen(true)}
+            disabled={!canDelete}
+            title={!canDelete ? t("category.deleteLast") : undefined}
+          >
+            <Trash2 className="size-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleAdd} className="ml-1">
             <Plus />
             {t("addItem")}
           </Button>
-        </CardAction>
+        </div>
       </CardHeader>
       <CardContent>
         {category.items.length === 0 ? (

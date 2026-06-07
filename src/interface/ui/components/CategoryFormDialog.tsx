@@ -2,13 +2,7 @@
 
 import { useActionState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,8 +35,8 @@ export function CategoryFormDialog(props: Props) {
   const action = props.mode === "create" ? createCategoryAction : renameCategoryAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  // Auto-close on success. The Dialog's content unmounts when open=false (Radix default),
-  // so any local form state inside the form is reset at next open — no need to reset here.
+  // Auto-close on success. Le SheetContent démonte son contenu à open=false (Radix Dialog),
+  // donc l'état local du form est réinitialisé à la prochaine ouverture — rien à reset ici.
   const onOpenChange = props.onOpenChange;
   useEffect(() => {
     if (state.success) onOpenChange(false);
@@ -51,39 +45,45 @@ export function CategoryFormDialog(props: Props) {
   const defaultName = props.mode === "rename" ? props.initialName : "";
 
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent aria-describedby={undefined}>
-        <form action={formAction} className="space-y-5">
-          <DialogHeader>
-            <DialogTitle>
-              {props.mode === "create" ? t("category.add") : t("category.rename")}
-            </DialogTitle>
-          </DialogHeader>
+    <Sheet open={props.open} onOpenChange={props.onOpenChange}>
+      <SheetContent
+        side="right"
+        aria-describedby={undefined}
+        className="flex w-full flex-col gap-0 sm:max-w-md"
+      >
+        <SheetHeader>
+          <SheetTitle>
+            {props.mode === "create" ? t("category.add") : t("category.rename")}
+          </SheetTitle>
+        </SheetHeader>
 
-          {props.mode === "rename" && (
-            <input type="hidden" name="categoryId" value={props.categoryId} />
-          )}
+        <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
+            {props.mode === "rename" && (
+              <input type="hidden" name="categoryId" value={props.categoryId} />
+            )}
 
-          <div className="space-y-2">
-            <Label htmlFor="category-name">{t("category.namePlaceholder")}</Label>
-            <Input
-              id="category-name"
-              name="name"
-              defaultValue={defaultName}
-              maxLength={MAX_CATEGORY_NAME_LENGTH}
-              required
-              autoFocus
-            />
+            <div className="space-y-2">
+              <Label htmlFor="category-name">{t("category.namePlaceholder")}</Label>
+              <Input
+                id="category-name"
+                name="name"
+                defaultValue={defaultName}
+                maxLength={MAX_CATEGORY_NAME_LENGTH}
+                required
+                autoFocus
+              />
+            </div>
+
+            <ErrorMessage error={state.error} />
+            {state.fieldErrors?.name && (
+              <p role="alert" className="text-sm text-destructive">
+                {state.fieldErrors.name}
+              </p>
+            )}
           </div>
 
-          <ErrorMessage error={state.error} />
-          {state.fieldErrors?.name && (
-            <p role="alert" className="text-sm text-destructive">
-              {state.fieldErrors.name}
-            </p>
-          )}
-
-          <DialogFooter>
+          <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
             <Button
               type="button"
               variant="ghost"
@@ -95,9 +95,9 @@ export function CategoryFormDialog(props: Props) {
             <Button type="submit" disabled={isPending}>
               {props.mode === "create" ? t("category.add") : t("save")}
             </Button>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

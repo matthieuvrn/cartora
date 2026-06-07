@@ -2,13 +2,8 @@
 
 import { useActionState, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -82,172 +77,184 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
   }
 
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
+  const frNameError = state.fieldErrors?.["translations.fr.name"];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{mode === "create" ? tDaily("add") : tDaily("edit")}</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        aria-describedby={undefined}
+        className="flex w-full flex-col gap-0 sm:max-w-lg"
+      >
+        <SheetHeader>
+          <SheetTitle>{mode === "create" ? tDaily("add") : tDaily("edit")}</SheetTitle>
+        </SheetHeader>
 
-        <form action={formAction} className="space-y-5">
-          {mode === "edit" && dish && <input type="hidden" name="dishId" value={dish.id} />}
+        <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
+            {mode === "edit" && dish && <input type="hidden" name="dishId" value={dish.id} />}
 
-          {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
+            {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-          {/* FR */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">Français</legend>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
-              <Input
-                id={`${id}-nameFr`}
-                name="nameFr"
-                required
-                placeholder="ex : Pot-au-feu maison"
-                defaultValue={dish?.translations.fr.name ?? ""}
-                aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
-              />
-              {state.fieldErrors?.["translations.fr.name"] && (
-                <p className="text-xs text-destructive">
-                  {state.fieldErrors["translations.fr.name"]}
-                </p>
-              )}
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
-              <Textarea
-                id={`${id}-descFr`}
-                name="descriptionFr"
-                defaultValue={dish?.translations.fr.description ?? ""}
-              />
-            </div>
-          </fieldset>
+            {/* Nom + description par langue. forceMount + data-[state=inactive]:hidden : les deux
+                langues restent montées (donc soumises) même onglet inactif. */}
+            <Tabs defaultValue="fr">
+              <TabsList>
+                <TabsTrigger value="fr">
+                  Français
+                  {frNameError && (
+                    <span aria-hidden className="ml-1.5 size-1.5 rounded-full bg-destructive" />
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="en">English</TabsTrigger>
+              </TabsList>
 
-          {/* EN */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">English</legend>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
-              <Input
-                id={`${id}-nameEn`}
-                name="nameEn"
-                defaultValue={dish?.translations.en.name ?? ""}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
-              <Textarea
-                id={`${id}-descEn`}
-                name="descriptionEn"
-                defaultValue={dish?.translations.en.description ?? ""}
-              />
-            </div>
-          </fieldset>
+              <TabsContent value="fr" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
+                  <Input
+                    id={`${id}-nameFr`}
+                    name="nameFr"
+                    placeholder="ex : Pot-au-feu maison"
+                    defaultValue={dish?.translations.fr.name ?? ""}
+                    aria-invalid={!!frNameError}
+                  />
+                  {frNameError && <p className="text-xs text-destructive">{frNameError}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
+                  <Textarea
+                    id={`${id}-descFr`}
+                    name="descriptionFr"
+                    defaultValue={dish?.translations.fr.description ?? ""}
+                  />
+                </div>
+              </TabsContent>
 
-          {/* Price + Badge */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-price`}>{t("price")}</Label>
-              <div className="relative">
-                <Input
-                  id={`${id}-price`}
-                  name="priceEur"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  className="pr-8"
-                  placeholder="0.00"
-                  defaultValue={dish ? (dish.priceCents / 100).toFixed(2) : ""}
-                  aria-invalid={!!state.fieldErrors?.priceEur}
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                  €
-                </span>
+              <TabsContent value="en" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
+                  <Input
+                    id={`${id}-nameEn`}
+                    name="nameEn"
+                    defaultValue={dish?.translations.en.name ?? ""}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
+                  <Textarea
+                    id={`${id}-descEn`}
+                    name="descriptionEn"
+                    defaultValue={dish?.translations.en.description ?? ""}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            {/* Price + Badge */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-price`}>{t("price")}</Label>
+                <div className="relative">
+                  <Input
+                    id={`${id}-price`}
+                    name="priceEur"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    className="pr-8"
+                    placeholder="0.00"
+                    defaultValue={dish ? (dish.priceCents / 100).toFixed(2) : ""}
+                    aria-invalid={!!state.fieldErrors?.priceEur}
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    €
+                  </span>
+                </div>
+                {state.fieldErrors?.priceEur && (
+                  <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
+                )}
               </div>
-              {state.fieldErrors?.priceEur && (
-                <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
+                <Select name="badge" defaultValue={dish?.badge ?? "NONE"}>
+                  <SelectTrigger id={`${id}-badge`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
+                    <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
+                    <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Allergens */}
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">{tAllergen("sectionTitle")}</legend>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
+                {ALLERGEN_VALUES.map((a) => {
+                  const checkboxId = `${id}-allergen-${a}`;
+                  return (
+                    <label
+                      key={a}
+                      htmlFor={checkboxId}
+                      className="flex cursor-pointer items-center gap-2 text-sm"
+                    >
+                      <input
+                        id={checkboxId}
+                        type="checkbox"
+                        name="allergens"
+                        value={a}
+                        defaultChecked={selectedAllergens.has(a)}
+                        className="size-4 rounded border-input"
+                      />
+                      <span>{tAllergen(`${a}.short`)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            {/* Expiration */}
+            <div className="space-y-1">
+              <Label htmlFor={`${id}-validUntil`}>{tDaily("validUntilLabel")}</Label>
+              <Input
+                id={`${id}-validUntil`}
+                name="validUntilLocal"
+                type="datetime-local"
+                defaultValue={defaultDatetimeLocal}
+                aria-invalid={!!state.fieldErrors?.validUntilISO}
+                required
+              />
+              <p className="text-xs text-muted-foreground">{tDaily("validUntilHint")}</p>
+              {state.fieldErrors?.validUntilISO && (
+                <p className="text-xs text-destructive">{state.fieldErrors.validUntilISO}</p>
               )}
             </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
-              <Select name="badge" defaultValue={dish?.badge ?? "NONE"}>
-                <SelectTrigger id={`${id}-badge`} className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="NONE">{t("badge.NONE")}</SelectItem>
-                  <SelectItem value="NEW">{t("badge.NEW")}</SelectItem>
-                  <SelectItem value="POPULAR">{t("badge.POPULAR")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
 
-          {/* Allergens */}
-          <fieldset className="space-y-2">
-            <legend className="text-sm font-medium">{tAllergen("sectionTitle")}</legend>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
-              {ALLERGEN_VALUES.map((a) => {
-                const checkboxId = `${id}-allergen-${a}`;
-                return (
-                  <label
-                    key={a}
-                    htmlFor={checkboxId}
-                    className="flex cursor-pointer items-center gap-2 text-sm"
-                  >
-                    <input
-                      id={checkboxId}
-                      type="checkbox"
-                      name="allergens"
-                      value={a}
-                      defaultChecked={selectedAllergens.has(a)}
-                      className="size-4 rounded border-input"
-                    />
-                    <span>{tAllergen(`${a}.short`)}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-
-          {/* Expiration */}
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-validUntil`}>{tDaily("validUntilLabel")}</Label>
-            <Input
-              id={`${id}-validUntil`}
-              name="validUntilLocal"
-              type="datetime-local"
-              defaultValue={defaultDatetimeLocal}
-              aria-invalid={!!state.fieldErrors?.validUntilISO}
-              required
-            />
-            <p className="text-xs text-muted-foreground">{tDaily("validUntilHint")}</p>
-            {state.fieldErrors?.validUntilISO && (
-              <p className="text-xs text-destructive">{state.fieldErrors.validUntilISO}</p>
+            {mode === "edit" && dish && (
+              <DailyDishPhotoEditor
+                dishId={dish.id}
+                initialImagePath={dish.imagePath}
+                initialAltTextFr={dish.altTextFr}
+                initialAltTextEn={dish.altTextEn}
+              />
             )}
           </div>
 
-          {mode === "edit" && dish && (
-            <DailyDishPhotoEditor
-              dishId={dish.id}
-              initialImagePath={dish.imagePath}
-              initialAltTextFr={dish.altTextFr}
-              initialAltTextEn={dish.altTextEn}
-            />
-          )}
-
-          <DialogFooter>
+          <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? "…" : t("save")}
             </Button>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

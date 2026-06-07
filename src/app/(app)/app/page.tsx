@@ -1,11 +1,7 @@
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { isDomainError } from "@/domain/errors/DomainError";
 import { getTranslations } from "next-intl/server";
-import { Settings } from "lucide-react";
-import { HIT_AREA } from "@/lib/utils";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
-import { logoutAction } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
 import { GetMenuForDashboard } from "@/application/use-cases/GetMenuForDashboard";
 import {
@@ -16,24 +12,18 @@ import {
 import { ActivationPolicy } from "@/domain/restaurant/ActivationPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
-import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
-import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
-import { PrismaAnalyticsRepository } from "@/infrastructure/analytics/PrismaAnalyticsRepository";
-import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
-import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
-import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
 import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDishes";
 import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
-import { Button } from "@/components/ui/button";
-import { Logo } from "@/interface/ui/components/Logo";
-import { MenuDashboard } from "@/interface/ui/components/MenuDashboard";
+import { MenuEditor } from "@/interface/ui/components/MenuEditor";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
-import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
-import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { dismissActivationChecklistAction, publishMenuAction, regenerateQrAction } from "./actions";
 
+// Section "Carte" : le canvas d'édition. C'est la racine du shell — elle exécute aussi le
+// provisioning initial (EnsureRestaurantExists) et reçoit les retours de paiement Stripe
+// (`?checkout=success|cancel`, success_url/cancel_url pointent ici). Les surfaces de consultation
+// (stats, QR, facturation) ont leurs propres sections : /app/stats, /app/partage, /app/abonnement.
 export default async function AppPage({
   searchParams,
 }: {
@@ -84,23 +74,7 @@ export default async function AppPage({
   const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
   if (!restaurant) redirect("/login");
 
-  const qrAssetRepo = new PrismaQrAssetRepository(prisma);
-  const qrAsset = await qrAssetRepo.findByRestaurantId(restaurantId);
-  const qrCodeUrl = qrAsset
-    ? new SupabaseStorageService("qr-codes").getPublicUrl(qrAsset.storagePath)
-    : null;
-
-  const billingRepo = new PrismaBillingRepository(prisma);
-  const billing = await billingRepo.findByRestaurantId(restaurantId);
-  const hasBilling = billing !== null;
-
-  const analyticsRepo = new PrismaAnalyticsRepository(prisma);
   const clock = new SystemClock();
-  const getDashboardStats = new GetDashboardStats(analyticsRepo, clock);
-  const stats = await getDashboardStats.execute({ restaurantId });
-
-  const getRealtimeStats = new GetRealtimeStats(analyticsRepo, clock);
-  const realtimeStats = await getRealtimeStats.execute({ restaurantId });
 
   const listDailyDishes = new ListActiveDailyDishes(menuRepo, clock);
   const dailyDishes = await listDailyDishes.execute({ restaurantId });
@@ -118,60 +92,26 @@ export default async function AppPage({
           menuStatus: menu.status,
         });
 
-  const t = await getTranslations("Dashboard");
-
   return (
-    <main className="min-h-screen">
-      <header className="flex min-h-16 items-center justify-between border-b bg-background px-6 py-4">
-        <Link href="/app" aria-label="Cartora">
-          <Logo variant="lockup" className="h-7" />
-        </Link>
-        <div className="flex items-center gap-4">
-          <p className="hidden text-sm text-muted-foreground sm:block">{user.email}</p>
-          <Link href="/app/settings">
-            <Button variant="ghost" size="icon" className={HIT_AREA} aria-label={t("settings")}>
-              <Settings className="h-4 w-4" />
-            </Button>
-          </Link>
-          <LocaleSwitcher />
-          <form action={logoutAction}>
-            <Button variant="ghost" size="sm" type="submit">
-              {t("logout")}
-            </Button>
-          </form>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-4xl px-4 py-8">
-        {checkout === "success" &&
-          restaurant.planStatus === "ACTIVE" &&
-          restaurant.planTier !== "FREE" && (
-            <CheckoutResultBanner result="success" tier={restaurant.planTier} />
-          )}
-        {checkout === "cancel" && <CheckoutResultBanner result="cancel" />}
-        <MenuDashboard
-          menu={menu}
-          restaurantName={restaurant.displayName}
-          logoPath={restaurant.logoPath}
-          planStatus={restaurant.planStatus}
-          planTier={restaurant.planTier}
-          slug={restaurant.slug}
-          publishAction={publishMenuAction}
-          regenerateQrAction={regenerateQrAction}
-          qrCodeUrl={qrCodeUrl}
-          hasBilling={hasBilling}
-          stats={stats}
-          realtimeStats={realtimeStats}
-          activationChecklist={checklist}
-          dismissActivationAction={dismissActivationChecklistAction}
-          dailyDishes={dailyDishes}
-          formulas={formulas}
-        />
-
-        <div className="mt-16 border-t pt-8">
-          <DeleteAccountButton />
-        </div>
-      </div>
-    </main>
+    <div className="mx-auto max-w-6xl">
+      {checkout === "success" &&
+        restaurant.planStatus === "ACTIVE" &&
+        restaurant.planTier !== "FREE" && (
+          <CheckoutResultBanner result="success" tier={restaurant.planTier} />
+        )}
+      {checkout === "cancel" && <CheckoutResultBanner result="cancel" />}
+      <MenuEditor
+        menu={menu}
+        restaurantName={restaurant.displayName}
+        logoPath={restaurant.logoPath}
+        planTier={restaurant.planTier}
+        publishAction={publishMenuAction}
+        regenerateQrAction={regenerateQrAction}
+        activationChecklist={checklist}
+        dismissActivationAction={dismissActivationChecklistAction}
+        dailyDishes={dailyDishes}
+        formulas={formulas}
+      />
+    </div>
   );
 }

@@ -414,6 +414,38 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
       0 0 0 4px var(--color-canard-300);
   }
 
+  /* Aperçu du menu public DANS l'app (panneau live de l'éditeur). Le pendant inline du
+     `brandScope={false}` de PreviewDialog : on RÉ-établit les tokens neutres :root pour que le
+     rendu soit FIDÈLE à /m/[slug] malgré le scope .theme-app environnant. Sans ça, `bg-muted`/
+     `text-muted-foreground` des templates virent au sable et les titres passent en Fraunces.
+     Placé APRÈS la règle Fraunces du scope de marque → l'emporte à spécificité égale (ordre source).
+     Valeurs miroir de :root (190-209) — garder en phase si la palette neutre change un jour. */
+  .theme-public {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.545 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+  }
+  /* Les titres des templates publics doivent garder LEUR typographie (ex. font-serif d'Elegant),
+     pas la Fraunces du scope app → on annule l'override en revenant à l'héritage du conteneur. */
+  .theme-public :is(h1, h2, .display) {
+    font-family: inherit;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

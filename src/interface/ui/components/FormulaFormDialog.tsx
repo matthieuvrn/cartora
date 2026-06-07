@@ -2,13 +2,8 @@
 
 import { useActionState, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -62,127 +57,139 @@ export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) 
   }
 
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
+  const frNameError = state.fieldErrors?.["translations.fr.name"];
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent aria-describedby={undefined} className="max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{mode === "create" ? tFormula("add") : tFormula("edit")}</DialogTitle>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        aria-describedby={undefined}
+        className="flex w-full flex-col gap-0 sm:max-w-lg"
+      >
+        <SheetHeader>
+          <SheetTitle>{mode === "create" ? tFormula("add") : tFormula("edit")}</SheetTitle>
+        </SheetHeader>
 
-        <form action={formAction} className="space-y-5">
-          {mode === "edit" && formula && (
-            <input type="hidden" name="formulaId" value={formula.id} />
-          )}
+        <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
+            {mode === "edit" && formula && (
+              <input type="hidden" name="formulaId" value={formula.id} />
+            )}
 
-          {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
+            {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-          {/* FR */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">Français</legend>
+            {/* Nom + composition par langue. forceMount + data-[state=inactive]:hidden : les deux
+                langues restent montées (donc soumises) même onglet inactif. */}
+            <Tabs defaultValue="fr">
+              <TabsList>
+                <TabsTrigger value="fr">
+                  Français
+                  {frNameError && (
+                    <span aria-hidden className="ml-1.5 size-1.5 rounded-full bg-destructive" />
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="en">English</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="fr" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameFr`}>{tFormula("nameLabel")}</Label>
+                  <Input
+                    id={`${id}-nameFr`}
+                    name="nameFr"
+                    placeholder={tFormula("namePlaceholder")}
+                    defaultValue={formula?.translations.fr.name ?? ""}
+                    aria-invalid={!!frNameError}
+                  />
+                  {frNameError && <p className="text-xs text-destructive">{frNameError}</p>}
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descFr`}>{tFormula("compositionLabel")}</Label>
+                  <Textarea
+                    id={`${id}-descFr`}
+                    name="descriptionFr"
+                    rows={4}
+                    placeholder={tFormula("compositionPlaceholder")}
+                    defaultValue={formula?.translations.fr.description ?? ""}
+                  />
+                  <p className="text-xs text-muted-foreground">{tFormula("compositionHint")}</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="en" forceMount className="space-y-3 data-[state=inactive]:hidden">
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-nameEn`}>{tFormula("nameEnLabel")}</Label>
+                  <Input
+                    id={`${id}-nameEn`}
+                    name="nameEn"
+                    defaultValue={formula?.translations.en.name ?? ""}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor={`${id}-descEn`}>{tFormula("compositionEnLabel")}</Label>
+                  <Textarea
+                    id={`${id}-descEn`}
+                    name="descriptionEn"
+                    rows={4}
+                    defaultValue={formula?.translations.en.description ?? ""}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            {/* Price */}
             <div className="space-y-1">
-              <Label htmlFor={`${id}-nameFr`}>{tFormula("nameLabel")}</Label>
-              <Input
-                id={`${id}-nameFr`}
-                name="nameFr"
-                required
-                placeholder={tFormula("namePlaceholder")}
-                defaultValue={formula?.translations.fr.name ?? ""}
-                aria-invalid={!!state.fieldErrors?.["translations.fr.name"]}
-              />
-              {state.fieldErrors?.["translations.fr.name"] && (
-                <p className="text-xs text-destructive">
-                  {state.fieldErrors["translations.fr.name"]}
-                </p>
+              <Label htmlFor={`${id}-price`}>{tFormula("priceLabel")}</Label>
+              <div className="relative">
+                <Input
+                  id={`${id}-price`}
+                  name="priceEur"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  required
+                  className="pr-8"
+                  placeholder="0.00"
+                  defaultValue={formula ? (formula.priceCents / 100).toFixed(2) : ""}
+                  aria-invalid={!!state.fieldErrors?.priceEur}
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  €
+                </span>
+              </div>
+              {state.fieldErrors?.priceEur && (
+                <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
               )}
             </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descFr`}>{tFormula("compositionLabel")}</Label>
-              <Textarea
-                id={`${id}-descFr`}
-                name="descriptionFr"
-                rows={4}
-                placeholder={tFormula("compositionPlaceholder")}
-                defaultValue={formula?.translations.fr.description ?? ""}
-              />
-              <p className="text-xs text-muted-foreground">{tFormula("compositionHint")}</p>
-            </div>
-          </fieldset>
 
-          {/* EN */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium text-muted-foreground">English</legend>
+            {/* Expiration */}
             <div className="space-y-1">
-              <Label htmlFor={`${id}-nameEn`}>{tFormula("nameEnLabel")}</Label>
+              <Label htmlFor={`${id}-validUntil`}>{tFormula("validUntilLabel")}</Label>
               <Input
-                id={`${id}-nameEn`}
-                name="nameEn"
-                defaultValue={formula?.translations.en.name ?? ""}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor={`${id}-descEn`}>{tFormula("compositionEnLabel")}</Label>
-              <Textarea
-                id={`${id}-descEn`}
-                name="descriptionEn"
-                rows={4}
-                defaultValue={formula?.translations.en.description ?? ""}
-              />
-            </div>
-          </fieldset>
-
-          {/* Price */}
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-price`}>{tFormula("priceLabel")}</Label>
-            <div className="relative">
-              <Input
-                id={`${id}-price`}
-                name="priceEur"
-                type="number"
-                step="0.01"
-                min="0"
+                id={`${id}-validUntil`}
+                name="validUntilLocal"
+                type="datetime-local"
+                defaultValue={defaultDatetimeLocal}
+                aria-invalid={!!state.fieldErrors?.validUntilISO}
                 required
-                className="pr-8"
-                placeholder="0.00"
-                defaultValue={formula ? (formula.priceCents / 100).toFixed(2) : ""}
-                aria-invalid={!!state.fieldErrors?.priceEur}
               />
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                €
-              </span>
+              <p className="text-xs text-muted-foreground">{tFormula("validUntilHint")}</p>
+              {state.fieldErrors?.validUntilISO && (
+                <p className="text-xs text-destructive">{state.fieldErrors.validUntilISO}</p>
+              )}
             </div>
-            {state.fieldErrors?.priceEur && (
-              <p className="text-xs text-destructive">{state.fieldErrors.priceEur}</p>
-            )}
           </div>
 
-          {/* Expiration */}
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-validUntil`}>{tFormula("validUntilLabel")}</Label>
-            <Input
-              id={`${id}-validUntil`}
-              name="validUntilLocal"
-              type="datetime-local"
-              defaultValue={defaultDatetimeLocal}
-              aria-invalid={!!state.fieldErrors?.validUntilISO}
-              required
-            />
-            <p className="text-xs text-muted-foreground">{tFormula("validUntilHint")}</p>
-            {state.fieldErrors?.validUntilISO && (
-              <p className="text-xs text-destructive">{state.fieldErrors.validUntilISO}</p>
-            )}
-          </div>
-
-          <DialogFooter>
+          <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending ? "…" : t("save")}
             </Button>
-          </DialogFooter>
+          </SheetFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

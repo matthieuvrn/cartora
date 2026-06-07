@@ -664,7 +664,7 @@ export async function setRestaurantLogoAction(input: {
     });
 
     revalidatePath("/app");
-    revalidatePath("/app/settings/branding");
+    revalidatePath("/app/apparence");
     return { ok: true };
   } catch (e) {
     if (isDomainError(e)) {
@@ -686,7 +686,7 @@ export async function deleteRestaurantLogoAction(): Promise<ImageMutationResult>
     await useCase.execute({ restaurantId });
 
     revalidatePath("/app");
-    revalidatePath("/app/settings/branding");
+    revalidatePath("/app/apparence");
     return { ok: true };
   } catch (e) {
     if (isDomainError(e)) {
@@ -984,7 +984,7 @@ export async function setTemplateAction(
     });
     await menuRepo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
-    revalidatePath("/app/settings/template");
+    revalidatePath("/app/apparence");
     return { error: null, success: true };
   });
 }
@@ -1023,7 +1023,7 @@ export async function updateBrandColorsAction(
     });
 
     revalidatePath("/app");
-    revalidatePath("/app/settings/branding");
+    revalidatePath("/app/apparence");
     revalidateTag(`public-menu-${restaurant.slug}`, "default");
     return { error: null, success: true };
   });
