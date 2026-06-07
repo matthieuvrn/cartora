@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { deleteFormulaAction, type FormulaActionState } from "@/app/(app)/app/actions";
+import { HIT_AREA_TALL } from "@/lib/utils";
 import { FormulaFormDialog } from "./FormulaFormDialog";
 
 type Props = {
@@ -89,12 +90,19 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
           <span className="text-sm font-mono font-semibold tabular-nums">
             {formatPrice(formula.priceCents)}
           </span>
-          <Button variant="ghost" size="icon-xs" aria-label={tFormula("edit")} onClick={handleEdit}>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className={HIT_AREA_TALL}
+            aria-label={tFormula("edit")}
+            onClick={handleEdit}
+          >
             <Pencil />
           </Button>
           <Button
             variant="ghost"
             size="icon-xs"
+            className={HIT_AREA_TALL}
             aria-label={tFormula("delete")}
             onClick={() => setDeleteOpen(true)}
           >

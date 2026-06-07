@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, UtensilsCrossed } from "lucid
 import type { MenuCategoryData } from "@/domain/menu/MenuTypes";
 import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { HIT_AREA } from "@/lib/utils";
 import { reorderItemsAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ItemCard } from "./ItemCard";
 import { ItemFormDialog } from "./ItemFormDialog";
@@ -58,10 +59,11 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
       <CardHeader>
         <CardTitle className="display flex items-center gap-2">
           <span>{category.name}</span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
+              className={HIT_AREA}
               aria-label={t("category.moveUp")}
               onClick={onMoveUp}
               disabled={!onMoveUp}
@@ -71,6 +73,7 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
             <Button
               variant="ghost"
               size="icon"
+              className={HIT_AREA}
               aria-label={t("category.moveDown")}
               onClick={onMoveDown}
               disabled={!onMoveDown}
@@ -80,6 +83,7 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
             <Button
               variant="ghost"
               size="icon"
+              className={HIT_AREA}
               aria-label={t("category.rename")}
               onClick={() => setRenameOpen(true)}
             >
@@ -88,6 +92,7 @@ export function CategorySection({ category, canDelete, onMoveUp, onMoveDown }: P
             <Button
               variant="ghost"
               size="icon"
+              className={HIT_AREA}
               aria-label={t("category.delete")}
               onClick={() => setDeleteOpen(true)}
               disabled={!canDelete}

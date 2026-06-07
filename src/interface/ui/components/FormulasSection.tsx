@@ -37,7 +37,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas, planTier }: P
   if (!allowed) {
     return (
       <section aria-labelledby="formulas-section-heading" className="space-y-3">
-        <h2 id="formulas-section-heading" className="text-lg font-semibold">
+        <h2 id="formulas-section-heading" className="text-h3">
           {t("title")}
         </h2>
         <Alert>
@@ -53,7 +53,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas, planTier }: P
     <section aria-labelledby="formulas-section-heading" className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h2 id="formulas-section-heading" className="text-lg font-semibold">
+          <h2 id="formulas-section-heading" className="text-h3">
             {t("title")}
           </h2>
           <p className="text-sm text-muted-foreground">{t("description")}</p>

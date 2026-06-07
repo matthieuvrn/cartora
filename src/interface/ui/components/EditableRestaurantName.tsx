@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Pencil, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { cn, HIT_AREA } from "@/lib/utils";
 import { renameRestaurantAction, type RenameActionState } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
 
@@ -33,7 +34,7 @@ export function EditableRestaurantName({ currentName }: Props) {
         <Button
           variant="ghost"
           size="icon"
-          className="size-8"
+          className={cn("size-8", HIT_AREA)}
           onClick={() => setEditing(true)}
           aria-label={t("editName")}
         >

@@ -51,7 +51,7 @@ export default function LoginPage() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>{t("login")}</CardTitle>
+        <CardTitle className="display">{t("login")}</CardTitle>
         <CardDescription>Cartora</CardDescription>
       </CardHeader>
 

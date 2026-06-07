@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { isDomainError } from "@/domain/errors/DomainError";
 import { getTranslations } from "next-intl/server";
 import { Settings } from "lucide-react";
+import { HIT_AREA } from "@/lib/utils";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { logoutAction } from "@/app/(auth)/actions";
 import { EnsureRestaurantExists } from "@/application/use-cases/EnsureRestaurantExists";
@@ -128,7 +129,7 @@ export default async function AppPage({
         <div className="flex items-center gap-4">
           <p className="hidden text-sm text-muted-foreground sm:block">{user.email}</p>
           <Link href="/app/settings">
-            <Button variant="ghost" size="icon" aria-label={t("settings")}>
+            <Button variant="ghost" size="icon" className={HIT_AREA} aria-label={t("settings")}>
               <Settings className="h-4 w-4" />
             </Button>
           </Link>

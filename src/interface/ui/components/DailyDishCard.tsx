@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { deleteDailyDishAction, type DailyDishActionState } from "@/app/(app)/app/actions";
 import { itemImageUrl } from "@/lib/storage-url";
+import { HIT_AREA_TALL } from "@/lib/utils";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
@@ -117,12 +118,19 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
           <span className="text-sm font-mono font-semibold tabular-nums">
             {formatPrice(dish.priceCents)}
           </span>
-          <Button variant="ghost" size="icon-xs" aria-label={tDaily("edit")} onClick={handleEdit}>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className={HIT_AREA_TALL}
+            aria-label={tDaily("edit")}
+            onClick={handleEdit}
+          >
             <Pencil />
           </Button>
           <Button
             variant="ghost"
             size="icon-xs"
+            className={HIT_AREA_TALL}
             aria-label={tDaily("delete")}
             onClick={() => setDeleteOpen(true)}
           >

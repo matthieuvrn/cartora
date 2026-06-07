@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { ArrowLeft, Info, Lock } from "lucide-react";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { Button } from "@/components/ui/button";
+import { HIT_AREA } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -37,7 +38,7 @@ export default async function BrandingSettingsPage() {
       <header className="border-b bg-background px-6 py-4">
         <div className="mx-auto flex max-w-2xl items-center gap-4">
           <Link href="/app/settings">
-            <Button variant="ghost" size="icon" aria-label={t("back")}>
+            <Button variant="ghost" size="icon" className={HIT_AREA} aria-label={t("back")}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>

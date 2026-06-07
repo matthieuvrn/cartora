@@ -5,6 +5,7 @@ import { useTransition } from "react";
 import { Globe, Check } from "lucide-react";
 import { setLocaleAction } from "@/app/actions";
 import { Button } from "@/components/ui/button";
+import { HIT_AREA } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,7 +49,13 @@ export function LocaleSwitcher({ trackLanding = false }: LocaleSwitcherProps = {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" disabled={isPending} aria-label="Changer de langue">
+        <Button
+          variant="ghost"
+          size="icon"
+          className={HIT_AREA}
+          disabled={isPending}
+          aria-label="Changer de langue"
+        >
           <Globe className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>

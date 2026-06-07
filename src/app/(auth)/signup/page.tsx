@@ -49,7 +49,7 @@ export default function SignupPage() {
     return (
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>{t("checkEmailTitle")}</CardTitle>
+          <CardTitle className="display">{t("checkEmailTitle")}</CardTitle>
           <CardDescription>{t("checkEmailDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,7 +67,7 @@ export default function SignupPage() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>{t("signup")}</CardTitle>
+        <CardTitle className="display">{t("signup")}</CardTitle>
         <CardDescription>Cartora</CardDescription>
       </CardHeader>
 
@@ -103,7 +103,7 @@ export default function SignupPage() {
                 return (
                   <label
                     key={type}
-                    className="relative flex cursor-pointer flex-col items-center gap-1 rounded-md border border-input bg-background p-3 text-center text-xs transition-colors hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent"
+                    className="relative flex cursor-pointer flex-col items-center gap-1 rounded-md border border-input bg-background p-3 text-center text-xs transition-colors hover:bg-accent has-[:checked]:border-primary has-[:checked]:bg-accent has-[:focus-visible]:border-primary has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background"
                   >
                     <input type="radio" name="restaurantType" value={type} className="sr-only" />
                     <Icon className="h-5 w-5" aria-hidden="true" />

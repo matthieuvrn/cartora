@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { deleteItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { itemImageUrl } from "@/lib/storage-url";
+import { HIT_AREA_TALL, HIT_AREA_WIDE } from "@/lib/utils";
 import { ItemFormDialog } from "./ItemFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
@@ -85,11 +86,12 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
     <>
       <div className="flex items-start justify-between rounded-lg border p-3 gap-4">
         {(onMoveUp || onMoveDown) && (
-          <div className="flex flex-col gap-0.5 shrink-0">
+          <div className="flex flex-col gap-1 shrink-0">
             {onMoveUp && (
               <Button
                 variant="ghost"
                 size="icon-xs"
+                className={HIT_AREA_WIDE}
                 aria-label={t("moveUp")}
                 onClick={onMoveUp}
                 disabled={isReordering}
@@ -101,6 +103,7 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
               <Button
                 variant="ghost"
                 size="icon-xs"
+                className={HIT_AREA_WIDE}
                 aria-label={t("moveDown")}
                 onClick={onMoveDown}
                 disabled={isReordering}
@@ -153,12 +156,19 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
           <span className="text-sm font-mono font-semibold tabular-nums">
             {formatPrice(item.priceCents)}
           </span>
-          <Button variant="ghost" size="icon-xs" aria-label={t("editItem")} onClick={handleEdit}>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className={HIT_AREA_TALL}
+            aria-label={t("editItem")}
+            onClick={handleEdit}
+          >
             <Pencil />
           </Button>
           <Button
             variant="ghost"
             size="icon-xs"
+            className={HIT_AREA_TALL}
             aria-label={t("deleteItem")}
             onClick={() => setDeleteOpen(true)}
           >

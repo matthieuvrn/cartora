@@ -280,7 +280,11 @@ html {
   --accent-foreground: var(--color-canard-700);
 
   --muted: var(--color-sand-100);
-  --muted-foreground: var(--color-sand-500);
+  /* AA : sand-500 (L0.6) ne donne que 3.84:1 sur sand-50 / 3.95:1 sur blanc → échec WCAG pour
+     texte normal (descriptions, libellés KPI, prose légale, hints). L0.55 = 4.7:1, conforme tout
+     en gardant la douceur « muted ». Valeur directe (hors échelle sand, comme --foreground ci-dessus) :
+     le token --color-sand-500 reste intact pour les utilities bg/text-sand-500. */
+  --muted-foreground: oklch(0.55 0.008 60);
 
   --destructive: var(--color-danger);
   --border: var(--color-sand-200);
