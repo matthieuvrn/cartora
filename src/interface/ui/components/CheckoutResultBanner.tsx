@@ -25,7 +25,7 @@ export function CheckoutResultBanner(props: CheckoutResultBannerProps) {
 
   if (props.result === "success") {
     return (
-      <Alert className="mb-6">
+      <Alert variant="success" className="mb-6">
         <CircleCheck className="size-4" />
         <AlertTitle>{t(`checkoutSuccess.${props.tier}.title`)}</AlertTitle>
         <AlertDescription>{t(`checkoutSuccess.${props.tier}.description`)}</AlertDescription>

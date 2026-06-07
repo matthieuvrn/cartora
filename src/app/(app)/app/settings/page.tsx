@@ -19,7 +19,7 @@ export default async function SettingsPage() {
   const t = await getTranslations("Settings");
 
   return (
-    <main className="min-h-screen bg-muted/40">
+    <main className="min-h-screen">
       <header className="border-b bg-background px-6 py-4">
         <div className="mx-auto flex max-w-2xl items-center gap-4">
           <Link href="/app">
@@ -27,7 +27,7 @@ export default async function SettingsPage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-lg font-semibold">{t("title")}</h1>
+          <h1 className="text-h3">{t("title")}</h1>
         </div>
       </header>
 

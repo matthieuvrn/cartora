@@ -9,6 +9,9 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-card text-card-foreground",
+        // Accent sapin discret : icône + titre en `--success`, la description garde son muted
+        // (cf. AlertDescription) → signal positif sans crier. Token-driven, neutre sur :root.
+        success: "border-success/30 bg-card text-success [&>svg]:text-current",
         destructive:
           "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
       },

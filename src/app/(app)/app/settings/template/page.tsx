@@ -33,7 +33,7 @@ export default async function TemplateSettingsPage() {
   const t = await getTranslations("Settings");
 
   return (
-    <main className="min-h-screen bg-muted/40">
+    <main className="min-h-screen">
       <header className="border-b bg-background px-6 py-4">
         <div className="mx-auto flex max-w-3xl items-center gap-4">
           <Link href="/app/settings">
@@ -42,7 +42,7 @@ export default async function TemplateSettingsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-lg font-semibold">{t("template.title")}</h1>
+            <h1 className="text-h3">{t("template.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("template.description")}</p>
           </div>
         </div>

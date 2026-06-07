@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { setTemplateAction, type RenameActionState } from "@/app/(app)/app/actions";
@@ -32,22 +33,22 @@ export function TemplateSelector({ currentTemplate, planTier }: Props) {
           return (
             <Card
               key={template}
-              className={`flex flex-col ${isCurrent ? "border-primary shadow-md" : "border-muted"}`}
+              className={`flex flex-col ${isCurrent ? "border-primary" : "border-muted"}`}
             >
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{t(`names.${template}`)}</CardTitle>
                   {!isAllowed && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-                      <Lock className="size-3" aria-hidden="true" />
+                    <Badge variant="warning" className="uppercase tracking-wide">
+                      <Lock aria-hidden="true" />
                       {t("lockedBadge")}
-                    </span>
+                    </Badge>
                   )}
                   {isCurrent && isAllowed && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                      <Check className="size-3" aria-hidden="true" />
+                    <Badge variant="canard" className="uppercase tracking-wide">
+                      <Check aria-hidden="true" />
                       {t("currentBadge")}
-                    </span>
+                    </Badge>
                   )}
                 </div>
               </CardHeader>
