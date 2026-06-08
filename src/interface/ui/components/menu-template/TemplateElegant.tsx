@@ -1,9 +1,16 @@
 import Image from "next/image";
-import type { PublicMenuSnapshot, PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
-import type { Allergen } from "@/domain/menu/ItemPolicy";
+import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
+import {
+  collectPresentAllergens,
+  formatPrice,
+  formatPriceAria,
+  getLocalizedText,
+  resolveLcpPriority,
+} from "@/domain/menu/publicMenuView";
 import { itemImageUrl, restaurantLogoUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 import { Watermark } from "./Watermark";
+import type { MenuTemplateProps } from "./types";
 
 /**
  * Template "Elegant" — gastronomique, fond sombre, serif.
@@ -15,42 +22,6 @@ import { Watermark } from "./Watermark";
  *   - Badges en small caps tracking-widest sans pill background
  *   - Accent doré (amber-400) sur les prix et l'accent line sous le nom
  */
-type Props = {
-  snapshot: PublicMenuSnapshot;
-  locale: "fr" | "en";
-  showWatermark?: boolean;
-  badgeLabels: Record<"NEW" | "POPULAR", string>;
-  allergenLabels: AllergenLabels;
-  allergenSectionLabel: string;
-  allergenLegendTitle: string;
-  watermarkText?: string;
-  todaySectionTitle: string;
-  todaySectionDescription?: string;
-  todaySectionDishesSubtitle?: string;
-  todaySectionFormulasSubtitle?: string;
-};
-
-function formatPrice(cents: number, locale: "fr" | "en"): string {
-  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    style: "currency",
-    currency: "EUR",
-  }).format(cents / 100);
-}
-
-function formatPriceAria(cents: number, locale: "fr" | "en"): string {
-  const euros = Math.floor(cents / 100);
-  const remaining = cents % 100;
-  if (locale === "fr") {
-    return remaining > 0 ? `${euros} euros ${remaining}` : `${euros} euros`;
-  }
-  return remaining > 0 ? `${euros} euros ${remaining} cents` : `${euros} euros`;
-}
-
-function getLocalizedText(fr: string, en: string, locale: "fr" | "en"): string {
-  if (locale === "en") return en || fr;
-  return fr;
-}
-
 export function TemplateElegant({
   snapshot,
   locale,
@@ -64,24 +35,10 @@ export function TemplateElegant({
   todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
-}: Props) {
-  // Collecte des allergènes présents (pour la légende) et du 1er item avec photo (priority loading).
-  const presentAllergens = new Set<Allergen>();
-  for (const daily of snapshot.dailyItems ?? []) {
-    for (const a of daily.allergens) presentAllergens.add(a);
-  }
-  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
-  let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
-  for (const category of snapshot.categories) {
-    for (let i = 0; i < category.items.length; i++) {
-      const item = category.items[i];
-      for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
-        firstPhotoLocator = { categoryName: category.name, itemIndex: i };
-      }
-    }
-  }
-  const firstDailyPhotoIndex = (snapshot.dailyItems ?? []).findIndex((d) => d.imagePath);
+}: MenuTemplateProps) {
+  // Légende INCO partagée + cible LCP — couche headless factorisée (cf. publicMenuView).
+  const presentAllergens = collectPresentAllergens(snapshot);
+  const { firstPhotoLocator, firstDailyPhotoIndex } = resolveLcpPriority(snapshot);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -176,12 +133,12 @@ export function TemplateElegant({
                       role="list"
                     >
                       {snapshot.formulas!.map((formula) => {
-                        const name =
-                          locale === "fr" ? formula.nameFr : formula.nameEn || formula.nameFr;
-                        const desc =
-                          locale === "fr"
-                            ? formula.descriptionFr
-                            : formula.descriptionEn || formula.descriptionFr;
+                        const name = getLocalizedText(formula.nameFr, formula.nameEn, locale);
+                        const desc = getLocalizedText(
+                          formula.descriptionFr,
+                          formula.descriptionEn,
+                          locale,
+                        );
                         return (
                           <li key={formula.id} className="text-center">
                             <div className="flex items-baseline justify-center gap-3">
@@ -190,10 +147,7 @@ export function TemplateElegant({
                                 className="text-sm font-semibold tabular-nums"
                                 style={{ color: "var(--brand-accent, #fbbf24)" }}
                               >
-                                {new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-                                  style: "currency",
-                                  currency: "EUR",
-                                }).format(formula.priceCents / 100)}
+                                {formatPrice(formula.priceCents, locale)}
                               </span>
                             </div>
                             {desc && (

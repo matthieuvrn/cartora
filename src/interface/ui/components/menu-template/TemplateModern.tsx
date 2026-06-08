@@ -1,10 +1,18 @@
 import Image from "next/image";
 import { Sparkles, Flame } from "lucide-react";
-import type { PublicMenuSnapshot, PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
-import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
+import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
+import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import {
+  collectPresentAllergens,
+  formatPrice,
+  formatPriceAria,
+  getLocalizedText,
+  resolveLcpPriority,
+} from "@/domain/menu/publicMenuView";
 import { itemImageUrl, restaurantLogoUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 import { Watermark } from "./Watermark";
+import type { MenuTemplateProps } from "./types";
 
 /**
  * Template "Modern" — clair, moelleux, accent vif.
@@ -16,21 +24,6 @@ import { Watermark } from "./Watermark";
  *   - Photo en haut de la card, ratio carré (1/1) pour effet "produit"
  *   - Badges colorés saillants (orange/teal)
  */
-type Props = {
-  snapshot: PublicMenuSnapshot;
-  locale: "fr" | "en";
-  showWatermark?: boolean;
-  badgeLabels: Record<"NEW" | "POPULAR", string>;
-  allergenLabels: AllergenLabels;
-  allergenSectionLabel: string;
-  allergenLegendTitle: string;
-  watermarkText?: string;
-  todaySectionTitle: string;
-  todaySectionDescription?: string;
-  todaySectionDishesSubtitle?: string;
-  todaySectionFormulasSubtitle?: string;
-};
-
 const badgeConfig: Record<
   Exclude<ItemBadge, "NONE">,
   { icon: typeof Sparkles; className: string }
@@ -38,27 +31,6 @@ const badgeConfig: Record<
   NEW: { icon: Sparkles, className: "bg-teal-500 text-white" },
   POPULAR: { icon: Flame, className: "bg-orange-500 text-white" },
 };
-
-function formatPrice(cents: number, locale: "fr" | "en"): string {
-  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    style: "currency",
-    currency: "EUR",
-  }).format(cents / 100);
-}
-
-function formatPriceAria(cents: number, locale: "fr" | "en"): string {
-  const euros = Math.floor(cents / 100);
-  const remaining = cents % 100;
-  if (locale === "fr") {
-    return remaining > 0 ? `${euros} euros ${remaining}` : `${euros} euros`;
-  }
-  return remaining > 0 ? `${euros} euros ${remaining} cents` : `${euros} euros`;
-}
-
-function getLocalizedText(fr: string, en: string, locale: "fr" | "en"): string {
-  if (locale === "en") return en || fr;
-  return fr;
-}
 
 export function TemplateModern({
   snapshot,
@@ -73,23 +45,10 @@ export function TemplateModern({
   todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
-}: Props) {
-  const presentAllergens = new Set<Allergen>();
-  for (const daily of snapshot.dailyItems ?? []) {
-    for (const a of daily.allergens) presentAllergens.add(a);
-  }
-  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
-  let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
-  for (const category of snapshot.categories) {
-    for (let i = 0; i < category.items.length; i++) {
-      const item = category.items[i];
-      for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
-        firstPhotoLocator = { categoryName: category.name, itemIndex: i };
-      }
-    }
-  }
-  const firstDailyPhotoIndex = (snapshot.dailyItems ?? []).findIndex((d) => d.imagePath);
+}: MenuTemplateProps) {
+  // Légende INCO partagée + cible LCP — couche headless factorisée (cf. publicMenuView).
+  const presentAllergens = collectPresentAllergens(snapshot);
+  const { firstPhotoLocator, firstDailyPhotoIndex } = resolveLcpPriority(snapshot);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -179,12 +138,12 @@ export function TemplateModern({
                       role="list"
                     >
                       {snapshot.formulas!.map((formula) => {
-                        const name =
-                          locale === "fr" ? formula.nameFr : formula.nameEn || formula.nameFr;
-                        const desc =
-                          locale === "fr"
-                            ? formula.descriptionFr
-                            : formula.descriptionEn || formula.descriptionFr;
+                        const name = getLocalizedText(formula.nameFr, formula.nameEn, locale);
+                        const desc = getLocalizedText(
+                          formula.descriptionFr,
+                          formula.descriptionEn,
+                          locale,
+                        );
                         return (
                           <li
                             key={formula.id}
@@ -197,10 +156,7 @@ export function TemplateModern({
                                 className="text-base font-extrabold tabular-nums"
                                 style={{ color: "var(--brand-primary, #ea580c)" }}
                               >
-                                {new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-                                  style: "currency",
-                                  currency: "EUR",
-                                }).format(formula.priceCents / 100)}
+                                {formatPrice(formula.priceCents, locale)}
                               </span>
                             </div>
                             {desc && (

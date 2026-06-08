@@ -1,4 +1,5 @@
 import type { PublicMenuDailyDish, PublicMenuFormula } from "@/domain/menu/PublicMenuTypes";
+import { formatPrice, getLocalizedText } from "@/domain/menu/publicMenuView";
 import type { AllergenLabels } from "../AllergenIcons";
 import { MenuItemRow } from "./MenuItemRow";
 
@@ -20,10 +21,6 @@ type Props = {
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
 };
-
-function formatPrice(cents: number): string {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
-}
 
 /**
  * Section "Aujourd'hui" (S3.1) — rendue en tête de chaque template public, avant
@@ -95,11 +92,12 @@ export function TodaySection({
             role="list"
           >
             {formulas.map((formula) => {
-              const name = locale === "fr" ? formula.nameFr : formula.nameEn || formula.nameFr;
-              const description =
-                locale === "fr"
-                  ? formula.descriptionFr
-                  : formula.descriptionEn || formula.descriptionFr;
+              const name = getLocalizedText(formula.nameFr, formula.nameEn, locale);
+              const description = getLocalizedText(
+                formula.descriptionFr,
+                formula.descriptionEn,
+                locale,
+              );
               return (
                 <li
                   key={formula.id}
@@ -109,7 +107,7 @@ export function TodaySection({
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-medium">{name}</h3>
                     <span className="shrink-0 text-sm font-semibold tabular-nums">
-                      {formatPrice(formula.priceCents)}
+                      {formatPrice(formula.priceCents, locale)}
                     </span>
                   </div>
                   {description && (

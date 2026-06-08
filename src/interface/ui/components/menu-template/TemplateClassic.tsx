@@ -1,36 +1,19 @@
 import Image from "next/image";
-import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
-import type { Allergen } from "@/domain/menu/ItemPolicy";
+import { collectPresentAllergens, resolveLcpPriority } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
 import { TodaySection } from "./TodaySection";
 import { Watermark } from "./Watermark";
 import { AllergenLegend } from "../AllergenLegend";
-import type { AllergenLabels } from "../AllergenIcons";
+import type { MenuTemplateProps } from "./types";
 
 /**
  * Template "Classic" — rendu par défaut, hérité de la version pré-S2.2.
  * Disponible sur tous les tiers. Style minimaliste, typo sans-serif, fond clair.
  *
- * ⚠ À chaque évolution du modèle PublicMenuSnapshot (allergens, photos, branding…),
- * penser à propager la même feature dans TemplateElegant et TemplateModern. Le coût
- * × 3 a été accepté sciemment (cf. plan d'exécution S2.2).
+ * Seul template `supportsColorCustomization` : enveloppé par `BrandingStyleScope`
+ * (cf. index.tsx) → lit `--brand-*`. Consomme la couche headless `publicMenuView`.
  */
-type Props = {
-  snapshot: PublicMenuSnapshot;
-  locale: "fr" | "en";
-  showWatermark?: boolean;
-  badgeLabels: Record<"NEW" | "POPULAR", string>;
-  allergenLabels: AllergenLabels;
-  allergenSectionLabel: string;
-  allergenLegendTitle: string;
-  watermarkText?: string;
-  todaySectionTitle: string;
-  todaySectionDescription?: string;
-  todaySectionDishesSubtitle?: string;
-  todaySectionFormulasSubtitle?: string;
-};
-
 export function TemplateClassic({
   snapshot,
   locale,
@@ -44,26 +27,11 @@ export function TemplateClassic({
   todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
-}: Props) {
-  const presentAllergens = new Set<Allergen>();
-  // Les allergens des daily items doivent aussi alimenter la légende
-  // (réglementation INCO — légende partagée).
-  for (const daily of snapshot.dailyItems ?? []) {
-    for (const a of daily.allergens) presentAllergens.add(a);
-  }
-  // Priority loading : si un daily item a une photo, c'est lui qui prend le slot LCP
-  // (rendu en haut), sinon on retombe sur la 1re photo des catégories.
-  const dailyHasPhoto = (snapshot.dailyItems ?? []).some((d) => d.imagePath);
-  let firstPhotoLocator: { categoryName: string; itemIndex: number } | null = null;
-  for (const category of snapshot.categories) {
-    for (let i = 0; i < category.items.length; i++) {
-      const item = category.items[i];
-      for (const a of item.allergens) presentAllergens.add(a);
-      if (!firstPhotoLocator && !dailyHasPhoto && item.imagePath) {
-        firstPhotoLocator = { categoryName: category.name, itemIndex: i };
-      }
-    }
-  }
+}: MenuTemplateProps) {
+  // Légende INCO partagée (items + plats du jour) + cible LCP (le daily avec photo
+  // prime, sinon 1re photo de catégorie). Logique factorisée + testée en domaine.
+  const presentAllergens = collectPresentAllergens(snapshot);
+  const { firstPhotoLocator } = resolveLcpPriority(snapshot);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)

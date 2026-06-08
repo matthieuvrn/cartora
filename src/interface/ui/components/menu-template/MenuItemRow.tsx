@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Sparkles, Flame } from "lucide-react";
 import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { ItemBadge } from "@/domain/menu/ItemPolicy";
+import { formatPrice, formatPriceAria, getLocalizedText } from "@/domain/menu/publicMenuView";
 import { itemImageUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 
@@ -21,27 +22,6 @@ const badgeConfig: Record<
   NEW: { icon: Sparkles, className: "bg-blue-100 text-blue-700" },
   POPULAR: { icon: Flame, className: "bg-orange-100 text-orange-700" },
 };
-
-function formatPrice(cents: number, locale: "fr" | "en"): string {
-  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
-    style: "currency",
-    currency: "EUR",
-  }).format(cents / 100);
-}
-
-function formatPriceAria(cents: number, locale: "fr" | "en"): string {
-  const euros = Math.floor(cents / 100);
-  const remaining = cents % 100;
-  if (locale === "fr") {
-    return remaining > 0 ? `${euros} euros ${remaining}` : `${euros} euros`;
-  }
-  return remaining > 0 ? `${euros} euros ${remaining} cents` : `${euros} euros`;
-}
-
-function getLocalizedText(fr: string, en: string, locale: "fr" | "en"): string {
-  if (locale === "en") return en || fr;
-  return fr;
-}
 
 export function MenuItemRow({
   item,

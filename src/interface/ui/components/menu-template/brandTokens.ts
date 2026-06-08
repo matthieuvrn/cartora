@@ -1,8 +1,12 @@
 /**
- * Tokens de couleurs S2.4. Les templates consomment `var(--brand-*, fallback)`
- * via Tailwind arbitrary values pour préserver leur identité par défaut quand
- * le restaurateur n'a rien customisé. Les fallbacks reflètent les palettes
- * historiques de chaque template (amber pour Elegant, orange pour Modern, etc.).
+ * Tokens de couleurs S2.4 — palette **représentative** de chaque template, exposée
+ * via le registry (`registry.tsx` → `defaultTokens`) pour les vignettes / sélecteur.
+ *
+ * ⚠ Ce ne sont PAS forcément les replis CSS littéraux des templates legacy : Classic
+ * rend en réalité sur `currentColor`/`transparent` (il hérite), tandis qu'Elegant
+ * (#fbbf24 / #0c0a09) et Modern (#ea580c / #fff7ed) hardcodent ces hex inline via
+ * `var(--brand-*, <hex>)`. L'unification repli↔token se fera quand les skins seront
+ * reconstruits (Étapes 5–6) ; ici ces valeurs servent de métadonnée d'aperçu.
  */
 
 export const CLASSIC_FALLBACK = {

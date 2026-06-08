@@ -1,22 +1,18 @@
 /**
- * Templates de rendu public du menu.
+ * Dispatcher de rendu public du menu, piloté par le registry.
  *
- * 3 designs distincts, sélectionnés via `Menu.template` (enum `MenuTemplate`) et
- * gatés par tier via `PlanPolicy.canUseTemplate`. Chaque template expose la même
- * interface (`{ snapshot, locale, showWatermark, badgeLabels, allergenLabels, … }`)
- * pour rester interchangeable côté `PublicMenuClient`.
+ * Le composant à rendre est résolu via `TEMPLATE_REGISTRY[template]` (interface) et
+ * le comportement de marque via `TEMPLATE_META[template]` (domaine). Ajouter un
+ * template ne touche plus ce fichier : 1 entrée registry + 1 entrée meta suffisent.
  *
- * ⚠️ MAINTENANCE × 3 — décision produit S2.2 actée :
- * À chaque évolution du modèle public (allergens, photos, formules, daily menu,
- * branding…), penser à propager la feature dans les 3 templates. Tout
- * sous-composant partagé (Watermark, AllergenIcons, AllergenLegend) reste
- * factorisé ; tout layout structurel ou stylé spécifique vit dans son template.
+ * Sous-composants partagés (Watermark, AllergenIcons/Legend) + couche « headless »
+ * (`@/domain/menu/publicMenuView` : labels locale, allergènes, priorité LCP, prix)
+ * sont factorisés — un skin n'a plus à les redupliquer.
  */
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
-import type { AllergenLabels } from "../AllergenIcons";
-import { TemplateClassic } from "./TemplateClassic";
-import { TemplateElegant } from "./TemplateElegant";
-import { TemplateModern } from "./TemplateModern";
+import { TEMPLATE_META } from "@/domain/menu/MenuTemplateMeta";
+import { TEMPLATE_REGISTRY } from "./registry";
+import type { MenuTemplateProps } from "./types";
 
 export { TemplateClassic } from "./TemplateClassic";
 export { TemplateElegant } from "./TemplateElegant";
@@ -26,26 +22,10 @@ export { MenuItemRow } from "./MenuItemRow";
 export { TrackingBeacon } from "./TrackingBeacon";
 export { Watermark } from "./Watermark";
 export { TodaySection } from "./TodaySection";
+export { TEMPLATE_REGISTRY } from "./registry";
+export type { MenuTemplateProps } from "./types";
 
-type RendererProps = {
-  snapshot: PublicMenuSnapshot;
-  locale: "fr" | "en";
-  showWatermark?: boolean;
-  badgeLabels: Record<"NEW" | "POPULAR", string>;
-  allergenLabels: AllergenLabels;
-  allergenSectionLabel: string;
-  allergenLegendTitle: string;
-  watermarkText?: string;
-  /** Titre de la section "Aujourd'hui" (S3.1 + S3.2) — i18n résolu côté page. */
-  todaySectionTitle: string;
-  todaySectionDescription?: string;
-  /**
-   * Sous-titres affichés UNIQUEMENT si plats du jour ET formules coexistent.
-   * Si l'un des deux manque, le titre principal "Aujourd'hui" suffit.
-   */
-  todaySectionDishesSubtitle?: string;
-  todaySectionFormulasSubtitle?: string;
-};
+const DEFAULT_TEMPLATE = "CLASSIC" as const;
 
 /**
  * Injecte les CSS custom properties de branding (S2.4) sur un wrapper local.
@@ -71,32 +51,22 @@ function BrandingStyleScope({
   return <div style={style}>{children}</div>;
 }
 
-// Composant dispatcher (pas une fonction qui retourne un composant) pour
-// satisfaire `react-hooks/static-components` — les références aux Template*
-// restent statiques au site d'appel. Fallback CLASSIC pour les snapshots legacy
-// (pré-S2.2) sans champ `template` ; le défaut est aussi appliqué côté DB via
-// `template @default(CLASSIC)`.
-export function MenuTemplateRenderer(props: RendererProps) {
-  const branding = props.snapshot.branding;
-  switch (props.snapshot.template) {
-    case "ELEGANT":
-      return (
-        <BrandingStyleScope branding={branding}>
-          <TemplateElegant {...props} />
-        </BrandingStyleScope>
-      );
-    case "MODERN":
-      return (
-        <BrandingStyleScope branding={branding}>
-          <TemplateModern {...props} />
-        </BrandingStyleScope>
-      );
-    case "CLASSIC":
-    default:
-      return (
-        <BrandingStyleScope branding={branding}>
-          <TemplateClassic {...props} />
-        </BrandingStyleScope>
-      );
+/**
+ * Résout le template du snapshot via le registry. Repli `CLASSIC` pour les snapshots
+ * legacy (pré-S2.2, sans `template`) ET pour toute valeur d'enum inconnue d'un JSON
+ * ancien (filet de sécurité côté renderer — cf. plan migration). Les couleurs de
+ * marque ne sont appliquées qu'aux templates `supportsColorCustomization` (Classic) ;
+ * les templates art-dirigés ignorent `--brand-*` et gardent leur palette figée.
+ */
+export function MenuTemplateRenderer(props: MenuTemplateProps) {
+  const requested = props.snapshot.template;
+  const template = requested && requested in TEMPLATE_REGISTRY ? requested : DEFAULT_TEMPLATE;
+
+  const Template = TEMPLATE_REGISTRY[template].component;
+  const content = <Template {...props} />;
+
+  if (TEMPLATE_META[template].supportsColorCustomization && props.snapshot.branding) {
+    return <BrandingStyleScope branding={props.snapshot.branding}>{content}</BrandingStyleScope>;
   }
+  return content;
 }
