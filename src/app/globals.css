@@ -300,7 +300,7 @@ html {
   --chart-5: var(--color-sapin-300);
 
   /* Ombre de carte au repos, teintée canard. SCOPÉE (pas en @theme) : un --shadow-sm global
-     créerait une utility Tailwind qui fuirait dans /m/[slug] (TemplateModern utilise shadow-sm).
+     créerait une utility Tailwind qui fuirait dans /m/[slug] (les skins publics utilisent shadow-sm).
      Consommée par la règle non-layered [data-slot="card"] plus bas → cartes sous .theme-app/
      .theme-cartora teintées, :root (menus publics) inchangé. */
   --card-shadow:

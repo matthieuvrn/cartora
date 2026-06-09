@@ -738,7 +738,7 @@
     },
     "template": {
       "title": "Menu appearance",
-      "description": "Choose the visual rendering of your public menu. The Elegant and Modern templates require the PRO plan.",
+      "description": "Choose the visual rendering of your public menu. Premium templates (Bistro, Noir, Solar, Zen, Neon) require the PRO plan.",
       "back": "Back to settings",
       "lockedBadge": "PRO",
       "lockedHint": "Available with the PRO plan",
@@ -749,13 +749,21 @@
       "saveSuccess": "Template updated. Republish your menu to apply it.",
       "names": {
         "CLASSIC": "Classic",
-        "ELEGANT": "Elegant",
-        "MODERN": "Modern"
+        "CARTORA": "Cartora",
+        "BISTRO": "Bistro",
+        "NOIR": "Noir",
+        "SOLAR": "Solar",
+        "ZEN": "Zen",
+        "NEON": "Neon"
       },
       "descriptions": {
         "CLASSIC": "Clean and readable, suits any kind of menu.",
-        "ELEGANT": "Dark and refined, gastronomic feel.",
-        "MODERN": "Colorful and warm, rounded cards."
+        "CARTORA": "Warm house style: sand, teal, fir green.",
+        "BISTRO": "Parisian neo-bistro: ivory, burgundy, brass.",
+        "NOIR": "Fine dining: deep charcoal, champagne accents.",
+        "SOLAR": "Vibrant fast-casual: saturated coral and amber.",
+        "ZEN": "Minimal japandi: greige, terracotta, airy.",
+        "NEON": "Late-night bar: night background, cyan and magenta neon."
       }
     }
   },

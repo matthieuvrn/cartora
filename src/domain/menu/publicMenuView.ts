@@ -8,9 +8,8 @@ import type { PublicMenuSnapshot } from "./PublicMenuTypes";
  * logique délicate (quel item prend le slot LCP, quels allergènes alimentent la
  * légende) soit testée une fois, pas répliquée dans chaque skin.
  *
- * Avant cette extraction, ces fonctions étaient copiées-collées dans `MenuItemRow`,
- * `TemplateElegant`, `TemplateModern` (3+ copies, dont une `formatPrice` hardcodée
- * `fr-FR`).
+ * Avant cette extraction, ces fonctions étaient copiées-collées dans `MenuItemRow`
+ * et les skins legacy (3+ copies, dont une `formatPrice` hardcodée `fr-FR`).
  */
 
 export type Locale = "fr" | "en";

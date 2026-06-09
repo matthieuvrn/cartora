@@ -10,9 +10,9 @@ export type UpdateMenuTemplateInput = {
 };
 
 /**
- * Bascule le template de rendu public du menu (CLASSIC / ELEGANT / MODERN).
+ * Bascule le template de rendu public du menu (set 2026 : CLASSIC + CARTORA + 5 premium).
  *
- * Règle métier : ELEGANT et MODERN sont gatés sur le tier PRO via `PlanPolicy.canUseTemplate`.
+ * Règle métier : les templates premium (tout sauf CLASSIC) sont gatés PRO via `PlanPolicy.canUseTemplate`.
  * Le snapshot existant n'est pas régénéré ici — l'effet visible côté `/m/[slug]` suit le
  * pattern projet : `markMenuAsDraft` côté action puis republication explicite par l'utilisateur.
  */

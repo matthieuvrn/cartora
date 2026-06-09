@@ -78,7 +78,7 @@ export interface MenuRepository {
 
   /**
    * Met à jour le template de rendu choisi pour le menu du restaurant.
-   * Le gating tier (CLASSIC libre / ELEGANT-MODERN PRO only) est vérifié
+   * Le gating tier (CLASSIC libre / templates premium PRO only) est vérifié
    * en amont par le use case via `PlanPolicy.canUseTemplate`.
    */
   updateTemplate(params: { restaurantId: string; template: MenuTemplate }): Promise<void>;

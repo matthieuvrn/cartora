@@ -54,7 +54,7 @@ export function TemplateSelector({ currentTemplate, planTier }: Props) {
               </CardHeader>
 
               <CardContent className="flex-1 space-y-3">
-                <TemplatePreview template={template} />
+                <TemplatePreview />
                 <p className="text-xs text-muted-foreground">{t(`descriptions.${template}`)}</p>
                 {!isAllowed && <p className="text-xs text-muted-foreground">{t("lockedHint")}</p>}
               </CardContent>
@@ -97,42 +97,12 @@ export function TemplateSelector({ currentTemplate, planTier }: Props) {
   );
 }
 
-function TemplatePreview({ template }: { template: MenuTemplate }) {
-  if (template === "ELEGANT") {
-    return (
-      <div
-        aria-hidden="true"
-        className="aspect-[4/3] w-full overflow-hidden rounded-md bg-stone-950 p-3 font-serif text-stone-100"
-      >
-        <div className="text-center text-[10px] italic tracking-wide">Aa</div>
-        <div className="mx-auto mt-1 h-px w-6 bg-amber-400/80" />
-        <div className="mt-2 text-center text-[7px] font-semibold uppercase tracking-[0.2em] text-amber-400">
-          Entrées
-        </div>
-        <div className="mt-2 space-y-1.5">
-          <PreviewElegantRow />
-          <PreviewElegantRow />
-        </div>
-      </div>
-    );
-  }
-  if (template === "MODERN") {
-    return (
-      <div
-        aria-hidden="true"
-        className="aspect-[4/3] w-full overflow-hidden rounded-md bg-orange-50 p-2"
-      >
-        <div className="text-[10px] font-extrabold text-orange-600">Aa</div>
-        <div className="mt-1 inline-block rounded-full bg-orange-600 px-2 py-0.5 text-[7px] font-bold text-white">
-          Entrées
-        </div>
-        <div className="mt-2 space-y-1.5">
-          <PreviewModernRow />
-          <PreviewModernRow />
-        </div>
-      </div>
-    );
-  }
+/**
+ * Vignette générique (placeholder). Les aperçus réels par template — pilotés par le
+ * registry (`defaultTokens`/`Thumbnail`) — sont livrés à l'Étape 7 ; ici toutes les
+ * cartes partagent la même mini-maquette neutre.
+ */
+function TemplatePreview() {
   return (
     <div
       aria-hidden="true"
@@ -153,24 +123,6 @@ function PreviewClassicRow() {
     <div className="flex items-center justify-between gap-2 border-b border-muted/60 py-0.5">
       <span className="h-1.5 flex-1 rounded bg-muted" />
       <span className="h-1.5 w-6 rounded bg-muted-foreground/30" />
-    </div>
-  );
-}
-
-function PreviewElegantRow() {
-  return (
-    <div className="flex items-center justify-between gap-2 border-b border-stone-800 py-0.5">
-      <span className="h-1.5 flex-1 rounded bg-stone-700" />
-      <span className="h-1.5 w-6 rounded bg-amber-400/70" />
-    </div>
-  );
-}
-
-function PreviewModernRow() {
-  return (
-    <div className="flex items-center justify-between gap-2 rounded-lg bg-white p-1 shadow-sm">
-      <span className="h-1.5 flex-1 rounded bg-zinc-200" />
-      <span className="h-1.5 w-6 rounded-full bg-orange-500" />
     </div>
   );
 }

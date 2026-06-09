@@ -15,8 +15,6 @@ import { TEMPLATE_REGISTRY } from "./registry";
 import type { MenuTemplateProps } from "./types";
 
 export { TemplateClassic } from "./TemplateClassic";
-export { TemplateElegant } from "./TemplateElegant";
-export { TemplateModern } from "./TemplateModern";
 export { MenuCategorySection } from "./MenuCategorySection";
 export { MenuItemRow } from "./MenuItemRow";
 export { TrackingBeacon } from "./TrackingBeacon";

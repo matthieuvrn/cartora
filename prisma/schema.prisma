@@ -35,8 +35,12 @@ enum MenuStatus {
 
 enum MenuTemplate {
   CLASSIC
-  ELEGANT
-  MODERN
+  CARTORA
+  BISTRO
+  NOIR
+  SOLAR
+  ZEN
+  NEON
 
   @@map("menu_template")
 }

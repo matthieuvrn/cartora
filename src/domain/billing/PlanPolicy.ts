@@ -49,8 +49,8 @@ export class PlanPolicy {
   }
 
   /**
-   * Templates de rendu autorisés par tier. CLASSIC est libre pour tous,
-   * ELEGANT et MODERN sont réservés au tier PRO. Centralisé ici plutôt qu'un
+   * Templates de rendu autorisés par tier. CLASSIC est libre pour tous, les templates
+   * premium (tout sauf CLASSIC) sont réservés au tier PRO. Centralisé ici plutôt qu'un
    * fichier séparé pour rester aligné avec la doctrine "PlanPolicy = source unique
    * du gating tier" (cf. CLAUDE.md).
    */

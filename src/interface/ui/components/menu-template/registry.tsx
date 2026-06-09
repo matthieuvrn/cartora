@@ -1,9 +1,15 @@
 import type { ComponentType } from "react";
 import type { MenuTemplate } from "@/domain/menu/MenuTypes";
-import { CLASSIC_FALLBACK, ELEGANT_FALLBACK, MODERN_FALLBACK } from "./brandTokens";
+import {
+  BISTRO_FALLBACK,
+  CARTORA_FALLBACK,
+  CLASSIC_FALLBACK,
+  NEON_FALLBACK,
+  NOIR_FALLBACK,
+  SOLAR_FALLBACK,
+  ZEN_FALLBACK,
+} from "./brandTokens";
 import { TemplateClassic } from "./TemplateClassic";
-import { TemplateElegant } from "./TemplateElegant";
-import { TemplateModern } from "./TemplateModern";
 import type { MenuTemplateProps } from "./types";
 
 /**
@@ -31,6 +37,13 @@ export type TemplateRegistryEntry = {
 
 export const TEMPLATE_REGISTRY: Record<MenuTemplate, TemplateRegistryEntry> = {
   CLASSIC: { component: TemplateClassic, defaultTokens: CLASSIC_FALLBACK },
-  ELEGANT: { component: TemplateElegant, defaultTokens: ELEGANT_FALLBACK },
-  MODERN: { component: TemplateModern, defaultTokens: MODERN_FALLBACK },
+  // TODO Étapes 5-6 : remplacer `TemplateClassic` par le vrai skin de chaque template.
+  // Le set d'enum est livré ici (Étape 2) ; les designs suivent (1 ligne à changer par skin).
+  // Les `defaultTokens` ci-dessous sont provisoires (cf. brandTokens.ts).
+  CARTORA: { component: TemplateClassic, defaultTokens: CARTORA_FALLBACK },
+  BISTRO: { component: TemplateClassic, defaultTokens: BISTRO_FALLBACK },
+  NOIR: { component: TemplateClassic, defaultTokens: NOIR_FALLBACK },
+  SOLAR: { component: TemplateClassic, defaultTokens: SOLAR_FALLBACK },
+  ZEN: { component: TemplateClassic, defaultTokens: ZEN_FALLBACK },
+  NEON: { component: TemplateClassic, defaultTokens: NEON_FALLBACK },
 };

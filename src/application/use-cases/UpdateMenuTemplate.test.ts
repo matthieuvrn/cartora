@@ -7,33 +7,33 @@ import {
 } from "./__fixtures__/restaurantRepoMock";
 
 describe("UpdateMenuTemplate", () => {
-  it("persists the new template for a PRO restaurant choosing ELEGANT", async () => {
+  it("persists the new template for a PRO restaurant choosing NOIR", async () => {
     const menuRepo = createMockMenuRepo();
     const restaurantRepo = createMockRestaurantRepo({
       getRestaurantById: async () => restaurantFixtureForTier("PRO"),
     });
     const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
 
-    await uc.execute({ restaurantId: "resto-1", template: "ELEGANT" });
+    await uc.execute({ restaurantId: "resto-1", template: "NOIR" });
 
     expect(menuRepo.updateTemplate).toHaveBeenCalledWith({
       restaurantId: "resto-1",
-      template: "ELEGANT",
+      template: "NOIR",
     });
   });
 
-  it("persists MODERN for a PRO restaurant", async () => {
+  it("persists BISTRO for a PRO restaurant", async () => {
     const menuRepo = createMockMenuRepo();
     const restaurantRepo = createMockRestaurantRepo({
       getRestaurantById: async () => restaurantFixtureForTier("PRO"),
     });
     const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
 
-    await uc.execute({ restaurantId: "resto-1", template: "MODERN" });
+    await uc.execute({ restaurantId: "resto-1", template: "BISTRO" });
 
     expect(menuRepo.updateTemplate).toHaveBeenCalledWith({
       restaurantId: "resto-1",
-      template: "MODERN",
+      template: "BISTRO",
     });
   });
 
@@ -54,35 +54,33 @@ describe("UpdateMenuTemplate", () => {
     }
   });
 
-  it("refuses ELEGANT for a FREE restaurant", async () => {
+  it("refuses NOIR for a FREE restaurant", async () => {
     const menuRepo = createMockMenuRepo();
     const restaurantRepo = createMockRestaurantRepo({
       getRestaurantById: async () => restaurantFixtureForTier("FREE"),
     });
     const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
 
-    await expect(
-      uc.execute({ restaurantId: "resto-1", template: "ELEGANT" }),
-    ).rejects.toMatchObject({
+    await expect(uc.execute({ restaurantId: "resto-1", template: "NOIR" })).rejects.toMatchObject({
       name: "DomainError",
       code: "template_not_allowed",
-      metadata: { template: "ELEGANT", tier: "FREE" },
+      metadata: { template: "NOIR", tier: "FREE" },
     });
     expect(menuRepo.updateTemplate).not.toHaveBeenCalled();
   });
 
-  it("refuses MODERN for a STARTER restaurant", async () => {
+  it("refuses BISTRO for a STARTER restaurant", async () => {
     const menuRepo = createMockMenuRepo();
     const restaurantRepo = createMockRestaurantRepo({
       getRestaurantById: async () => restaurantFixtureForTier("STARTER"),
     });
     const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
 
-    await expect(uc.execute({ restaurantId: "resto-1", template: "MODERN" })).rejects.toMatchObject(
+    await expect(uc.execute({ restaurantId: "resto-1", template: "BISTRO" })).rejects.toMatchObject(
       {
         name: "DomainError",
         code: "template_not_allowed",
-        metadata: { template: "MODERN", tier: "STARTER" },
+        metadata: { template: "BISTRO", tier: "STARTER" },
       },
     );
     expect(menuRepo.updateTemplate).not.toHaveBeenCalled();

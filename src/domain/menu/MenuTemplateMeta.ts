@@ -28,9 +28,17 @@ export type MenuTemplateMeta = {
 };
 
 export const TEMPLATE_META: Record<MenuTemplate, MenuTemplateMeta> = {
+  // Base — sélectionnables hors PRO. CLASSIC est le seul personnalisable en couleurs.
+  // CARTORA est en `requiredTier: "FREE"` (sélectionnable par tous) ; le « payant pour
+  // publier » est porté par `PlanPolicy.canPublish`, pas par le gate template.
   CLASSIC: { requiredTier: "FREE", supportsColorCustomization: true, i18nKey: "CLASSIC" },
-  ELEGANT: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "ELEGANT" },
-  MODERN: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "MODERN" },
+  CARTORA: { requiredTier: "FREE", supportsColorCustomization: false, i18nKey: "CARTORA" },
+  // Premium (5 designer) — palette art-dirigée figée, réservés PRO.
+  BISTRO: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "BISTRO" },
+  NOIR: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "NOIR" },
+  SOLAR: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "SOLAR" },
+  ZEN: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "ZEN" },
+  NEON: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "NEON" },
 };
 
 /** Le template applique-t-il les couleurs de marque du restaurateur ? */

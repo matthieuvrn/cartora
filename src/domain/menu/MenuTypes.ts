@@ -1,6 +1,14 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
 
-export const MENU_TEMPLATE_VALUES = ["CLASSIC", "ELEGANT", "MODERN"] as const;
+export const MENU_TEMPLATE_VALUES = [
+  "CLASSIC",
+  "CARTORA",
+  "BISTRO",
+  "NOIR",
+  "SOLAR",
+  "ZEN",
+  "NEON",
+] as const;
 export type MenuTemplate = (typeof MENU_TEMPLATE_VALUES)[number];
 
 export type ItemTranslations = {

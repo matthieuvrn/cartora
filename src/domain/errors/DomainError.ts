@@ -11,6 +11,8 @@
  * Pure domaine : aucun import framework / Sentry / next-intl autorisé.
  */
 
+import type { MenuTemplate } from "@/domain/menu/MenuTypes";
+
 export type DomainErrorCode =
   // Publication
   | "plan_inactive"
@@ -104,7 +106,7 @@ export type DomainErrorMetadata = {
   /** Valeur invalide pour un badge / allergène — utilisée pour le debug Sentry uniquement. */
   invalidValue?: string;
   /** Template visé pour `template_not_allowed`. */
-  template?: "CLASSIC" | "ELEGANT" | "MODERN";
+  template?: MenuTemplate;
 };
 
 export class DomainError extends Error {

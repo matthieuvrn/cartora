@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { PlanPolicy, type PlanTier } from "./PlanPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
+import { MENU_TEMPLATE_VALUES } from "@/domain/menu/MenuTypes";
 
 describe("PlanPolicy", () => {
   describe("canPublish", () => {
@@ -108,19 +109,19 @@ describe("PlanPolicy", () => {
       expect(PlanPolicy.canUseTemplate("PRO", "CLASSIC")).toBe(true);
     });
 
-    it("locks ELEGANT for FREE and STARTER tiers", () => {
-      expect(PlanPolicy.canUseTemplate("FREE", "ELEGANT")).toBe(false);
-      expect(PlanPolicy.canUseTemplate("STARTER", "ELEGANT")).toBe(false);
+    // Gating actuel = « CLASSIC libre, tout le reste PRO ». Le passage de CARTORA en
+    // Base (sélectionnable hors PRO) est porté par l'Étape 3 (canUseTemplate lira TEMPLATE_META).
+    it("locks every non-CLASSIC template for FREE and STARTER tiers", () => {
+      for (const template of ["CARTORA", "BISTRO", "NOIR", "SOLAR", "ZEN", "NEON"] as const) {
+        expect(PlanPolicy.canUseTemplate("FREE", template)).toBe(false);
+        expect(PlanPolicy.canUseTemplate("STARTER", template)).toBe(false);
+      }
     });
 
-    it("locks MODERN for FREE and STARTER tiers", () => {
-      expect(PlanPolicy.canUseTemplate("FREE", "MODERN")).toBe(false);
-      expect(PlanPolicy.canUseTemplate("STARTER", "MODERN")).toBe(false);
-    });
-
-    it("allows ELEGANT and MODERN for PRO tier", () => {
-      expect(PlanPolicy.canUseTemplate("PRO", "ELEGANT")).toBe(true);
-      expect(PlanPolicy.canUseTemplate("PRO", "MODERN")).toBe(true);
+    it("allows every template for PRO tier", () => {
+      for (const template of MENU_TEMPLATE_VALUES) {
+        expect(PlanPolicy.canUseTemplate("PRO", template)).toBe(true);
+      }
     });
   });
 
