@@ -108,6 +108,63 @@ describe("PublishMenu", () => {
     });
   });
 
+  it("embeds branding in the snapshot when the template customizes colors (Classic), any tier", async () => {
+    // Set 2026 : couleurs ouvertes à tous → un STARTER avec un template Classic embarque
+    // ses couleurs dans le snapshot (le gate n'est plus tier, mais template).
+    const snapshotRepo = createMockSnapshotRepo();
+    const uc = new PublishMenu(
+      createPublishableMenuRepo(),
+      createMockRestaurantRepo({
+        getRestaurantById: async () =>
+          restaurantFixture({
+            planTier: "STARTER",
+            planStatus: "ACTIVE",
+            brandPrimary: "#0c0a09",
+            brandAccent: "#fbbf24",
+            brandBackground: "#ffffff",
+          }),
+      }),
+      snapshotRepo,
+      createMockClock(),
+    );
+
+    await uc.execute({ restaurantId: "resto-1" });
+
+    const { snapshotData } = vi.mocked(snapshotRepo.upsertSnapshot).mock.calls[0][0];
+    expect(snapshotData.branding).toEqual({
+      primary: "#0c0a09",
+      accent: "#fbbf24",
+      background: "#ffffff",
+    });
+  });
+
+  it("omits branding when the template does not customize colors (premium), even with colors set", async () => {
+    const snapshotRepo = createMockSnapshotRepo();
+    const uc = new PublishMenu(
+      createPublishableMenuRepo({
+        getMenuByRestaurantId: async () => ({ ...MENU_FIXTURE, template: "NOIR" }),
+      }),
+      createMockRestaurantRepo({
+        getRestaurantById: async () =>
+          restaurantFixture({
+            planTier: "PRO",
+            planStatus: "ACTIVE",
+            brandPrimary: "#0c0a09",
+            brandAccent: "#fbbf24",
+            brandBackground: "#ffffff",
+          }),
+      }),
+      snapshotRepo,
+      createMockClock(),
+    );
+
+    await uc.execute({ restaurantId: "resto-1" });
+
+    const { snapshotData } = vi.mocked(snapshotRepo.upsertSnapshot).mock.calls[0][0];
+    expect(snapshotData.template).toBe("NOIR");
+    expect(snapshotData.branding).toBeUndefined();
+  });
+
   it("throws plan_inactive for FREE tier", async () => {
     const snapshotRepo = createMockSnapshotRepo();
     const uc = new PublishMenu(

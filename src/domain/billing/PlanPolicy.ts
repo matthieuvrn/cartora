@@ -1,5 +1,6 @@
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { MenuTemplate } from "@/domain/menu/MenuTypes";
+import { TEMPLATE_META } from "@/domain/menu/MenuTemplateMeta";
 
 export type PlanTier = "FREE" | "STARTER" | "PRO";
 
@@ -49,24 +50,15 @@ export class PlanPolicy {
   }
 
   /**
-   * Templates de rendu autorisés par tier. CLASSIC est libre pour tous, les templates
-   * premium (tout sauf CLASSIC) sont réservés au tier PRO. Centralisé ici plutôt qu'un
-   * fichier séparé pour rester aligné avec la doctrine "PlanPolicy = source unique
-   * du gating tier" (cf. CLAUDE.md).
+   * Templates de rendu autorisés par tier. La règle vit dans `TEMPLATE_META`
+   * (domaine) : `requiredTier === "FREE"` ⇒ sélectionnable par tous (set 2026 : la
+   * **Base** CLASSIC + CARTORA), sinon réservé au tier PRO (les 5 templates premium).
+   * Le « payant pour publier » est porté par `canPublish`, pas par ce gate — un FREE
+   * peut sélectionner/prévisualiser une Base, mais ne peut pas publier. Lecture du meta
+   * domaine plutôt que du registry interface (React) pour ne pas violer `domain → interface`.
    */
   static canUseTemplate(tier: PlanTier, template: MenuTemplate): boolean {
-    if (template === "CLASSIC") return true;
-    return tier === "PRO";
-  }
-
-  /**
-   * Personnalisation des couleurs du menu (S2.4) — réservée au tier PRO.
-   * Distinct du logo (S2.3) qui reste accessible à tous les tiers : le logo
-   * est l'identité de base (équivalent favicon), les couleurs sont du branding
-   * avancé qui justifie l'upgrade PRO.
-   */
-  static canUseBranding(tier: PlanTier): boolean {
-    return tier === "PRO";
+    return TEMPLATE_META[template].requiredTier === "FREE" || tier === "PRO";
   }
 
   /**

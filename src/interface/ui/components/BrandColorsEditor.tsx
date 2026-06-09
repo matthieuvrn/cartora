@@ -95,13 +95,7 @@ export function BrandColorsEditor({ initialPrimary, initialAccent, initialBackgr
       const result = await updateBrandColorsAction({ error: null }, formData);
       if (result.error) {
         setError(
-          tErrors(
-            result.error.code as
-              | "branding_not_allowed"
-              | "invalid_brand_color"
-              | "low_brand_contrast"
-              | "validation",
-          ),
+          tErrors(result.error.code as "invalid_brand_color" | "low_brand_contrast" | "validation"),
         );
         return;
       }

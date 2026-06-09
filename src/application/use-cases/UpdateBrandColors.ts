@@ -1,7 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import { BrandingPolicy } from "@/domain/restaurant/BrandingPolicy";
-import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type UpdateBrandColorsInput = {
@@ -19,11 +18,15 @@ export type UpdateBrandColorsInput = {
 };
 
 /**
- * Persiste les couleurs de marque d'un restaurateur PRO. Valide :
- *   - tier === PRO (via `PlanPolicy.canUseBranding`)
+ * Persiste les couleurs de marque d'un restaurateur. Valide :
  *   - chaque couleur fournie au format hex `#RRGGBB`
  *   - contraste WCAG AA entre `primary` et `background` (≥ 4.5:1)
  *     sauf si `forceLowContrast` est vrai
+ *
+ * Aucun gate tier (décision produit 2026 : couleurs ouvertes à tous les forfaits).
+ * Les couleurs vivent sur `restaurants` mais ne sont appliquées au rendu que pour les
+ * templates `supportsColorCustomization` (Classic) — embarquées dans le snapshot par
+ * `PublishMenu` à cette seule condition, ignorées sinon. Pas besoin de bloquer l'écriture.
  *
  * Toute mutation appelle `markMenuAsDraft` pour forcer un republish — le snapshot
  * public doit refléter les nouvelles couleurs (cf. convention CLAUDE.md).
@@ -38,10 +41,6 @@ export class UpdateBrandColors {
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
       throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
-    }
-
-    if (!PlanPolicy.canUseBranding(restaurant.planTier)) {
-      throw new DomainError("branding_not_allowed", { tier: restaurant.planTier });
     }
 
     const primary = input.primary

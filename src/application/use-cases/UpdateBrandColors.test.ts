@@ -50,24 +50,32 @@ describe("UpdateBrandColors", () => {
     });
   });
 
+  // Set 2026 : les couleurs sont ouvertes à tous les forfaits (plus de gate PRO). Le
+  // « ignoré hors template Classic » est porté par PublishMenu (snapshot), pas par l'écriture.
   it.each([["FREE" as PlanTier], ["STARTER" as PlanTier]])(
-    "rejects %s with branding_not_allowed",
+    "accepts colors for a %s restaurant and marks menu as draft",
     async (tier) => {
+      const markMenuAsDraft = vi.fn(async () => {});
       const restaurantRepo = createMockRestaurantRepo({
         getRestaurantById: async () => restaurantFixtureForTier(tier),
       });
-      const menuRepo = createMockMenuRepo();
+      const menuRepo = createMockMenuRepo({ markMenuAsDraft });
       const uc = new UpdateBrandColors(restaurantRepo, menuRepo);
 
-      await expect(
-        uc.execute({
-          restaurantId: "resto-1",
-          primary: "#000000",
-          accent: "#ffffff",
-          background: "#ffffff",
-        }),
-      ).rejects.toMatchObject({ name: "DomainError", code: "branding_not_allowed" });
-      expect(restaurantRepo.updateBrandColors).not.toHaveBeenCalled();
+      await uc.execute({
+        restaurantId: "resto-1",
+        primary: "#0C0A09",
+        accent: "#FBBF24",
+        background: "#FFFFFF",
+      });
+
+      expect(restaurantRepo.updateBrandColors).toHaveBeenCalledWith({
+        restaurantId: "resto-1",
+        primary: "#0c0a09",
+        accent: "#fbbf24",
+        background: "#ffffff",
+      });
+      expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
     },
   );
 

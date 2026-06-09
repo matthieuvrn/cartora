@@ -4,6 +4,7 @@ import type { SnapshotRepository } from "@/application/ports/SnapshotRepository"
 import type { Clock } from "@/application/ports/Clock";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { supportsColorCustomization } from "@/domain/menu/MenuTemplateMeta";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type PublishMenuInput = {
@@ -52,7 +53,10 @@ export class PublishMenu {
     }
 
     const now = this.clock.nowISO();
-    const branding = PlanPolicy.canUseBranding(restaurant.planTier)
+    // Couleurs de marque embarquées ssi le template les consomme (Classic) — quel que
+    // soit le tier (couleurs ouvertes à tous, set 2026). Un template premium garde sa
+    // palette art-dirigée : pas de branding dans le snapshot.
+    const branding = supportsColorCustomization(menu.template)
       ? {
           primary: restaurant.brandPrimary ?? undefined,
           accent: restaurant.brandAccent ?? undefined,

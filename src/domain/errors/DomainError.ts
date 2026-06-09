@@ -61,7 +61,6 @@ export type DomainErrorCode =
   | "billing_missing"
   | "use_portal_to_change_plan"
   | "template_not_allowed"
-  | "branding_not_allowed"
   | "daily_dishes_not_allowed"
   | "formula_not_allowed"
 

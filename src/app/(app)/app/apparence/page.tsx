@@ -1,17 +1,15 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { Info, Lock } from "lucide-react";
+import { Info } from "lucide-react";
 import { requireRestaurant } from "../_lib/requireRestaurant";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { TemplateSelector } from "@/interface/ui/components/TemplateSelector";
 import { RestaurantLogoEditor } from "@/interface/ui/components/RestaurantLogoEditor";
 import { BrandColorsEditor } from "@/interface/ui/components/BrandColorsEditor";
-import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import { supportsColorCustomization } from "@/domain/menu/MenuTemplateMeta";
 
 // Section "Apparence" : template public + logo + couleurs de marque, regroupés (avant : deux
 // sous-pages /settings/template et /settings/branding). Les aperçus de templates et presets hex
@@ -27,7 +25,9 @@ export default async function AppearancePage() {
   ]);
   if (!restaurant || !menu) redirect("/app");
 
-  const canUseBranding = PlanPolicy.canUseBranding(restaurant.planTier);
+  // Couleurs personnalisables uniquement sur les templates qui les consomment (Classic).
+  // Plus de gate tier (set 2026 : couleurs ouvertes à tous les forfaits).
+  const canCustomizeColors = supportsColorCustomization(menu.template);
   const t = await getTranslations("Settings");
   const tColors = await getTranslations("Settings.branding.colors");
 
@@ -70,33 +70,18 @@ export default async function AppearancePage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>{tColors("title")}</CardTitle>
-              <CardDescription>{tColors("description")}</CardDescription>
-            </div>
-            {!canUseBranding && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
-                <Lock className="size-3" aria-hidden="true" />
-                PRO
-              </span>
-            )}
-          </div>
+          <CardTitle>{tColors("title")}</CardTitle>
+          <CardDescription>{tColors("description")}</CardDescription>
         </CardHeader>
         <CardContent>
-          {canUseBranding ? (
+          {canCustomizeColors ? (
             <BrandColorsEditor
               initialPrimary={restaurant.brandPrimary}
               initialAccent={restaurant.brandAccent}
               initialBackground={restaurant.brandBackground}
             />
           ) : (
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <p>{tColors("proLocked")}</p>
-              <Link href="/app/abonnement">
-                <Button size="sm">{tColors("upgradeCta")}</Button>
-              </Link>
-            </div>
+            <p className="text-sm text-muted-foreground">{tColors("classicOnly")}</p>
           )}
         </CardContent>
       </Card>

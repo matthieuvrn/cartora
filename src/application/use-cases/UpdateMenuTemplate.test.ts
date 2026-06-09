@@ -54,6 +54,23 @@ describe("UpdateMenuTemplate", () => {
     }
   });
 
+  it("allows CARTORA (Base) for FREE and STARTER restaurants", async () => {
+    for (const tier of ["FREE", "STARTER"] as const) {
+      const menuRepo = createMockMenuRepo();
+      const restaurantRepo = createMockRestaurantRepo({
+        getRestaurantById: async () => restaurantFixtureForTier(tier),
+      });
+      const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
+
+      await uc.execute({ restaurantId: "resto-1", template: "CARTORA" });
+
+      expect(menuRepo.updateTemplate).toHaveBeenCalledWith({
+        restaurantId: "resto-1",
+        template: "CARTORA",
+      });
+    }
+  });
+
   it("refuses NOIR for a FREE restaurant", async () => {
     const menuRepo = createMockMenuRepo();
     const restaurantRepo = createMockRestaurantRepo({

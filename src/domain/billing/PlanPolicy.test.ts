@@ -103,16 +103,22 @@ describe("PlanPolicy", () => {
   });
 
   describe("canUseTemplate", () => {
+    // Set 2026 : la Base (CLASSIC + CARTORA, `requiredTier: "FREE"`) est sélectionnable
+    // par tous les tiers ; les 5 premium sont réservés PRO. Le gating lit `TEMPLATE_META`.
     it("allows CLASSIC for every tier", () => {
       expect(PlanPolicy.canUseTemplate("FREE", "CLASSIC")).toBe(true);
       expect(PlanPolicy.canUseTemplate("STARTER", "CLASSIC")).toBe(true);
       expect(PlanPolicy.canUseTemplate("PRO", "CLASSIC")).toBe(true);
     });
 
-    // Gating actuel = « CLASSIC libre, tout le reste PRO ». Le passage de CARTORA en
-    // Base (sélectionnable hors PRO) est porté par l'Étape 3 (canUseTemplate lira TEMPLATE_META).
-    it("locks every non-CLASSIC template for FREE and STARTER tiers", () => {
-      for (const template of ["CARTORA", "BISTRO", "NOIR", "SOLAR", "ZEN", "NEON"] as const) {
+    it("allows CARTORA for every tier (Base, requiredTier FREE)", () => {
+      expect(PlanPolicy.canUseTemplate("FREE", "CARTORA")).toBe(true);
+      expect(PlanPolicy.canUseTemplate("STARTER", "CARTORA")).toBe(true);
+      expect(PlanPolicy.canUseTemplate("PRO", "CARTORA")).toBe(true);
+    });
+
+    it("locks the 5 premium templates for FREE and STARTER tiers", () => {
+      for (const template of ["BISTRO", "NOIR", "SOLAR", "ZEN", "NEON"] as const) {
         expect(PlanPolicy.canUseTemplate("FREE", template)).toBe(false);
         expect(PlanPolicy.canUseTemplate("STARTER", template)).toBe(false);
       }
