@@ -14,13 +14,12 @@ import { TEMPLATE_META } from "@/domain/menu/MenuTemplateMeta";
 import { TEMPLATE_REGISTRY } from "./registry";
 import type { MenuTemplateProps } from "./types";
 
-export { TemplateClassic } from "./TemplateClassic";
-export { MenuCategorySection } from "./MenuCategorySection";
-export { MenuItemRow } from "./MenuItemRow";
+// ⚠ NE PAS ré-exporter les composants `Template*` / sous-composants de skin ici : ce barrel
+// est dans le bundle client (PublicMenuClient, MenuPreviewPane). Un seul `export { TemplateX }`
+// statique ré-agrège le skin dans le chunk principal et annule le code-split du registry.
+// Les skins se chargent UNIQUEMENT via `next/dynamic` dans registry.tsx. Seuls des éléments
+// légers/partagés transitent par ce barrel.
 export { TrackingBeacon } from "./TrackingBeacon";
-export { Watermark } from "./Watermark";
-export { TodaySection } from "./TodaySection";
-export { TEMPLATE_REGISTRY } from "./registry";
 export type { MenuTemplateProps } from "./types";
 
 const DEFAULT_TEMPLATE = "CLASSIC" as const;
@@ -63,8 +62,16 @@ export function MenuTemplateRenderer(props: MenuTemplateProps) {
   const Template = TEMPLATE_REGISTRY[template].component;
   const content = <Template {...props} />;
 
-  if (TEMPLATE_META[template].supportsColorCustomization && props.snapshot.branding) {
-    return <BrandingStyleScope branding={props.snapshot.branding}>{content}</BrandingStyleScope>;
-  }
-  return content;
+  // `data-template` active les tokens figés du skin (polices + palette art-dirigée) déclarés
+  // en CSS scopée — cf. globals.css `[data-template="X"]`. Wrapper neutre (display:block,
+  // pleine largeur) : le `mx-auto max-w-lg` du skin centre toujours, aucune régression layout.
+  // Seul CLASSIC (supportsColorCustomization) lit les couleurs de marque via BrandingStyleScope.
+  const inner =
+    TEMPLATE_META[template].supportsColorCustomization && props.snapshot.branding ? (
+      <BrandingStyleScope branding={props.snapshot.branding}>{content}</BrandingStyleScope>
+    ) : (
+      content
+    );
+
+  return <div data-template={template}>{inner}</div>;
 }

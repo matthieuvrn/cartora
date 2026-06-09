@@ -37,6 +37,44 @@ const jetbrainsMono = localFont({
   preload: false,
 });
 
+// Polices des templates publics premium (Étape 4 — refonte menu, cf. docs/publicmenu.md).
+// Toutes `preload: false` : le woff2 n'est fetché QUE sur le menu /m/[slug] qui utilise la
+// famille (un glyphe doit la consommer). Aucun surcoût sur landing/app/Classic. Sous-set `latin`
+// (français complet, œ inclus). Axe `wght` uniquement (font-variation par graisse) — Archivo
+// expose aussi un axe `wdth` si NEON veut du condensé strict en Étape 6 (fichier `-wdth-`).
+// Consommées par les skins via `var(--tpl-font-display)` (cf. globals.css [data-template]).
+const cormorantGaramond = localFont({
+  src: "../../node_modules/@fontsource-variable/cormorant-garamond/files/cormorant-garamond-latin-wght-normal.woff2",
+  weight: "300 700",
+  variable: "--font-cormorant", // BISTRO + NOIR — serif display
+  display: "swap",
+  preload: false,
+});
+
+const bricolageGrotesque = localFont({
+  src: "../../node_modules/@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2",
+  weight: "200 800",
+  variable: "--font-bricolage", // SOLAR — sans géométrique gras
+  display: "swap",
+  preload: false,
+});
+
+const schibstedGrotesk = localFont({
+  src: "../../node_modules/@fontsource-variable/schibsted-grotesk/files/schibsted-grotesk-latin-wght-normal.woff2",
+  weight: "400 900",
+  variable: "--font-schibsted", // ZEN — sans humaniste fin
+  display: "swap",
+  preload: false,
+});
+
+const archivo = localFont({
+  src: "../../node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2",
+  weight: "100 900",
+  variable: "--font-archivo", // NEON — condensé bold via graisse haute
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: {
@@ -73,7 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable}`}
+      className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${cormorantGaramond.variable} ${bricolageGrotesque.variable} ${schibstedGrotesk.variable} ${archivo.variable}`}
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>

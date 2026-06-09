@@ -440,10 +440,56 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
   }
-  /* Les titres des templates publics doivent garder LEUR typographie (ex. font-serif d'Elegant),
-     pas la Fraunces du scope app → on annule l'override en revenant à l'héritage du conteneur. */
+  /* Les titres des templates publics doivent garder LEUR typographie (ex. serif display de
+     Bistro/Noir via [data-template]), pas la Fraunces du scope app → on annule l'override en
+     revenant à l'héritage du conteneur. */
   .theme-public :is(h1, h2, .display) {
     font-family: inherit;
+  }
+
+  /* === Tokens par template public (Étape 4 — refonte menu, cf. docs/publicmenu.md) ===========
+     Plumbing typographique + palette FIGÉE de chaque skin art-dirigé. Posés ici (CSS scopée,
+     idiome `.theme-public`/`@theme`) plutôt que dans un objet TS que rien ne consommerait.
+     `MenuTemplateRenderer` pose `data-template={template}` sur le wrapper de rendu ; les skins
+     (Étapes 5–6) consomment `var(--tpl-font-display)` / `var(--tpl-{primary,accent,bg})`.
+     Palettes = miroir des `*_FALLBACK` de brandTokens.ts (source unique des couleurs d'aperçu).
+     CLASSIC n'a PAS de bloc : il reste sur Geist + `--brand-*` (seul personnalisable). Les
+     polices premium s'activent via `font-optical-sizing: auto` (Cormorant) / graisse (wght). */
+  [data-template="CARTORA"] {
+    --tpl-font-display: var(--font-fraunces);
+    --tpl-primary: #1f3d2f; /* sapin */
+    --tpl-accent: #2b6a6a; /* canard */
+    --tpl-bg: #f5efe6; /* sand */
+  }
+  [data-template="BISTRO"] {
+    --tpl-font-display: var(--font-cormorant);
+    --tpl-primary: #6b2330; /* bordeaux */
+    --tpl-accent: #b08d57; /* laiton */
+    --tpl-bg: #f7f1e6; /* ivoire crème */
+  }
+  [data-template="NOIR"] {
+    --tpl-font-display: var(--font-cormorant);
+    --tpl-primary: #d9c38a; /* champagne (texte sur charbon) */
+    --tpl-accent: #c9a24b; /* or */
+    --tpl-bg: #14110f; /* charbon quasi-noir */
+  }
+  [data-template="SOLAR"] {
+    --tpl-font-display: var(--font-bricolage);
+    --tpl-primary: #f4502e; /* corail saturé */
+    --tpl-accent: #f5a623; /* ambre */
+    --tpl-bg: #fff7ed; /* crème chaud */
+  }
+  [data-template="ZEN"] {
+    --tpl-font-display: var(--font-schibsted);
+    --tpl-primary: #5c5248; /* greige sombre */
+    --tpl-accent: #b5765a; /* terracotta sourd */
+    --tpl-bg: #efeae2; /* greige clair */
+  }
+  [data-template="NEON"] {
+    --tpl-font-display: var(--font-archivo);
+    --tpl-primary: #22d3ee; /* néon cyan (texte sur nuit) */
+    --tpl-accent: #e64bd0; /* néon magenta */
+    --tpl-bg: #0a0a14; /* nuit profond */
   }
 
   @media (prefers-reduced-motion: reduce) {

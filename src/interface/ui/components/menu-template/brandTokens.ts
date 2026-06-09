@@ -5,8 +5,12 @@
  * ⚠ Ce ne sont PAS forcément les replis CSS littéraux des skins : ils servent de
  * métadonnée d'aperçu. Pour les 6 templates du set 2026 (CARTORA + 5 premium), ces
  * palettes sont **provisoires** — tirées des directions artistiques de
- * `docs/publicmenu.md` — et seront figées avec les vrais skins (Étapes 4–6).
+ * `docs/publicmenu.md` — et seront figées avec les vrais skins (Étapes 5–6).
  * CLASSIC reste le seul template `supportsColorCustomization` (couleurs surchargeables).
+ *
+ * ⚠ DUPLICATION VOLONTAIRE : les mêmes hex sont déclarés en tokens de rendu CSS dans
+ * `src/app/globals.css` (`[data-template="X"]`, Étape 4). Garder les deux en phase tant que
+ * les skins (Étapes 5–6) ne consomment pas une source unique. Ici = aperçu ; là = rendu.
  */
 
 export const CLASSIC_FALLBACK = {
