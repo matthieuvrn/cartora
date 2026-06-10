@@ -503,7 +503,7 @@
       },
       "branding": {
         "title": "Templates premium et couleurs de marque",
-        "body": "Trois designs (Classique, Élégant, Moderne) et trois couleurs personnalisables. Contrôle de contraste WCAG AA pour rester lisible.",
+        "body": "Sept templates au choix — deux de base (Classique, Cartora) et cinq designs premium. Couleurs personnalisables sur le Classique, contrôle de contraste WCAG AA pour rester lisible.",
         "tier": "PRO"
       }
     },
@@ -712,9 +712,6 @@
         "advanced": "Mode avancé",
         "advancedHint": "Choisissez chaque couleur librement. Vérifiez le contraste avant de sauvegarder.",
         "preview": "Aperçu",
-        "previewClassic": "Aperçu — Classique",
-        "previewElegant": "Aperçu — Élégant",
-        "previewModern": "Aperçu — Moderne",
         "reset": "Réinitialiser",
         "save": "Enregistrer",
         "saving": "Enregistrement…",

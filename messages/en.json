@@ -503,7 +503,7 @@
       },
       "branding": {
         "title": "Premium templates and brand colors",
-        "body": "Three designs (Classic, Elegant, Modern) and three customizable colors. WCAG AA contrast check to stay legible.",
+        "body": "Seven templates to choose from — two base (Classic, Cartora) and five premium designs. Customizable colors on Classic, with a WCAG AA contrast check to stay legible.",
         "tier": "PRO"
       }
     },
@@ -712,9 +712,6 @@
         "advanced": "Advanced mode",
         "advancedHint": "Pick each color freely. Check contrast before saving.",
         "preview": "Preview",
-        "previewClassic": "Preview — Classic",
-        "previewElegant": "Preview — Elegant",
-        "previewModern": "Preview — Modern",
         "reset": "Reset",
         "save": "Save",
         "saving": "Saving…",

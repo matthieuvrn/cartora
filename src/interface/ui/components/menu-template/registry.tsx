@@ -55,9 +55,7 @@ const TemplateClassic = lazyTemplate(() =>
 const TemplateCartora = lazyTemplate(() =>
   import("./TemplateCartora").then((m) => m.TemplateCartora),
 );
-const TemplateBistro = lazyTemplate(() =>
-  import("./TemplateBistro").then((m) => m.TemplateBistro),
-);
+const TemplateBistro = lazyTemplate(() => import("./TemplateBistro").then((m) => m.TemplateBistro));
 const TemplateNoir = lazyTemplate(() => import("./TemplateNoir").then((m) => m.TemplateNoir));
 const TemplateSolar = lazyTemplate(() => import("./TemplateSolar").then((m) => m.TemplateSolar));
 const TemplateZen = lazyTemplate(() => import("./TemplateZen").then((m) => m.TemplateZen));
