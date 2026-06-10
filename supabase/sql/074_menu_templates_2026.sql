@@ -12,8 +12,10 @@
 
 BEGIN;
 
--- 1. Remap des menus encore sur les anciens designs
-UPDATE menus SET template = 'CLASSIC' WHERE template IN ('ELEGANT', 'MODERN');
+-- 1. Remap des menus encore sur les anciens designs.
+-- Cast `::text` (et non comparaison enum directe) → idempotent : un 2e passage, où l'enum ne
+-- contient plus 'ELEGANT'/'MODERN', matche 0 ligne au lieu de planter (`invalid input value for enum`).
+UPDATE menus SET template = 'CLASSIC' WHERE template::text IN ('ELEGANT', 'MODERN');
 
 -- 2. Retirer le DEFAULT (incastable pendant l'ALTER TYPE)
 ALTER TABLE menus ALTER COLUMN template DROP DEFAULT;

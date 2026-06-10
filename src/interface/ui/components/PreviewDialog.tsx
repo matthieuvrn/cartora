@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Eye, Smartphone, Tablet, Monitor } from "lucide-react";
-import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import type { MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,12 @@ type Props = {
   menu: MenuOverview;
   restaurantName: string;
   planTier: PlanTier;
+  /** Prévisualiser un template autre que `menu.template` (cf. MenuPreviewPane). */
+  templateOverride?: MenuTemplate;
+  /** Titre du dialog (défaut : « Aperçu du menu »). Le sélecteur y passe le nom du template. */
+  title?: string;
+  /** Classe sur le bouton déclencheur (le sélecteur le met en pleine largeur). */
+  triggerClassName?: string;
 };
 
 type Viewport = "mobile" | "tablet" | "desktop";
@@ -30,7 +36,14 @@ const VIEWPORT_MAX_WIDTH: Record<Viewport, string> = {
   desktop: "max-w-full",
 };
 
-export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
+export function PreviewDialog({
+  menu,
+  restaurantName,
+  planTier,
+  templateOverride,
+  title,
+  triggerClassName,
+}: Props) {
   const t = useTranslations("Dashboard");
   const [viewport, setViewport] = useState<Viewport>("mobile");
 
@@ -43,7 +56,7 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className={triggerClassName}>
           <Eye className="mr-2 size-4" />
           {t("preview")}
         </Button>
@@ -57,7 +70,7 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
         aria-describedby={undefined}
       >
         <DialogHeader className="theme-app">
-          <DialogTitle>{t("previewTitle")}</DialogTitle>
+          <DialogTitle>{title ?? t("previewTitle")}</DialogTitle>
         </DialogHeader>
         <div
           className="theme-app flex justify-center gap-1 pb-2"
@@ -83,6 +96,7 @@ export function PreviewDialog({ menu, restaurantName, planTier }: Props) {
           menu={menu}
           restaurantName={restaurantName}
           planTier={planTier}
+          templateOverride={templateOverride}
           className={cn(
             "mx-auto w-full transition-[max-width] duration-200 ease-[var(--ease-out-expo)]",
             VIEWPORT_MAX_WIDTH[viewport],

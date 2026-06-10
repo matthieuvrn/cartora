@@ -52,7 +52,12 @@ export default async function AppearancePage() {
           <h2 className="text-h3">{t("template.title")}</h2>
           <p className="text-sm text-muted-foreground">{t("template.description")}</p>
         </div>
-        <TemplateSelector currentTemplate={menu.template} planTier={restaurant.planTier} />
+        <TemplateSelector
+          currentTemplate={menu.template}
+          planTier={restaurant.planTier}
+          menu={menu}
+          restaurantName={restaurant.displayName}
+        />
       </section>
 
       <Card>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import type { MenuOverview, MenuTemplate } from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { buildPublicSnapshot } from "@/domain/menu/PublicMenuTypes";
@@ -15,6 +15,12 @@ type Props = {
   restaurantName: string;
   planTier: PlanTier;
   className?: string;
+  /**
+   * Force le rendu sur un autre template que `menu.template` — utilisé par le sélecteur
+   * d'apparence pour prévisualiser un template **non encore sélectionné** (y compris premium
+   * verrouillé, avant achat). Sans override, on reflète le template courant du menu.
+   */
+  templateOverride?: MenuTemplate;
 };
 
 /**
@@ -26,12 +32,21 @@ type Props = {
  * prévisualisé : réutilisé tel quel par le panneau inline de l'éditeur ET par PreviewDialog. Ne
  * JAMAIS y injecter de tokens Cartora — le contenu doit rester le canvas du restaurateur.
  */
-export function MenuPreviewPane({ menu, restaurantName, planTier, className }: Props) {
+export function MenuPreviewPane({
+  menu,
+  restaurantName,
+  planTier,
+  className,
+  templateOverride,
+}: Props) {
   const tp = useTranslations("PublicMenu");
   const tAllergen = useTranslations("Allergen");
   const locale = useLocale() as "fr" | "en";
 
-  const snapshot = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
+  const base = buildPublicSnapshot(menu, restaurantName, new Date().toISOString());
+  // Override = on prévisualise un autre template ; sa palette figée vient du CSS `[data-template]`
+  // (pas du snapshot), donc surcharger `template` suffit. Branding non embarqué ici comme avant.
+  const snapshot = templateOverride ? { ...base, template: templateOverride } : base;
 
   const badgeLabels: Record<"NEW" | "POPULAR", string> = {
     NEW: tp("badge.NEW"),

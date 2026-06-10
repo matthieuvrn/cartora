@@ -8,20 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { setTemplateAction, type RenameActionState } from "@/app/(app)/app/actions";
 import { createCheckoutAction } from "@/app/(app)/app/billing-actions";
-import { MENU_TEMPLATE_VALUES, type MenuTemplate } from "@/domain/menu/MenuTypes";
+import {
+  MENU_TEMPLATE_VALUES,
+  type MenuOverview,
+  type MenuTemplate,
+} from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { TEMPLATE_REGISTRY } from "./menu-template/registry";
+import { PreviewDialog } from "./PreviewDialog";
 import { ErrorMessage } from "./ErrorMessage";
 
 type Props = {
   currentTemplate: MenuTemplate;
   planTier: PlanTier;
+  /** Menu courant + nom resto : alimentent l'aperçu live rendu par carte (cf. PreviewDialog). */
+  menu: MenuOverview;
+  restaurantName: string;
 };
 
 const initialState: RenameActionState = { error: null };
 
-export function TemplateSelector({ currentTemplate, planTier }: Props) {
+export function TemplateSelector({ currentTemplate, planTier, menu, restaurantName }: Props) {
   const t = useTranslations("Settings.template");
   const [state, formAction, isPending] = useActionState(setTemplateAction, initialState);
 
@@ -58,6 +66,17 @@ export function TemplateSelector({ currentTemplate, planTier }: Props) {
                 <TemplatePreview template={template} />
                 <p className="text-xs text-muted-foreground">{t(`descriptions.${template}`)}</p>
                 {!isAllowed && <p className="text-xs text-muted-foreground">{t("lockedHint")}</p>}
+                {/* Aperçu réel rendu, disponible AUSSI sur les cartes verrouillées : un non-PRO
+                    doit pouvoir voir le template premium AVANT d'acheter (levier de conversion).
+                    Le chunk dynamique du skin n'est chargé qu'à l'ouverture du dialog. */}
+                <PreviewDialog
+                  menu={menu}
+                  restaurantName={restaurantName}
+                  planTier={planTier}
+                  templateOverride={template}
+                  title={t(`names.${template}`)}
+                  triggerClassName="w-full"
+                />
               </CardContent>
 
               <CardFooter>
