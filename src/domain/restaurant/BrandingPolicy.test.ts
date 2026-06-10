@@ -107,7 +107,7 @@ describe("BrandingPolicy", () => {
       expect(BrandingPolicy.meetsContrastAA("#ffff00", "#ffffff")).toBe(false);
     });
 
-    it("passes amber-400 on stone-950 (Elegant default)", () => {
+    it("passes amber-400 on stone-950 (warm accent on near-black)", () => {
       // amber-400 ≈ #fbbf24, stone-950 ≈ #0c0a09
       expect(BrandingPolicy.meetsContrastAA("#fbbf24", "#0c0a09")).toBe(true);
     });

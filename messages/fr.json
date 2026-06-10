@@ -734,7 +734,7 @@
     },
     "template": {
       "title": "Apparence du menu",
-      "description": "Choisissez le rendu visuel de votre menu public. Les templates premium (Bistrot, Noir, Solaire, Zen, Néon) sont réservés à la formule PRO.",
+      "description": "Choisissez le rendu visuel de votre menu public. Les templates premium sont réservés à la formule PRO.",
       "back": "Retour aux paramètres",
       "lockedBadge": "PRO",
       "lockedHint": "Disponible avec la formule PRO",
@@ -749,7 +749,9 @@
         "NOIR": "Noir",
         "SOLAR": "Solaire",
         "ZEN": "Zen",
-        "NEON": "Néon"
+        "NEON": "Néon",
+        "RIVAGE": "Rivage",
+        "VELOURS": "Velours"
       },
       "descriptions": {
         "CLASSIC": "Sobre, lisible, adapté à tout type de carte.",
@@ -758,7 +760,9 @@
         "NOIR": "Fine-dining : charbon profond, accents champagne.",
         "SOLAR": "Fast-casual vibrant : corail et ambre saturés.",
         "ZEN": "Japandi minimal : greige, terracotta, beaucoup de blanc.",
-        "NEON": "Bar nocturne : fond nuit, néons cyan et magenta."
+        "NEON": "Bar nocturne : fond nuit, néons cyan et magenta.",
+        "RIVAGE": "Bord de mer : bleu marine, écume, blanc sablé.",
+        "VELOURS": "Bar à vin feutré : aubergine, rosé poudré, cuivre."
       }
     }
   },

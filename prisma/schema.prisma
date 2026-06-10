@@ -41,6 +41,8 @@ enum MenuTemplate {
   SOLAR
   ZEN
   NEON
+  RIVAGE
+  VELOURS
 
   @@map("menu_template")
 }

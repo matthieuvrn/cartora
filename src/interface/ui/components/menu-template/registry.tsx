@@ -7,7 +7,9 @@ import {
   CLASSIC_FALLBACK,
   NEON_FALLBACK,
   NOIR_FALLBACK,
+  RIVAGE_FALLBACK,
   SOLAR_FALLBACK,
+  VELOURS_FALLBACK,
   ZEN_FALLBACK,
 } from "./brandTokens";
 import type { MenuTemplateProps } from "./types";
@@ -60,6 +62,10 @@ const TemplateNoir = lazyTemplate(() => import("./TemplateNoir").then((m) => m.T
 const TemplateSolar = lazyTemplate(() => import("./TemplateSolar").then((m) => m.TemplateSolar));
 const TemplateZen = lazyTemplate(() => import("./TemplateZen").then((m) => m.TemplateZen));
 const TemplateNeon = lazyTemplate(() => import("./TemplateNeon").then((m) => m.TemplateNeon));
+const TemplateRivage = lazyTemplate(() => import("./TemplateRivage").then((m) => m.TemplateRivage));
+const TemplateVelours = lazyTemplate(() =>
+  import("./TemplateVelours").then((m) => m.TemplateVelours),
+);
 
 export const TEMPLATE_REGISTRY: Record<MenuTemplate, TemplateRegistryEntry> = {
   CLASSIC: { component: TemplateClassic, defaultTokens: CLASSIC_FALLBACK },
@@ -70,4 +76,7 @@ export const TEMPLATE_REGISTRY: Record<MenuTemplate, TemplateRegistryEntry> = {
   SOLAR: { component: TemplateSolar, defaultTokens: SOLAR_FALLBACK },
   ZEN: { component: TemplateZen, defaultTokens: ZEN_FALLBACK },
   NEON: { component: TemplateNeon, defaultTokens: NEON_FALLBACK },
+  // Set 2026.1 — light froid (bord de mer) + dark chaud (bar à vin).
+  RIVAGE: { component: TemplateRivage, defaultTokens: RIVAGE_FALLBACK },
+  VELOURS: { component: TemplateVelours, defaultTokens: VELOURS_FALLBACK },
 };

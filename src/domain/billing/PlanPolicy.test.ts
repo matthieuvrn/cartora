@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { PlanPolicy, type PlanTier } from "./PlanPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import { MENU_TEMPLATE_VALUES } from "@/domain/menu/MenuTypes";
+import { TEMPLATE_META } from "@/domain/menu/MenuTemplateMeta";
 
 describe("PlanPolicy", () => {
   describe("canPublish", () => {
@@ -104,7 +105,7 @@ describe("PlanPolicy", () => {
 
   describe("canUseTemplate", () => {
     // Set 2026 : la Base (CLASSIC + CARTORA, `requiredTier: "FREE"`) est sélectionnable
-    // par tous les tiers ; les 5 premium sont réservés PRO. Le gating lit `TEMPLATE_META`.
+    // par tous les tiers ; les premium sont réservés PRO. Le gating lit `TEMPLATE_META`.
     it("allows CLASSIC for every tier", () => {
       expect(PlanPolicy.canUseTemplate("FREE", "CLASSIC")).toBe(true);
       expect(PlanPolicy.canUseTemplate("STARTER", "CLASSIC")).toBe(true);
@@ -117,8 +118,12 @@ describe("PlanPolicy", () => {
       expect(PlanPolicy.canUseTemplate("PRO", "CARTORA")).toBe(true);
     });
 
-    it("locks the 5 premium templates for FREE and STARTER tiers", () => {
-      for (const template of ["BISTRO", "NOIR", "SOLAR", "ZEN", "NEON"] as const) {
+    it("locks every premium (requiredTier PRO) template for FREE and STARTER tiers", () => {
+      // Dérivé de TEMPLATE_META → couvre automatiquement tout futur template premium
+      // (BISTRO/NOIR/SOLAR/ZEN/NEON/RIVAGE/VELOURS, …) sans liste en dur à maintenir.
+      const premium = MENU_TEMPLATE_VALUES.filter((t) => TEMPLATE_META[t].requiredTier === "PRO");
+      expect(premium.length).toBeGreaterThan(0);
+      for (const template of premium) {
         expect(PlanPolicy.canUseTemplate("FREE", template)).toBe(false);
         expect(PlanPolicy.canUseTemplate("STARTER", template)).toBe(false);
       }

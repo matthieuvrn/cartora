@@ -33,12 +33,15 @@ export const TEMPLATE_META: Record<MenuTemplate, MenuTemplateMeta> = {
   // publier » est porté par `PlanPolicy.canPublish`, pas par le gate template.
   CLASSIC: { requiredTier: "FREE", supportsColorCustomization: true, i18nKey: "CLASSIC" },
   CARTORA: { requiredTier: "FREE", supportsColorCustomization: false, i18nKey: "CARTORA" },
-  // Premium (5 designer) — palette art-dirigée figée, réservés PRO.
+  // Premium (designer) — palette art-dirigée figée, réservés PRO.
   BISTRO: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "BISTRO" },
   NOIR: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "NOIR" },
   SOLAR: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "SOLAR" },
   ZEN: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "ZEN" },
   NEON: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "NEON" },
+  // Set 2026.1 — light froid (bord de mer) + dark chaud (bar à vin).
+  RIVAGE: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "RIVAGE" },
+  VELOURS: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "VELOURS" },
 };
 
 /** Le template applique-t-il les couleurs de marque du restaurateur ? */

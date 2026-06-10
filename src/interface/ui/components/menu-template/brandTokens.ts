@@ -2,7 +2,7 @@
  * Tokens de couleurs — palette **représentative** de chaque template, exposée via le
  * registry (`registry.tsx` → `defaultTokens`) pour les vignettes / sélecteur.
  *
- * Pour les 6 templates du set 2026 (CARTORA + 5 premium) ces palettes sont désormais **figées**
+ * Pour les 8 templates art-dirigés (CARTORA + 7 premium) ces palettes sont désormais **figées**
  * (skins livrés, Étapes 5–6) et reflètent les `--tpl-*` de rendu. CLASSIC reste le seul template
  * `supportsColorCustomization` (couleurs surchargeables par le restaurateur) — son token n'est
  * qu'une palette d'aperçu représentative.
@@ -54,4 +54,18 @@ export const NEON_FALLBACK = {
   primary: "#22d3ee", // néon cyan (sur fond nuit)
   accent: "#e64bd0", // néon magenta
   bg: "#0a0a14", // nuit profond
+} as const;
+
+// --- Set 2026.1 (figé — miroir des `--tpl-*` de globals.css) ---
+
+export const RIVAGE_FALLBACK = {
+  primary: "#1b3a5b", // marine profond
+  accent: "#176074", // teal profond (prix)
+  bg: "#f4f1ea", // blanc sablé
+} as const;
+
+export const VELOURS_FALLBACK = {
+  primary: "#e8b4a0", // rosé poudré (texte sur aubergine)
+  accent: "#c0764f", // cuivre
+  bg: "#241019", // aubergine quasi-noir chaud
 } as const;

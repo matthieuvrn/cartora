@@ -37,6 +37,42 @@ describe("UpdateMenuTemplate", () => {
     });
   });
 
+  it("persists the set 2026.1 premium templates (RIVAGE, VELOURS) for a PRO restaurant", async () => {
+    for (const template of ["RIVAGE", "VELOURS"] as const) {
+      const menuRepo = createMockMenuRepo();
+      const restaurantRepo = createMockRestaurantRepo({
+        getRestaurantById: async () => restaurantFixtureForTier("PRO"),
+      });
+      const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
+
+      await uc.execute({ restaurantId: "resto-1", template });
+
+      expect(menuRepo.updateTemplate).toHaveBeenCalledWith({
+        restaurantId: "resto-1",
+        template,
+      });
+    }
+  });
+
+  it("refuses RIVAGE/VELOURS (PRO-only) for FREE and STARTER restaurants", async () => {
+    for (const tier of ["FREE", "STARTER"] as const) {
+      for (const template of ["RIVAGE", "VELOURS"] as const) {
+        const menuRepo = createMockMenuRepo();
+        const restaurantRepo = createMockRestaurantRepo({
+          getRestaurantById: async () => restaurantFixtureForTier(tier),
+        });
+        const uc = new UpdateMenuTemplate(menuRepo, restaurantRepo);
+
+        await expect(uc.execute({ restaurantId: "resto-1", template })).rejects.toMatchObject({
+          name: "DomainError",
+          code: "template_not_allowed",
+          metadata: { template, tier },
+        });
+        expect(menuRepo.updateTemplate).not.toHaveBeenCalled();
+      }
+    }
+  });
+
   it("allows CLASSIC for every tier", async () => {
     for (const tier of ["FREE", "STARTER", "PRO"] as const) {
       const menuRepo = createMockMenuRepo();

@@ -8,6 +8,8 @@ export const MENU_TEMPLATE_VALUES = [
   "SOLAR",
   "ZEN",
   "NEON",
+  "RIVAGE",
+  "VELOURS",
 ] as const;
 export type MenuTemplate = (typeof MENU_TEMPLATE_VALUES)[number];
 

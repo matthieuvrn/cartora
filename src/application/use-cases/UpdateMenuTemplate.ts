@@ -10,7 +10,7 @@ export type UpdateMenuTemplateInput = {
 };
 
 /**
- * Bascule le template de rendu public du menu (set 2026 : CLASSIC + CARTORA + 5 premium).
+ * Bascule le template de rendu public du menu (set 2026 : CLASSIC + CARTORA + 7 premium).
  *
  * Règle métier : les templates premium (tout sauf CLASSIC) sont gatés PRO via `PlanPolicy.canUseTemplate`.
  * Le snapshot existant n'est pas régénéré ici — l'effet visible côté `/m/[slug]` suit le

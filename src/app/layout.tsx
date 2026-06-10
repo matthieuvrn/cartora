@@ -77,6 +77,32 @@ const archivo = localFont({
   preload: false,
 });
 
+// Set 2026.1 — mêmes règles (auto-hébergées, `preload: false`, subset latin).
+const playfairDisplay = localFont({
+  src: "../../node_modules/@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2",
+  weight: "400 900",
+  variable: "--font-playfair", // RIVAGE — Didone haute-contraste, élégance bord de mer
+  display: "swap",
+  preload: false,
+});
+
+const newsreader = localFont({
+  src: [
+    {
+      path: "../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-normal.woff2",
+      style: "normal",
+    },
+    {
+      path: "../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-wght-italic.woff2",
+      style: "italic",
+    },
+  ],
+  weight: "200 800",
+  variable: "--font-newsreader", // VELOURS — serif littéraire chaud (italique « Aujourd'hui »)
+  display: "swap",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: {
@@ -113,7 +139,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang={locale}
       data-scroll-behavior="smooth"
-      className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${cormorantGaramond.variable} ${bricolageGrotesque.variable} ${schibstedGrotesk.variable} ${archivo.variable}`}
+      className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${cormorantGaramond.variable} ${bricolageGrotesque.variable} ${schibstedGrotesk.variable} ${archivo.variable} ${playfairDisplay.variable} ${newsreader.variable}`}
     >
       <body className="font-sans antialiased">
         <NextIntlClientProvider messages={messages}>

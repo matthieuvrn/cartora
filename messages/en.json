@@ -734,7 +734,7 @@
     },
     "template": {
       "title": "Menu appearance",
-      "description": "Choose the visual rendering of your public menu. Premium templates (Bistro, Noir, Solar, Zen, Neon) require the PRO plan.",
+      "description": "Choose the visual rendering of your public menu. Premium templates require the PRO plan.",
       "back": "Back to settings",
       "lockedBadge": "PRO",
       "lockedHint": "Available with the PRO plan",
@@ -749,7 +749,9 @@
         "NOIR": "Noir",
         "SOLAR": "Solar",
         "ZEN": "Zen",
-        "NEON": "Neon"
+        "NEON": "Neon",
+        "RIVAGE": "Rivage",
+        "VELOURS": "Velours"
       },
       "descriptions": {
         "CLASSIC": "Clean and readable, suits any kind of menu.",
@@ -758,7 +760,9 @@
         "NOIR": "Fine dining: deep charcoal, champagne accents.",
         "SOLAR": "Vibrant fast-casual: saturated coral and amber.",
         "ZEN": "Minimal japandi: greige, terracotta, airy.",
-        "NEON": "Late-night bar: night background, cyan and magenta neon."
+        "NEON": "Late-night bar: night background, cyan and magenta neon.",
+        "RIVAGE": "Seaside: navy blue, sea foam, sandy white.",
+        "VELOURS": "Cosy wine bar: aubergine, dusty rose, copper."
       }
     }
   },
