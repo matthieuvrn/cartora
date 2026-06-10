@@ -1,11 +1,10 @@
 import { Icon } from "@iconify/react";
 import barley from "@iconify-icons/mdi/barley";
-import jellyfish from "@iconify-icons/mdi/jellyfish";
 import egg from "@iconify-icons/mdi/egg";
 import fish from "@iconify-icons/mdi/fish";
 import peanut from "@iconify-icons/mdi/peanut";
 import sprout from "@iconify-icons/mdi/sprout";
-import cup from "@iconify-icons/mdi/cup";
+import cheese from "@iconify-icons/mdi/cheese";
 import nut from "@iconify-icons/mdi/nut";
 import leaf from "@iconify-icons/mdi/leaf";
 import bottleSoda from "@iconify-icons/mdi/bottle-soda";
@@ -17,14 +16,28 @@ import type { Allergen } from "@/domain/menu/ItemPolicy";
 
 export type AllergenLabels = Record<Allergen, { short: string; legal: string }>;
 
+// MDI n'a pas de crustacé/crevette (l'ancien `jellyfish` = méduse, sémantiquement FAUX). Glyphe
+// crevette inline (tracé Lucide `shrimp`, ISC) passé en `IconifyIcon` brut à `<Icon>` — donc aucune
+// dépendance d'icône ajoutée. Stroke-based (vs MDI plein) mais hérite de `currentColor` comme le reste.
+const SHRIMP_ICON = {
+  body:
+    '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
+    'stroke-linejoin="round"><path d="M11 12h.01"/>' +
+    '<path d="M13 22c.5-.5 1.12-1 2.5-1-1.38 0-2-.5-2.5-1"/>' +
+    '<path d="M14 2a3.28 3.28 0 0 1-3.227 1.798l-6.17-.561A2.387 2.387 0 1 0 4.387 8H15.5a1 1 0 0 1 0 13 1 1 0 0 0 0-5H12a7 7 0 0 1-7-7V8"/>' +
+    '<path d="M14 8a8.5 8.5 0 0 1 0 8"/><path d="M16 16c2 0 4.5-4 4-6"/></g>',
+  width: 24,
+  height: 24,
+};
+
 export const ALLERGEN_ICONS: Record<Allergen, Parameters<typeof Icon>[0]["icon"]> = {
   GLUTEN: barley,
-  CRUSTACEANS: jellyfish,
+  CRUSTACEANS: SHRIMP_ICON,
   EGGS: egg,
   FISH: fish,
   PEANUTS: peanut,
   SOYBEANS: sprout,
-  MILK: cup,
+  MILK: cheese,
   NUTS: nut,
   CELERY: leaf,
   MUSTARD: bottleSoda,

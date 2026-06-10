@@ -15,20 +15,33 @@ export function AllergenLegend({ presentAllergens, labels, title }: Props) {
     // Panneau via le contrat `--menu-allergen-panel-*` (défaut amber inline). Tokenisé pour que les
     // skins sombres (NOIR/NEON) le rendent sur surface foncée — sans ça, une boîte amber claire
     // « flotterait » sur le fond charbon/nuit (Étape 6 — keystone).
+    // `@container` + `@lg:` (container-query Tailwind 4) : la grille répond à la LARGEUR DU PANNEAU,
+    // pas au viewport — donc 1 colonne dans la frame 375px de l'aperçu (sur viewport desktop) ET sur
+    // téléphone réel, 2 colonnes seulement quand le menu est large. `sm:` (viewport) cramait 3 col
+    // dans 375px → mur illisible.
     <section
-      className="mt-8 rounded-lg border p-4"
+      className="@container mt-8 rounded-lg border p-4"
       style={{
         backgroundColor: "var(--menu-allergen-panel-bg, rgba(255, 251, 235, 0.6))",
         color: "var(--menu-allergen-panel-fg, #78350f)",
         borderColor: "var(--menu-allergen-panel-border, rgba(120, 53, 15, 0.18))",
       }}
     >
-      <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide">{title}</h2>
-      <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3">
+      <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide">{title}</h2>
+      <ul className="grid grid-cols-1 gap-x-6 gap-y-3 @lg:grid-cols-2">
         {items.map((a) => (
-          <li key={a} className="flex items-center gap-2 text-sm">
-            <Icon icon={ALLERGEN_ICONS[a]} width={18} height={18} aria-hidden="true" />
-            <span>{labels[a].legal}</span>
+          <li key={a} className="flex items-start gap-2.5">
+            <Icon
+              icon={ALLERGEN_ICONS[a]}
+              width={20}
+              height={20}
+              aria-hidden="true"
+              className="mt-0.5 shrink-0"
+            />
+            <div className="min-w-0">
+              <span className="block text-sm font-medium leading-tight">{labels[a].short}</span>
+              <span className="block text-xs leading-snug opacity-80">{labels[a].legal}</span>
+            </div>
           </li>
         ))}
       </ul>
