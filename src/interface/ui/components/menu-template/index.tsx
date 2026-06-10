@@ -25,9 +25,11 @@ export type { MenuTemplateProps } from "./types";
 const DEFAULT_TEMPLATE = "CLASSIC" as const;
 
 /**
- * Injecte les CSS custom properties de branding (S2.4) sur un wrapper local.
- * Trois variables consommées par les templates via `var(--brand-*, <fallback>)`
- * — quand absentes, chaque template applique sa palette par défaut.
+ * Injecte les CSS custom properties de branding (S2.4) INLINE sur un wrapper local
+ * portant la classe `menu-branded`. C'est cette classe (cf. globals.css) qui mappe
+ * `--brand-*` → `--menu-*` : le mapping DOIT vivre sur l'élément qui pose `--brand-*`
+ * inline (sinon `var(--brand-*, défaut)` se résoudrait sur le parent `[data-template]`
+ * où `--brand-*` n'existe pas, et les couleurs du restaurateur ne passeraient pas).
  *
  * `style-src 'unsafe-inline'` est déjà autorisé dans le CSP (cf. next.config.ts).
  * L'objet `style` React encode automatiquement les valeurs — pas d'injection HTML.
@@ -45,7 +47,11 @@ function BrandingStyleScope({
   if (branding.primary) styleAsRecord["--brand-primary"] = branding.primary;
   if (branding.accent) styleAsRecord["--brand-accent"] = branding.accent;
   if (branding.background) styleAsRecord["--brand-bg"] = branding.background;
-  return <div style={style}>{children}</div>;
+  return (
+    <div className="menu-branded" style={style}>
+      {children}
+    </div>
+  );
 }
 
 /**

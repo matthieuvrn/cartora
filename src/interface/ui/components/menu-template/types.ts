@@ -27,4 +27,9 @@ export type MenuTemplateProps = {
    */
   todaySectionDishesSubtitle?: string;
   todaySectionFormulasSubtitle?: string;
+  /**
+   * Nom accessible de la nav rapide par catégorie (CLASSIC). Optionnel : un skin sans
+   * nav (ex. CARTORA, éditorial) l'ignore simplement.
+   */
+  categoriesNavLabel?: string;
 };

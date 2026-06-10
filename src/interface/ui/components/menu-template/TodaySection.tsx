@@ -50,23 +50,19 @@ export function TodaySection({
   return (
     <section aria-labelledby="daily-menu-heading" className="mb-8">
       <div className="mb-2">
-        <h2
-          id="daily-menu-heading"
-          className="text-lg font-semibold"
-          style={{ color: "var(--brand-primary, currentColor)" }}
-        >
+        <h2 id="daily-menu-heading" className="menu-heading menu-today-title text-lg font-semibold">
           {title}
         </h2>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        {description && <p className="menu-muted text-xs">{description}</p>}
       </div>
       {items.length > 0 && (
         <>
           {showSubtitles && dishesSubtitle && (
-            <h3 className="mb-1 mt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="menu-muted mb-1 mt-2 text-xs font-semibold uppercase tracking-wide">
               {dishesSubtitle}
             </h3>
           )}
-          <ul className="divide-y" role="list">
+          <ul className="menu-divide divide-y" role="list">
             {items.map((item) => (
               <MenuItemRow
                 key={item.id}
@@ -83,7 +79,7 @@ export function TodaySection({
       {formulas.length > 0 && (
         <>
           {showSubtitles && formulasSubtitle && (
-            <h3 className="mb-1 mt-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h3 className="menu-muted mb-1 mt-4 text-xs font-semibold uppercase tracking-wide">
               {formulasSubtitle}
             </h3>
           )}
@@ -99,21 +95,15 @@ export function TodaySection({
                 locale,
               );
               return (
-                <li
-                  key={formula.id}
-                  className="rounded-md border p-3"
-                  style={{ borderColor: "var(--brand-primary, currentColor)" }}
-                >
+                <li key={formula.id} className="menu-card rounded-md border p-3">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-medium">{name}</h3>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">
+                    <h3 className="menu-item-name font-medium">{name}</h3>
+                    <span className="menu-price shrink-0 text-sm font-semibold tabular-nums">
                       {formatPrice(formula.priceCents, locale)}
                     </span>
                   </div>
                   {description && (
-                    <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">
-                      {description}
-                    </p>
+                    <p className="menu-muted mt-1 whitespace-pre-line text-sm">{description}</p>
                   )}
                 </li>
               );

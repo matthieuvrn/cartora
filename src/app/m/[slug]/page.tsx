@@ -174,6 +174,7 @@ export default async function PublicMenuPage({ params }: Props) {
     todaySectionDescription: frMessages.PublicMenu.todayMenuDescription,
     todaySectionDishesSubtitle: frMessages.PublicMenu.todaySectionDishesSubtitle,
     todaySectionFormulasSubtitle: frMessages.PublicMenu.todaySectionFormulasSubtitle,
+    categoriesNavLabel: frMessages.PublicMenu.categoriesNav,
   };
 
   const labelsEn = {
@@ -189,6 +190,7 @@ export default async function PublicMenuPage({ params }: Props) {
     todaySectionDescription: enMessages.PublicMenu.todayMenuDescription,
     todaySectionDishesSubtitle: enMessages.PublicMenu.todaySectionDishesSubtitle,
     todaySectionFormulasSubtitle: enMessages.PublicMenu.todaySectionFormulasSubtitle,
+    categoriesNavLabel: enMessages.PublicMenu.categoriesNav,
   };
 
   const jsonLd = buildMenuJsonLd(result.snapshot, slug, frMessages.PublicMenu.todayMenu);

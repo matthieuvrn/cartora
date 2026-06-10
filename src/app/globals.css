@@ -442,54 +442,203 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
   }
   /* Les titres des templates publics doivent garder LEUR typographie (ex. serif display de
      Bistro/Noir via [data-template]), pas la Fraunces du scope app → on annule l'override en
-     revenant à l'héritage du conteneur. */
-  .theme-public :is(h1, h2, .display) {
+     revenant à l'héritage du conteneur. EXCEPTION `.menu-heading` : ces titres portent déjà
+     leur police via `--menu-font-display` (cf. contrat `--menu-*` plus bas) — les exclure ici
+     garde l'aperçu in-app fidèle au rendu public (sinon ils retomberaient en sans neutre). */
+  .theme-public :is(h1, h2, .display):not(.menu-heading) {
     font-family: inherit;
   }
 
-  /* === Tokens par template public (Étape 4 — refonte menu, cf. docs/publicmenu.md) ===========
-     Plumbing typographique + palette FIGÉE de chaque skin art-dirigé. Posés ici (CSS scopée,
-     idiome `.theme-public`/`@theme`) plutôt que dans un objet TS que rien ne consommerait.
-     `MenuTemplateRenderer` pose `data-template={template}` sur le wrapper de rendu ; les skins
-     (Étapes 5–6) consomment `var(--tpl-font-display)` / `var(--tpl-{primary,accent,bg})`.
-     Palettes = miroir des `*_FALLBACK` de brandTokens.ts (source unique des couleurs d'aperçu).
-     CLASSIC n'a PAS de bloc : il reste sur Geist + `--brand-*` (seul personnalisable). Les
-     polices premium s'activent via `font-optical-sizing: auto` (Cormorant) / graisse (wght). */
+  /* === Contrat de rendu public `--menu-*` (Étape 5 — cf. docs/publicmenu.md) =================
+     UN seul jeu de tokens sémantiques, consommé par les sous-composants partagés (MenuItemRow,
+     MenuCategorySection, TodaySection) via les classes `.menu-*` plus bas. Chaque skin (bloc
+     `[data-template]`) y injecte sa source : palette FIGÉE (`--tpl-*`) pour les skins art-dirigés,
+     couleurs de marque (`--brand-*`, cf. `.menu-branded`) pour CLASSIC seul. Couvre fg/muted/
+     border/surface — pas seulement primary/accent/bg — sinon les fonds sombres (NOIR/NEON) cassent
+     sur les neutres `:root` hérités. `--tpl-*` = palette brute (miroir de brandTokens.ts, lue par
+     le sélecteur) ; `--menu-*` = ce que le rendu consomme réellement.
+     `--menu-accent` = couleur du PRIX : on retient la teinte de marque qui passe WCAG AA sur le
+     fond (la primaire quand l'accent décoratif — laiton/ambre/terracotta — échoue le contraste).
+     CARTORA + les 5 premium ont un layout figé ici ; seul CLASSIC reste personnalisable. */
+
+  [data-template="CLASSIC"] {
+    /* « Tech N&B 2026 ». Défauts neutres ; `.menu-branded` réinjecte les couleurs du restaurateur. */
+    --menu-bg: #ffffff;
+    --menu-fg: #0f172a; /* slate-900 */
+    --menu-heading: #0f172a;
+    --menu-accent: #0f172a; /* prix quasi-noir (N&B) — override marque via .menu-branded */
+    --menu-muted: #64748b; /* slate-500 */
+    --menu-border: #e2e8f0; /* slate-200 */
+    --menu-surface: #f8fafc; /* slate-50 — cartes formules */
+    --menu-font-display: var(--font-geist-sans);
+    --menu-font-mono: var(--font-jetbrains-mono); /* prix tabulaires « data » */
+  }
+
   [data-template="CARTORA"] {
     --tpl-font-display: var(--font-fraunces);
     --tpl-primary: #1f3d2f; /* sapin */
     --tpl-accent: #2b6a6a; /* canard */
     --tpl-bg: #f5efe6; /* sand */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #33312b; /* encre chaude sur sand */
+    --menu-heading: var(--tpl-primary); /* sapin */
+    --menu-accent: var(--tpl-accent); /* canard — AA ~5:1 sur sand */
+    --menu-muted: #6b6457;
+    --menu-border: #e2d8c6;
+    --menu-surface: #efe7d8;
+    --menu-font-display: var(--tpl-font-display); /* Fraunces */
   }
+
   [data-template="BISTRO"] {
     --tpl-font-display: var(--font-cormorant);
     --tpl-primary: #6b2330; /* bordeaux */
     --tpl-accent: #b08d57; /* laiton */
     --tpl-bg: #f7f1e6; /* ivoire crème */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #2b211c;
+    --menu-heading: var(--tpl-primary);
+    --menu-accent: var(--tpl-primary); /* bordeaux (laiton échoue AA en texte) */
+    --menu-muted: #6e5d4e;
+    --menu-border: #e6dcc8;
+    --menu-surface: #efe6d4;
+    --menu-font-display: var(--tpl-font-display);
   }
+
   [data-template="NOIR"] {
     --tpl-font-display: var(--font-cormorant);
     --tpl-primary: #d9c38a; /* champagne (texte sur charbon) */
     --tpl-accent: #c9a24b; /* or */
     --tpl-bg: #14110f; /* charbon quasi-noir */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #ece5d6; /* champagne clair lisible */
+    --menu-heading: var(--tpl-primary);
+    --menu-accent: var(--tpl-accent); /* or — AA ~6.8:1 sur charbon */
+    --menu-muted: #9a917f;
+    --menu-border: #2e2823;
+    --menu-surface: #1c1814;
+    --menu-font-display: var(--tpl-font-display);
   }
+
   [data-template="SOLAR"] {
     --tpl-font-display: var(--font-bricolage);
     --tpl-primary: #f4502e; /* corail saturé */
     --tpl-accent: #f5a623; /* ambre */
     --tpl-bg: #fff7ed; /* crème chaud */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #2a1e16;
+    --menu-heading: var(--tpl-primary);
+    --menu-accent: var(--tpl-primary); /* corail (ambre échoue AA) — Étape 6 affinera le skin */
+    --menu-muted: #7a5d49;
+    --menu-border: #f1e0cd;
+    --menu-surface: #fff0dd;
+    --menu-font-display: var(--tpl-font-display);
   }
+
   [data-template="ZEN"] {
     --tpl-font-display: var(--font-schibsted);
     --tpl-primary: #5c5248; /* greige sombre */
     --tpl-accent: #b5765a; /* terracotta sourd */
     --tpl-bg: #efeae2; /* greige clair */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #3a352f;
+    --menu-heading: var(--tpl-primary);
+    --menu-accent: var(--tpl-primary); /* greige (terracotta borderline) — Étape 6 affinera */
+    --menu-muted: #7d756a;
+    --menu-border: #ddd6ca;
+    --menu-surface: #e6e0d6;
+    --menu-font-display: var(--tpl-font-display);
   }
+
   [data-template="NEON"] {
     --tpl-font-display: var(--font-archivo);
     --tpl-primary: #22d3ee; /* néon cyan (texte sur nuit) */
     --tpl-accent: #e64bd0; /* néon magenta */
     --tpl-bg: #0a0a14; /* nuit profond */
+    --menu-bg: var(--tpl-bg);
+    --menu-fg: #e6e8f0;
+    --menu-heading: var(--tpl-primary); /* cyan */
+    --menu-accent: var(--tpl-accent); /* magenta — AA élevé sur nuit */
+    --menu-muted: #8a8fa3;
+    --menu-border: #1e2030;
+    --menu-surface: #121327;
+    --menu-font-display: var(--tpl-font-display);
+  }
+
+  /* Pont marque→menu pour CLASSIC (seul `supportsColorCustomization`). `BrandingStyleScope`
+     (index.tsx) pose `--brand-*` INLINE sur l'élément `.menu-branded`, et CE mapping y vit AUSSI
+     → `var(--brand-*, défaut)` se résout là où `--brand-*` est défini, donc le branding écrase les
+     défauts N&B. ⚠ Ne PAS remonter ce mapping sur le wrapper `[data-template]` parent : il s'y
+     résoudrait AVANT que l'enfant ne pose `--brand-*` (les couleurs ne passeraient plus). */
+  [data-template] .menu-branded {
+    --menu-bg: var(--brand-bg, #ffffff);
+    --menu-heading: var(--brand-primary, #0f172a);
+    --menu-accent: var(--brand-accent, #0f172a);
+  }
+
+  /* Le wrapper de rendu porte fond + encre du skin (full-bleed). Sur /m/[slug] il est enfant direct
+     de <body> → `min-height:100dvh` remplit la page ; en aperçu in-app il est sous `.theme-public`
+     (sélecteur `body >` non matché) → pas de hauteur imposée, l'aperçu garde sa taille. */
+  [data-template] {
+    background-color: var(--menu-bg);
+    color: var(--menu-fg);
+  }
+  body > [data-template] {
+    min-height: 100dvh;
+  }
+
+  /* Classes sémantiques consommées par les sous-composants partagés. Scopées sous `[data-template]`
+     (spécificité 0,2,0) → l'emportent sur les neutres `:root` hérités ET restent fidèles en aperçu
+     (cf. exception `.theme-public … :not(.menu-heading)` plus haut). Aucune utility Tailwind de
+     couleur/police n'est posée sur ces éléments → pas de conflit de couche. */
+  [data-template] .menu-root {
+    background-color: var(--menu-bg);
+    color: var(--menu-fg);
+  }
+  [data-template] .menu-heading {
+    color: var(--menu-heading);
+    font-family: var(--menu-font-display, inherit);
+  }
+  [data-template] .menu-price {
+    color: var(--menu-accent);
+    font-family: var(--menu-font-mono, inherit);
+  }
+  [data-template] .menu-muted {
+    color: var(--menu-muted);
+  }
+  [data-template] .menu-card {
+    background-color: var(--menu-surface);
+    border-color: var(--menu-border);
+  }
+  [data-template] .menu-divide > * {
+    border-color: var(--menu-border);
+  }
+
+  /* ── Touches d'art-direction par skin (sans forker le JSX partagé) ──────────────────────────
+     Chaque skin affine la typo des éléments partagés via ses propres règles `[data-template="X"]`.
+     C'est le levier qui fait des « templates » et non des « thèmes » repeints (cf. Verdict #1). */
+  /* CLASSIC : titres de catégorie « tech » — capitales espacées + filet net. */
+  [data-template="CLASSIC"] .menu-category-title {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.95rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--menu-border);
+  }
+  /* CARTORA : éditorial Fraunces — noms de plats en serif medium, sous-titre du jour en italique. */
+  [data-template="CARTORA"] .menu-heading {
+    letter-spacing: -0.01em;
+  }
+  [data-template="CARTORA"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-weight: 500;
+  }
+  [data-template="CARTORA"] .menu-category-title {
+    font-size: 1.35rem;
+    font-weight: 600;
+  }
+  [data-template="CARTORA"] .menu-today-title {
+    font-style: italic;
+    font-weight: 500;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -56,6 +56,7 @@ export function MenuPreviewPane({ menu, restaurantName, planTier, className }: P
         watermarkText={tp("watermark")}
         todaySectionTitle={tp("todayMenu")}
         todaySectionDescription={tp("todayMenuDescription")}
+        categoriesNavLabel={tp("categoriesNav")}
       />
     </div>
   );

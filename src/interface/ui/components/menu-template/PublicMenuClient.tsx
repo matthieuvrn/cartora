@@ -19,6 +19,8 @@ type Labels = {
   /** Sous-titres affichés UNIQUEMENT si plats du jour ET formules coexistent. */
   todaySectionDishesSubtitle?: string;
   todaySectionFormulasSubtitle?: string;
+  /** Nom accessible de la nav rapide par catégorie (CLASSIC). */
+  categoriesNavLabel: string;
 };
 
 type Props = {
@@ -82,6 +84,7 @@ export function PublicMenuClient({
         todaySectionDescription={labels.todaySectionDescription}
         todaySectionDishesSubtitle={labels.todaySectionDishesSubtitle}
         todaySectionFormulasSubtitle={labels.todaySectionFormulasSubtitle}
+        categoriesNavLabel={labels.categoriesNavLabel}
       />
     </>
   );

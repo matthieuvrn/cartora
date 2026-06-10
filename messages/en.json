@@ -268,7 +268,8 @@
     "unavailable": "Menu unavailable",
     "unavailableDescription": "This menu is no longer available at this time.",
     "watermark": "Powered by Cartora",
-    "allergenLegendTitle": "Declared allergens"
+    "allergenLegendTitle": "Declared allergens",
+    "categoriesNav": "Menu categories"
   },
   "Allergen": {
     "sectionTitle": "Allergens",

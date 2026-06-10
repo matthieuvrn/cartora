@@ -34,7 +34,9 @@ const jetbrainsMono = localFont({
   weight: "100 800",
   variable: "--font-jetbrains-mono",
   display: "swap",
-  preload: false,
+  // Préchargée : CLASSIC (template par défaut, le plus rendu) l'utilise pour les prix
+  // (`--menu-font-mono`). Les polices premium restent `preload: false` (Étape 4).
+  preload: true,
 });
 
 // Polices des templates publics premium (Étape 4 — refonte menu, cf. docs/publicmenu.md).

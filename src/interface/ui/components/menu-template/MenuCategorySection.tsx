@@ -9,6 +9,8 @@ type Props = {
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
   priorityItemIndex?: number | null;
+  /** Ancre de la nav rapide (cf. `categoryAnchorId`) — `scroll-mt` compense le header sticky. */
+  id?: string;
 };
 
 export function MenuCategorySection({
@@ -18,13 +20,16 @@ export function MenuCategorySection({
   allergenLabels,
   allergenSectionLabel,
   priorityItemIndex = null,
+  id,
 }: Props) {
   if (category.items.length === 0) return null;
 
   return (
-    <section>
-      <h2 className="mb-2 text-lg font-semibold">{category.name}</h2>
-      <ul className="divide-y" role="list">
+    <section id={id} className="scroll-mt-24">
+      <h2 className="menu-heading menu-category-title mb-2 text-lg font-semibold">
+        {category.name}
+      </h2>
+      <ul className="menu-divide divide-y" role="list">
         {category.items.map((item, index) => (
           <MenuItemRow
             key={item.nameFr}

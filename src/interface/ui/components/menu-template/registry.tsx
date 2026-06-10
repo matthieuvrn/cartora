@@ -52,13 +52,17 @@ const lazyTemplate = (
 const TemplateClassic = lazyTemplate(() =>
   import("./TemplateClassic").then((m) => m.TemplateClassic),
 );
+const TemplateCartora = lazyTemplate(() =>
+  import("./TemplateCartora").then((m) => m.TemplateCartora),
+);
 
 export const TEMPLATE_REGISTRY: Record<MenuTemplate, TemplateRegistryEntry> = {
   CLASSIC: { component: TemplateClassic, defaultTokens: CLASSIC_FALLBACK },
-  // TODO Étapes 5-6 : remplacer `TemplateClassic` par le vrai skin de chaque template
+  CARTORA: { component: TemplateCartora, defaultTokens: CARTORA_FALLBACK },
+  // TODO Étape 6 : remplacer `TemplateClassic` par le vrai skin de chaque premium
   // (1 `lazyTemplate(() => import("./TemplateX")…)` + pointer l'entrée dessus → split auto).
-  // Les `defaultTokens` ci-dessous sont provisoires (cf. brandTokens.ts).
-  CARTORA: { component: TemplateClassic, defaultTokens: CARTORA_FALLBACK },
+  // En attendant, ils rendent via le layout Classic mais avec LEUR palette + police figées
+  // (contrat `--menu-*` via `[data-template]`), donc plus byte-identiques à Classic.
   BISTRO: { component: TemplateClassic, defaultTokens: BISTRO_FALLBACK },
   NOIR: { component: TemplateClassic, defaultTokens: NOIR_FALLBACK },
   SOLAR: { component: TemplateClassic, defaultTokens: SOLAR_FALLBACK },

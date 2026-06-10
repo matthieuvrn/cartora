@@ -59,6 +59,33 @@ export function collectPresentAllergens(snapshot: PublicMenuSnapshot): Set<Aller
   return present;
 }
 
+/**
+ * Slug stable et sûr pour servir d'ancre (`id` + `href="#…"`) à une catégorie dans la
+ * nav rapide du template (les noms de catégorie sont du texte libre saisi par le
+ * restaurateur). Diacritiques retirés, minuscules, tout caractère non alphanumérique
+ * collapsé en `-`, préfixe `cat-` (un `id` HTML ne peut commencer par un chiffre et on
+ * évite la collision avec d'autres ids de la page). Repli `cat-section` si le nom ne
+ * produit aucun caractère latin (ex. nom uniquement emoji). Pure → testée.
+ *
+ * Limite connue & assumée : deux noms distincts seulement par leurs diacritiques/symboles
+ * (« Entrées » vs « entrees ») peuvent produire le même slug. Acceptable : la nav saute
+ * alors à la 1re section homonyme. La fonction reste déterministe, donc le lien et la
+ * section calculent toujours le même id à partir du même nom.
+ */
+// Plage Unicode des marques diacritiques combinantes (U+0300–U+036F) — construite depuis
+// une chaîne ASCII pour ne pas stocker de caractère combinant littéral dans la source.
+const COMBINING_MARKS = new RegExp("[\\u0300-\\u036f]", "g");
+
+export function categoryAnchorId(name: string): string {
+  const slug = name
+    .normalize("NFD")
+    .replace(COMBINING_MARKS, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return `cat-${slug || "section"}`;
+}
+
 /** Localise le premier item de catégorie portant une photo (slot LCP candidat). */
 export type LcpItemLocator = { categoryName: string; itemIndex: number };
 

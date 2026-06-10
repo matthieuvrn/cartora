@@ -268,7 +268,8 @@
     "unavailable": "Menu indisponible",
     "unavailableDescription": "Ce menu n'est plus disponible pour le moment.",
     "watermark": "Propulsé par Cartora",
-    "allergenLegendTitle": "Allergènes déclarés"
+    "allergenLegendTitle": "Allergènes déclarés",
+    "categoriesNav": "Catégories du menu"
   },
   "Allergen": {
     "sectionTitle": "Allergènes",

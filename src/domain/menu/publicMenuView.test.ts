@@ -5,6 +5,7 @@ import {
   formatPriceAria,
   collectPresentAllergens,
   resolveLcpPriority,
+  categoryAnchorId,
 } from "./publicMenuView";
 import type { PublicMenuSnapshot, PublicMenuItem, PublicMenuDailyDish } from "./PublicMenuTypes";
 
@@ -110,6 +111,28 @@ describe("collectPresentAllergens", () => {
 
   it("returns an empty set when nothing carries allergens", () => {
     expect(collectPresentAllergens(makeSnapshot()).size).toBe(0);
+  });
+});
+
+describe("categoryAnchorId", () => {
+  it("strips diacritics, lowercases and prefixes", () => {
+    expect(categoryAnchorId("Entrées")).toBe("cat-entrees");
+  });
+
+  it("collapses spaces and special characters into single hyphens", () => {
+    expect(categoryAnchorId("Plats & Garnitures")).toBe("cat-plats-garnitures");
+  });
+
+  it("trims leading/trailing separators", () => {
+    expect(categoryAnchorId("  Desserts !  ")).toBe("cat-desserts");
+  });
+
+  it("is deterministic (same name → same id)", () => {
+    expect(categoryAnchorId("Boissons")).toBe(categoryAnchorId("Boissons"));
+  });
+
+  it("falls back to cat-section when no latin character remains", () => {
+    expect(categoryAnchorId("🍕")).toBe("cat-section");
   });
 });
 

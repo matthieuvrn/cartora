@@ -53,7 +53,7 @@ export function MenuItemRow({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium">{name}</span>
+            <span className="menu-item-name font-medium">{name}</span>
             {item.badge !== "NONE" &&
               (() => {
                 const config = badgeConfig[item.badge];
@@ -68,7 +68,7 @@ export function MenuItemRow({
                 );
               })()}
           </div>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          {description && <p className="menu-muted text-sm">{description}</p>}
           <AllergenIcons
             allergens={item.allergens}
             labels={allergenLabels}
@@ -76,9 +76,8 @@ export function MenuItemRow({
           />
         </div>
         <span
-          className="shrink-0 pt-0.5 text-sm font-semibold tabular-nums"
+          className="menu-price shrink-0 pt-0.5 text-sm font-semibold tabular-nums"
           aria-label={formatPriceAria(item.priceCents, locale)}
-          style={{ color: "var(--brand-accent, currentColor)" }}
         >
           {formatPrice(item.priceCents, locale)}
         </span>
