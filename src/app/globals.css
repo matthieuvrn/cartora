@@ -517,6 +517,20 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
     --menu-border: #2e2823;
     --menu-surface: #1c1814;
     --menu-font-display: var(--tpl-font-display);
+    /* Surcharges sombres (keystone Étape 6) : badges/allergènes/légende/watermark sur surfaces
+       foncées + champagne lisible AA — sinon des chips amber/bleu/orange clairs « flotteraient »
+       sur le charbon. Défauts clairs (composants) remplacés ici. */
+    --menu-badge-new-bg: rgba(217, 195, 138, 0.14);
+    --menu-badge-new-fg: #e3d3a6;
+    --menu-badge-popular-bg: rgba(201, 162, 75, 0.2);
+    --menu-badge-popular-fg: #e8c879;
+    --menu-allergen-bg: #211b15;
+    --menu-allergen-fg: #c9b78d;
+    --menu-allergen-panel-bg: #1c1814;
+    --menu-allergen-panel-fg: #c9b78d;
+    --menu-allergen-panel-border: #2e2823;
+    --menu-watermark-bg: #1c1814;
+    --menu-watermark-fg: #9a917f;
   }
 
   [data-template="SOLAR"] {
@@ -562,6 +576,18 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
     --menu-border: #1e2030;
     --menu-surface: #121327;
     --menu-font-display: var(--tpl-font-display);
+    /* Surcharges sombres (keystone Étape 6) : chips néon désaturés sur surfaces nuit, lisibles AA. */
+    --menu-badge-new-bg: rgba(34, 211, 238, 0.16);
+    --menu-badge-new-fg: #7ee7f5;
+    --menu-badge-popular-bg: rgba(230, 75, 208, 0.18);
+    --menu-badge-popular-fg: #f3a6e6;
+    --menu-allergen-bg: #16172e;
+    --menu-allergen-fg: #aeb4d6;
+    --menu-allergen-panel-bg: #121327;
+    --menu-allergen-panel-fg: #c2c6e0;
+    --menu-allergen-panel-border: #1e2030;
+    --menu-watermark-bg: #121327;
+    --menu-watermark-fg: #8a8fa3;
   }
 
   /* Pont marque→menu pour CLASSIC (seul `supportsColorCustomization`). `BrandingStyleScope`
@@ -639,6 +665,121 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
   [data-template="CARTORA"] .menu-today-title {
     font-style: italic;
     font-weight: 500;
+  }
+
+  /* BISTRO : néo-bistrot — Cormorant, noms de plats en serif, titres de catégorie en
+     petites-capitales centrées sous un filet laiton. */
+  [data-template="BISTRO"] .menu-heading {
+    font-weight: 600;
+  }
+  [data-template="BISTRO"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  [data-template="BISTRO"] .menu-category-title {
+    font-variant: small-caps;
+    letter-spacing: 0.06em;
+    font-size: 1.4rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--tpl-accent); /* laiton */
+  }
+  [data-template="BISTRO"] .menu-today-title {
+    font-style: italic;
+  }
+
+  /* NOIR : fine-dining sombre — grand serif Cormorant, filet or, hiérarchie aérée. */
+  [data-template="NOIR"] .menu-heading {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  [data-template="NOIR"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  [data-template="NOIR"] .menu-category-title {
+    font-weight: 500;
+    font-size: 1.5rem;
+    letter-spacing: 0.04em;
+    text-align: center;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--menu-accent); /* or */
+  }
+  [data-template="NOIR"] .menu-today-title {
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  /* SOLAR : fast-casual vibrant — Bricolage gras, prix en chips corail pleins (signature). */
+  [data-template="SOLAR"] .menu-heading {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  [data-template="SOLAR"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-weight: 700;
+  }
+  [data-template="SOLAR"] .menu-category-title {
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.01em;
+    color: var(--tpl-primary); /* corail */
+  }
+  [data-template="SOLAR"] .menu-price {
+    color: #ffffff;
+    background-color: var(--tpl-primary);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-weight: 700;
+  }
+
+  /* ZEN : japandi minimal — Schibsted fin, titres discrets très espacés, beaucoup d'air. */
+  [data-template="ZEN"] .menu-heading {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  [data-template="ZEN"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-weight: 500;
+  }
+  [data-template="ZEN"] .menu-category-title {
+    font-weight: 500;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--menu-muted);
+  }
+  [data-template="ZEN"] .menu-today-title {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  /* NEON : bar nocturne — Archivo condensé bold en capitales, accents néon cyan. */
+  [data-template="NEON"] .menu-heading {
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  [data-template="NEON"] .menu-item-name {
+    font-family: var(--menu-font-display);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  [data-template="NEON"] .menu-category-title {
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 1.05rem;
+    color: var(--tpl-primary); /* cyan */
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--menu-border);
+  }
+  [data-template="NEON"] .menu-today-title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
   }
 
   @media (prefers-reduced-motion: reduce) {

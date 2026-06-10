@@ -15,12 +15,24 @@ type Props = {
   priority?: boolean;
 };
 
+// Couleurs des badges via le contrat `--menu-badge-*` (cf. globals.css), avec un défaut clair
+// inline en fallback. Le `var(--token, défaut)` s'applique partout — y compris hors `[data-template]`
+// — donc aucune régression ; et les skins sombres (NOIR/NEON) redéfinissent ces tokens pour ne pas
+// poser de chip pastel clair sur fond charbon/nuit (cf. Étape 6 — keystone).
 const badgeConfig: Record<
   Exclude<ItemBadge, "NONE">,
-  { icon: typeof Sparkles; className: string }
+  { icon: typeof Sparkles; bg: string; fg: string }
 > = {
-  NEW: { icon: Sparkles, className: "bg-blue-100 text-blue-700" },
-  POPULAR: { icon: Flame, className: "bg-orange-100 text-orange-700" },
+  NEW: {
+    icon: Sparkles,
+    bg: "var(--menu-badge-new-bg, #dbeafe)",
+    fg: "var(--menu-badge-new-fg, #1d4ed8)",
+  },
+  POPULAR: {
+    icon: Flame,
+    bg: "var(--menu-badge-popular-bg, #ffedd5)",
+    fg: "var(--menu-badge-popular-fg, #c2410c)",
+  },
 };
 
 export function MenuItemRow({
@@ -60,7 +72,8 @@ export function MenuItemRow({
                 const Icon = config.icon;
                 return (
                   <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
+                    style={{ backgroundColor: config.bg, color: config.fg }}
                   >
                     <Icon className="size-3" aria-hidden="true" />
                     {badgeLabels[item.badge]}

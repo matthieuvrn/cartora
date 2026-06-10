@@ -55,17 +55,21 @@ const TemplateClassic = lazyTemplate(() =>
 const TemplateCartora = lazyTemplate(() =>
   import("./TemplateCartora").then((m) => m.TemplateCartora),
 );
+const TemplateBistro = lazyTemplate(() =>
+  import("./TemplateBistro").then((m) => m.TemplateBistro),
+);
+const TemplateNoir = lazyTemplate(() => import("./TemplateNoir").then((m) => m.TemplateNoir));
+const TemplateSolar = lazyTemplate(() => import("./TemplateSolar").then((m) => m.TemplateSolar));
+const TemplateZen = lazyTemplate(() => import("./TemplateZen").then((m) => m.TemplateZen));
+const TemplateNeon = lazyTemplate(() => import("./TemplateNeon").then((m) => m.TemplateNeon));
 
 export const TEMPLATE_REGISTRY: Record<MenuTemplate, TemplateRegistryEntry> = {
   CLASSIC: { component: TemplateClassic, defaultTokens: CLASSIC_FALLBACK },
   CARTORA: { component: TemplateCartora, defaultTokens: CARTORA_FALLBACK },
-  // TODO Étape 6 : remplacer `TemplateClassic` par le vrai skin de chaque premium
-  // (1 `lazyTemplate(() => import("./TemplateX")…)` + pointer l'entrée dessus → split auto).
-  // En attendant, ils rendent via le layout Classic mais avec LEUR palette + police figées
-  // (contrat `--menu-*` via `[data-template]`), donc plus byte-identiques à Classic.
-  BISTRO: { component: TemplateClassic, defaultTokens: BISTRO_FALLBACK },
-  NOIR: { component: TemplateClassic, defaultTokens: NOIR_FALLBACK },
-  SOLAR: { component: TemplateClassic, defaultTokens: SOLAR_FALLBACK },
-  ZEN: { component: TemplateClassic, defaultTokens: ZEN_FALLBACK },
-  NEON: { component: TemplateClassic, defaultTokens: NEON_FALLBACK },
+  // Premium (Étape 6) — 1 skin art-dirigé par entrée, chacun dans son chunk client (cf. docblock).
+  BISTRO: { component: TemplateBistro, defaultTokens: BISTRO_FALLBACK },
+  NOIR: { component: TemplateNoir, defaultTokens: NOIR_FALLBACK },
+  SOLAR: { component: TemplateSolar, defaultTokens: SOLAR_FALLBACK },
+  ZEN: { component: TemplateZen, defaultTokens: ZEN_FALLBACK },
+  NEON: { component: TemplateNeon, defaultTokens: NEON_FALLBACK },
 };
