@@ -1,4 +1,5 @@
 import type { ValidationFailure } from "@/domain/errors/DomainError";
+import { APP_TIMEZONE } from "@/domain/time/appTimeZone";
 
 /**
  * Règles des formules de menu (S3.2).
@@ -16,7 +17,7 @@ export class FormulaPolicy {
   static readonly MAX_DESCRIPTION_LENGTH = 500;
   static readonly MIN_PRICE_CENTS = 0;
   static readonly MAX_PRICE_CENTS = 99999;
-  static readonly TIMEZONE = "Europe/Paris";
+  static readonly TIMEZONE = APP_TIMEZONE;
   static readonly MAX_HORIZON_DAYS = 14;
 
   static validateName(value: string): ValidationFailure | null {

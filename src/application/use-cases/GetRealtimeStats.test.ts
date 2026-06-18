@@ -38,23 +38,25 @@ describe("GetRealtimeStats", () => {
     expect(result.viewsLast24h).toBe(3);
   });
 
-  it("builds hourly distribution with 24 entries", async () => {
+  it("builds hourly distribution bucketed in Europe/Paris (not UTC)", async () => {
     const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
     expect(result.hourlyDistribution).toHaveLength(24);
-    // hour 10 has 2 events, hour 18 has 1, hour 14 has 2
-    expect(result.hourlyDistribution[10]).toEqual({ hour: 10, count: 2 });
-    expect(result.hourlyDistribution[18]).toEqual({ hour: 18, count: 1 });
-    expect(result.hourlyDistribution[14]).toEqual({ hour: 14, count: 2 });
-    // hour 0 has 0 events
+    // Le 28 mars 2026, Paris est en UTC+1 (bascule été le 29) → +1h vs UTC :
+    // 10:00/10:30 UTC → 11h, 18:00 UTC → 19h, 14:00/14:20 UTC → 15h.
+    expect(result.hourlyDistribution[11]).toEqual({ hour: 11, count: 2 });
+    expect(result.hourlyDistribution[19]).toEqual({ hour: 19, count: 1 });
+    expect(result.hourlyDistribution[15]).toEqual({ hour: 15, count: 2 });
+    // les heures UTC brutes ne doivent plus contenir d'événements
+    expect(result.hourlyDistribution[10]).toEqual({ hour: 10, count: 0 });
     expect(result.hourlyDistribution[0]).toEqual({ hour: 0, count: 0 });
   });
 
-  it("identifies peak hour", async () => {
+  it("identifies peak hour in Paris time", async () => {
     const uc = new GetRealtimeStats(defaultAnalyticsRepo(), createMockClock());
     const result = await uc.execute({ restaurantId: "resto-1" });
-    // hours 10 and 14 both have 2 events; peak is the first one encountered (10)
-    expect(result.peakHour).toBe(10);
+    // heures Paris 11 et 15 ont chacune 2 événements ; le pic est la première rencontrée (11)
+    expect(result.peakHour).toBe(11);
   });
 
   it("calls getEventTimestamps with 7-day window", async () => {

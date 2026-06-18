@@ -1,11 +1,12 @@
 import type { ValidationFailure } from "@/domain/errors/DomainError";
+import { APP_TIMEZONE } from "@/domain/time/appTimeZone";
 
 /**
  * Règles du menu du jour (S3.1).
  *
  * Conception :
- *  - **TZ Europe/Paris hardcodée**. Isolée ici via la constante `TIMEZONE` pour
- *    pouvoir être généralisée plus tard (multi-pays). Ne pas répliquer ailleurs.
+ *  - **TZ Europe/Paris** réexposée via `TIMEZONE`, alias de la source unique
+ *    {@link APP_TIMEZONE}. Ne pas répliquer le littéral ailleurs.
  *  - **`validUntil` est obligatoire** côté domaine — un plat du jour sans expiration
  *    n'a aucun sens métier. Default UI = fin de la journée courante en TZ Paris.
  *  - **Fenêtre maximale de 14 jours** : empêche un restaurateur de « publier »
@@ -18,7 +19,7 @@ export class DailyDishPolicy {
   static readonly MAX_DESCRIPTION_LENGTH = 500;
   static readonly MIN_PRICE_CENTS = 0;
   static readonly MAX_PRICE_CENTS = 99999;
-  static readonly TIMEZONE = "Europe/Paris";
+  static readonly TIMEZONE = APP_TIMEZONE;
   static readonly MAX_HORIZON_DAYS = 14;
 
   static validateName(value: string): ValidationFailure | null {

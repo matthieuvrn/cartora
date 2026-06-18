@@ -6,6 +6,7 @@ import {
 } from "@/generated/prisma/client";
 import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
 import type { DailyStatRow, DeviceType, ViewSource } from "@/domain/analytics/AnalyticsTypes";
+import { appCalendarDateUTC } from "@/domain/time/appTimeZone";
 
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -21,8 +22,9 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const deviceType = event.deviceType as PrismaDeviceType;
     const source = event.source as PrismaViewSource;
 
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
+    // Jour calendaire en fuseau applicatif (Europe/Paris), pas en UTC :
+    // une vue après minuit Paris doit être rattachée au bon jour local.
+    const today = appCalendarDateUTC(new Date());
 
     await this.prisma.$transaction([
       this.prisma.menuViewEvent.create({

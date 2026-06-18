@@ -1,6 +1,7 @@
 import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
 import type { Clock } from "@/application/ports/Clock";
 import type { RealtimeStats } from "@/domain/analytics/AnalyticsTypes";
+import { hourInAppTimeZone } from "@/domain/time/appTimeZone";
 
 export type GetRealtimeStatsInput = {
   restaurantId: string;
@@ -30,7 +31,7 @@ export class GetRealtimeStats {
       const t = event.createdAt.getTime();
       if (t >= sixtyMinAgo.getTime()) viewsLast60Min++;
       if (t >= twentyFourHoursAgo.getTime()) viewsLast24h++;
-      hourlyCounts[event.createdAt.getUTCHours()]++;
+      hourlyCounts[hourInAppTimeZone(event.createdAt)]++;
     }
 
     const hourlyDistribution = hourlyCounts.map((count, hour) => ({ hour, count }));
