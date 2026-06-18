@@ -25,13 +25,22 @@ export class PrismaUserDataRepository implements UserDataRepository {
       where: { restaurantId },
     });
 
-    const translationMap = new Map<string, string>();
+    // Index entityId → locale (minuscules) → field → value. Couvre toutes les langues
+    // (RGPD : on exporte l'intégralité du contenu saisi par l'utilisateur).
+    const itemTextsById = new Map<string, Record<string, { name: string; description: string }>>();
     for (const t of translations) {
-      translationMap.set(`${t.entityId}:${t.field}:${t.locale}`, t.value);
+      if (t.entityType !== "ITEM") continue;
+      if (t.field !== "name" && t.field !== "description") continue;
+      const locale = t.locale.toLowerCase();
+      let byLocale = itemTextsById.get(t.entityId);
+      if (!byLocale) {
+        byLocale = {};
+        itemTextsById.set(t.entityId, byLocale);
+      }
+      const slot = (byLocale[locale] ??= { name: "", description: "" });
+      if (t.field === "name") slot.name = t.value;
+      else slot.description = t.value;
     }
-
-    const getTranslation = (entityId: string, field: string, locale: string): string | null =>
-      translationMap.get(`${entityId}:${field}:${locale}`) ?? null;
 
     const totalViews = await this.prisma.menuViewDailyStat.aggregate({
       where: { restaurantId },
@@ -54,16 +63,15 @@ export class PrismaUserDataRepository implements UserDataRepository {
         slug: restaurant.slug,
         planStatus: restaurant.planStatus,
         createdAt: restaurant.createdAt.toISOString(),
+        sourceLocale: restaurant.sourceLocale,
+        menuLocales: restaurant.menuLocales,
       },
       menu: {
         status: restaurant.menu?.status ?? "DRAFT",
         categories: restaurant.categories.map((cat) => ({
           name: cat.name,
           items: cat.items.map((item) => ({
-            nameFr: getTranslation(item.id, "name", "FR"),
-            nameEn: getTranslation(item.id, "name", "EN"),
-            descriptionFr: getTranslation(item.id, "description", "FR"),
-            descriptionEn: getTranslation(item.id, "description", "EN"),
+            texts: itemTextsById.get(item.id) ?? {},
             priceCents: item.priceCents,
             badge: item.badge,
             isAvailable: item.isAvailable,

@@ -9,6 +9,7 @@ import { PrismaRestaurantRepository } from "../src/infrastructure/restaurant/Pri
 import { PrismaMenuRepository } from "../src/infrastructure/menu/PrismaMenuRepository";
 import { PrismaSnapshotRepository } from "../src/infrastructure/snapshot/PrismaSnapshotRepository";
 import { PublishMenu } from "../src/application/use-cases/PublishMenu";
+import { hashSourceText } from "../src/domain/menu/textHash";
 
 const DEMO_EMAIL = "demo@cartora.app";
 const DEMO_SLUG = "demo-cartora";
@@ -203,12 +204,17 @@ async function main() {
       update: {
         displayName: DEMO_DISPLAY_NAME,
         planStatus: "ACTIVE",
+        // S4 : démo multilingue — source fr + anglais activé.
+        sourceLocale: "fr",
+        menuLocales: ["en"],
       },
       create: {
         ownerUserId: demoOwnerUserId,
         displayName: DEMO_DISPLAY_NAME,
         slug: DEMO_SLUG,
         planStatus: "ACTIVE",
+        sourceLocale: "fr",
+        menuLocales: ["en"],
       },
       select: { id: true },
     });
@@ -270,7 +276,11 @@ async function main() {
         });
       }
 
-      // Create fresh items + translations
+      // Create fresh items + translations.
+      // S4 : les lignes EN (cibles) portent `sourceTextHash` = hash du texte fr →
+      // statut "à jour" dans l'écran de revue. On laisse VOLONTAIREMENT la description
+      // EN du tout premier item manquante, pour démontrer une couverture < 100 %.
+      let isFirstItem = true;
       for (let catIdx = 0; catIdx < DEMO_MENU.length; catIdx++) {
         const { items } = DEMO_MENU[catIdx];
         const categoryId = categoryIds[catIdx];
@@ -288,41 +298,34 @@ async function main() {
             select: { id: true },
           });
 
+          const rows = [
+            { field: "name", locale: "fr", value: item.nameFr, sourceTextHash: null },
+            { field: "description", locale: "fr", value: item.descriptionFr, sourceTextHash: null },
+            {
+              field: "name",
+              locale: "en",
+              value: item.nameEn,
+              sourceTextHash: hashSourceText(item.nameFr),
+            },
+          ];
+          // Description EN : présente partout sauf sur le 1er item (démo couverture).
+          if (!isFirstItem) {
+            rows.push({
+              field: "description",
+              locale: "en",
+              value: item.descriptionEn,
+              sourceTextHash: hashSourceText(item.descriptionFr),
+            });
+          }
+          isFirstItem = false;
+
           await tx.translation.createMany({
-            data: [
-              {
-                entityType: "ITEM",
-                entityId: created.id,
-                field: "name",
-                locale: "FR",
-                value: item.nameFr,
-                restaurantId: restaurant.id,
-              },
-              {
-                entityType: "ITEM",
-                entityId: created.id,
-                field: "description",
-                locale: "FR",
-                value: item.descriptionFr,
-                restaurantId: restaurant.id,
-              },
-              {
-                entityType: "ITEM",
-                entityId: created.id,
-                field: "name",
-                locale: "EN",
-                value: item.nameEn,
-                restaurantId: restaurant.id,
-              },
-              {
-                entityType: "ITEM",
-                entityId: created.id,
-                field: "description",
-                locale: "EN",
-                value: item.descriptionEn,
-                restaurantId: restaurant.id,
-              },
-            ],
+            data: rows.map((r) => ({
+              entityType: "ITEM",
+              entityId: created.id,
+              restaurantId: restaurant.id,
+              ...r,
+            })),
           });
         }
       }

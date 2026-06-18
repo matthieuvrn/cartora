@@ -5,10 +5,16 @@ import type {
   MenuTemplate,
 } from "@/domain/menu/MenuTypes";
 import type { Allergen, ItemBadge } from "@/domain/menu/ItemPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 
 // Note : la détection des collisions de nom passe désormais par
 // `isDomainError(e) && e.code === "duplicate_name"` depuis `@/domain/errors/DomainError`.
 // L'ancien helper `isDuplicateCategoryNameError` a été supprimé en Phase E.
+//
+// S4 (multilingue) : les écritures de contenu portent UNIQUEMENT la langue source
+// (`sourceLocale` + `texts`). Les traductions cibles vivent dans `TranslationRepository`
+// (écran de revue, auto-traduction) et ne sont jamais touchées par ces méthodes —
+// modifier le texte source les invalide automatiquement (hash, cf. translationStatus).
 
 export interface MenuRepository {
   getMenuByRestaurantId(restaurantId: string): Promise<MenuOverview | null>;
@@ -21,10 +27,8 @@ export interface MenuRepository {
     allergens: Allergen[];
     isAvailable: boolean;
     order: number;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<{ id: string }>;
 
   updateItem(params: {
@@ -34,10 +38,8 @@ export interface MenuRepository {
     badge: ItemBadge;
     allergens: Allergen[];
     isAvailable: boolean;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<void>;
 
   deleteItem(params: { itemId: string; restaurantId: string }): Promise<void>;
@@ -48,12 +50,16 @@ export interface MenuRepository {
     restaurantId: string;
   }): Promise<{ imagePath: string | null } | null>;
 
+  /**
+   * `imagePath: null` (suppression de photo) efface aussi les alt-texts de TOUTES
+   * les locales ; sinon, seul l'alt-text de la langue source est écrit.
+   */
   updateItemImage(params: {
     itemId: string;
     restaurantId: string;
     imagePath: string | null;
-    altTextFr: string | null;
-    altTextEn: string | null;
+    sourceLocale: MenuLocale;
+    altText: string | null;
   }): Promise<void>;
 
   reorderItems(params: {
@@ -139,10 +145,8 @@ export interface MenuRepository {
     allergens: Allergen[];
     validUntilISO: string;
     order: number;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<{ id: string }>;
 
   updateDailyDish(params: {
@@ -152,18 +156,17 @@ export interface MenuRepository {
     badge: ItemBadge;
     allergens: Allergen[];
     validUntilISO: string;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<void>;
 
+  /** Cf. `updateItemImage` : `imagePath: null` efface les alt-texts de toutes les locales. */
   updateDailyDishImage(params: {
     dishId: string;
     restaurantId: string;
     imagePath: string | null;
-    altTextFr: string | null;
-    altTextEn: string | null;
+    sourceLocale: MenuLocale;
+    altText: string | null;
   }): Promise<void>;
 
   deleteDailyDish(params: { dishId: string; restaurantId: string }): Promise<void>;
@@ -191,10 +194,8 @@ export interface MenuRepository {
     priceCents: number;
     validUntilISO: string;
     order: number;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<{ id: string }>;
 
   updateFormula(params: {
@@ -202,10 +203,8 @@ export interface MenuRepository {
     restaurantId: string;
     priceCents: number;
     validUntilISO: string;
-    translations: {
-      fr: { name: string; description: string };
-      en: { name: string; description: string };
-    };
+    sourceLocale: MenuLocale;
+    texts: { name: string; description: string };
   }): Promise<void>;
 
   deleteFormula(params: { formulaId: string; restaurantId: string }): Promise<void>;

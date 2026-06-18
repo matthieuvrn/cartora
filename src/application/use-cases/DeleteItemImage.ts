@@ -28,12 +28,14 @@ export class DeleteItemImage {
       }
     }
 
+    // `imagePath: null` ⇒ le repo purge aussi les alt-texts de toutes les locales ;
+    // la langue source est sans objet ici ("fr" par convention).
     await this.repo.updateItemImage({
       itemId: input.itemId,
       restaurantId: input.restaurantId,
       imagePath: null,
-      altTextFr: null,
-      altTextEn: null,
+      sourceLocale: "fr",
+      altText: null,
     });
 
     await this.repo.markMenuAsDraft(input.restaurantId);

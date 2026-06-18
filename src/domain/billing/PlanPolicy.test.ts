@@ -160,6 +160,28 @@ describe("PlanPolicy", () => {
     });
   });
 
+  describe("maxExtraMenuLocalesFor (S4)", () => {
+    it("FREE = 0 (langue source seule)", () => {
+      expect(PlanPolicy.maxExtraMenuLocalesFor("FREE")).toBe(0);
+    });
+    it("STARTER = 1", () => {
+      expect(PlanPolicy.maxExtraMenuLocalesFor("STARTER")).toBe(1);
+    });
+    it("PRO = Infinity", () => {
+      expect(PlanPolicy.maxExtraMenuLocalesFor("PRO")).toBe(Infinity);
+    });
+  });
+
+  describe("canUseAutoTranslation (S4)", () => {
+    it("forbids FREE and STARTER", () => {
+      expect(PlanPolicy.canUseAutoTranslation("FREE")).toBe(false);
+      expect(PlanPolicy.canUseAutoTranslation("STARTER")).toBe(false);
+    });
+    it("allows PRO", () => {
+      expect(PlanPolicy.canUseAutoTranslation("PRO")).toBe(true);
+    });
+  });
+
   describe("resolveTierFromPriceId", () => {
     beforeEach(() => {
       vi.stubEnv("STRIPE_PRICE_ID", "price_pro_id_123");

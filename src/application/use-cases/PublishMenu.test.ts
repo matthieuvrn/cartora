@@ -13,10 +13,13 @@ const MENU_FIXTURE: MenuOverview = {
   status: "DRAFT",
   template: "CLASSIC",
   publishedAt: null,
+  sourceLocale: "fr",
+  enabledLocales: ["en"],
   categories: [
     {
       id: "cat-1",
       name: "Entrées",
+      nameTexts: { fr: "Entrées" },
       order: 0,
       items: [
         {
@@ -33,12 +36,17 @@ const MENU_FIXTURE: MenuOverview = {
             fr: { name: "Soupe", description: "Soupe du jour" },
             en: { name: "Soup", description: "Soup of the day" },
           },
+          texts: {
+            name: { fr: "Soupe", en: "Soup" },
+            description: { fr: "Soupe du jour", en: "Soup of the day" },
+            altText: {},
+          },
         },
       ],
     },
-    { id: "cat-2", name: "Plats", order: 1, items: [] },
-    { id: "cat-3", name: "Desserts", order: 2, items: [] },
-    { id: "cat-4", name: "Boissons", order: 3, items: [] },
+    { id: "cat-2", name: "Plats", nameTexts: { fr: "Plats" }, order: 1, items: [] },
+    { id: "cat-3", name: "Desserts", nameTexts: { fr: "Desserts" }, order: 2, items: [] },
+    { id: "cat-4", name: "Boissons", nameTexts: { fr: "Boissons" }, order: 3, items: [] },
   ],
 };
 
@@ -76,17 +84,26 @@ describe("PublishMenu", () => {
       restaurantId: "resto-1",
       slug: "resto-abcd1234",
       snapshotData: {
+        snapshotVersion: 2,
+        sourceLocale: "fr",
+        availableLocales: ["fr", "en"],
         restaurantName: "Mon Restaurant",
         template: "CLASSIC",
         categories: [
           {
             name: "Entrées",
+            texts: { name: { fr: "Entrées" } },
             items: [
               {
                 nameFr: "Soupe",
                 nameEn: "Soup",
                 descriptionFr: "Soupe du jour",
                 descriptionEn: "Soup of the day",
+                texts: {
+                  name: { fr: "Soupe", en: "Soup" },
+                  description: { fr: "Soupe du jour", en: "Soup of the day" },
+                  altText: {},
+                },
                 priceCents: 850,
                 badge: "NONE",
                 allergens: [],
@@ -221,6 +238,11 @@ describe("PublishMenu", () => {
           fr: { name: "Pot-au-feu", description: "Plat mijoté" },
           en: { name: "Beef stew", description: "" },
         },
+        texts: {
+          name: { fr: "Pot-au-feu", en: "Beef stew" },
+          description: { fr: "Plat mijoté" },
+          altText: {},
+        },
       },
     ]);
     const uc = new PublishMenu(
@@ -241,6 +263,11 @@ describe("PublishMenu", () => {
         nameEn: "Beef stew",
         descriptionFr: "Plat mijoté",
         descriptionEn: "",
+        texts: {
+          name: { fr: "Pot-au-feu", en: "Beef stew" },
+          description: { fr: "Plat mijoté" },
+          altText: {},
+        },
         priceCents: 1500,
         badge: "NONE",
         allergens: [],
@@ -348,6 +375,7 @@ describe("PublishMenu", () => {
         {
           id: "cat-1",
           name: "Entrées",
+          nameTexts: { fr: "Entrées" },
           order: 0,
           items: [
             {
@@ -364,6 +392,11 @@ describe("PublishMenu", () => {
                 fr: { name: "Soupe", description: "Soupe du jour" },
                 en: { name: "Soup", description: "Soup of the day" },
               },
+              texts: {
+                name: { fr: "Soupe", en: "Soup" },
+                description: { fr: "Soupe du jour", en: "Soup of the day" },
+                altText: {},
+              },
             },
             {
               id: "item-2",
@@ -378,6 +411,11 @@ describe("PublishMenu", () => {
               translations: {
                 fr: { name: "Salade", description: "Salade verte" },
                 en: { name: "Salad", description: "Green salad" },
+              },
+              texts: {
+                name: { fr: "Salade", en: "Salad" },
+                description: { fr: "Salade verte", en: "Green salad" },
+                altText: {},
               },
             },
           ],
@@ -401,17 +439,26 @@ describe("PublishMenu", () => {
       restaurantId: "resto-1",
       slug: "resto-abcd1234",
       snapshotData: {
+        snapshotVersion: 2,
+        sourceLocale: "fr",
+        availableLocales: ["fr", "en"],
         restaurantName: "Mon Restaurant",
         template: "CLASSIC",
         categories: [
           {
             name: "Entrées",
+            texts: { name: { fr: "Entrées" } },
             items: [
               {
                 nameFr: "Soupe",
                 nameEn: "Soup",
                 descriptionFr: "Soupe du jour",
                 descriptionEn: "Soup of the day",
+                texts: {
+                  name: { fr: "Soupe", en: "Soup" },
+                  description: { fr: "Soupe du jour", en: "Soup of the day" },
+                  altText: {},
+                },
                 priceCents: 850,
                 badge: "NONE",
                 allergens: [],

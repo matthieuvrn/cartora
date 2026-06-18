@@ -4,7 +4,7 @@ import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
 import { createMockStorageService } from "./__fixtures__/storageServiceMock";
 
 describe("SetItemImage", () => {
-  it("persists imagePath + alt text and marks the menu as draft", async () => {
+  it("persists imagePath + alt text (source locale) and marks the menu as draft", async () => {
     const repo = createMockMenuRepo();
     const storage = createMockStorageService();
     const uc = new SetItemImage(repo, storage);
@@ -13,16 +13,16 @@ describe("SetItemImage", () => {
       restaurantId: "resto-1",
       itemId: "item-2",
       imagePath: "resto-1/item-2.webp",
-      altTextFr: "  Salade verte  ",
-      altTextEn: "Green salad",
+      sourceLocale: "fr",
+      altText: "  Salade verte  ",
     });
 
     expect(repo.updateItemImage).toHaveBeenCalledWith({
       itemId: "item-2",
       restaurantId: "resto-1",
       imagePath: "resto-1/item-2.webp",
-      altTextFr: "Salade verte",
-      altTextEn: "Green salad",
+      sourceLocale: "fr",
+      altText: "Salade verte",
     });
     expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
@@ -36,14 +36,15 @@ describe("SetItemImage", () => {
       restaurantId: "resto-1",
       itemId: "item-2",
       imagePath: "resto-1/item-2.webp",
+      sourceLocale: "fr",
     });
 
     expect(repo.updateItemImage).toHaveBeenCalledWith({
       itemId: "item-2",
       restaurantId: "resto-1",
       imagePath: "resto-1/item-2.webp",
-      altTextFr: null,
-      altTextEn: null,
+      sourceLocale: "fr",
+      altText: null,
     });
   });
 
@@ -57,6 +58,7 @@ describe("SetItemImage", () => {
         restaurantId: "resto-1",
         itemId: "item-2",
         imagePath: "resto-evil/item-2.webp",
+        sourceLocale: "fr",
       }),
     ).rejects.toThrow();
     expect(repo.updateItemImage).not.toHaveBeenCalled();
@@ -72,6 +74,7 @@ describe("SetItemImage", () => {
         restaurantId: "resto-1",
         itemId: "item-x",
         imagePath: "resto-1/item-x.webp",
+        sourceLocale: "fr",
       }),
     ).rejects.toThrow();
   });
@@ -87,6 +90,7 @@ describe("SetItemImage", () => {
       restaurantId: "resto-1",
       itemId: "item-2",
       imagePath: "resto-1/item-2.webp",
+      sourceLocale: "fr",
     });
 
     expect(storage.delete).toHaveBeenCalledWith("resto-1/item-2.jpg");
@@ -104,6 +108,7 @@ describe("SetItemImage", () => {
       restaurantId: "resto-1",
       itemId: "item-2",
       imagePath: "resto-1/item-2.webp",
+      sourceLocale: "fr",
     });
 
     expect(storage.delete).not.toHaveBeenCalled();
@@ -124,6 +129,7 @@ describe("SetItemImage", () => {
       restaurantId: "resto-1",
       itemId: "item-2",
       imagePath: "resto-1/item-2.webp",
+      sourceLocale: "fr",
     });
 
     expect(repo.updateItemImage).toHaveBeenCalled();

@@ -1,4 +1,5 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { ItemPolicy } from "@/domain/menu/ItemPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
@@ -8,10 +9,10 @@ export type CreateItemInput = {
   priceCents: number;
   badge: string;
   allergens?: readonly string[];
-  translations: {
-    fr: { name: string; description: string };
-    en?: { name?: string; description?: string };
-  };
+  /** Langue de saisie (S4) — le contenu est écrit UNIQUEMENT dans cette locale. */
+  sourceLocale: MenuLocale;
+  name: string;
+  description: string;
 };
 
 export type CreateItemOutput = {
@@ -22,12 +23,10 @@ export class CreateItem {
   constructor(private readonly repo: MenuRepository) {}
 
   async execute(input: CreateItemInput): Promise<CreateItemOutput> {
-    const frName = ItemPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = ItemPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = ItemPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = ItemPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const name = ItemPolicy.sanitizeName(input.name);
+    const description = ItemPolicy.sanitizeDescription(input.description);
 
-    const nameError = ItemPolicy.validateName(frName);
+    const nameError = ItemPolicy.validateName(name);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
     const priceError = ItemPolicy.validatePriceCents(input.priceCents);
@@ -57,10 +56,8 @@ export class CreateItem {
       allergens: allergens.ok,
       isAvailable: true,
       order,
-      translations: {
-        fr: { name: frName, description: frDesc },
-        en: { name: enName, description: enDesc },
-      },
+      sourceLocale: input.sourceLocale,
+      texts: { name, description },
     });
 
     return { itemId: id };

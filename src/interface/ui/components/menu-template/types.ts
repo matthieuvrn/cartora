@@ -1,4 +1,5 @@
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import type { AllergenLabels } from "../AllergenIcons";
 
 /**
@@ -11,7 +12,7 @@ import type { AllergenLabels } from "../AllergenIcons";
  */
 export type MenuTemplateProps = {
   snapshot: PublicMenuSnapshot;
-  locale: "fr" | "en";
+  locale: MenuLocale;
   showWatermark?: boolean;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;

@@ -21,8 +21,8 @@ describe("DeleteItemImage", () => {
       itemId: "item-2",
       restaurantId: "resto-1",
       imagePath: null,
-      altTextFr: null,
-      altTextEn: null,
+      sourceLocale: "fr",
+      altText: null,
     });
     expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });

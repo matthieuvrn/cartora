@@ -31,7 +31,9 @@ export function ErrorMessage({ error, namespace = "Errors", className }: Props) 
 
   // Codes paramétrés : on tente d'abord la clé enrichie avec metadata.
   if (
-    (error.code === "max_categories" || error.code === "max_photos") &&
+    (error.code === "max_categories" ||
+      error.code === "max_photos" ||
+      error.code === "locale_quota_exceeded") &&
     error.metadata?.limit !== undefined
   ) {
     const richKey = `${error.code}_with_limit`;

@@ -2,6 +2,7 @@ import type { RestaurantRepository } from "@/application/ports/RestaurantReposit
 import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import type { PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaRestaurantRepository implements RestaurantRepository {
@@ -79,6 +80,8 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     brandPrimary: string | null;
     brandAccent: string | null;
     brandBackground: string | null;
+    sourceLocale: MenuLocale;
+    menuLocales: MenuLocale[];
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
       where: { id },
@@ -93,6 +96,8 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         brandPrimary: true,
         brandAccent: true,
         brandBackground: true,
+        sourceLocale: true,
+        menuLocales: true,
       },
     });
 
@@ -109,7 +114,20 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       brandPrimary: restaurant.brandPrimary,
       brandAccent: restaurant.brandAccent,
       brandBackground: restaurant.brandBackground,
+      // Contraints par CHECK SQL (076) — le cast reflète l'invariant DB.
+      sourceLocale: restaurant.sourceLocale as MenuLocale,
+      menuLocales: restaurant.menuLocales as MenuLocale[],
     };
+  }
+
+  async updateMenuLocales(params: {
+    restaurantId: string;
+    menuLocales: MenuLocale[];
+  }): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: params.restaurantId },
+      data: { menuLocales: params.menuLocales },
+    });
   }
   async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
     await this.db.restaurant.update({

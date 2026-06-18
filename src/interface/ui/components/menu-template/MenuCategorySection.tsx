@@ -1,10 +1,13 @@
 import type { PublicMenuCategory } from "@/domain/menu/PublicMenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MenuItemRow } from "./MenuItemRow";
 import type { AllergenLabels } from "../AllergenIcons";
 
 type Props = {
   category: PublicMenuCategory;
-  locale: "fr" | "en";
+  locale: MenuLocale;
+  /** Langue source du menu — dernier repli de `resolveText` (S4). */
+  sourceLocale: MenuLocale;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
@@ -16,6 +19,7 @@ type Props = {
 export function MenuCategorySection({
   category,
   locale,
+  sourceLocale,
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
@@ -27,14 +31,16 @@ export function MenuCategorySection({
   return (
     <section id={id} className="scroll-mt-24">
       <h2 className="menu-heading menu-category-title mb-2 text-lg font-semibold">
-        {category.name}
+        {resolveText(category.texts.name, locale, sourceLocale) || category.name}
       </h2>
       <ul className="menu-divide divide-y" role="list">
         {category.items.map((item, index) => (
+          // Clé stable au switch de langue : nom source + index (les items publics n'ont pas d'id).
           <MenuItemRow
-            key={item.nameFr}
+            key={`${resolveText(item.texts.name, sourceLocale, sourceLocale)}-${index}`}
             item={item}
             locale={locale}
+            sourceLocale={sourceLocale}
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}

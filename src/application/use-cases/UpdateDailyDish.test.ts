@@ -24,11 +24,13 @@ const VALID_INPUT = {
   badge: "NONE",
   allergens: [] as const,
   validUntilISO: "2026-05-17T20:00:00.000Z",
-  translations: { fr: { name: "Pot-au-feu", description: "" } },
+  sourceLocale: "fr" as const,
+  name: "Pot-au-feu",
+  description: "",
 };
 
 describe("UpdateDailyDish", () => {
-  it("updates and marks menu as draft for an existing STARTER dish", async () => {
+  it("updates and marks menu as draft for an existing STARTER dish (source locale only)", async () => {
     const updateDailyDish = vi.fn(async () => {});
     const markMenuAsDraft = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({
@@ -47,10 +49,8 @@ describe("UpdateDailyDish", () => {
       badge: "NONE",
       allergens: [],
       validUntilISO: "2026-05-17T20:00:00.000Z",
-      translations: {
-        fr: { name: "Pot-au-feu", description: "" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Pot-au-feu", description: "" },
     });
     expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });

@@ -22,11 +22,13 @@ const VALID_INPUT = {
   priceCents: 1500,
   badge: "NONE",
   allergens: ["GLUTEN", "MILK"] as const,
-  translations: { fr: { name: "Pot-au-feu", description: "Plat mijoté" } },
+  sourceLocale: "fr" as const,
+  name: "Pot-au-feu",
+  description: "Plat mijoté",
 };
 
 describe("CreateDailyDish", () => {
-  it("persists a new daily dish for a STARTER restaurant", async () => {
+  it("persists a new daily dish for a STARTER restaurant (source locale only)", async () => {
     const createDailyDish = vi.fn(async () => ({ id: "daily-1" }));
     const markMenuAsDraft = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({ createDailyDish, markMenuAsDraft });
@@ -43,10 +45,8 @@ describe("CreateDailyDish", () => {
       allergens: ["GLUTEN", "MILK"],
       validUntilISO: "2026-05-17T21:59:59.999Z",
       order: 0,
-      translations: {
-        fr: { name: "Pot-au-feu", description: "Plat mijoté" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Pot-au-feu", description: "Plat mijoté" },
     });
     expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
@@ -67,10 +67,8 @@ describe("CreateDailyDish", () => {
       allergens: ["GLUTEN", "MILK"],
       validUntilISO: "2026-05-17T21:59:59.999Z",
       order: 0,
-      translations: {
-        fr: { name: "Pot-au-feu", description: "Plat mijoté" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Pot-au-feu", description: "Plat mijoté" },
     });
   });
 
@@ -94,8 +92,9 @@ describe("CreateDailyDish", () => {
   it("rejects when name is empty", async () => {
     const uc = new CreateDailyDish(createMockMenuRepo(), restaurantRepoOf("STARTER"), clock);
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, translations: { fr: { name: "", description: "" } } }),
-    ).rejects.toMatchObject({ name: "DomainError", code: "name_required" });
+    await expect(uc.execute({ ...VALID_INPUT, name: "", description: "" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "name_required",
+    });
   });
 });

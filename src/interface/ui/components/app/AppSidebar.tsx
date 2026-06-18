@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   BarChart3,
   CreditCard,
+  Languages,
   LayoutGrid,
   Palette,
   QrCode,
@@ -32,6 +33,7 @@ const NAV: readonly NavItem[] = [
   { key: "menu", href: "/app", icon: LayoutGrid, exact: true },
   { key: "stats", href: "/app/stats", icon: BarChart3, exact: false },
   { key: "apparence", href: "/app/apparence", icon: Palette, exact: false },
+  { key: "traductions", href: "/app/traductions", icon: Languages, exact: false },
   { key: "partage", href: "/app/partage", icon: QrCode, exact: false },
   { key: "abonnement", href: "/app/abonnement", icon: CreditCard, exact: false },
   { key: "reglages", href: "/app/reglages", icon: Settings, exact: false },

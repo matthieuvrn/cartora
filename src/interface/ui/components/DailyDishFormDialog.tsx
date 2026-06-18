@@ -3,7 +3,6 @@
 import { useActionState, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -77,7 +76,7 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
   }
 
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
-  const frNameError = state.fieldErrors?.["translations.fr.name"];
+  const nameError = state.fieldErrors?.name;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -96,60 +95,29 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
 
             {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-            {/* Nom + description par langue. forceMount + data-[state=inactive]:hidden : les deux
-                langues restent montées (donc soumises) même onglet inactif. */}
-            <Tabs defaultValue="fr">
-              <TabsList>
-                <TabsTrigger value="fr">
-                  Français
-                  {frNameError && (
-                    <span aria-hidden className="ml-1.5 size-1.5 rounded-full bg-destructive" />
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="en">English</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="fr" forceMount className="space-y-3 data-[state=inactive]:hidden">
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
-                  <Input
-                    id={`${id}-nameFr`}
-                    name="nameFr"
-                    placeholder="ex : Pot-au-feu maison"
-                    defaultValue={dish?.translations.fr.name ?? ""}
-                    aria-invalid={!!frNameError}
-                  />
-                  {frNameError && <p className="text-xs text-destructive">{frNameError}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
-                  <Textarea
-                    id={`${id}-descFr`}
-                    name="descriptionFr"
-                    defaultValue={dish?.translations.fr.description ?? ""}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="en" forceMount className="space-y-3 data-[state=inactive]:hidden">
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
-                  <Input
-                    id={`${id}-nameEn`}
-                    name="nameEn"
-                    defaultValue={dish?.translations.en.name ?? ""}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
-                  <Textarea
-                    id={`${id}-descEn`}
-                    name="descriptionEn"
-                    defaultValue={dish?.translations.en.description ?? ""}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+            {/* Saisie monolingue (S4) : une seule langue — celle du restaurateur.
+                Les traductions se gèrent dans /app/traductions. */}
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-name`}>{t("name")}</Label>
+                <Input
+                  id={`${id}-name`}
+                  name="name"
+                  placeholder="ex : Pot-au-feu maison"
+                  defaultValue={dish?.translations.fr.name ?? ""}
+                  aria-invalid={!!nameError}
+                />
+                {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-desc`}>{t("description")}</Label>
+                <Textarea
+                  id={`${id}-desc`}
+                  name="description"
+                  defaultValue={dish?.translations.fr.description ?? ""}
+                />
+              </div>
+            </div>
 
             {/* Price + Badge */}
             <div className="grid grid-cols-2 gap-3">
@@ -239,8 +207,7 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
               <DailyDishPhotoEditor
                 dishId={dish.id}
                 initialImagePath={dish.imagePath}
-                initialAltTextFr={dish.altTextFr}
-                initialAltTextEn={dish.altTextEn}
+                initialAltText={dish.texts.altText?.fr ?? dish.altTextFr}
               />
             )}
           </div>

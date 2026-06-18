@@ -4,6 +4,7 @@ import {
   collectPresentAllergens,
   resolveLcpPriority,
 } from "@/domain/menu/publicMenuView";
+import { resolveText } from "@/domain/menu/MenuLocale";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
 import { TodaySection } from "./TodaySection";
@@ -89,7 +90,8 @@ export function TemplateClassic({
                     href={`#${categoryAnchorId(category.name)}`}
                     className="menu-muted text-xs font-medium uppercase tracking-wide hover:underline"
                   >
-                    {category.name}
+                    {resolveText(category.texts.name, locale, snapshot.sourceLocale) ||
+                      category.name}
                   </a>
                 </li>
               ))}
@@ -101,6 +103,7 @@ export function TemplateClassic({
       <div className="px-4 pt-6 sm:px-6">
         {hasToday && (
           <TodaySection
+            sourceLocale={snapshot.sourceLocale}
             items={snapshot.dailyItems ?? []}
             formulas={snapshot.formulas ?? []}
             locale={locale}
@@ -116,6 +119,7 @@ export function TemplateClassic({
         <div className="space-y-8">
           {snapshot.categories.map((category) => (
             <MenuCategorySection
+              sourceLocale={snapshot.sourceLocale}
               key={category.name}
               id={categoryAnchorId(category.name)}
               category={category}

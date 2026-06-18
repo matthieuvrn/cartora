@@ -7,17 +7,29 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 const FIXED_NOW = "2026-03-25T12:00:00.000Z";
 const clock: Clock = { nowISO: () => FIXED_NOW };
 
+// Snapshots reçus par GetPublicMenu = déjà normalisés (v2) par PrismaSnapshotRepository.
+const EMPTY_TEXTS = { name: {}, description: {}, altText: {} };
+
 const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
+  snapshotVersion: 2,
+  sourceLocale: "fr",
+  availableLocales: ["fr", "en"],
   restaurantName: "Mon Restaurant",
   categories: [
     {
       name: "Entrées",
+      texts: { name: { fr: "Entrées" } },
       items: [
         {
           nameFr: "Soupe",
           nameEn: "Soup",
           descriptionFr: "Soupe du jour",
           descriptionEn: "Soup of the day",
+          texts: {
+            name: { fr: "Soupe", en: "Soup" },
+            description: { fr: "Soupe du jour", en: "Soup of the day" },
+            altText: {},
+          },
           priceCents: 850,
           badge: "NONE",
           allergens: [],
@@ -81,6 +93,7 @@ describe("GetPublicMenu", () => {
             imagePath: null,
             altTextFr: "",
             altTextEn: "",
+            texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T23:59:59.000Z", // > FIXED_NOW
           },
           {
@@ -95,6 +108,7 @@ describe("GetPublicMenu", () => {
             imagePath: null,
             altTextFr: "",
             altTextEn: "",
+            texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T11:00:00.000Z", // < FIXED_NOW
           },
         ],
@@ -134,6 +148,7 @@ describe("GetPublicMenu", () => {
             imagePath: null,
             altTextFr: "",
             altTextEn: "",
+            texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T11:00:00.000Z",
           },
         ],

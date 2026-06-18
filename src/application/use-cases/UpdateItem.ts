@@ -1,4 +1,5 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { ItemPolicy } from "@/domain/menu/ItemPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
@@ -9,22 +10,20 @@ export type UpdateItemInput = {
   badge: string;
   allergens?: readonly string[];
   isAvailable: boolean;
-  translations: {
-    fr: { name: string; description: string };
-    en?: { name?: string; description?: string };
-  };
+  /** Langue de saisie (S4) — les traductions cibles ne sont jamais touchées ici. */
+  sourceLocale: MenuLocale;
+  name: string;
+  description: string;
 };
 
 export class UpdateItem {
   constructor(private readonly repo: MenuRepository) {}
 
   async execute(input: UpdateItemInput): Promise<void> {
-    const frName = ItemPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = ItemPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = ItemPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = ItemPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const name = ItemPolicy.sanitizeName(input.name);
+    const description = ItemPolicy.sanitizeDescription(input.description);
 
-    const nameError = ItemPolicy.validateName(frName);
+    const nameError = ItemPolicy.validateName(name);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
     const priceError = ItemPolicy.validatePriceCents(input.priceCents);
@@ -48,10 +47,8 @@ export class UpdateItem {
       badge: input.badge as "NONE" | "NEW" | "POPULAR",
       allergens: allergens.ok,
       isAvailable: input.isAvailable,
-      translations: {
-        fr: { name: frName, description: frDesc },
-        en: { name: enName, description: enDesc },
-      },
+      sourceLocale: input.sourceLocale,
+      texts: { name, description },
     });
   }
 }

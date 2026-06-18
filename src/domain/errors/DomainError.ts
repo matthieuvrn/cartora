@@ -76,6 +76,16 @@ export type DomainErrorCode =
   | "invalid_brand_color"
   | "low_brand_contrast"
 
+  // Multilingue (S4) — gestion des langues du menu et traduction automatique
+  | "invalid_locale"
+  | "locale_not_enabled"
+  | "locale_quota_exceeded"
+  | "auto_translation_not_allowed"
+  | "translation_failed"
+  | "translation_quota_exhausted"
+  | "translation_rate_limited"
+  | "translation_unavailable"
+
   // Règles structurelles
   | "must_keep_one_category"
   | "empty_list"
@@ -106,6 +116,8 @@ export type DomainErrorMetadata = {
   invalidValue?: string;
   /** Template visé pour `template_not_allowed`. */
   template?: MenuTemplate;
+  /** Locale concernée par une erreur multilingue (`invalid_locale`, `locale_not_enabled`, …). */
+  locale?: string;
 };
 
 export class DomainError extends Error {

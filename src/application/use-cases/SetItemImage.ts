@@ -1,5 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { StorageService } from "@/application/ports/StorageService";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { ItemPhotoPolicy } from "@/domain/menu/ItemPhotoPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
@@ -7,8 +8,9 @@ export type SetItemImageInput = {
   restaurantId: string;
   itemId: string;
   imagePath: string;
-  altTextFr?: string;
-  altTextEn?: string;
+  /** Langue de saisie (S4) — l'alt-text est écrit dans cette locale uniquement. */
+  sourceLocale: MenuLocale;
+  altText?: string;
 };
 
 export class SetItemImage {
@@ -29,8 +31,7 @@ export class SetItemImage {
       throw new DomainError("invalid_image_path");
     }
 
-    const altFr = ItemPhotoPolicy.validateAltText(input.altTextFr ?? "").ok;
-    const altEn = ItemPhotoPolicy.validateAltText(input.altTextEn ?? "").ok;
+    const altText = ItemPhotoPolicy.validateAltText(input.altText ?? "").ok;
 
     // If the previous image had a different storage path (e.g. the user uploaded a new
     // file with a different extension), drop the old object so we don't leave orphans.
@@ -46,8 +47,8 @@ export class SetItemImage {
       itemId: input.itemId,
       restaurantId: input.restaurantId,
       imagePath: input.imagePath,
-      altTextFr: altFr || null,
-      altTextEn: altEn || null,
+      sourceLocale: input.sourceLocale,
+      altText: altText || null,
     });
 
     await this.repo.markMenuAsDraft(input.restaurantId);

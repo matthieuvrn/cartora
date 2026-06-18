@@ -18,6 +18,11 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
       fr: { name: "Salade", description: "Fraîche" },
       en: { name: "Salad", description: "Fresh" },
     },
+    texts: {
+      name: { fr: "Salade", en: "Salad" },
+      description: { fr: "Fraîche", en: "Fresh" },
+      altText: {},
+    },
     ...overrides,
   };
 }
@@ -26,6 +31,7 @@ function makeCategory(overrides: Partial<MenuCategoryData> = {}): MenuCategoryDa
   return {
     id: "cat-1",
     name: "Entrées",
+    nameTexts: { fr: "Entrées" },
     order: 0,
     items: [makeItem()],
     ...overrides,
@@ -39,6 +45,8 @@ function makeMenu(overrides: Partial<MenuOverview> = {}): MenuOverview {
     status: "DRAFT",
     template: "CLASSIC",
     publishedAt: null,
+    sourceLocale: "fr",
+    enabledLocales: ["en"],
     categories: [makeCategory()],
     ...overrides,
   };
@@ -51,18 +59,27 @@ describe("buildPublicSnapshot", () => {
     const result = buildPublicSnapshot(makeMenu(), "Mon Restaurant", PUBLISHED_AT);
 
     expect(result).toEqual({
+      snapshotVersion: 2,
+      sourceLocale: "fr",
+      availableLocales: ["fr", "en"],
       restaurantName: "Mon Restaurant",
       publishedAt: PUBLISHED_AT,
       template: "CLASSIC",
       categories: [
         {
           name: "Entrées",
+          texts: { name: { fr: "Entrées" } },
           items: [
             {
               nameFr: "Salade",
               nameEn: "Salad",
               descriptionFr: "Fraîche",
               descriptionEn: "Fresh",
+              texts: {
+                name: { fr: "Salade", en: "Salad" },
+                description: { fr: "Fraîche", en: "Fresh" },
+                altText: {},
+              },
               priceCents: 1200,
               badge: "NONE",
               allergens: [],
@@ -241,7 +258,24 @@ describe("normalizePublicSnapshot", () => {
       imagePath: null,
       altTextFr: "",
       altTextEn: "",
+      // Up-conversion v1 → v2 : `texts` reconstruit depuis les champs legacy fr/en.
+      texts: { name: { fr: "Salade", en: "Salad" }, description: {}, altText: {} },
     });
+  });
+
+  it("up-converts a v1 snapshot to v2 (root locales + category texts)", () => {
+    const legacy = {
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [{ name: "Entrées", items: [] }],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(legacy);
+
+    expect(result.snapshotVersion).toBe(2);
+    expect(result.sourceLocale).toBe("fr");
+    expect(result.availableLocales).toEqual(["fr", "en"]);
+    expect(result.categories[0].texts).toEqual({ name: { fr: "Entrées" } });
   });
 
   it("leaves a complete snapshot unchanged at the value level", () => {

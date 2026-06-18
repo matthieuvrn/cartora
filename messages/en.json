@@ -6,9 +6,39 @@
     "menu": "My menu",
     "stats": "Statistics",
     "apparence": "Appearance",
+    "traductions": "Translations",
     "partage": "Share",
     "abonnement": "Subscription",
     "reglages": "Settings"
+  },
+  "Translations": {
+    "title": "Translations",
+    "description": "Offer your menu in several languages to your visitors.",
+    "languagesTitle": "Menu languages",
+    "languagesDescription": "Enabled languages appear in your public menu's language selector. Remember to republish after changes.",
+    "sourceBadge": "Writing language",
+    "sourceHint": "The language you write your menu in. Always displayed.",
+    "quotaLimited": "Your {tier} plan allows {limit, plural, =0 {no extra language} one {# extra language} other {# extra languages}}. Upgrade to enable more.",
+    "quotaUnlimited": "Your PRO plan allows every language.",
+    "save": "Save",
+    "saved": "Languages updated",
+    "reviewTitle": "Review translations",
+    "reviewDescription": "Complete or fix each translation. A field becomes \"needs review\" when you edit the original text.",
+    "translationsSaved": "Translations saved",
+    "noLocaleEnabled": "Enable at least one language above to start translating.",
+    "groupCategories": "Categories",
+    "groupToday": "Today",
+    "groupFormulas": "Combo menus",
+    "coverageLabel": "Translations:",
+    "autoTranslate": "Auto-translate",
+    "autoTranslating": "Translating…",
+    "autoTranslateHint": "Fills in missing or outdated fields (PRO).",
+    "autoTranslateResult": "{translated, plural, =0 {No field to translate} one {# field translated} other {# fields translated}}, {skipped} already up to date.",
+    "status": {
+      "fresh": "Up to date",
+      "stale": "Needs review",
+      "missing": "Missing"
+    }
   },
   "Share": {
     "title": "Share",
@@ -87,10 +117,8 @@
     "deleteItem": "Delete item",
     "save": "Save",
     "cancel": "Cancel",
-    "nameFr": "Name (FR)",
-    "nameEn": "Name (EN)",
-    "descriptionFr": "Description (FR)",
-    "descriptionEn": "Description (EN)",
+    "name": "Name",
+    "description": "Description",
     "price": "Price",
     "badgeLabel": "Badge",
     "available": "Available",
@@ -121,8 +149,7 @@
       "remove": "Remove",
       "uploading": "Uploading…",
       "altTextHint": "Describe the image for screen readers (accessibility)",
-      "altTextFr": "Description (FR)",
-      "altTextEn": "Description (EN)",
+      "altText": "Image description",
       "error": {
         "tooLarge": "Image too large (max 5 MB)",
         "wrongFormat": "Unsupported format (JPEG, PNG, WebP only)",
@@ -269,7 +296,9 @@
     "unavailableDescription": "This menu is no longer available at this time.",
     "watermark": "Powered by Cartora",
     "allergenLegendTitle": "Declared allergens",
-    "categoriesNav": "Menu categories"
+    "categoriesNav": "Menu categories",
+    "metaDescription": "Browse the menu of {name}: {categories}. Available online on Cartora.",
+    "metaDescriptionNoCategories": "Browse the menu of {name}. Available online on Cartora."
   },
   "Allergen": {
     "sectionTitle": "Allergens",
@@ -661,7 +690,16 @@
     "daily_dish_until_too_far": "Expiration cannot be more than 14 days away",
     "formula_not_allowed": "Combo menus require the Starter or PRO plan",
     "formula_until_in_past": "Expiration must be in the future",
-    "formula_until_too_far": "Expiration cannot be more than 14 days away"
+    "formula_until_too_far": "Expiration cannot be more than 14 days away",
+    "invalid_locale": "Unrecognized language",
+    "locale_not_enabled": "This language is not enabled for your menu",
+    "locale_quota_exceeded": "Extra language limit reached for your plan",
+    "locale_quota_exceeded_with_limit": "Limit of {limit, plural, =0 {0 extra languages} one {# extra language} other {# extra languages}} reached on the {tier} plan. Upgrade to add more.",
+    "auto_translation_not_allowed": "Automatic translation requires the PRO plan",
+    "translation_failed": "Translation failed, please try again",
+    "translation_quota_exhausted": "Monthly automatic translation quota exhausted, try again later",
+    "translation_rate_limited": "Too many translation requests, please wait a few minutes",
+    "translation_unavailable": "The translation service is currently unavailable"
   },
   "Settings": {
     "title": "Settings",

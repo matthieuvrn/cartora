@@ -1,12 +1,15 @@
 import type { PublicMenuDailyDish, PublicMenuFormula } from "@/domain/menu/PublicMenuTypes";
-import { formatPrice, getLocalizedText } from "@/domain/menu/publicMenuView";
+import { formatPrice } from "@/domain/menu/publicMenuView";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import type { AllergenLabels } from "../AllergenIcons";
 import { MenuItemRow } from "./MenuItemRow";
 
 type Props = {
   items: PublicMenuDailyDish[];
   formulas?: PublicMenuFormula[];
-  locale: "fr" | "en";
+  locale: MenuLocale;
+  /** Langue source du menu — dernier repli de `resolveText` (S4). */
+  sourceLocale: MenuLocale;
   title: string;
   description?: string;
   /**
@@ -35,6 +38,7 @@ export function TodaySection({
   items,
   formulas = [],
   locale,
+  sourceLocale,
   title,
   description,
   dishesSubtitle,
@@ -68,6 +72,7 @@ export function TodaySection({
                 key={item.id}
                 item={item}
                 locale={locale}
+                sourceLocale={sourceLocale}
                 badgeLabels={badgeLabels}
                 allergenLabels={allergenLabels}
                 allergenSectionLabel={allergenSectionLabel}
@@ -88,12 +93,8 @@ export function TodaySection({
             role="list"
           >
             {formulas.map((formula) => {
-              const name = getLocalizedText(formula.nameFr, formula.nameEn, locale);
-              const description = getLocalizedText(
-                formula.descriptionFr,
-                formula.descriptionEn,
-                locale,
-              );
+              const name = resolveText(formula.texts.name, locale, sourceLocale);
+              const description = resolveText(formula.texts.description, locale, sourceLocale);
               return (
                 <li key={formula.id} className="menu-card rounded-md border p-3">
                   <div className="flex items-start justify-between gap-3">

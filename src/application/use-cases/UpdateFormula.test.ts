@@ -22,11 +22,13 @@ const VALID_INPUT = {
   restaurantId: "resto-1",
   priceCents: 1800,
   validUntilISO: "2026-05-17T20:00:00.000Z",
-  translations: { fr: { name: "Menu du soir", description: "Entrée + Plat" } },
+  sourceLocale: "fr" as const,
+  name: "Menu du soir",
+  description: "Entrée + Plat",
 };
 
 describe("UpdateFormula", () => {
-  it("updates and marks menu as draft for an existing STARTER formula", async () => {
+  it("updates and marks menu as draft for an existing STARTER formula (source locale only)", async () => {
     const updateFormula = vi.fn(async () => {});
     const markMenuAsDraft = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({
@@ -43,10 +45,8 @@ describe("UpdateFormula", () => {
       restaurantId: "resto-1",
       priceCents: 1800,
       validUntilISO: "2026-05-17T20:00:00.000Z",
-      translations: {
-        fr: { name: "Menu du soir", description: "Entrée + Plat" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Menu du soir", description: "Entrée + Plat" },
     });
     expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });

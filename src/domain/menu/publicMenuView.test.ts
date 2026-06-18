@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  getLocalizedText,
   formatPrice,
   formatPriceAria,
   collectPresentAllergens,
@@ -15,6 +14,11 @@ function makeItem(overrides: Partial<PublicMenuItem> = {}): PublicMenuItem {
     nameEn: "Salad",
     descriptionFr: "Fraîche",
     descriptionEn: "Fresh",
+    texts: {
+      name: { fr: "Salade", en: "Salad" },
+      description: { fr: "Fraîche", en: "Fresh" },
+      altText: {},
+    },
     priceCents: 1200,
     badge: "NONE",
     allergens: [],
@@ -32,6 +36,11 @@ function makeDaily(overrides: Partial<PublicMenuDailyDish> = {}): PublicMenuDail
     nameEn: "Dish of the day",
     descriptionFr: "",
     descriptionEn: "",
+    texts: {
+      name: { fr: "Plat du jour", en: "Dish of the day" },
+      description: {},
+      altText: {},
+    },
     priceCents: 1500,
     badge: "NONE",
     allergens: [],
@@ -43,28 +52,21 @@ function makeDaily(overrides: Partial<PublicMenuDailyDish> = {}): PublicMenuDail
   };
 }
 
+function makeCategory(name: string, items: PublicMenuItem[]) {
+  return { name, texts: { name: { fr: name } }, items };
+}
+
 function makeSnapshot(overrides: Partial<PublicMenuSnapshot> = {}): PublicMenuSnapshot {
   return {
+    snapshotVersion: 2,
+    sourceLocale: "fr",
+    availableLocales: ["fr", "en"],
     restaurantName: "Mon Restaurant",
-    categories: [{ name: "Entrées", items: [makeItem()] }],
+    categories: [makeCategory("Entrées", [makeItem()])],
     publishedAt: "2026-03-25T12:00:00.000Z",
     ...overrides,
   };
 }
-
-describe("getLocalizedText", () => {
-  it("returns FR text for fr locale", () => {
-    expect(getLocalizedText("Bonjour", "Hello", "fr")).toBe("Bonjour");
-  });
-
-  it("returns EN text for en locale", () => {
-    expect(getLocalizedText("Bonjour", "Hello", "en")).toBe("Hello");
-  });
-
-  it("falls back to FR when EN is empty", () => {
-    expect(getLocalizedText("Bonjour", "", "en")).toBe("Bonjour");
-  });
-});
 
 describe("formatPrice", () => {
   // Intl fr-FR inserts a narrow no-break space (U+202F) before €; normalise whitespace
@@ -77,6 +79,12 @@ describe("formatPrice", () => {
 
   it("formats en-US with leading euro sign + dot", () => {
     expect(formatPrice(1250, "en")).toBe("€12.50");
+  });
+
+  it("formats es/de/it with comma + trailing euro sign (S4)", () => {
+    expect(norm(formatPrice(1250, "es"))).toBe("12,50 €");
+    expect(norm(formatPrice(1250, "de"))).toBe("12,50 €");
+    expect(norm(formatPrice(1250, "it"))).toBe("12,50 €");
   });
 });
 
@@ -92,16 +100,23 @@ describe("formatPriceAria", () => {
   it("appends 'cents' in en", () => {
     expect(formatPriceAria(1250, "en")).toBe("12 euros 50 cents");
   });
+
+  it("spells locale-specific currency words in es/de/it (S4)", () => {
+    expect(formatPriceAria(1250, "es")).toBe("12 euros 50 céntimos");
+    expect(formatPriceAria(1250, "de")).toBe("12 Euro 50 Cent");
+    expect(formatPriceAria(1250, "it")).toBe("12 euro 50 centesimi");
+    expect(formatPriceAria(1200, "de")).toBe("12 Euro");
+  });
 });
 
 describe("collectPresentAllergens", () => {
   it("unions allergens from items and daily dishes", () => {
     const snapshot = makeSnapshot({
       categories: [
-        {
-          name: "Plats",
-          items: [makeItem({ allergens: ["GLUTEN", "EGGS"] }), makeItem({ allergens: ["EGGS"] })],
-        },
+        makeCategory("Plats", [
+          makeItem({ allergens: ["GLUTEN", "EGGS"] }),
+          makeItem({ allergens: ["EGGS"] }),
+        ]),
       ],
       dailyItems: [makeDaily({ allergens: ["MILK"] })],
     });
@@ -139,7 +154,7 @@ describe("categoryAnchorId", () => {
 describe("resolveLcpPriority", () => {
   it("gives priority to the first daily dish with a photo over category items", () => {
     const snapshot = makeSnapshot({
-      categories: [{ name: "Plats", items: [makeItem({ imagePath: "cat/p.jpg" })] }],
+      categories: [makeCategory("Plats", [makeItem({ imagePath: "cat/p.jpg" })])],
       dailyItems: [
         makeDaily({ imagePath: null }),
         makeDaily({ id: "daily-2", imagePath: "d/p.jpg" }),
@@ -156,8 +171,8 @@ describe("resolveLcpPriority", () => {
   it("falls back to the first category item with a photo when no daily has one", () => {
     const snapshot = makeSnapshot({
       categories: [
-        { name: "Entrées", items: [makeItem({ imagePath: null })] },
-        { name: "Plats", items: [makeItem({ imagePath: null }), makeItem({ imagePath: "p.jpg" })] },
+        makeCategory("Entrées", [makeItem({ imagePath: null })]),
+        makeCategory("Plats", [makeItem({ imagePath: null }), makeItem({ imagePath: "p.jpg" })]),
       ],
       dailyItems: [makeDaily({ imagePath: null })],
     });

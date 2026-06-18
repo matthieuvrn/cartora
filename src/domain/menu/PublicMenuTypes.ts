@@ -1,16 +1,31 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
-import type { DailyDishData, FormulaData, MenuOverview, MenuTemplate } from "./MenuTypes";
+import type {
+  DailyDishData,
+  EntityTexts,
+  FormulaData,
+  MenuOverview,
+  MenuTemplate,
+} from "./MenuTypes";
+import type { LocalizedText, MenuLocale } from "./MenuLocale";
 
 export type PublicMenuItem = {
+  /** @deprecated S4 — lire `texts` ; supprimé au step 9 (rendu N langues). */
   nameFr: string;
+  /** @deprecated S4 — lire `texts`. */
   nameEn: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionFr: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionEn: string;
+  /** Textes localisés (S4) — clés limitées à `availableLocales`. */
+  texts: EntityTexts;
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
   imagePath: string | null;
+  /** @deprecated S4 — lire `texts.altText`. */
   altTextFr: string;
+  /** @deprecated S4 — lire `texts.altText`. */
   altTextEn: string;
 };
 
@@ -21,15 +36,22 @@ export type PublicMenuItem = {
  */
 export type PublicMenuDailyDish = {
   id: string;
+  /** @deprecated S4 — lire `texts`. */
   nameFr: string;
+  /** @deprecated S4 — lire `texts`. */
   nameEn: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionFr: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionEn: string;
+  texts: EntityTexts;
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
   imagePath: string | null;
+  /** @deprecated S4 — lire `texts.altText`. */
   altTextFr: string;
+  /** @deprecated S4 — lire `texts.altText`. */
   altTextEn: string;
   validUntilISO: string;
 };
@@ -42,16 +64,24 @@ export type PublicMenuDailyDish = {
  */
 export type PublicMenuFormula = {
   id: string;
+  /** @deprecated S4 — lire `texts`. */
   nameFr: string;
+  /** @deprecated S4 — lire `texts`. */
   nameEn: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionFr: string;
+  /** @deprecated S4 — lire `texts`. */
   descriptionEn: string;
+  texts: EntityTexts;
   priceCents: number;
   validUntilISO: string;
 };
 
 export type PublicMenuCategory = {
+  /** Nom dans la langue SOURCE — sert d'ancre/clé stable au switch de langue. */
   name: string;
+  /** Nom localisé (S4) — clés limitées à `availableLocales`. */
+  texts: { name: LocalizedText };
   items: PublicMenuItem[];
 };
 
@@ -67,6 +97,15 @@ export type PublicMenuBranding = {
 };
 
 export type PublicMenuSnapshot = {
+  /**
+   * Version du format (S4). Absent = snapshot v1 (pré-multilingue) ; le normaliseur
+   * l'up-convertit en v2 au boundary de lecture.
+   */
+  snapshotVersion?: 2;
+  /** Langue de saisie du restaurant (S4) — défaut "fr" pour les snapshots v1. */
+  sourceLocale: MenuLocale;
+  /** Langues proposées dans le switcher public (source incluse). */
+  availableLocales: MenuLocale[];
   restaurantName: string;
   /**
    * Chemin storage du logo (bucket `restaurant-logos`), résolu via `restaurantLogoUrl()`
@@ -101,6 +140,24 @@ export type PublicMenuSnapshot = {
   formulas?: PublicMenuFormula[];
 };
 
+/** Restreint une map localisée aux locales disponibles + retire les valeurs vides. */
+function pickLocales(map: LocalizedText, locales: readonly MenuLocale[]): LocalizedText {
+  const out: LocalizedText = {};
+  for (const locale of locales) {
+    const value = map[locale];
+    if (value && value.trim() !== "") out[locale] = value;
+  }
+  return out;
+}
+
+function entityTextsForSnapshot(texts: EntityTexts, locales: readonly MenuLocale[]): EntityTexts {
+  return {
+    name: pickLocales(texts.name, locales),
+    description: pickLocales(texts.description, locales),
+    altText: texts.altText ? pickLocales(texts.altText, locales) : {},
+  };
+}
+
 export function buildPublicSnapshot(
   menu: MenuOverview,
   restaurantName: string,
@@ -110,16 +167,23 @@ export function buildPublicSnapshot(
   dailyDishes: DailyDishData[] = [],
   formulaEntries: FormulaData[] = [],
 ): PublicMenuSnapshot {
+  const sourceLocale = menu.sourceLocale;
+  // availableLocales = source + langues cibles activées (jamais de doublon : enabledLocales exclut la source).
+  const availableLocales: MenuLocale[] = [sourceLocale, ...menu.enabledLocales];
+
   const categories: PublicMenuCategory[] = menu.categories
     .map((category) => ({
       name: category.name,
+      texts: { name: pickLocales(category.nameTexts, availableLocales) },
       items: category.items
         .filter((item) => item.isAvailable)
         .map((item) => ({
+          // Champs legacy (step 8) — le rendu N langues du step 9 lira `texts`.
           nameFr: item.translations.fr.name,
           nameEn: item.translations.en.name,
           descriptionFr: item.translations.fr.description,
           descriptionEn: item.translations.en.description,
+          texts: entityTextsForSnapshot(item.texts, availableLocales),
           priceCents: item.priceCents,
           badge: item.badge,
           allergens: item.allergens,
@@ -140,6 +204,7 @@ export function buildPublicSnapshot(
       nameEn: entry.translations.en.name,
       descriptionFr: entry.translations.fr.description,
       descriptionEn: entry.translations.en.description,
+      texts: entityTextsForSnapshot(entry.texts, availableLocales),
       priceCents: entry.priceCents,
       badge: entry.badge,
       allergens: entry.allergens,
@@ -157,11 +222,15 @@ export function buildPublicSnapshot(
       nameEn: entry.translations.en.name,
       descriptionFr: entry.translations.fr.description,
       descriptionEn: entry.translations.en.description,
+      texts: entityTextsForSnapshot(entry.texts, availableLocales),
       priceCents: entry.priceCents,
       validUntilISO: entry.validUntilISO,
     }));
 
   return {
+    snapshotVersion: 2,
+    sourceLocale,
+    availableLocales,
     restaurantName,
     ...(restaurantLogoPath ? { restaurantLogoPath } : {}),
     categories,
@@ -183,23 +252,61 @@ function trimBranding(branding?: PublicMenuBranding | null): PublicMenuBranding 
 }
 
 /**
- * Comble les champs items qui peuvent manquer dans les snapshots écrits avant
- * `allergens` (commit 29a988a) ou les photos d'item (commit 005f4d5). Le contrat
- * `PublicMenuItem` reste strict côté consommateur ; cette normalisation, appliquée
- * au boundary de lecture (`PrismaSnapshotRepository`), rend ce contrat vrai au runtime
- * même pour des JSON legacy. No-op sur les snapshots récents produits par
- * `buildPublicSnapshot`.
+ * Forme legacy v1 (pré-S4) d'une entité : champs `Fr`/`En` à plat, sans `texts`.
+ * Sert uniquement à typer la lecture des JSON legacy dans le normaliseur.
+ */
+type LegacyTextFields = {
+  nameFr?: string;
+  nameEn?: string;
+  descriptionFr?: string;
+  descriptionEn?: string;
+  altTextFr?: string;
+  altTextEn?: string;
+  texts?: EntityTexts;
+};
+
+/** Reconstruit `texts` à partir des champs legacy fr/en (snapshots v1). */
+function textsFromLegacy(entity: LegacyTextFields): EntityTexts {
+  const loc = (fr?: string, en?: string): LocalizedText => {
+    const map: LocalizedText = {};
+    if (fr && fr.trim() !== "") map.fr = fr;
+    if (en && en.trim() !== "") map.en = en;
+    return map;
+  };
+  return {
+    name: loc(entity.nameFr, entity.nameEn),
+    description: loc(entity.descriptionFr, entity.descriptionEn),
+    altText: loc(entity.altTextFr, entity.altTextEn),
+  };
+}
+
+/**
+ * Normalise un snapshot au boundary de lecture (`PrismaSnapshotRepository`) :
+ * comble les champs absents des JSON legacy (allergènes, photos) ET up-convertit
+ * les snapshots v1 (pré-multilingue) en v2 — ajoute `texts` à chaque entité +
+ * `sourceLocale`/`availableLocales`/`snapshotVersion` à la racine. Le contrat
+ * `PublicMenuSnapshot` (v2) devient ainsi vrai au runtime même pour un JSON ancien.
+ * Idempotent sur un snapshot v2 fraîchement produit.
  */
 export function normalizePublicSnapshot(snapshot: PublicMenuSnapshot): PublicMenuSnapshot {
+  const sourceLocale: MenuLocale = snapshot.sourceLocale ?? "fr";
+  // Snapshots v1 (bilingues fr/en) → proposer fr + en par défaut.
+  const availableLocales: MenuLocale[] = snapshot.availableLocales ?? ["fr", "en"];
+
   return {
     ...snapshot,
+    snapshotVersion: 2,
+    sourceLocale,
+    availableLocales,
     categories: snapshot.categories.map((category) => ({
       ...category,
+      texts: category.texts ?? { name: { [sourceLocale]: category.name } },
       items: category.items.map(normalizePublicItem),
     })),
     ...(snapshot.dailyItems
       ? { dailyItems: snapshot.dailyItems.map(normalizePublicDailyDish) }
       : {}),
+    ...(snapshot.formulas ? { formulas: snapshot.formulas.map(normalizePublicFormula) } : {}),
   };
 }
 
@@ -210,6 +317,7 @@ function normalizePublicItem(item: PublicMenuItem): PublicMenuItem {
     imagePath: item.imagePath ?? null,
     altTextFr: item.altTextFr ?? "",
     altTextEn: item.altTextEn ?? "",
+    texts: item.texts ?? textsFromLegacy(item),
   };
 }
 
@@ -220,5 +328,13 @@ function normalizePublicDailyDish(dish: PublicMenuDailyDish): PublicMenuDailyDis
     imagePath: dish.imagePath ?? null,
     altTextFr: dish.altTextFr ?? "",
     altTextEn: dish.altTextEn ?? "",
+    texts: dish.texts ?? textsFromLegacy(dish),
+  };
+}
+
+function normalizePublicFormula(formula: PublicMenuFormula): PublicMenuFormula {
+  return {
+    ...formula,
+    texts: formula.texts ?? textsFromLegacy(formula),
   };
 }

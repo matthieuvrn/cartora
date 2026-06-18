@@ -3,6 +3,7 @@ import type { RestaurantRepository } from "@/application/ports/RestaurantReposit
 import type { Clock } from "@/application/ports/Clock";
 import { FormulaPolicy } from "@/domain/menu/FormulaPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreateFormulaInput = {
@@ -10,10 +11,10 @@ export type CreateFormulaInput = {
   priceCents: number;
   /** ISO 8601 UTC. Si absent, default = fin de la journée courante Europe/Paris. */
   validUntilISO?: string;
-  translations: {
-    fr: { name: string; description: string };
-    en?: { name?: string; description?: string };
-  };
+  /** Langue de saisie (S4) — le contenu est écrit UNIQUEMENT dans cette locale. */
+  sourceLocale: MenuLocale;
+  name: string;
+  description: string;
 };
 
 export type CreateFormulaOutput = {
@@ -37,15 +38,13 @@ export class CreateFormula {
       throw new DomainError("formula_not_allowed", { tier: restaurant.planTier });
     }
 
-    const frName = FormulaPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = FormulaPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = FormulaPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = FormulaPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const name = FormulaPolicy.sanitizeName(input.name);
+    const description = FormulaPolicy.sanitizeDescription(input.description);
 
-    const nameError = FormulaPolicy.validateName(frName);
+    const nameError = FormulaPolicy.validateName(name);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
-    const descError = FormulaPolicy.validateDescription(frDesc);
+    const descError = FormulaPolicy.validateDescription(description);
     if (descError) throw new DomainError(descError.code, { field: descError.field });
 
     const priceError = FormulaPolicy.validatePriceCents(input.priceCents);
@@ -69,10 +68,8 @@ export class CreateFormula {
       priceCents: input.priceCents,
       validUntilISO,
       order,
-      translations: {
-        fr: { name: frName, description: frDesc },
-        en: { name: enName, description: enDesc },
-      },
+      sourceLocale: input.sourceLocale,
+      texts: { name, description },
     });
 
     await this.menuRepo.markMenuAsDraft(input.restaurantId);

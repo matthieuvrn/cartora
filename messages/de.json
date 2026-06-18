@@ -1,0 +1,43 @@
+{
+  "PublicMenu": {
+    "badge": {
+      "NEW": "Neu",
+      "POPULAR": "Beliebt"
+    },
+    "todayMenu": "Heute",
+    "todayMenuDescription": "Heute verfügbare Tagesgerichte und Menüs",
+    "todaySectionDishesSubtitle": "Tagesgerichte",
+    "todaySectionFormulasSubtitle": "Menüs",
+    "watermark": "Bereitgestellt von Cartora",
+    "allergenLegendTitle": "Angegebene Allergene",
+    "categoriesNav": "Menükategorien",
+    "metaDescription": "Sehen Sie sich die Speisekarte von {name} an: {categories}. Online verfügbar auf Cartora.",
+    "metaDescriptionNoCategories": "Sehen Sie sich die Speisekarte von {name} an. Online verfügbar auf Cartora."
+  },
+  "Allergen": {
+    "sectionTitle": "Allergene",
+    "GLUTEN": { "short": "Gluten", "legal": "Glutenhaltiges Getreide" },
+    "CRUSTACEANS": {
+      "short": "Krebstiere",
+      "legal": "Krebstiere und daraus gewonnene Erzeugnisse"
+    },
+    "EGGS": { "short": "Eier", "legal": "Eier und daraus gewonnene Erzeugnisse" },
+    "FISH": { "short": "Fisch", "legal": "Fisch und daraus gewonnene Erzeugnisse" },
+    "PEANUTS": { "short": "Erdnüsse", "legal": "Erdnüsse und daraus gewonnene Erzeugnisse" },
+    "SOYBEANS": { "short": "Soja", "legal": "Sojabohnen und daraus gewonnene Erzeugnisse" },
+    "MILK": {
+      "short": "Milch",
+      "legal": "Milch und daraus gewonnene Erzeugnisse (einschließlich Laktose)"
+    },
+    "NUTS": { "short": "Schalenfrüchte", "legal": "Schalenfrüchte" },
+    "CELERY": { "short": "Sellerie", "legal": "Sellerie und daraus gewonnene Erzeugnisse" },
+    "MUSTARD": { "short": "Senf", "legal": "Senf und daraus gewonnene Erzeugnisse" },
+    "SESAME": { "short": "Sesam", "legal": "Sesamsamen und daraus gewonnene Erzeugnisse" },
+    "SULPHITES": {
+      "short": "Sulfite",
+      "legal": "Schwefeldioxid und Sulfite in Konzentrationen von mehr als 10 mg/kg oder 10 mg/l"
+    },
+    "LUPIN": { "short": "Lupinen", "legal": "Lupinen und daraus gewonnene Erzeugnisse" },
+    "MOLLUSCS": { "short": "Weichtiere", "legal": "Weichtiere und daraus gewonnene Erzeugnisse" }
+  }
+}

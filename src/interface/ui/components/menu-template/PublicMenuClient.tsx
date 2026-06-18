@@ -2,75 +2,108 @@
 
 import { useSyncExternalStore, useCallback } from "react";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import { isMenuLocale, MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MenuTemplateRenderer } from "./index";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { AllergenLabels } from "../AllergenIcons";
 
-type Labels = {
+export type PublicMenuLabels = {
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
   allergenLegendTitle: string;
   watermarkText: string;
-  /** Titre de la section "Aujourd'hui" (S3.1 + S3.2). */
   todaySectionTitle: string;
-  /** Sous-titre optionnel de la section "Aujourd'hui". */
   todaySectionDescription?: string;
-  /** Sous-titres affichés UNIQUEMENT si plats du jour ET formules coexistent. */
   todaySectionDishesSubtitle?: string;
   todaySectionFormulasSubtitle?: string;
-  /** Nom accessible de la nav rapide par catégorie (CLASSIC). */
   categoriesNavLabel: string;
 };
 
 type Props = {
   snapshot: PublicMenuSnapshot;
-  defaultLocale: "fr" | "en";
-  labelsFr: Labels;
-  labelsEn: Labels;
+  /** Locale affichée au 1er rendu (SSR) — toujours ∈ `snapshot.availableLocales`. */
+  defaultLocale: MenuLocale;
+  /** Labels i18n par langue disponible (résolus côté page). */
+  labelsByLocale: Partial<Record<MenuLocale, PublicMenuLabels>>;
   showWatermark: boolean;
 };
 
 const STORAGE_KEY = "cartora_locale";
 
-// Stable subscribe function (module-level, no closure needed)
 function subscribeToStorage(callback: () => void): () => void {
   window.addEventListener("storage", callback);
   return () => window.removeEventListener("storage", callback);
 }
 
+/**
+ * Coquille client du menu public : sélecteur de langue (S4 — N langues) + rendu.
+ * La langue choisie est persistée en `localStorage` (pas de round-trip serveur) et
+ * validée contre `snapshot.availableLocales` — une valeur orpheline (langue
+ * désactivée depuis) retombe sur `defaultLocale`. Switcher : bouton bascule à 2
+ * langues, rangée de boutons au-delà.
+ */
 export function PublicMenuClient({
   snapshot,
   defaultLocale,
-  labelsFr,
-  labelsEn,
+  labelsByLocale,
   showWatermark,
 }: Props) {
-  // getSnapshot reads from localStorage — changes when defaultLocale prop changes (never in practice)
+  const available = snapshot.availableLocales;
+
   const getSnapshot = useCallback(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved === "fr" || saved === "en" ? saved : defaultLocale;
-  }, [defaultLocale]);
+    if (saved && isMenuLocale(saved) && available.includes(saved)) return saved;
+    return defaultLocale;
+  }, [defaultLocale, available]);
 
-  // Server snapshot matches the ISR-rendered locale; client snapshot reads localStorage
   const locale = useSyncExternalStore(subscribeToStorage, getSnapshot, () => defaultLocale);
 
-  const toggle = () => {
-    const next = locale === "fr" ? "en" : "fr";
+  const select = (next: MenuLocale) => {
     localStorage.setItem(STORAGE_KEY, next);
-    // Dispatch a storage event so useSyncExternalStore triggers a re-render
     window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
   };
 
-  const labels = locale === "fr" ? labelsFr : labelsEn;
+  // Labels de la locale courante, repli sur la langue source (toujours présente).
+  const labels = labelsByLocale[locale] ?? labelsByLocale[snapshot.sourceLocale];
+  if (!labels) return null;
 
   return (
     <>
-      <div className="fixed right-3 top-3 z-50">
-        <Button variant="outline" size="sm" onClick={toggle}>
-          {locale === "fr" ? "EN" : "FR"}
-        </Button>
-      </div>
+      {available.length > 1 && (
+        <div className="fixed right-3 top-3 z-50">
+          {available.length === 2 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => select(available.find((l) => l !== locale) ?? defaultLocale)}
+            >
+              {(available.find((l) => l !== locale) ?? defaultLocale).toUpperCase()}
+            </Button>
+          ) : (
+            <div className="flex gap-1 rounded-md border bg-background/90 p-1 shadow-sm backdrop-blur">
+              {available.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  onClick={() => select(l)}
+                  aria-pressed={l === locale}
+                  title={MENU_LOCALE_LABELS[l]}
+                  className={cn(
+                    "rounded px-2 py-1 text-xs font-medium uppercase transition-colors",
+                    l === locale
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <MenuTemplateRenderer
         snapshot={snapshot}
         locale={locale}

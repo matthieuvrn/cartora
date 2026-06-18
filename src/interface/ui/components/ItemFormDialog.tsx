@@ -4,7 +4,6 @@ import { useActionState, useCallback, useEffect, useId, useMemo, useRef, useStat
 import { useTranslations } from "next-intl";
 import { Trash2, Upload } from "lucide-react";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -54,8 +53,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
 
   // Create-mode photo: held in memory until the item is created, then uploaded.
   const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [pendingAltFr, setPendingAltFr] = useState("");
-  const [pendingAltEn, setPendingAltEn] = useState("");
+  const [pendingAlt, setPendingAlt] = useState("");
   const [pendingFileError, setPendingFileError] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -89,8 +87,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
 
   function clearPendingFile() {
     setPendingFile(null);
-    setPendingAltFr("");
-    setPendingAltEn("");
+    setPendingAlt("");
     setPendingFileError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
@@ -118,8 +115,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
           await setItemImageAction({
             itemId: result.createdItemId,
             imagePath: signed.path,
-            altTextFr: pendingAltFr.trim() || undefined,
-            altTextEn: pendingAltEn.trim() || undefined,
+            altText: pendingAlt.trim() || undefined,
           });
         } catch {
           // Item created, photo failed. Sentry already captured it server-side.
@@ -136,11 +132,11 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
       }
       return result;
     },
-    [serverAction, onOpenChange, mode, pendingFile, pendingAltFr, pendingAltEn],
+    [serverAction, onOpenChange, mode, pendingFile, pendingAlt],
   );
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
   const isBusy = isPending || isUploadingPhoto;
-  const frNameError = state.fieldErrors?.["translations.fr.name"];
+  const nameError = state.fieldErrors?.name;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -160,63 +156,31 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
 
             {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-            {/* Nom + description par langue. forceMount + data-[state=inactive]:hidden : les deux
-                langues restent montées (donc soumises) même onglet inactif. */}
-            <Tabs defaultValue="fr">
-              <TabsList>
-                <TabsTrigger value="fr">
-                  Français
-                  {frNameError && (
-                    <span aria-hidden className="ml-1.5 size-1.5 rounded-full bg-destructive" />
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="en">English</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="fr" forceMount className="space-y-3 data-[state=inactive]:hidden">
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-nameFr`}>{t("nameFr")}</Label>
-                  <Input
-                    id={`${id}-nameFr`}
-                    name="nameFr"
-                    placeholder="ex: Spaghetti Carbonara"
-                    defaultValue={item?.translations.fr.name ?? ""}
-                    aria-invalid={!!frNameError}
-                  />
-                  {frNameError && <p className="text-xs text-destructive">{frNameError}</p>}
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-descFr`}>{t("descriptionFr")}</Label>
-                  <Textarea
-                    id={`${id}-descFr`}
-                    name="descriptionFr"
-                    placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
-                    defaultValue={item?.translations.fr.description ?? ""}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="en" forceMount className="space-y-3 data-[state=inactive]:hidden">
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-nameEn`}>{t("nameEn")}</Label>
-                  <Input
-                    id={`${id}-nameEn`}
-                    name="nameEn"
-                    placeholder="ex: Spaghetti Carbonara"
-                    defaultValue={item?.translations.en.name ?? ""}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor={`${id}-descEn`}>{t("descriptionEn")}</Label>
-                  <Textarea
-                    id={`${id}-descEn`}
-                    name="descriptionEn"
-                    placeholder="ex: Fresh pasta, pancetta, parmesan..."
-                    defaultValue={item?.translations.en.description ?? ""}
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
+            {/* Saisie monolingue (S4) : une seule langue — celle du restaurateur.
+                Les traductions se gèrent dans /app/traductions. v1 : source = fr,
+                `translations.fr` EST le texte source (swap vers `texts` au step 11). */}
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-name`}>{t("name")}</Label>
+                <Input
+                  id={`${id}-name`}
+                  name="name"
+                  placeholder="ex: Spaghetti Carbonara"
+                  defaultValue={item?.translations.fr.name ?? ""}
+                  aria-invalid={!!nameError}
+                />
+                {nameError && <p className="text-xs text-destructive">{nameError}</p>}
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor={`${id}-desc`}>{t("description")}</Label>
+                <Textarea
+                  id={`${id}-desc`}
+                  name="description"
+                  placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
+                  defaultValue={item?.translations.fr.description ?? ""}
+                />
+              </div>
+            </div>
 
             {/* Price + Badge row */}
             <div className="grid grid-cols-2 gap-3">
@@ -302,8 +266,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
               <ItemPhotoEditor
                 itemId={item.id}
                 initialImagePath={item.imagePath}
-                initialAltTextFr={item.altTextFr}
-                initialAltTextEn={item.altTextEn}
+                initialAltText={item.texts.altText?.fr ?? item.altTextFr}
               />
             )}
 
@@ -327,7 +290,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={previewUrl}
-                        alt={pendingAltFr || pendingAltEn || ""}
+                        alt={pendingAlt || ""}
                         className="absolute inset-0 size-full object-cover"
                       />
                     ) : (
@@ -373,25 +336,14 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
                   <div className="space-y-2">
                     <p className="text-xs text-muted-foreground">{t("photo.altTextHint")}</p>
                     <div className="space-y-1">
-                      <Label htmlFor={`${id}-create-altFr`}>{t("photo.altTextFr")}</Label>
+                      <Label htmlFor={`${id}-create-alt`}>{t("photo.altText")}</Label>
                       <Input
-                        id={`${id}-create-altFr`}
-                        value={pendingAltFr}
+                        id={`${id}-create-alt`}
+                        value={pendingAlt}
                         maxLength={MAX_ALT_TEXT_LENGTH}
                         disabled={isBusy}
-                        onChange={(e) => setPendingAltFr(e.target.value)}
+                        onChange={(e) => setPendingAlt(e.target.value)}
                         placeholder="ex : assiette de salade verte avec tomates"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor={`${id}-create-altEn`}>{t("photo.altTextEn")}</Label>
-                      <Input
-                        id={`${id}-create-altEn`}
-                        value={pendingAltEn}
-                        maxLength={MAX_ALT_TEXT_LENGTH}
-                        disabled={isBusy}
-                        onChange={(e) => setPendingAltEn(e.target.value)}
-                        placeholder="e.g. plate of green salad with tomatoes"
                       />
                     </div>
                   </div>

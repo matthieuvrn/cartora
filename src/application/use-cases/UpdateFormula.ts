@@ -3,6 +3,7 @@ import type { RestaurantRepository } from "@/application/ports/RestaurantReposit
 import type { Clock } from "@/application/ports/Clock";
 import { FormulaPolicy } from "@/domain/menu/FormulaPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type UpdateFormulaInput = {
@@ -10,10 +11,10 @@ export type UpdateFormulaInput = {
   restaurantId: string;
   priceCents: number;
   validUntilISO: string;
-  translations: {
-    fr: { name: string; description: string };
-    en?: { name?: string; description?: string };
-  };
+  /** Langue de saisie (S4) — les traductions cibles ne sont jamais touchées ici. */
+  sourceLocale: MenuLocale;
+  name: string;
+  description: string;
 };
 
 export class UpdateFormula {
@@ -39,15 +40,13 @@ export class UpdateFormula {
     });
     if (!existing) throw new DomainError("item_not_found", { entityId: input.formulaId });
 
-    const frName = FormulaPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = FormulaPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = FormulaPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = FormulaPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const name = FormulaPolicy.sanitizeName(input.name);
+    const description = FormulaPolicy.sanitizeDescription(input.description);
 
-    const nameError = FormulaPolicy.validateName(frName);
+    const nameError = FormulaPolicy.validateName(name);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
-    const descError = FormulaPolicy.validateDescription(frDesc);
+    const descError = FormulaPolicy.validateDescription(description);
     if (descError) throw new DomainError(descError.code, { field: descError.field });
 
     const priceError = FormulaPolicy.validatePriceCents(input.priceCents);
@@ -65,10 +64,8 @@ export class UpdateFormula {
       restaurantId: input.restaurantId,
       priceCents: input.priceCents,
       validUntilISO: input.validUntilISO,
-      translations: {
-        fr: { name: frName, description: frDesc },
-        en: { name: enName, description: enDesc },
-      },
+      sourceLocale: input.sourceLocale,
+      texts: { name, description },
     });
 
     await this.menuRepo.markMenuAsDraft(input.restaurantId);

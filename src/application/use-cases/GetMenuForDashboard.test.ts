@@ -9,10 +9,13 @@ const MENU_FIXTURE: MenuOverview = {
   status: "DRAFT",
   template: "CLASSIC",
   publishedAt: null,
+  sourceLocale: "fr",
+  enabledLocales: ["en"],
   categories: [
     {
       id: "cat-1",
       name: "Entrées",
+      nameTexts: { fr: "Entrées" },
       order: 0,
       items: [
         {
@@ -29,12 +32,17 @@ const MENU_FIXTURE: MenuOverview = {
             fr: { name: "Soupe", description: "Soupe du jour" },
             en: { name: "Soup", description: "Soup of the day" },
           },
+          texts: {
+            name: { fr: "Soupe", en: "Soup" },
+            description: { fr: "Soupe du jour", en: "Soup of the day" },
+            altText: {},
+          },
         },
       ],
     },
-    { id: "cat-2", name: "Plats", order: 1, items: [] },
-    { id: "cat-3", name: "Desserts", order: 2, items: [] },
-    { id: "cat-4", name: "Boissons", order: 3, items: [] },
+    { id: "cat-2", name: "Plats", nameTexts: { fr: "Plats" }, order: 1, items: [] },
+    { id: "cat-3", name: "Desserts", nameTexts: { fr: "Desserts" }, order: 2, items: [] },
+    { id: "cat-4", name: "Boissons", nameTexts: { fr: "Boissons" }, order: 3, items: [] },
   ],
 };
 

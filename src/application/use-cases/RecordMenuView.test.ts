@@ -7,6 +7,8 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 const SNAPSHOT_FIXTURE = {
   restaurantId: "resto-1",
   snapshotData: {
+    sourceLocale: "fr",
+    availableLocales: ["fr", "en"],
     restaurantName: "Test",
     categories: [],
     publishedAt: "2026-03-25T12:00:00.000Z",

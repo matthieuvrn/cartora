@@ -1,4 +1,5 @@
 import type { Allergen, ItemBadge } from "./ItemPolicy";
+import type { LocalizedText, MenuLocale } from "./MenuLocale";
 
 export const MENU_TEMPLATE_VALUES = [
   "CLASSIC",
@@ -18,6 +19,17 @@ export type ItemTranslations = {
   description: string;
 };
 
+/**
+ * Textes localisés d'une entité de menu (S4 — multilingue), toutes locales
+ * confondues (source comprise). Source de vérité : table `translations`.
+ * `altText` est absent pour les entités sans photo (formules).
+ */
+export type EntityTexts = {
+  name: LocalizedText;
+  description: LocalizedText;
+  altText?: LocalizedText;
+};
+
 export type MenuItemData = {
   id: string;
   priceCents: number;
@@ -25,15 +37,22 @@ export type MenuItemData = {
   allergens: Allergen[];
   isAvailable: boolean;
   imagePath: string | null;
+  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
   altTextFr: string | null;
+  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
   altTextEn: string | null;
   order: number;
+  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
   translations: { fr: ItemTranslations; en: ItemTranslations };
+  texts: EntityTexts;
 };
 
 export type MenuCategoryData = {
   id: string;
+  /** Nom dans la langue SOURCE (colonne `categories.name` — porte l'unicité et les ancres). */
   name: string;
+  /** Nom toutes locales : `{ [sourceLocale]: name }` + lignes CATEGORY de `translations`. */
+  nameTexts: LocalizedText;
   order: number;
   items: MenuItemData[];
 };
@@ -44,6 +63,10 @@ export type MenuOverview = {
   status: "DRAFT" | "PUBLISHED";
   template: MenuTemplate;
   publishedAt: string | null;
+  /** Langue de saisie du restaurateur (S4). */
+  sourceLocale: MenuLocale;
+  /** Langues cibles activées (S4) — sans la langue source. */
+  enabledLocales: MenuLocale[];
   categories: MenuCategoryData[];
 };
 
@@ -59,11 +82,15 @@ export type DailyDishData = {
   badge: ItemBadge;
   allergens: Allergen[];
   imagePath: string | null;
+  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
   altTextFr: string | null;
+  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
   altTextEn: string | null;
   validUntilISO: string;
   order: number;
+  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
   translations: { fr: ItemTranslations; en: ItemTranslations };
+  texts: EntityTexts;
 };
 
 /**
@@ -78,5 +105,7 @@ export type FormulaData = {
   priceCents: number;
   validUntilISO: string;
   order: number;
+  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
   translations: { fr: ItemTranslations; en: ItemTranslations };
+  texts: EntityTexts;
 };

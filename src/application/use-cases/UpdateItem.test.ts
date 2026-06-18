@@ -8,14 +8,13 @@ const VALID_INPUT = {
   priceCents: 1500,
   badge: "POPULAR" as const,
   isAvailable: true,
-  translations: {
-    fr: { name: "Tartare de bœuf", description: "Servi avec frites" },
-    en: { name: "Beef tartare", description: "Served with fries" },
-  },
+  sourceLocale: "fr" as const,
+  name: "Tartare de bœuf",
+  description: "Servi avec frites",
 };
 
 describe("UpdateItem", () => {
-  it("updates an item with valid input", async () => {
+  it("updates an item with valid input (source locale only)", async () => {
     const repo = createMockMenuRepo();
     const uc = new UpdateItem(repo);
 
@@ -28,10 +27,8 @@ describe("UpdateItem", () => {
       badge: "POPULAR",
       allergens: [],
       isAvailable: true,
-      translations: {
-        fr: { name: "Tartare de bœuf", description: "Servi avec frites" },
-        en: { name: "Beef tartare", description: "Served with fries" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Tartare de bœuf", description: "Servi avec frites" },
     });
   });
 
@@ -48,10 +45,8 @@ describe("UpdateItem", () => {
       badge: "POPULAR",
       allergens: ["MILK", "NUTS"],
       isAvailable: true,
-      translations: {
-        fr: { name: "Tartare de bœuf", description: "Servi avec frites" },
-        en: { name: "Beef tartare", description: "Served with fries" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Tartare de bœuf", description: "Servi avec frites" },
     });
   });
 
@@ -76,21 +71,16 @@ describe("UpdateItem", () => {
       badge: "POPULAR",
       allergens: [],
       isAvailable: false,
-      translations: {
-        fr: { name: "Tartare de bœuf", description: "Servi avec frites" },
-        en: { name: "Beef tartare", description: "Served with fries" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Tartare de bœuf", description: "Servi avec frites" },
     });
   });
 
-  it("defaults EN translations to empty strings when omitted", async () => {
+  it("sanitizes name/description before persisting (empty description allowed)", async () => {
     const repo = createMockMenuRepo();
     const uc = new UpdateItem(repo);
 
-    await uc.execute({
-      ...VALID_INPUT,
-      translations: { fr: { name: "Soupe", description: "" } },
-    });
+    await uc.execute({ ...VALID_INPUT, name: "  Soupe  ", description: "" });
 
     expect(repo.updateItem).toHaveBeenCalledWith({
       itemId: "item-1",
@@ -99,19 +89,17 @@ describe("UpdateItem", () => {
       badge: "POPULAR",
       allergens: [],
       isAvailable: true,
-      translations: {
-        fr: { name: "Soupe", description: "" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Soupe", description: "" },
     });
   });
 
-  it("throws when FR name is empty", async () => {
+  it("throws when name is empty", async () => {
     const uc = new UpdateItem(createMockMenuRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, translations: { fr: { name: "  ", description: "" } } }),
-    ).rejects.toMatchObject({ name: "DomainError", code: "name_required" });
+    await expect(uc.execute({ ...VALID_INPUT, name: "  ", description: "" })).rejects.toMatchObject(
+      { name: "DomainError", code: "name_required" },
+    );
   });
 
   it("throws when price is negative", async () => {

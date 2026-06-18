@@ -15,7 +15,8 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:check": "tsx scripts/db-check.ts",
-    "db:seed-demo": "tsx scripts/seed-demo.ts"
+    "db:seed-demo": "tsx scripts/seed-demo.ts",
+    "db:backfill-translation-hashes": "tsx scripts/backfill-translation-hashes.ts"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.2.8",

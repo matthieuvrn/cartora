@@ -73,6 +73,7 @@ export function TemplateRivage({
 
       {hasToday && (
         <TodaySection
+          sourceLocale={snapshot.sourceLocale}
           items={snapshot.dailyItems ?? []}
           formulas={snapshot.formulas ?? []}
           locale={locale}
@@ -89,6 +90,7 @@ export function TemplateRivage({
       <div className="space-y-12">
         {snapshot.categories.map((category) => (
           <MenuCategorySection
+            sourceLocale={snapshot.sourceLocale}
             key={category.name}
             category={category}
             locale={locale}

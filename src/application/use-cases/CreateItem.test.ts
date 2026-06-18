@@ -7,14 +7,13 @@ const VALID_INPUT = {
   restaurantId: "resto-1",
   priceCents: 1200,
   badge: "NEW" as const,
-  translations: {
-    fr: { name: "Salade César", description: "Laitue, parmesan" },
-    en: { name: "Caesar Salad", description: "Lettuce, parmesan" },
-  },
+  sourceLocale: "fr" as const,
+  name: "Salade César",
+  description: "Laitue, parmesan",
 };
 
 describe("CreateItem", () => {
-  it("creates an item with valid input", async () => {
+  it("creates an item with valid input (source locale only)", async () => {
     const repo = createMockMenuRepo();
     const uc = new CreateItem(repo);
 
@@ -30,10 +29,8 @@ describe("CreateItem", () => {
       allergens: [],
       isAvailable: true,
       order: 3,
-      translations: {
-        fr: { name: "Salade César", description: "Laitue, parmesan" },
-        en: { name: "Caesar Salad", description: "Lettuce, parmesan" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Salade César", description: "Laitue, parmesan" },
     });
   });
 
@@ -51,10 +48,27 @@ describe("CreateItem", () => {
       allergens: ["GLUTEN", "EGGS"],
       isAvailable: true,
       order: 3,
-      translations: {
-        fr: { name: "Salade César", description: "Laitue, parmesan" },
-        en: { name: "Caesar Salad", description: "Lettuce, parmesan" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Salade César", description: "Laitue, parmesan" },
+    });
+  });
+
+  it("passes a non-fr source locale through to the repo", async () => {
+    const repo = createMockMenuRepo();
+    const uc = new CreateItem(repo);
+
+    await uc.execute({ ...VALID_INPUT, sourceLocale: "en", name: "Caesar Salad" });
+
+    expect(repo.createItem).toHaveBeenCalledWith({
+      categoryId: "cat-1",
+      restaurantId: "resto-1",
+      priceCents: 1200,
+      badge: "NEW",
+      allergens: [],
+      isAvailable: true,
+      order: 3,
+      sourceLocale: "en",
+      texts: { name: "Caesar Salad", description: "Laitue, parmesan" },
     });
   });
 
@@ -66,38 +80,10 @@ describe("CreateItem", () => {
     ).rejects.toMatchObject({ name: "DomainError", code: "invalid_allergen" });
   });
 
-  it("defaults EN translations to empty strings when omitted", async () => {
-    const repo = createMockMenuRepo();
-    const uc = new CreateItem(repo);
-
-    await uc.execute({
-      ...VALID_INPUT,
-      translations: {
-        fr: { name: "Soupe", description: "Soupe du jour" },
-      },
-    });
-
-    expect(repo.createItem).toHaveBeenCalledWith({
-      categoryId: "cat-1",
-      restaurantId: "resto-1",
-      priceCents: 1200,
-      badge: "NEW",
-      allergens: [],
-      isAvailable: true,
-      order: 3,
-      translations: {
-        fr: { name: "Soupe", description: "Soupe du jour" },
-        en: { name: "", description: "" },
-      },
-    });
-  });
-
-  it("throws when FR name is empty", async () => {
+  it("throws when name is empty", async () => {
     const uc = new CreateItem(createMockMenuRepo());
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, translations: { fr: { name: "", description: "" } } }),
-    ).rejects.toMatchObject({
+    await expect(uc.execute({ ...VALID_INPUT, name: "", description: "" })).rejects.toMatchObject({
       name: "DomainError",
       code: "name_required",
       metadata: { field: "name" },

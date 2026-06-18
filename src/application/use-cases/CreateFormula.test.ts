@@ -20,13 +20,13 @@ function restaurantRepoOf(tier: PlanTier) {
 const VALID_INPUT = {
   restaurantId: "resto-1",
   priceCents: 1600,
-  translations: {
-    fr: { name: "Menu du midi", description: "Entrée au choix\nPlat du jour\nCafé gourmand" },
-  },
+  sourceLocale: "fr" as const,
+  name: "Menu du midi",
+  description: "Entrée au choix\nPlat du jour\nCafé gourmand",
 };
 
 describe("CreateFormula", () => {
-  it("persists a new formula for a STARTER restaurant", async () => {
+  it("persists a new formula for a STARTER restaurant (source locale only)", async () => {
     const createFormula = vi.fn(async () => ({ id: "formula-1" }));
     const markMenuAsDraft = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({ createFormula, markMenuAsDraft });
@@ -41,10 +41,8 @@ describe("CreateFormula", () => {
       priceCents: 1600,
       validUntilISO: "2026-05-17T21:59:59.999Z",
       order: 0,
-      translations: {
-        fr: { name: "Menu du midi", description: "Entrée au choix\nPlat du jour\nCafé gourmand" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Menu du midi", description: "Entrée au choix\nPlat du jour\nCafé gourmand" },
     });
     expect(markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
@@ -73,10 +71,8 @@ describe("CreateFormula", () => {
       priceCents: 1600,
       validUntilISO: "2026-05-17T21:59:59.999Z",
       order: 0,
-      translations: {
-        fr: { name: "Menu du midi", description: "Entrée au choix\nPlat du jour\nCafé gourmand" },
-        en: { name: "", description: "" },
-      },
+      sourceLocale: "fr",
+      texts: { name: "Menu du midi", description: "Entrée au choix\nPlat du jour\nCafé gourmand" },
     });
   });
 
@@ -108,9 +104,10 @@ describe("CreateFormula", () => {
   it("rejects when name is empty", async () => {
     const uc = new CreateFormula(createMockMenuRepo(), restaurantRepoOf("STARTER"), clock);
 
-    await expect(
-      uc.execute({ ...VALID_INPUT, translations: { fr: { name: "", description: "" } } }),
-    ).rejects.toMatchObject({ name: "DomainError", code: "name_required" });
+    await expect(uc.execute({ ...VALID_INPUT, name: "", description: "" })).rejects.toMatchObject({
+      name: "DomainError",
+      code: "name_required",
+    });
   });
 
   it("rejects when price is negative", async () => {

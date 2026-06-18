@@ -2,13 +2,16 @@ import Image from "next/image";
 import { Sparkles, Flame } from "lucide-react";
 import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { ItemBadge } from "@/domain/menu/ItemPolicy";
-import { formatPrice, formatPriceAria, getLocalizedText } from "@/domain/menu/publicMenuView";
+import { formatPrice, formatPriceAria } from "@/domain/menu/publicMenuView";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { itemImageUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 
 type Props = {
   item: PublicMenuItem;
-  locale: "fr" | "en";
+  locale: MenuLocale;
+  /** Langue source du menu — dernier repli de `resolveText` (S4). */
+  sourceLocale: MenuLocale;
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
@@ -38,15 +41,16 @@ const badgeConfig: Record<
 export function MenuItemRow({
   item,
   locale,
+  sourceLocale,
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
   priority = false,
 }: Props) {
-  const name = getLocalizedText(item.nameFr, item.nameEn, locale);
-  const description = getLocalizedText(item.descriptionFr, item.descriptionEn, locale);
+  const name = resolveText(item.texts.name, locale, sourceLocale);
+  const description = resolveText(item.texts.description, locale, sourceLocale);
   const imageUrl = item.imagePath ? itemImageUrl(item.imagePath) : null;
-  const altText = getLocalizedText(item.altTextFr, item.altTextEn, locale) || name;
+  const altText = resolveText(item.texts.altText ?? {}, locale, sourceLocale) || name;
 
   return (
     <li className="space-y-2 py-3">

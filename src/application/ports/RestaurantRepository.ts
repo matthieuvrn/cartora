@@ -1,6 +1,7 @@
 import type { InitialCategory, RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 
 export interface RestaurantRepository {
   findByOwnerUserId(ownerUserId: string): Promise<{ id: string } | null>;
@@ -24,6 +25,10 @@ export interface RestaurantRepository {
     brandPrimary: string | null;
     brandAccent: string | null;
     brandBackground: string | null;
+    /** Langue de saisie du restaurateur (S4). */
+    sourceLocale: MenuLocale;
+    /** Langues cibles activées (S4) — n'inclut jamais la langue source. */
+    menuLocales: MenuLocale[];
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
@@ -36,6 +41,9 @@ export interface RestaurantRepository {
     accent: string | null;
     background: string | null;
   }): Promise<void>;
+
+  /** Remplace la liste des langues cibles activées (S4). */
+  updateMenuLocales(params: { restaurantId: string; menuLocales: MenuLocale[] }): Promise<void>;
 
   markActivationDismissed(restaurantId: string): Promise<void>;
 

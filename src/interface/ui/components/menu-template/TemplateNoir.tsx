@@ -67,6 +67,7 @@ export function TemplateNoir({
 
       {hasToday && (
         <TodaySection
+          sourceLocale={snapshot.sourceLocale}
           items={snapshot.dailyItems ?? []}
           formulas={snapshot.formulas ?? []}
           locale={locale}
@@ -83,6 +84,7 @@ export function TemplateNoir({
       <div className="space-y-14">
         {snapshot.categories.map((category) => (
           <MenuCategorySection
+            sourceLocale={snapshot.sourceLocale}
             key={category.name}
             category={category}
             locale={locale}

@@ -63,6 +63,7 @@ export function TemplateZen({
 
       {hasToday && (
         <TodaySection
+          sourceLocale={snapshot.sourceLocale}
           items={snapshot.dailyItems ?? []}
           formulas={snapshot.formulas ?? []}
           locale={locale}
@@ -79,6 +80,7 @@ export function TemplateZen({
       <div className="space-y-16">
         {snapshot.categories.map((category) => (
           <MenuCategorySection
+            sourceLocale={snapshot.sourceLocale}
             key={category.name}
             category={category}
             locale={locale}

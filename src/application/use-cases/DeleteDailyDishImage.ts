@@ -28,12 +28,13 @@ export class DeleteDailyDishImage {
       }
     }
 
+    // `imagePath: null` ⇒ le repo purge aussi les alt-texts de toutes les locales.
     await this.repo.updateDailyDishImage({
       dishId: input.dishId,
       restaurantId: input.restaurantId,
       imagePath: null,
-      altTextFr: null,
-      altTextEn: null,
+      sourceLocale: "fr",
+      altText: null,
     });
 
     await this.repo.markMenuAsDraft(input.restaurantId);

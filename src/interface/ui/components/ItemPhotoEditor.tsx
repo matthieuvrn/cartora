@@ -23,23 +23,17 @@ import { itemImageUrl } from "@/lib/storage-url";
 type Props = {
   itemId: string;
   initialImagePath: string | null;
-  initialAltTextFr: string | null;
-  initialAltTextEn: string | null;
+  /** Alt-text dans la langue de saisie (S4) — les autres locales : /app/traductions. */
+  initialAltText: string | null;
 };
 
-export function ItemPhotoEditor({
-  itemId,
-  initialImagePath,
-  initialAltTextFr,
-  initialAltTextEn,
-}: Props) {
+export function ItemPhotoEditor({ itemId, initialImagePath, initialAltText }: Props) {
   const t = useTranslations("Dashboard.photo");
   const id = useId();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [imagePath, setImagePath] = useState<string | null>(initialImagePath);
-  const [altFr, setAltFr] = useState(initialAltTextFr ?? "");
-  const [altEn, setAltEn] = useState(initialAltTextEn ?? "");
+  const [alt, setAlt] = useState(initialAltText ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, startDeleting] = useTransition();
@@ -83,8 +77,7 @@ export function ItemPhotoEditor({
       const persisted = await setItemImageAction({
         itemId,
         imagePath: signed.path,
-        altTextFr: altFr.trim() || undefined,
-        altTextEn: altEn.trim() || undefined,
+        altText: alt.trim() || undefined,
       });
       if (!persisted.ok) {
         setError(t("error.generic"));
@@ -109,8 +102,7 @@ export function ItemPhotoEditor({
         return;
       }
       setImagePath(null);
-      setAltFr("");
-      setAltEn("");
+      setAlt("");
     });
   }
 
@@ -121,8 +113,7 @@ export function ItemPhotoEditor({
       const result = await setItemImageAction({
         itemId,
         imagePath,
-        altTextFr: altFr.trim() || undefined,
-        altTextEn: altEn.trim() || undefined,
+        altText: alt.trim() || undefined,
       });
       if (!result.ok) setError(t("error.generic"));
     });
@@ -143,13 +134,7 @@ export function ItemPhotoEditor({
       <div className="flex items-start gap-3">
         <div className="relative h-24 w-32 shrink-0 overflow-hidden rounded-md bg-muted">
           {previewUrl ? (
-            <Image
-              src={previewUrl}
-              alt={altFr || altEn || ""}
-              fill
-              sizes="128px"
-              className="object-cover"
-            />
+            <Image src={previewUrl} alt={alt || ""} fill sizes="128px" className="object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
               {t("noPhoto")}
@@ -198,27 +183,15 @@ export function ItemPhotoEditor({
         <div className="space-y-2">
           <p className="text-xs text-muted-foreground">{t("altTextHint")}</p>
           <div className="space-y-1">
-            <Label htmlFor={`${id}-altFr`}>{t("altTextFr")}</Label>
+            <Label htmlFor={`${id}-alt`}>{t("altText")}</Label>
             <Input
-              id={`${id}-altFr`}
-              value={altFr}
+              id={`${id}-alt`}
+              value={alt}
               maxLength={MAX_ALT_TEXT_LENGTH}
               disabled={isSavingAlt}
-              onChange={(e) => setAltFr(e.target.value)}
+              onChange={(e) => setAlt(e.target.value)}
               onBlur={persistAltText}
               placeholder="ex : assiette de salade verte avec tomates"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor={`${id}-altEn`}>{t("altTextEn")}</Label>
-            <Input
-              id={`${id}-altEn`}
-              value={altEn}
-              maxLength={MAX_ALT_TEXT_LENGTH}
-              disabled={isSavingAlt}
-              onChange={(e) => setAltEn(e.target.value)}
-              onBlur={persistAltText}
-              placeholder="e.g. plate of green salad with tomatoes"
             />
           </div>
         </div>

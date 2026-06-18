@@ -1,4 +1,5 @@
 import type { Allergen } from "./ItemPolicy";
+import type { MenuLocale } from "./MenuLocale";
 import type { PublicMenuSnapshot } from "./PublicMenuTypes";
 
 /**
@@ -12,21 +13,42 @@ import type { PublicMenuSnapshot } from "./PublicMenuTypes";
  * et les skins legacy (3+ copies, dont une `formatPrice` hardcodée `fr-FR`).
  */
 
-export type Locale = "fr" | "en";
+/**
+ * Élargi de `"fr" | "en"` à toutes les locales de contenu (S4 — multilingue).
+ * Ré-export d'alias : les consommateurs existants (`import type { Locale } from
+ * "...publicMenuView"`) continuent de compiler, les nouveaux modules importent
+ * `MenuLocale` directement.
+ */
+export type Locale = MenuLocale;
 
-/** Texte localisé avec repli FR quand la traduction EN est vide. */
-export function getLocalizedText(fr: string, en: string, locale: Locale): string {
-  if (locale === "en") return en || fr;
-  return fr;
-}
+/** Tags BCP 47 pour `Intl` — un pays de référence par locale de contenu. */
+const INTL_TAGS: Record<MenuLocale, string> = {
+  fr: "fr-FR",
+  en: "en-US",
+  es: "es-ES",
+  de: "de-DE",
+  it: "it-IT",
+};
 
 /** Prix formaté (EUR) selon la locale — `fr-FR` → "12,00 €", `en-US` → "€12.00". */
 export function formatPrice(cents: number, locale: Locale): string {
-  return new Intl.NumberFormat(locale === "fr" ? "fr-FR" : "en-US", {
+  return new Intl.NumberFormat(INTL_TAGS[locale], {
     style: "currency",
     currency: "EUR",
   }).format(cents / 100);
 }
+
+/**
+ * Mots épelés pour le libellé prix lecteur d'écran. `cents: null` = la locale
+ * énonce les centimes sans unité (usage oral français : « 12 euros 50 »).
+ */
+const PRICE_ARIA_WORDS: Record<MenuLocale, { euros: string; cents: string | null }> = {
+  fr: { euros: "euros", cents: null },
+  en: { euros: "euros", cents: "cents" },
+  es: { euros: "euros", cents: "céntimos" },
+  de: { euros: "Euro", cents: "Cent" },
+  it: { euros: "euro", cents: "centesimi" },
+};
 
 /**
  * Libellé prix pour lecteurs d'écran (épelé, sans symbole monétaire), p.ex.
@@ -35,10 +57,11 @@ export function formatPrice(cents: number, locale: Locale): string {
 export function formatPriceAria(cents: number, locale: Locale): string {
   const euros = Math.floor(cents / 100);
   const remaining = cents % 100;
-  if (locale === "fr") {
-    return remaining > 0 ? `${euros} euros ${remaining}` : `${euros} euros`;
-  }
-  return remaining > 0 ? `${euros} euros ${remaining} cents` : `${euros} euros`;
+  const words = PRICE_ARIA_WORDS[locale];
+  if (remaining === 0) return `${euros} ${words.euros}`;
+  return words.cents
+    ? `${euros} ${words.euros} ${remaining} ${words.cents}`
+    : `${euros} ${words.euros} ${remaining}`;
 }
 
 /**

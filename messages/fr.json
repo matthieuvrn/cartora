@@ -6,9 +6,39 @@
     "menu": "Ma carte",
     "stats": "Statistiques",
     "apparence": "Apparence",
+    "traductions": "Traductions",
     "partage": "Partage",
     "abonnement": "Abonnement",
     "reglages": "Réglages"
+  },
+  "Translations": {
+    "title": "Traductions",
+    "description": "Proposez votre carte en plusieurs langues à vos visiteurs.",
+    "languagesTitle": "Langues du menu",
+    "languagesDescription": "Les langues activées apparaissent dans le sélecteur de votre menu public. Pensez à republier après modification.",
+    "sourceBadge": "Langue de saisie",
+    "sourceHint": "La langue dans laquelle vous rédigez votre carte. Toujours affichée.",
+    "quotaLimited": "Votre formule {tier} permet {limit, plural, =0 {aucune langue supplémentaire} one {# langue supplémentaire} other {# langues supplémentaires}}. Passez en supérieur pour en activer plus.",
+    "quotaUnlimited": "Votre formule PRO permet d'activer toutes les langues.",
+    "save": "Enregistrer",
+    "saved": "Langues mises à jour",
+    "reviewTitle": "Relire les traductions",
+    "reviewDescription": "Complétez ou corrigez chaque traduction. Un champ devient « à relire » quand vous modifiez le texte d'origine.",
+    "translationsSaved": "Traductions enregistrées",
+    "noLocaleEnabled": "Activez au moins une langue ci-dessus pour commencer à traduire.",
+    "groupCategories": "Catégories",
+    "groupToday": "Aujourd'hui",
+    "groupFormulas": "Formules",
+    "coverageLabel": "Traductions :",
+    "autoTranslate": "Traduire automatiquement",
+    "autoTranslating": "Traduction en cours…",
+    "autoTranslateHint": "Remplit les champs manquants ou à relire (PRO).",
+    "autoTranslateResult": "{translated, plural, =0 {Aucun champ à traduire} one {# champ traduit} other {# champs traduits}}, {skipped} déjà à jour.",
+    "status": {
+      "fresh": "À jour",
+      "stale": "À relire",
+      "missing": "Manquant"
+    }
   },
   "Share": {
     "title": "Partage",
@@ -87,10 +117,8 @@
     "deleteItem": "Supprimer l'item",
     "save": "Enregistrer",
     "cancel": "Annuler",
-    "nameFr": "Nom (FR)",
-    "nameEn": "Nom (EN)",
-    "descriptionFr": "Description (FR)",
-    "descriptionEn": "Description (EN)",
+    "name": "Nom",
+    "description": "Description",
     "price": "Prix",
     "badgeLabel": "Badge",
     "available": "Disponible",
@@ -121,8 +149,7 @@
       "remove": "Retirer",
       "uploading": "Envoi en cours…",
       "altTextHint": "Décrivez l'image pour les lecteurs d'écran (accessibilité)",
-      "altTextFr": "Description (FR)",
-      "altTextEn": "Description (EN)",
+      "altText": "Description de l'image",
       "error": {
         "tooLarge": "Image trop lourde (max 5 Mo)",
         "wrongFormat": "Format non supporté (JPEG, PNG, WebP uniquement)",
@@ -269,7 +296,9 @@
     "unavailableDescription": "Ce menu n'est plus disponible pour le moment.",
     "watermark": "Propulsé par Cartora",
     "allergenLegendTitle": "Allergènes déclarés",
-    "categoriesNav": "Catégories du menu"
+    "categoriesNav": "Catégories du menu",
+    "metaDescription": "Consultez le menu de {name} : {categories}. Disponible en ligne sur Cartora.",
+    "metaDescriptionNoCategories": "Consultez le menu de {name}. Disponible en ligne sur Cartora."
   },
   "Allergen": {
     "sectionTitle": "Allergènes",
@@ -661,7 +690,16 @@
     "daily_dish_until_too_far": "L'expiration ne peut pas dépasser 14 jours",
     "formula_not_allowed": "Les formules nécessitent l'offre Starter ou PRO",
     "formula_until_in_past": "L'expiration doit être dans le futur",
-    "formula_until_too_far": "L'expiration ne peut pas dépasser 14 jours"
+    "formula_until_too_far": "L'expiration ne peut pas dépasser 14 jours",
+    "invalid_locale": "Langue non reconnue",
+    "locale_not_enabled": "Cette langue n'est pas activée pour votre menu",
+    "locale_quota_exceeded": "Limite de langues supplémentaires atteinte pour votre formule",
+    "locale_quota_exceeded_with_limit": "Limite de {limit, plural, =0 {0 langue supplémentaire} one {# langue supplémentaire} other {# langues supplémentaires}} atteinte (formule {tier}). Passez en supérieur pour en ajouter plus.",
+    "auto_translation_not_allowed": "La traduction automatique nécessite la formule PRO",
+    "translation_failed": "La traduction a échoué, réessayez",
+    "translation_quota_exhausted": "Quota mensuel de traduction automatique épuisé, réessayez plus tard",
+    "translation_rate_limited": "Trop de demandes de traduction, patientez quelques minutes",
+    "translation_unavailable": "Le service de traduction est indisponible pour le moment"
   },
   "Settings": {
     "title": "Paramètres",

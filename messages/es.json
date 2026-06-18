@@ -1,0 +1,43 @@
+{
+  "PublicMenu": {
+    "badge": {
+      "NEW": "Nuevo",
+      "POPULAR": "Popular"
+    },
+    "todayMenu": "Hoy",
+    "todayMenuDescription": "Platos del día y menús disponibles hoy",
+    "todaySectionDishesSubtitle": "Platos del día",
+    "todaySectionFormulasSubtitle": "Menús",
+    "watermark": "Desarrollado con Cartora",
+    "allergenLegendTitle": "Alérgenos declarados",
+    "categoriesNav": "Categorías del menú",
+    "metaDescription": "Consulta el menú de {name}: {categories}. Disponible en línea en Cartora.",
+    "metaDescriptionNoCategories": "Consulta el menú de {name}. Disponible en línea en Cartora."
+  },
+  "Allergen": {
+    "sectionTitle": "Alérgenos",
+    "GLUTEN": { "short": "Gluten", "legal": "Cereales que contienen gluten" },
+    "CRUSTACEANS": {
+      "short": "Crustáceos",
+      "legal": "Crustáceos y productos a base de crustáceos"
+    },
+    "EGGS": { "short": "Huevos", "legal": "Huevos y productos a base de huevo" },
+    "FISH": { "short": "Pescado", "legal": "Pescado y productos a base de pescado" },
+    "PEANUTS": { "short": "Cacahuetes", "legal": "Cacahuetes y productos a base de cacahuetes" },
+    "SOYBEANS": { "short": "Soja", "legal": "Soja y productos a base de soja" },
+    "MILK": { "short": "Leche", "legal": "Leche y sus derivados (incluida la lactosa)" },
+    "NUTS": { "short": "Frutos de cáscara", "legal": "Frutos de cáscara" },
+    "CELERY": { "short": "Apio", "legal": "Apio y productos derivados" },
+    "MUSTARD": { "short": "Mostaza", "legal": "Mostaza y productos derivados" },
+    "SESAME": {
+      "short": "Sésamo",
+      "legal": "Granos de sésamo y productos a base de granos de sésamo"
+    },
+    "SULPHITES": {
+      "short": "Sulfitos",
+      "legal": "Dióxido de azufre y sulfitos en concentraciones superiores a 10 mg/kg o 10 mg/l"
+    },
+    "LUPIN": { "short": "Altramuces", "legal": "Altramuces y productos a base de altramuces" },
+    "MOLLUSCS": { "short": "Moluscos", "legal": "Moluscos y productos a base de moluscos" }
+  }
+}

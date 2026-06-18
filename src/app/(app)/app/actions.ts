@@ -19,6 +19,13 @@ import { DeleteCategory } from "@/application/use-cases/DeleteCategory";
 import { ReorderCategories } from "@/application/use-cases/ReorderCategories";
 import { PublishMenu } from "@/application/use-cases/PublishMenu";
 import { UpdateMenuTemplate } from "@/application/use-cases/UpdateMenuTemplate";
+import { UpdateMenuLocales } from "@/application/use-cases/UpdateMenuLocales";
+import { SaveTranslations } from "@/application/use-cases/SaveTranslations";
+import { AutoTranslateMenu } from "@/application/use-cases/AutoTranslateMenu";
+import { PrismaTranslationRepository } from "@/infrastructure/menu/PrismaTranslationRepository";
+import { DeepLTranslationService } from "@/infrastructure/translation/DeepLTranslationService";
+import { createRateLimiter } from "@/infrastructure/rate-limit/createRateLimiter";
+import { SUPPORTED_MENU_LOCALES, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MENU_TEMPLATE_VALUES } from "@/domain/menu/MenuTypes";
 import { DomainError, isDomainError } from "@/domain/errors/DomainError";
 import { MAX_CATEGORY_NAME_LENGTH } from "@/domain/menu/CategoryPolicy";
@@ -66,13 +73,10 @@ export type RenameActionState = ActionState<{ success?: boolean }>;
 
 // ─── Schemas Zod v4 ─────────────────────────────────────────────────────────
 
-const TranslationSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-});
-
 const AllergensSchema = z.array(z.enum(ALLERGEN_VALUES)).max(ALLERGEN_VALUES.length).default([]);
 
+// S4 (saisie monolingue) : un seul nom/description — la langue de saisie vient du
+// restaurant (`source_locale`), les traductions cibles vivent dans /app/traductions.
 const CreateItemSchema = z.object({
   categoryId: z.uuid(),
   priceEur: z.coerce
@@ -81,10 +85,8 @@ const CreateItemSchema = z.object({
     .max(MAX_PRICE_CENTS / 100),
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const UpdateItemSchema = z.object({
@@ -96,10 +98,8 @@ const UpdateItemSchema = z.object({
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   isAvailable: z.boolean(),
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const DeleteItemSchema = z.object({
@@ -138,6 +138,32 @@ const SetTemplateSchema = z.object({
   template: z.enum(MENU_TEMPLATE_VALUES),
 });
 
+// Codes bruts (max 10 chars) — la normalisation/validation métier vit dans
+// MenuLocalePolicy via le use case, pas ici.
+const UpdateMenuLocalesSchema = z.object({
+  locales: z.array(z.string().max(10)).max(SUPPORTED_MENU_LOCALES.length * 2),
+});
+
+// Bornes larges côté Zod (anti-abus) — la validation métier (unité existante,
+// longueur par champ) vit dans SaveTranslations.
+const SaveTranslationsSchema = z.object({
+  locale: z.string().max(10),
+  entries: z
+    .array(
+      z.object({
+        entityType: z.string().max(20),
+        entityId: z.uuid(),
+        field: z.string().max(20),
+        value: z.string().max(1000),
+      }),
+    )
+    .max(500),
+});
+
+const AutoTranslateMenuSchema = z.object({
+  targetLocale: z.string().max(10),
+});
+
 const HexColorSchema = z
   .string()
   .regex(/^#[0-9a-fA-F]{6}$/)
@@ -170,10 +196,8 @@ const CreateDailyDishSchema = z.object({
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   validUntilISO: ValidUntilSchema,
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const UpdateDailyDishSchema = z.object({
@@ -188,10 +212,8 @@ const UpdateDailyDishSchema = z.object({
     .string()
     .min(1)
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const DeleteDailyDishSchema = z.object({
@@ -210,8 +232,7 @@ const CreateDailyDishImageUploadUrlSchema = z.object({
 const SetDailyDishImageSchema = z.object({
   dishId: z.uuid(),
   imagePath: z.string().min(1).max(500),
-  altTextFr: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
-  altTextEn: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+  altText: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
 });
 
 const DeleteDailyDishImageSchema = z.object({
@@ -231,10 +252,8 @@ const CreateFormulaSchema = z.object({
     .string()
     .min(1)
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const UpdateFormulaSchema = z.object({
@@ -247,10 +266,8 @@ const UpdateFormulaSchema = z.object({
     .string()
     .min(1)
     .refine((v) => !Number.isNaN(Date.parse(v)), { message: "Invalid ISO datetime" }),
-  translations: z.object({
-    fr: TranslationSchema,
-    en: TranslationSchema,
-  }),
+  name: z.string(),
+  description: z.string(),
 });
 
 const DeleteFormulaSchema = z.object({
@@ -264,6 +281,18 @@ const ReorderFormulasSchema = z.object({
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 async function getAuthenticatedRestaurantId(): Promise<string> {
+  const { restaurantId } = await getAuthenticatedRestaurantContext();
+  return restaurantId;
+}
+
+/**
+ * Variante avec la langue de saisie (S4) — utilisée par les actions de contenu
+ * (items, plats du jour, formules, alt-texts) qui écrivent dans la langue source.
+ */
+async function getAuthenticatedRestaurantContext(): Promise<{
+  restaurantId: string;
+  sourceLocale: MenuLocale;
+}> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -277,7 +306,7 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
 
   const restaurant = await prisma.restaurant.findUnique({
     where: { ownerUserId: user.id },
-    select: { id: true },
+    select: { id: true, sourceLocale: true },
   });
   if (!restaurant) {
     // Edge case improbable (compte sans restaurant) : on relance le flow d'init
@@ -285,7 +314,8 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
     redirect("/app");
   }
 
-  return restaurant.id;
+  // Contraint par CHECK SQL (076) — le cast reflète l'invariant DB.
+  return { restaurantId: restaurant.id, sourceLocale: restaurant.sourceLocale as MenuLocale };
 }
 
 function eurToCents(eur: number): number {
@@ -317,23 +347,15 @@ export async function createItemAction(
     priceEur: formData.get("priceEur"),
     badge: formData.get("badge"),
     allergens: formData.getAll("allergens"),
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext(
     { actionName: "createItem", restaurantId, input: { categoryId: parsed.data.categoryId } },
     async () => {
@@ -346,7 +368,9 @@ export async function createItemAction(
         priceCents: eurToCents(parsed.data.priceEur),
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
-        translations: parsed.data.translations,
+        sourceLocale,
+        name: parsed.data.name,
+        description: parsed.data.description,
       });
 
       await repo.markMenuAsDraft(restaurantId);
@@ -366,23 +390,15 @@ export async function updateItemAction(
     badge: formData.get("badge"),
     allergens: formData.getAll("allergens"),
     isAvailable: formData.get("isAvailable") === "true",
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext(
     { actionName: "updateItem", restaurantId, input: { itemId: parsed.data.itemId } },
     async () => {
@@ -396,7 +412,9 @@ export async function updateItemAction(
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
         isAvailable: parsed.data.isAvailable,
-        translations: parsed.data.translations,
+        sourceLocale,
+        name: parsed.data.name,
+        description: parsed.data.description,
       });
 
       await repo.markMenuAsDraft(restaurantId);
@@ -491,8 +509,7 @@ const CreateImageUploadUrlSchema = z.object({
 const SetItemImageSchema = z.object({
   itemId: z.uuid(),
   imagePath: z.string().min(1).max(500),
-  altTextFr: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
-  altTextEn: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
+  altText: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
 });
 
 const DeleteItemImageSchema = z.object({
@@ -541,14 +558,13 @@ export type ImageMutationResult = { ok: true } | { ok: false; error: string };
 export async function setItemImageAction(input: {
   itemId: string;
   imagePath: string;
-  altTextFr?: string;
-  altTextEn?: string;
+  altText?: string;
 }): Promise<ImageMutationResult> {
   const parsed = SetItemImageSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
 
   try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+    const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
     const useCase = new SetItemImage(repo, storage);
@@ -557,8 +573,8 @@ export async function setItemImageAction(input: {
       restaurantId,
       itemId: parsed.data.itemId,
       imagePath: parsed.data.imagePath,
-      altTextFr: parsed.data.altTextFr,
-      altTextEn: parsed.data.altTextEn,
+      sourceLocale,
+      altText: parsed.data.altText,
     });
 
     revalidatePath("/app");
@@ -989,6 +1005,140 @@ export async function setTemplateAction(
   });
 }
 
+export async function updateMenuLocalesAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  const parsed = UpdateMenuLocalesSchema.safeParse({
+    locales: formData.getAll("locales"),
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "updateMenuLocales", restaurantId }, async () => {
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    const menuRepo = new PrismaMenuRepository(prisma);
+
+    await new UpdateMenuLocales(restaurantRepo).execute({
+      restaurantId,
+      locales: parsed.data.locales,
+    });
+
+    // Les langues activées sont embarquées dans le snapshot à la publication
+    // (availableLocales) → repasser en DRAFT jusqu'à republication explicite.
+    await menuRepo.markMenuAsDraft(restaurantId);
+    revalidatePath("/app");
+    revalidatePath("/app/traductions");
+    return { error: null, success: true };
+  });
+}
+
+export async function saveTranslationsAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  let entries: unknown = [];
+  const raw = formData.get("entries");
+  if (typeof raw === "string") {
+    try {
+      entries = JSON.parse(raw);
+    } catch {
+      return { error: VALIDATION_ERROR };
+    }
+  }
+
+  const parsed = SaveTranslationsSchema.safeParse({
+    locale: formData.get("locale"),
+    entries,
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "saveTranslations", restaurantId, input: { locale: parsed.data.locale } },
+    async () => {
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const translationRepo = new PrismaTranslationRepository(prisma);
+
+      await new SaveTranslations(menuRepo, translationRepo).execute({
+        restaurantId,
+        locale: parsed.data.locale,
+        entries: parsed.data.entries,
+      });
+
+      await menuRepo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      revalidatePath("/app/traductions");
+      return { error: null, success: true };
+    },
+  );
+}
+
+export type AutoTranslateActionState = ActionState<{
+  translatedCount?: number;
+  skippedCount?: number;
+}>;
+
+export async function autoTranslateMenuAction(
+  _prev: AutoTranslateActionState,
+  formData: FormData,
+): Promise<AutoTranslateActionState> {
+  const parsed = AutoTranslateMenuSchema.safeParse({
+    targetLocale: formData.get("targetLocale"),
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    {
+      actionName: "autoTranslateMenu",
+      restaurantId,
+      input: { targetLocale: parsed.data.targetLocale },
+    },
+    async () => {
+      // Rate-limit par restaurant (quota DeepL partagé) — pattern /api/track.
+      const limiter = createRateLimiter({
+        prefix: "ratelimit:translate",
+        limit: 10,
+        windowSeconds: 600,
+      });
+      const { success } = await limiter.check(restaurantId);
+      if (!success) throw new DomainError("translation_rate_limited");
+
+      // Instanciation paresseuse du service DeepL : la clé absente lève une erreur
+      // métier propre (pas de crash build CI où DEEPL_API_KEY est absent).
+      const apiKey = process.env.DEEPL_API_KEY;
+      if (!apiKey) throw new DomainError("translation_unavailable");
+
+      const menuRepo = new PrismaMenuRepository(prisma);
+      const restaurantRepo = new PrismaRestaurantRepository(prisma);
+      const translationRepo = new PrismaTranslationRepository(prisma);
+      const service = new DeepLTranslationService(apiKey);
+
+      const result = await new AutoTranslateMenu(
+        menuRepo,
+        restaurantRepo,
+        translationRepo,
+        service,
+      ).execute({ restaurantId, targetLocale: parsed.data.targetLocale });
+
+      await menuRepo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      revalidatePath("/app/traductions");
+      return { error: null, ...result };
+    },
+  );
+}
+
 export async function updateBrandColorsAction(
   _prev: RenameActionState,
   formData: FormData,
@@ -1042,23 +1192,15 @@ export async function createDailyDishAction(
     badge: formData.get("badge") ?? "NONE",
     allergens: formData.getAll("allergens"),
     validUntilISO: formData.get("validUntilISO") ?? "",
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext({ actionName: "createDailyDish", restaurantId }, async () => {
     const menuRepo = new PrismaMenuRepository(prisma);
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
@@ -1071,7 +1213,9 @@ export async function createDailyDishAction(
       badge: parsed.data.badge,
       allergens: parsed.data.allergens,
       validUntilISO: parsed.data.validUntilISO,
-      translations: parsed.data.translations,
+      sourceLocale,
+      name: parsed.data.name,
+      description: parsed.data.description,
     });
 
     revalidatePath("/app");
@@ -1089,23 +1233,15 @@ export async function updateDailyDishAction(
     badge: formData.get("badge") ?? "NONE",
     allergens: formData.getAll("allergens"),
     validUntilISO: formData.get("validUntilISO") ?? "",
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext(
     { actionName: "updateDailyDish", restaurantId, input: { dishId: parsed.data.dishId } },
     async () => {
@@ -1121,7 +1257,9 @@ export async function updateDailyDishAction(
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
         validUntilISO: parsed.data.validUntilISO,
-        translations: parsed.data.translations,
+        sourceLocale,
+        name: parsed.data.name,
+        description: parsed.data.description,
       });
 
       revalidatePath("/app");
@@ -1223,14 +1361,13 @@ export async function createDailyDishImageUploadUrlAction(input: {
 export async function setDailyDishImageAction(input: {
   dishId: string;
   imagePath: string;
-  altTextFr?: string;
-  altTextEn?: string;
+  altText?: string;
 }): Promise<ImageMutationResult> {
   const parsed = SetDailyDishImageSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: "validation" };
 
   try {
-    const restaurantId = await getAuthenticatedRestaurantId();
+    const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
     const repo = new PrismaMenuRepository(prisma);
     const storage = new SupabaseStorageService("item-images");
     const useCase = new SetDailyDishImage(repo, storage);
@@ -1239,8 +1376,8 @@ export async function setDailyDishImageAction(input: {
       restaurantId,
       dishId: parsed.data.dishId,
       imagePath: parsed.data.imagePath,
-      altTextFr: parsed.data.altTextFr,
-      altTextEn: parsed.data.altTextEn,
+      sourceLocale,
+      altText: parsed.data.altText,
     });
 
     revalidatePath("/app");
@@ -1296,23 +1433,15 @@ export async function createFormulaAction(
   const parsed = CreateFormulaSchema.safeParse({
     priceEur: formData.get("priceEur"),
     validUntilISO: formData.get("validUntilISO") ?? "",
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext({ actionName: "createFormula", restaurantId }, async () => {
     const menuRepo = new PrismaMenuRepository(prisma);
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
@@ -1323,7 +1452,9 @@ export async function createFormulaAction(
       restaurantId,
       priceCents: eurToCents(parsed.data.priceEur),
       validUntilISO: parsed.data.validUntilISO,
-      translations: parsed.data.translations,
+      sourceLocale,
+      name: parsed.data.name,
+      description: parsed.data.description,
     });
 
     revalidatePath("/app");
@@ -1339,23 +1470,15 @@ export async function updateFormulaAction(
     formulaId: formData.get("formulaId"),
     priceEur: formData.get("priceEur"),
     validUntilISO: formData.get("validUntilISO") ?? "",
-    translations: {
-      fr: {
-        name: formData.get("nameFr") ?? "",
-        description: formData.get("descriptionFr") ?? "",
-      },
-      en: {
-        name: formData.get("nameEn") ?? "",
-        description: formData.get("descriptionEn") ?? "",
-      },
-    },
+    name: formData.get("name") ?? "",
+    description: formData.get("description") ?? "",
   });
 
   if (!parsed.success) {
     return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
   }
 
-  const restaurantId = await getAuthenticatedRestaurantId();
+  const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
   return withActionContext(
     { actionName: "updateFormula", restaurantId, input: { formulaId: parsed.data.formulaId } },
     async () => {
@@ -1369,7 +1492,9 @@ export async function updateFormulaAction(
         restaurantId,
         priceCents: eurToCents(parsed.data.priceEur),
         validUntilISO: parsed.data.validUntilISO,
-        translations: parsed.data.translations,
+        sourceLocale,
+        name: parsed.data.name,
+        description: parsed.data.description,
       });
 
       revalidatePath("/app");

@@ -70,6 +70,7 @@ export function TemplateSolar({
 
       {hasToday && (
         <TodaySection
+          sourceLocale={snapshot.sourceLocale}
           items={snapshot.dailyItems ?? []}
           formulas={snapshot.formulas ?? []}
           locale={locale}
@@ -86,6 +87,7 @@ export function TemplateSolar({
       <div className="space-y-9">
         {snapshot.categories.map((category) => (
           <MenuCategorySection
+            sourceLocale={snapshot.sourceLocale}
             key={category.name}
             category={category}
             locale={locale}

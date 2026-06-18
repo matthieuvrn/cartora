@@ -82,6 +82,27 @@ export class PlanPolicy {
   }
 
   /**
+   * Langues cibles supplémentaires (en plus de la langue source) par tier (S4).
+   * FREE = 0 (langue source seule), STARTER = 1 (typiquement l'anglais),
+   * PRO = illimité. Le multilingue est un levier d'upgrade explicite.
+   */
+  static maxExtraMenuLocalesFor(tier: PlanTier): number {
+    if (tier === "FREE") return 0;
+    if (tier === "STARTER") return 1;
+    return Infinity;
+  }
+
+  /**
+   * Traduction automatique (S4) — réservée PRO. La saisie manuelle des traductions
+   * reste possible sur toute langue activée quel que soit le tier ; seul le bouton
+   * « Traduire automatiquement » (DeepL) est gated, car il consomme un quota
+   * externe partagé.
+   */
+  static canUseAutoTranslation(tier: PlanTier): boolean {
+    return tier === "PRO";
+  }
+
+  /**
    * Mappe un Stripe price.id vers le PlanTier correspondant en lisant les variables
    * d'environnement. Retourne null si le price n'est associé à aucun tier connu —
    * indique typiquement une configuration Stripe désynchronisée du code.

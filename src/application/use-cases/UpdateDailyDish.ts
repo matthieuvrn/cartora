@@ -4,6 +4,7 @@ import type { Clock } from "@/application/ports/Clock";
 import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
 import { ItemPolicy } from "@/domain/menu/ItemPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type UpdateDailyDishInput = {
@@ -13,10 +14,10 @@ export type UpdateDailyDishInput = {
   badge: string;
   allergens?: readonly string[];
   validUntilISO: string;
-  translations: {
-    fr: { name: string; description: string };
-    en?: { name?: string; description?: string };
-  };
+  /** Langue de saisie (S4) — les traductions cibles ne sont jamais touchées ici. */
+  sourceLocale: MenuLocale;
+  name: string;
+  description: string;
 };
 
 export class UpdateDailyDish {
@@ -42,12 +43,10 @@ export class UpdateDailyDish {
     });
     if (!existing) throw new DomainError("item_not_found", { entityId: input.dishId });
 
-    const frName = DailyDishPolicy.sanitizeName(input.translations.fr.name);
-    const frDesc = DailyDishPolicy.sanitizeDescription(input.translations.fr.description);
-    const enName = DailyDishPolicy.sanitizeName(input.translations.en?.name ?? "");
-    const enDesc = DailyDishPolicy.sanitizeDescription(input.translations.en?.description ?? "");
+    const name = DailyDishPolicy.sanitizeName(input.name);
+    const description = DailyDishPolicy.sanitizeDescription(input.description);
 
-    const nameError = DailyDishPolicy.validateName(frName);
+    const nameError = DailyDishPolicy.validateName(name);
     if (nameError) throw new DomainError(nameError.code, { field: nameError.field });
 
     const priceError = DailyDishPolicy.validatePriceCents(input.priceCents);
@@ -78,10 +77,8 @@ export class UpdateDailyDish {
       badge: input.badge as "NONE" | "NEW" | "POPULAR",
       allergens: allergens.ok,
       validUntilISO: input.validUntilISO,
-      translations: {
-        fr: { name: frName, description: frDesc },
-        en: { name: enName, description: enDesc },
-      },
+      sourceLocale: input.sourceLocale,
+      texts: { name, description },
     });
 
     await this.menuRepo.markMenuAsDraft(input.restaurantId);

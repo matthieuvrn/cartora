@@ -1,0 +1,37 @@
+{
+  "PublicMenu": {
+    "badge": {
+      "NEW": "Novità",
+      "POPULAR": "Popolare"
+    },
+    "todayMenu": "Oggi",
+    "todayMenuDescription": "Piatti del giorno e menù disponibili oggi",
+    "todaySectionDishesSubtitle": "Piatti del giorno",
+    "todaySectionFormulasSubtitle": "Menù",
+    "watermark": "Realizzato con Cartora",
+    "allergenLegendTitle": "Allergeni dichiarati",
+    "categoriesNav": "Categorie del menù",
+    "metaDescription": "Consulta il menù di {name}: {categories}. Disponibile online su Cartora.",
+    "metaDescriptionNoCategories": "Consulta il menù di {name}. Disponibile online su Cartora."
+  },
+  "Allergen": {
+    "sectionTitle": "Allergeni",
+    "GLUTEN": { "short": "Glutine", "legal": "Cereali contenenti glutine" },
+    "CRUSTACEANS": { "short": "Crostacei", "legal": "Crostacei e prodotti a base di crostacei" },
+    "EGGS": { "short": "Uova", "legal": "Uova e prodotti a base di uova" },
+    "FISH": { "short": "Pesce", "legal": "Pesce e prodotti a base di pesce" },
+    "PEANUTS": { "short": "Arachidi", "legal": "Arachidi e prodotti a base di arachidi" },
+    "SOYBEANS": { "short": "Soia", "legal": "Soia e prodotti a base di soia" },
+    "MILK": { "short": "Latte", "legal": "Latte e prodotti a base di latte (incluso lattosio)" },
+    "NUTS": { "short": "Frutta a guscio", "legal": "Frutta a guscio" },
+    "CELERY": { "short": "Sedano", "legal": "Sedano e prodotti a base di sedano" },
+    "MUSTARD": { "short": "Senape", "legal": "Senape e prodotti a base di senape" },
+    "SESAME": { "short": "Sesamo", "legal": "Semi di sesamo e prodotti a base di semi di sesamo" },
+    "SULPHITES": {
+      "short": "Solfiti",
+      "legal": "Anidride solforosa e solfiti in concentrazioni superiori a 10 mg/kg o 10 mg/l"
+    },
+    "LUPIN": { "short": "Lupini", "legal": "Lupini e prodotti a base di lupini" },
+    "MOLLUSCS": { "short": "Molluschi", "legal": "Molluschi e prodotti a base di molluschi" }
+  }
+}
