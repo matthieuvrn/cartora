@@ -34,8 +34,6 @@ function menuFixture(overrides: Partial<MenuOverview> = {}): MenuOverview {
             allergens: [],
             isAvailable: true,
             imagePath: null,
-            altTextFr: null,
-            altTextEn: null,
             order: 0,
             translations: {
               fr: { name: "Salade", description: "Fraîche" },

@@ -198,8 +198,6 @@ model Item {
   allergens    Allergen[] @default([])
   isAvailable  Boolean    @default(true) @map("is_available")
   imagePath    String?    @map("image_path")
-  altTextFr    String?    @map("alt_text_fr")
-  altTextEn    String?    @map("alt_text_en")
   order        Int
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -299,16 +297,10 @@ model DailyDish {
   id            String     @id @default(uuid()) @db.Uuid
   restaurantId  String     @map("restaurant_id") @db.Uuid
   menuId        String     @map("menu_id") @db.Uuid
-  nameFr        String     @map("name_fr") @db.VarChar(100)
-  nameEn        String     @default("") @map("name_en") @db.VarChar(100)
-  descriptionFr String     @default("") @map("description_fr") @db.VarChar(500)
-  descriptionEn String     @default("") @map("description_en") @db.VarChar(500)
   priceCents    Int        @map("price_cents")
   badge         ItemBadge  @default(NONE)
   allergens     Allergen[] @default([])
   imagePath     String?    @map("image_path")
-  altTextFr     String?    @map("alt_text_fr")
-  altTextEn     String?    @map("alt_text_en")
   validUntil    DateTime   @map("valid_until")
   order         Int        @default(0)
   createdAt     DateTime   @default(now()) @map("created_at")
@@ -323,7 +315,7 @@ model DailyDish {
 }
 
 /// Formule de menu (S3.2). Entité autonome (sans FK vers Item) avec composition
-/// libre dans `descriptionFr/En` (multi-ligne, rendu via whitespace-pre-line), prix
+/// libre dans la description (multi-ligne, rendu via whitespace-pre-line), prix
 /// forfaitaire et expiration obligatoire. Affichée dans la section "Aujourd'hui"
 /// du menu public, à côté des plats du jour. Mêmes règles d'expiration et de gating
 /// que `DailyDish` : STARTER + PRO uniquement, filtrage `valid_until > now()`
@@ -332,10 +324,6 @@ model Formula {
   id            String   @id @default(uuid()) @db.Uuid
   restaurantId  String   @map("restaurant_id") @db.Uuid
   menuId        String   @map("menu_id") @db.Uuid
-  nameFr        String   @map("name_fr") @db.VarChar(100)
-  nameEn        String   @default("") @map("name_en") @db.VarChar(100)
-  descriptionFr String   @default("") @map("description_fr") @db.VarChar(500)
-  descriptionEn String   @default("") @map("description_en") @db.VarChar(500)
   priceCents    Int      @map("price_cents")
   validUntil    DateTime @map("valid_until")
   order         Int      @default(0)

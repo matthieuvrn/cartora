@@ -39,8 +39,6 @@ export class PrismaMenuRepository implements MenuRepository {
                 allergens: true,
                 isAvailable: true,
                 imagePath: true,
-                altTextFr: true,
-                altTextEn: true,
                 order: true,
               },
             },
@@ -85,11 +83,7 @@ export class PrismaMenuRepository implements MenuRepository {
         items: cat.items.map((item): MenuItemData => {
           const name = localizedTextOf(index, "ITEM", item.id, "name");
           const description = localizedTextOf(index, "ITEM", item.id, "description");
-          const altText = withLegacyFallback(
-            localizedTextOf(index, "ITEM", item.id, "altText"),
-            item.altTextFr,
-            item.altTextEn,
-          );
+          const altText = localizedTextOf(index, "ITEM", item.id, "altText");
           return {
             id: item.id,
             priceCents: item.priceCents,
@@ -97,8 +91,6 @@ export class PrismaMenuRepository implements MenuRepository {
             allergens: item.allergens as Allergen[],
             isAvailable: item.isAvailable,
             imagePath: item.imagePath,
-            altTextFr: item.altTextFr,
-            altTextEn: item.altTextEn,
             order: item.order,
             translations: {
               fr: { name: name.fr ?? "", description: description.fr ?? "" },
@@ -209,7 +201,7 @@ export class PrismaMenuRepository implements MenuRepository {
         // Photo supprimée ⇒ purge des alt-texts de TOUTES les locales.
         await tx.item.update({
           where: { id: params.itemId, restaurantId: params.restaurantId },
-          data: { imagePath: null, altTextFr: null, altTextEn: null },
+          data: { imagePath: null },
         });
         await tx.translation.deleteMany({
           where: {
@@ -222,10 +214,9 @@ export class PrismaMenuRepository implements MenuRepository {
         return;
       }
 
-      // Dual-write : colonne legacy fr (077 la supprime) + ligne source.
       await tx.item.update({
         where: { id: params.itemId, restaurantId: params.restaurantId },
-        data: { imagePath: params.imagePath, altTextFr: params.altText },
+        data: { imagePath: params.imagePath },
       });
       await upsertEntityTexts(tx, {
         entityType: "ITEM",
@@ -414,31 +405,15 @@ export class PrismaMenuRepository implements MenuRepository {
     const index = indexTranslations(translations);
 
     return rows.map((row): DailyDishData => {
-      // Lignes translations = source de vérité ; repli colonnes legacy pour les
-      // entrées créées avant l'application de 076 (expand/contract).
-      const name = withLegacyFallback(
-        localizedTextOf(index, "DAILY_DISH", row.id, "name"),
-        row.nameFr,
-        row.nameEn,
-      );
-      const description = withLegacyFallback(
-        localizedTextOf(index, "DAILY_DISH", row.id, "description"),
-        row.descriptionFr,
-        row.descriptionEn,
-      );
-      const altText = withLegacyFallback(
-        localizedTextOf(index, "DAILY_DISH", row.id, "altText"),
-        row.altTextFr,
-        row.altTextEn,
-      );
+      const name = localizedTextOf(index, "DAILY_DISH", row.id, "name");
+      const description = localizedTextOf(index, "DAILY_DISH", row.id, "description");
+      const altText = localizedTextOf(index, "DAILY_DISH", row.id, "altText");
       return {
         id: row.id,
         priceCents: row.priceCents,
         badge: row.badge as ItemBadge,
         allergens: row.allergens as Allergen[],
         imagePath: row.imagePath,
-        altTextFr: row.altTextFr,
-        altTextEn: row.altTextEn,
         validUntilISO: row.validUntil.toISOString(),
         order: row.order,
         translations: {
@@ -464,8 +439,7 @@ export class PrismaMenuRepository implements MenuRepository {
   async createDailyDish(
     params: Parameters<MenuRepository["createDailyDish"]>[0],
   ): Promise<{ id: string }> {
-    // Dual-write (expand) : colonnes legacy (langue source dans name_fr — 077 les
-    // supprime) + lignes translations source. Cibles jamais touchées ici.
+    // Texte source écrit dans `translations` (langue source) ; cibles jamais touchées ici.
     return this.db.$transaction(async (tx) => {
       const entry = await tx.dailyDish.create({
         data: {
@@ -476,8 +450,6 @@ export class PrismaMenuRepository implements MenuRepository {
           allergens: params.allergens,
           validUntil: new Date(params.validUntilISO),
           order: params.order,
-          nameFr: params.texts.name,
-          descriptionFr: params.texts.description,
         },
         select: { id: true },
       });
@@ -505,8 +477,6 @@ export class PrismaMenuRepository implements MenuRepository {
           badge: params.badge,
           allergens: { set: params.allergens },
           validUntil: new Date(params.validUntilISO),
-          nameFr: params.texts.name,
-          descriptionFr: params.texts.description,
         },
       });
 
@@ -533,7 +503,7 @@ export class PrismaMenuRepository implements MenuRepository {
       if (params.imagePath === null) {
         await tx.dailyDish.update({
           where: { id: params.dishId, restaurantId: params.restaurantId },
-          data: { imagePath: null, altTextFr: null, altTextEn: null },
+          data: { imagePath: null },
         });
         await tx.translation.deleteMany({
           where: {
@@ -548,7 +518,7 @@ export class PrismaMenuRepository implements MenuRepository {
 
       await tx.dailyDish.update({
         where: { id: params.dishId, restaurantId: params.restaurantId },
-        data: { imagePath: params.imagePath, altTextFr: params.altText },
+        data: { imagePath: params.imagePath },
       });
       await upsertEntityTexts(tx, {
         entityType: "DAILY_DISH",
@@ -604,16 +574,8 @@ export class PrismaMenuRepository implements MenuRepository {
     const index = indexTranslations(translations);
 
     return rows.map((row): FormulaData => {
-      const name = withLegacyFallback(
-        localizedTextOf(index, "FORMULA", row.id, "name"),
-        row.nameFr,
-        row.nameEn,
-      );
-      const description = withLegacyFallback(
-        localizedTextOf(index, "FORMULA", row.id, "description"),
-        row.descriptionFr,
-        row.descriptionEn,
-      );
+      const name = localizedTextOf(index, "FORMULA", row.id, "name");
+      const description = localizedTextOf(index, "FORMULA", row.id, "description");
       return {
         id: row.id,
         priceCents: row.priceCents,
@@ -642,7 +604,7 @@ export class PrismaMenuRepository implements MenuRepository {
   async createFormula(
     params: Parameters<MenuRepository["createFormula"]>[0],
   ): Promise<{ id: string }> {
-    // Dual-write (expand) : colonnes legacy + lignes translations source (cf. createDailyDish).
+    // Texte source écrit dans `translations` (langue source) ; cibles jamais touchées ici.
     return this.db.$transaction(async (tx) => {
       const formula = await tx.formula.create({
         data: {
@@ -651,8 +613,6 @@ export class PrismaMenuRepository implements MenuRepository {
           priceCents: params.priceCents,
           validUntil: new Date(params.validUntilISO),
           order: params.order,
-          nameFr: params.texts.name,
-          descriptionFr: params.texts.description,
         },
         select: { id: true },
       });
@@ -678,8 +638,6 @@ export class PrismaMenuRepository implements MenuRepository {
         data: {
           priceCents: params.priceCents,
           validUntil: new Date(params.validUntilISO),
-          nameFr: params.texts.name,
-          descriptionFr: params.texts.description,
         },
       });
 
@@ -782,22 +740,6 @@ function localizedTextOf(
   for (const [locale, value] of byLocale) {
     if (isMenuLocale(locale)) out[locale] = value;
   }
-  return out;
-}
-
-/**
- * Complète les locales fr/en absentes des lignes translations depuis les colonnes
- * legacy (`name_fr`/`name_en`/`alt_text_*`) — entrées créées avant 076. Supprimé
- * au step 11 (contract) en même temps que les colonnes.
- */
-function withLegacyFallback(
-  texts: LocalizedText,
-  legacyFr?: string | null,
-  legacyEn?: string | null,
-): LocalizedText {
-  const out = { ...texts };
-  if (out.fr === undefined && legacyFr) out.fr = legacyFr;
-  if (out.en === undefined && legacyEn) out.en = legacyEn;
   return out;
 }
 

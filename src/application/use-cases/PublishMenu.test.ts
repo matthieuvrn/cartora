@@ -29,8 +29,6 @@ const MENU_FIXTURE: MenuOverview = {
           allergens: [],
           isAvailable: true,
           imagePath: null,
-          altTextFr: null,
-          altTextEn: null,
           order: 0,
           translations: {
             fr: { name: "Soupe", description: "Soupe du jour" },
@@ -385,8 +383,6 @@ describe("PublishMenu", () => {
               allergens: [],
               isAvailable: true,
               imagePath: null,
-              altTextFr: null,
-              altTextEn: null,
               order: 0,
               translations: {
                 fr: { name: "Soupe", description: "Soupe du jour" },
@@ -405,8 +401,6 @@ describe("PublishMenu", () => {
               allergens: [],
               isAvailable: false,
               imagePath: null,
-              altTextFr: null,
-              altTextEn: null,
               order: 1,
               translations: {
                 fr: { name: "Salade", description: "Salade verte" },

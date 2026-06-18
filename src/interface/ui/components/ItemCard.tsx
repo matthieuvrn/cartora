@@ -80,7 +80,8 @@ export function ItemCard({ item, categoryId, onMoveUp, onMoveDown, isReordering 
   }
 
   const thumbnailUrl = item.imagePath ? itemImageUrl(item.imagePath) : null;
-  const thumbnailAlt = item.altTextFr || item.altTextEn || item.translations.fr.name;
+  const thumbnailAlt =
+    item.texts.altText?.fr || item.texts.altText?.en || item.translations.fr.name;
 
   return (
     <>

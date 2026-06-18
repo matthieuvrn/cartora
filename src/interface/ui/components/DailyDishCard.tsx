@@ -74,7 +74,8 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
   }
 
   const thumbnailUrl = dish.imagePath ? itemImageUrl(dish.imagePath) : null;
-  const thumbnailAlt = dish.altTextFr || dish.altTextEn || dish.translations.fr.name;
+  const thumbnailAlt =
+    dish.texts.altText?.fr || dish.texts.altText?.en || dish.translations.fr.name;
   const exp = formatExpiration(dish.validUntilISO);
 
   return (

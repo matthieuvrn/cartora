@@ -37,10 +37,6 @@ export type MenuItemData = {
   allergens: Allergen[];
   isAvailable: boolean;
   imagePath: string | null;
-  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
-  altTextFr: string | null;
-  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
-  altTextEn: string | null;
   order: number;
   /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
   translations: { fr: ItemTranslations; en: ItemTranslations };
@@ -82,10 +78,6 @@ export type DailyDishData = {
   badge: ItemBadge;
   allergens: Allergen[];
   imagePath: string | null;
-  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
-  altTextFr: string | null;
-  /** @deprecated S4 — lire `texts.altText` ; supprimé au step 11 (contract). */
-  altTextEn: string | null;
   validUntilISO: string;
   order: number;
   /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */

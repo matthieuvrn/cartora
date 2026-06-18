@@ -266,7 +266,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
               <ItemPhotoEditor
                 itemId={item.id}
                 initialImagePath={item.imagePath}
-                initialAltText={item.texts.altText?.fr ?? item.altTextFr}
+                initialAltText={item.texts.altText?.fr ?? null}
               />
             )}
 

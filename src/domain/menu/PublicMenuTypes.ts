@@ -188,8 +188,8 @@ export function buildPublicSnapshot(
           badge: item.badge,
           allergens: item.allergens,
           imagePath: item.imagePath,
-          altTextFr: item.altTextFr ?? "",
-          altTextEn: item.altTextEn ?? "",
+          altTextFr: item.texts.altText?.fr ?? "",
+          altTextEn: item.texts.altText?.en ?? "",
         })),
     }))
     .filter((category) => category.items.length > 0);
@@ -209,8 +209,8 @@ export function buildPublicSnapshot(
       badge: entry.badge,
       allergens: entry.allergens,
       imagePath: entry.imagePath,
-      altTextFr: entry.altTextFr ?? "",
-      altTextEn: entry.altTextEn ?? "",
+      altTextFr: entry.texts.altText?.fr ?? "",
+      altTextEn: entry.texts.altText?.en ?? "",
       validUntilISO: entry.validUntilISO,
     }));
 

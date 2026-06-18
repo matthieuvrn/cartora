@@ -207,7 +207,7 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
               <DailyDishPhotoEditor
                 dishId={dish.id}
                 initialImagePath={dish.imagePath}
-                initialAltText={dish.texts.altText?.fr ?? dish.altTextFr}
+                initialAltText={dish.texts.altText?.fr ?? null}
               />
             )}
           </div>
