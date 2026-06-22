@@ -18,7 +18,7 @@ jobs:
       STRIPE_WEBHOOK_SECRET: "whsec_dummy"
       STRIPE_PRICE_ID: "price_dummy"
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: corepack enable
       - uses: actions/setup-node@v6
         with:
@@ -35,7 +35,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: corepack enable
       - uses: actions/setup-node@v6
         with:
@@ -46,7 +46,7 @@ jobs:
   secret-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Install gitleaks
