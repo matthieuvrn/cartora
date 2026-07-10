@@ -2,6 +2,7 @@
   "Nav": {
     "navigation": "Navigation",
     "openMenu": "Ouvrir le menu",
+    "skipToContent": "Aller au contenu",
     "logout": "Se déconnecter",
     "menu": "Ma carte",
     "stats": "Statistiques",

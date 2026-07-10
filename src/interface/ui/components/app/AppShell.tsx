@@ -20,6 +20,14 @@ export function AppShell({ email, children }: { email: string; children: React.R
 
   return (
     <div className="min-h-svh">
+      {/* Lien d'évitement : 1re cible au clavier, masqué visuellement jusqu'au focus. */}
+      <a
+        href="#main"
+        className="sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground focus:not-sr-only"
+      >
+        {t("skipToContent")}
+      </a>
+
       {/* Rail desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r md:block">
         <AppSidebar email={email} />
@@ -42,7 +50,7 @@ export function AppShell({ email, children }: { email: string; children: React.R
       </header>
 
       {/* Contenu */}
-      <main className="md:pl-60">
+      <main id="main" className="md:pl-60">
         <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</div>
       </main>
     </div>

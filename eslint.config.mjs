@@ -2,6 +2,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import importPlugin from "eslint-plugin-import";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import prettierConfig from "eslint-config-prettier";
 
 // Libs blocked in domain + application (frameworks, external services)
@@ -25,7 +26,23 @@ const eslintConfig = defineConfig([
   ...nextTs,
 
   // Override default ignores of eslint-config-next.
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "coverage/**"]),
+
+  // Accessibilité (RGAA/OPQUAST) — démarche outillée explicite : on active le jeu
+  // de règles "recommended" de jsx-a11y (le plugin est déjà enregistré par
+  // next/core-web-vitals, on ne redéclare donc que les règles) afin de couvrir
+  // tout le JSX, au-delà du sous-ensemble par défaut.
+  {
+    files: ["src/**/*.{jsx,tsx}"],
+    rules: {
+      ...jsxA11y.flatConfigs.recommended.rules,
+      // Choix assumé : on conserve role="list" sur les <ul> dont le style retire
+      // les puces (list-style:none). Safari/VoiceOver supprime alors la sémantique
+      // de liste ; role="list" la restaure. C'est une amélioration d'accessibilité,
+      // pas une redondance — la règle est donc désactivée volontairement.
+      "jsx-a11y/no-redundant-roles": "off",
+    },
+  },
 
   // Underscore prefix = intentionally unused
   {

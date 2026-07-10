@@ -71,6 +71,10 @@ export function CategoryFormDialog(props: Props) {
                 defaultValue={defaultName}
                 maxLength={MAX_CATEGORY_NAME_LENGTH}
                 required
+                // Focus intentionnel : la modale est ouverte par une action
+                // utilisateur, placer le focus sur le 1er champ suit les WAI-ARIA
+                // Authoring Practices (dialog) et améliore l'usage au clavier.
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
               />
             </div>

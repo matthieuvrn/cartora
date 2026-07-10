@@ -53,6 +53,9 @@ export function EditableRestaurantName({ currentName }: Props) {
         placeholder={t("namePlaceholder")}
         required
         maxLength={50}
+        // Focus intentionnel : l'édition inline est déclenchée par l'utilisateur
+        // (clic sur « renommer ») ; placer le focus dans le champ est attendu.
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         className="h-9 w-64 text-lg"
         disabled={isPending}
