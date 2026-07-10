@@ -8,7 +8,7 @@
 restaurateur, sans compétence technique, de créer une carte numérique et de la rendre accessible
 à ses clients via un QR code posé sur la table.
 
-Modèle *freemium* : création gratuite (avec filigrane) → publication payante via Stripe
+Modèle _freemium_ : création gratuite (avec filigrane) → publication payante via Stripe
 (FREE / STARTER / PRO).
 
 ---
@@ -24,17 +24,17 @@ Modèle *freemium* : création gratuite (avec filigrane) → publication payante
 
 ## Stack technique
 
-| Domaine | Choix |
-|---|---|
-| Framework | Next.js 16 (App Router, RSC, Server Actions) |
-| Langage | TypeScript (strict) |
-| UI | React 19, Tailwind CSS 4, shadcn/ui (Radix) |
-| Données | PostgreSQL (Supabase) via Prisma 7 + RLS |
-| Auth | Supabase Auth |
-| Paiement | Stripe |
-| Observabilité | Sentry |
-| Tests | Vitest |
-| CI/CD | GitHub Actions → Vercel |
+| Domaine       | Choix                                        |
+| ------------- | -------------------------------------------- |
+| Framework     | Next.js 16 (App Router, RSC, Server Actions) |
+| Langage       | TypeScript (strict)                          |
+| UI            | React 19, Tailwind CSS 4, shadcn/ui (Radix)  |
+| Données       | PostgreSQL (Supabase) via Prisma 7 + RLS     |
+| Auth          | Supabase Auth                                |
+| Paiement      | Stripe                                       |
+| Observabilité | Sentry                                       |
+| Tests         | Vitest                                       |
+| CI/CD         | GitHub Actions → Vercel                      |
 
 ## Architecture
 
@@ -49,7 +49,7 @@ Domain → Application → Infrastructure → Interface → App
 - **Application** : use cases + interfaces (ports).
 - **Infrastructure** : adapters (Prisma, Supabase, Stripe…).
 - **Interface** : composants UI réutilisables et contrôleurs.
-- **App** : pages/routes Next.js, *composition root* (injection de dépendances).
+- **App** : pages/routes Next.js, _composition root_ (injection de dépendances).
 
 ## Démarrage
 
