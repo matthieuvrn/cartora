@@ -133,7 +133,9 @@
       "limitReached": "Limite de {max} catégories atteinte",
       "namePlaceholder": "Nom de la catégorie",
       "moveUp": "Monter la catégorie",
-      "moveDown": "Descendre la catégorie"
+      "moveDown": "Descendre la catégorie",
+      "collapse": "Replier la catégorie",
+      "expand": "Déplier la catégorie"
     },
     "badge": {
       "NONE": "Aucun",
@@ -175,9 +177,7 @@
     "confirmDelete": "Supprimer cet item ? Cette action est irréversible.",
     "publish": "Publier",
     "preview": "Aperçu",
-    "livePreview": "Aperçu en direct",
-    "showPreview": "Afficher l'aperçu",
-    "hidePreview": "Masquer l'aperçu",
+    "jumpToCategory": "Aller à…",
     "previewTitle": "Aperçu du menu",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablette",

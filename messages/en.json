@@ -133,7 +133,9 @@
       "limitReached": "{max} categories limit reached",
       "namePlaceholder": "Category name",
       "moveUp": "Move category up",
-      "moveDown": "Move category down"
+      "moveDown": "Move category down",
+      "collapse": "Collapse category",
+      "expand": "Expand category"
     },
     "badge": {
       "NONE": "None",
@@ -175,9 +177,7 @@
     "confirmDelete": "Delete this item? This action cannot be undone.",
     "publish": "Publish",
     "preview": "Preview",
-    "livePreview": "Live preview",
-    "showPreview": "Show preview",
-    "hidePreview": "Hide preview",
+    "jumpToCategory": "Go to…",
     "previewTitle": "Menu preview",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablet",
