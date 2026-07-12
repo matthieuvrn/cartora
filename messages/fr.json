@@ -10,7 +10,8 @@
     "traductions": "Traductions",
     "partage": "Partage",
     "abonnement": "Abonnement",
-    "reglages": "Réglages"
+    "reglages": "Réglages",
+    "translationsPending": "{count} à relire"
   },
   "Translations": {
     "title": "Traductions",
@@ -30,7 +31,7 @@
     "groupCategories": "Catégories",
     "groupToday": "Aujourd'hui",
     "groupFormulas": "Formules",
-    "coverageLabel": "Traductions :",
+    "coverageTitle": "Couverture par langue",
     "autoTranslate": "Traduire automatiquement",
     "autoTranslating": "Traduction en cours…",
     "autoTranslateHint": "Remplit les champs manquants ou à relire (PRO).",

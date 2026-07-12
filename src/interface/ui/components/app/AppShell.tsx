@@ -14,7 +14,16 @@ import { AppSidebar } from "./AppSidebar";
  * (mobile) ouvrant la même nav dans un Sheet. Le contenu de page est rendu dans la zone principale,
  * décalée de la largeur du rail. Monté par (app)/layout.tsx sous le scope `.theme-app`.
  */
-export function AppShell({ email, children }: { email: string; children: React.ReactNode }) {
+export function AppShell({
+  email,
+  translationTodoCount,
+  children,
+}: {
+  email: string;
+  /** Champs de traduction « à relire » — pastille de comptage sur l'entrée « Traductions ». */
+  translationTodoCount: number;
+  children: React.ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   const t = useTranslations("Nav");
 
@@ -30,7 +39,7 @@ export function AppShell({ email, children }: { email: string; children: React.R
 
       {/* Rail desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r md:block">
-        <AppSidebar email={email} />
+        <AppSidebar email={email} translationTodoCount={translationTodoCount} />
       </aside>
 
       {/* Barre mobile */}
@@ -43,7 +52,11 @@ export function AppShell({ email, children }: { email: string; children: React.R
           </SheetTrigger>
           <SheetContent side="left" aria-describedby={undefined} className="w-64 p-0">
             <SheetTitle className="sr-only">{t("navigation")}</SheetTitle>
-            <AppSidebar email={email} onNavigate={() => setOpen(false)} />
+            <AppSidebar
+              email={email}
+              translationTodoCount={translationTodoCount}
+              onNavigate={() => setOpen(false)}
+            />
           </SheetContent>
         </Sheet>
         <Logo variant="lockup" className="h-6" />

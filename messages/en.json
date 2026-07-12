@@ -10,7 +10,8 @@
     "traductions": "Translations",
     "partage": "Share",
     "abonnement": "Subscription",
-    "reglages": "Settings"
+    "reglages": "Settings",
+    "translationsPending": "{count} to review"
   },
   "Translations": {
     "title": "Translations",
@@ -30,7 +31,7 @@
     "groupCategories": "Categories",
     "groupToday": "Today",
     "groupFormulas": "Combo menus",
-    "coverageLabel": "Translations:",
+    "coverageTitle": "Coverage by language",
     "autoTranslate": "Auto-translate",
     "autoTranslating": "Translating…",
     "autoTranslateHint": "Fills in missing or outdated fields (PRO).",

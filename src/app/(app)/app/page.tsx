@@ -16,10 +16,7 @@ import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
 import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDishes";
 import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
-import { GetTranslationOverview } from "@/application/use-cases/GetTranslationOverview";
-import { PrismaTranslationRepository } from "@/infrastructure/menu/PrismaTranslationRepository";
 import { MenuEditor } from "@/interface/ui/components/MenuEditor";
-import { TranslationCoverageBadges } from "@/interface/ui/components/translations/TranslationCoverageBadges";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
 import { dismissActivationChecklistAction, publishMenuAction, regenerateQrAction } from "./actions";
 
@@ -85,17 +82,6 @@ export default async function AppPage({
   const listFormulas = new ListActiveFormulas(menuRepo, clock);
   const formulas = await listFormulas.execute({ restaurantId });
 
-  // Couverture des traductions (S4) — seulement si au moins une langue cible activée.
-  const coverage =
-    restaurant.menuLocales.length > 0
-      ? (
-          await new GetTranslationOverview(
-            menuRepo,
-            new PrismaTranslationRepository(prisma),
-          ).execute({ restaurantId })
-        ).coverage
-      : [];
-
   const totalItems = menu.categories.reduce((acc, c) => acc + c.items.length, 0);
   const checklist =
     restaurant.activationDismissedAt !== null
@@ -114,11 +100,6 @@ export default async function AppPage({
           <CheckoutResultBanner result="success" tier={restaurant.planTier} />
         )}
       {checkout === "cancel" && <CheckoutResultBanner result="cancel" />}
-      {coverage.length > 0 && (
-        <div className="mb-4">
-          <TranslationCoverageBadges coverage={coverage} />
-        </div>
-      )}
       <MenuEditor
         menu={menu}
         restaurantName={restaurant.displayName}

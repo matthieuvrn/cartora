@@ -39,7 +39,16 @@ const NAV: readonly NavItem[] = [
   { key: "reglages", href: "/app/reglages", icon: Settings, exact: false },
 ];
 
-export function AppSidebar({ email, onNavigate }: { email: string; onNavigate?: () => void }) {
+export function AppSidebar({
+  email,
+  translationTodoCount = 0,
+  onNavigate,
+}: {
+  email: string;
+  /** Champs de traduction « à relire » — pastille de comptage sur l'entrée « Traductions ». */
+  translationTodoCount?: number;
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
   const t = useTranslations("Nav");
 
@@ -69,6 +78,14 @@ export function AppSidebar({ email, onNavigate }: { email: string; onNavigate?: 
             >
               <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
               {t(key)}
+              {key === "traductions" && translationTodoCount > 0 && (
+                <span
+                  className="ml-auto inline-flex min-w-4 items-center justify-center rounded-full bg-warning/15 px-1 text-[0.6875rem] font-medium text-warning tabular-nums"
+                  aria-label={t("translationsPending", { count: translationTodoCount })}
+                >
+                  {translationTodoCount}
+                </span>
+              )}
             </Link>
           );
         })}
