@@ -22,12 +22,10 @@ export type ItemTranslations = {
 /**
  * Textes localisés d'une entité de menu (S4 — multilingue), toutes locales
  * confondues (source comprise). Source de vérité : table `translations`.
- * `altText` est absent pour les entités sans photo (formules).
  */
 export type EntityTexts = {
   name: LocalizedText;
   description: LocalizedText;
-  altText?: LocalizedText;
 };
 
 export type MenuItemData = {
@@ -36,7 +34,6 @@ export type MenuItemData = {
   badge: ItemBadge;
   allergens: Allergen[];
   isAvailable: boolean;
-  imagePath: string | null;
   order: number;
   /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
   translations: { fr: ItemTranslations; en: ItemTranslations };
@@ -68,7 +65,7 @@ export type MenuOverview = {
 
 /**
  * Plat du jour (S3.1). Entité autonome — pas de FK vers Item. Tous les champs métier
- * sont embarqués (nom, description, prix, badge, allergens, photo). `validUntilISO`
+ * sont embarqués (nom, description, prix, badge, allergens). `validUntilISO`
  * est ISO 8601 UTC ; la résolution fin-de-journée est faite par `DailyDishPolicy.defaultExpirationISO`
  * en zone Europe/Paris.
  */
@@ -77,7 +74,6 @@ export type DailyDishData = {
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
-  imagePath: string | null;
   validUntilISO: string;
   order: number;
   /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */

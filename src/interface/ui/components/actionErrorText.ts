@@ -11,15 +11,12 @@ type Translator = ReturnType<typeof useTranslations>;
  * `generic` si la clé `${namespace}.${code}` n'existe pas (sécurité contre
  * les codes ajoutés sans clé i18n correspondante).
  *
- * Codes paramétrés (`max_categories`, `max_photos`, `locale_quota_exceeded`) :
- * tente d'abord la clé enrichie `${code}_with_limit` avec les `metadata`
- * injectées comme variables ICU.
+ * Codes paramétrés (`max_categories`, `locale_quota_exceeded`) : tente d'abord la
+ * clé enrichie `${code}_with_limit` avec les `metadata` injectées comme variables ICU.
  */
 export function actionErrorText(t: Translator, error: ActionError): string {
   if (
-    (error.code === "max_categories" ||
-      error.code === "max_photos" ||
-      error.code === "locale_quota_exceeded") &&
+    (error.code === "max_categories" || error.code === "locale_quota_exceeded") &&
     error.metadata?.limit !== undefined
   ) {
     const richKey = `${error.code}_with_limit`;

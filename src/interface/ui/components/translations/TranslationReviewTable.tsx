@@ -437,7 +437,7 @@ function FieldRow({
   const Icon = badge.icon;
   const isLong = field === "description";
   const inputId = `tr-${key}-${locale}`;
-  const fieldName = field === "name" || field === "description" ? field : "altText";
+  const fieldName = field === "description" ? "description" : "name";
   const label = `${MENU_LOCALE_LABELS[locale]} — ${tField(fieldName)}`;
 
   const persist = async () => {

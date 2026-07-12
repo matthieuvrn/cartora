@@ -53,8 +53,7 @@
     },
     "field": {
       "name": "Name",
-      "description": "Description",
-      "altText": "Alt text"
+      "description": "Description"
     },
     "status": {
       "fresh": "Up to date",
@@ -163,23 +162,6 @@
       "NONE": "None",
       "NEW": "New",
       "POPULAR": "Popular"
-    },
-    "photo": {
-      "title": "Dish photo",
-      "optionalLabel": "(optional)",
-      "noPhoto": "No photo",
-      "upload": "Add a photo",
-      "replace": "Replace",
-      "delete": "Delete photo",
-      "remove": "Remove",
-      "uploading": "Uploading…",
-      "altTextHint": "Describe the image for screen readers (accessibility)",
-      "altText": "Image description",
-      "error": {
-        "tooLarge": "Image too large (max 5 MB)",
-        "wrongFormat": "Unsupported format (JPEG, PNG, WebP only)",
-        "generic": "Saving the photo failed, please retry"
-      }
     },
     "activation": {
       "title": "Get started",
@@ -304,8 +286,7 @@
       "dishSaved": "Today's dish saved",
       "formulaSaved": "Combo saved",
       "nameSaved": "Name saved",
-      "published": "Menu published",
-      "photoFailedRetryEdit": "Item saved, but the photo upload failed. Reopen it via \"Edit\" to retry."
+      "published": "Menu published"
     },
     "deleteAccount": "Delete my account",
     "deleteAccountConfirmTitle": "Delete your account?",
@@ -457,7 +438,7 @@
         "Full menu builder",
         "Built-in QR code",
         "14 EU allergens",
-        "Bilingual FR / EN",
+        "Menu in your language",
         "Up to 6 categories",
         "Preview with watermark",
         "Publishing not included"
@@ -470,9 +451,9 @@
       "features": [
         "Everything in STARTER",
         "Unlimited categories",
-        "Unlimited photos",
-        "3 premium templates",
-        "Brand colors",
+        "7 premium templates",
+        "Unlimited languages (fr/en/es/de/it)",
+        "Automatic translation (DeepL)",
         "Priority support"
       ]
     },
@@ -488,10 +469,10 @@
         "Everything in FREE",
         "Publish without watermark",
         "Up to 10 categories",
-        "Up to 20 item photos",
         "Daily dishes & set menus",
-        "Real-time analytics",
-        "French-speaking support"
+        "1 extra menu language",
+        "Brand colors",
+        "Real-time analytics"
       ]
     }
   },
@@ -562,7 +543,7 @@
       },
       "step2": {
         "title": "Fill in your menu",
-        "body": "Dishes, categories, allergens, photos: the editor works without any training. A full menu takes about 10 minutes."
+        "body": "Dishes, categories, allergens: the editor works without any training. A full menu takes about 10 minutes."
       },
       "step3": {
         "title": "Print your QR code",
@@ -582,14 +563,14 @@
         "tier": "All plans"
       },
       "allergens": {
-        "title": "14 EU allergens and photos",
-        "body": "The 14 allergens from EU regulation 1169/2011, built into every dish. Photos available based on your plan (5 / 20 / unlimited).",
+        "title": "14 EU allergens built in",
+        "body": "The 14 allergens from EU regulation 1169/2011, built into every dish. Your guests see them right on the menu.",
         "tier": "All plans"
       },
       "bilingual": {
-        "title": "French-English bilingual",
-        "body": "Each dish entered in both languages. Your guest sees their own automatically, based on their browser.",
-        "tier": "All plans"
+        "title": "Multilingual menu",
+        "body": "Write your menu once in your language, then enable more languages (up to 5: fr, en, es, de, it). Your guest sees theirs automatically, based on their browser.",
+        "tier": "STARTER and PRO"
       },
       "daily": {
         "title": "Daily specials and set menus",
@@ -597,14 +578,14 @@
         "tier": "STARTER and PRO"
       },
       "branding": {
-        "title": "Premium templates and brand colors",
-        "body": "Seven templates to choose from — two base (Classic, Cartora) and five premium designs. Customizable colors on Classic, with a WCAG AA contrast check to stay legible.",
+        "title": "Premium templates & colors",
+        "body": "Nine designs to choose from: two base (Classic, Cartora) on every plan, and seven premium skins reserved for PRO. Brand colors are customizable on Classic — on every plan — with a WCAG AA contrast check.",
         "tier": "PRO"
       }
     },
     "demo": {
       "title": "Here's what a published Cartora menu looks like.",
-      "subtitle": "Click to open a real live menu in a new tab. You can test the navigation, bilingual switch, allergens and QR flow.",
+      "subtitle": "Click to open a real live menu in a new tab. You can test the navigation, language switcher, allergens and QR flow.",
       "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today's specials.",
       "openCta": "Open the demo",
       "footnote": "This demo is a real Cartora menu, built in 8 minutes."
@@ -619,11 +600,11 @@
         },
         "website": {
           "label": "If you already have a website",
-          "body": "Your website still earns its place for general info: address, opening hours, ambient photos. But a website isn't built for a menu that moves: every change goes through edit mode, allergens aren't structured, and per-dish bilingual is rarely native. Cartora slots in alongside, it doesn't replace your site."
+          "body": "Your website still earns its place for general info: address, opening hours, ambient photos. But a website isn't built for a menu that moves: every change goes through edit mode, allergens aren't structured, and per-dish multilingual is rarely native. Cartora slots in alongside, it doesn't replace your site."
         },
         "other": {
           "label": "If you're comparing other digital menus",
-          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, per-dish bilingual, and no commitment. Up to you to compare what matters for your venue."
+          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, multilingual menus, and no commitment. Up to you to compare what matters for your venue."
         }
       }
     },
@@ -639,7 +620,7 @@
       "title": "Your data, your trust",
       "hostingEu": {
         "title": "Your data stays in Europe",
-        "body": "Your menu content (dishes, allergens, photos) is stored with Supabase, in data centres located in France and Germany."
+        "body": "Your menu content (dishes, allergens) is stored with Supabase, in data centres located in France and Germany."
       },
       "stripe": {
         "title": "Payments handled by Stripe",
@@ -671,8 +652,8 @@
           "a": "The 14 allergens listed in EU regulation 1169/2011 are built in. You tick the ones present in each dish, and your customers see them right on the menu. Fully compliant with the legal disclosure requirement."
         },
         "bilingual": {
-          "q": "Can I offer my menu in French and English?",
-          "a": "Yes, bilingual FR/EN is native. You enter each dish in both languages, and your customers automatically see theirs based on their browser settings."
+          "q": "Can I offer my menu in several languages?",
+          "a": "Yes. Write your menu in your language, then enable more languages (up to 5: French, English, Spanish, German, Italian). The Starter plan includes 1 extra language; the Pro plan unlocks them all with automatic translation. Your customers automatically see theirs based on their browser settings."
         },
         "dataHosting": {
           "q": "Where is my restaurant's data stored?",
@@ -720,8 +701,6 @@
     "duplicate_name": "This name is already in use",
     "max_categories": "Category limit reached for your plan",
     "max_categories_with_limit": "Category limit ({limit}) reached on the {tier} plan. Upgrade to add more.",
-    "max_photos": "Photo limit reached for your plan",
-    "max_photos_with_limit": "Photo limit ({limit}) reached on the {tier} plan. Upgrade to add more.",
     "ownership_mismatch": "Action not allowed",
     "unauthorized": "Action not allowed",
     "restaurant_not_found": "Restaurant not found",

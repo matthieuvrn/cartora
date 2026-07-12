@@ -28,7 +28,6 @@ const MENU_FIXTURE: MenuOverview = {
           badge: "NONE",
           allergens: [],
           isAvailable: true,
-          imagePath: null,
           order: 0,
           translations: {
             fr: { name: "Soupe", description: "Soupe du jour" },
@@ -37,7 +36,6 @@ const MENU_FIXTURE: MenuOverview = {
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },
-            altText: {},
           },
         },
       ],
@@ -100,14 +98,10 @@ describe("PublishMenu", () => {
                 texts: {
                   name: { fr: "Soupe", en: "Soup" },
                   description: { fr: "Soupe du jour", en: "Soup of the day" },
-                  altText: {},
                 },
                 priceCents: 850,
                 badge: "NONE",
                 allergens: [],
-                imagePath: null,
-                altTextFr: "",
-                altTextEn: "",
               },
             ],
           },
@@ -227,9 +221,6 @@ describe("PublishMenu", () => {
         priceCents: 1500,
         badge: "NONE" as const,
         allergens: [],
-        imagePath: null,
-        altTextFr: null,
-        altTextEn: null,
         validUntilISO: "2026-03-25T22:00:00.000Z",
         order: 0,
         translations: {
@@ -239,7 +230,6 @@ describe("PublishMenu", () => {
         texts: {
           name: { fr: "Pot-au-feu", en: "Beef stew" },
           description: { fr: "Plat mijoté" },
-          altText: {},
         },
       },
     ]);
@@ -264,14 +254,10 @@ describe("PublishMenu", () => {
         texts: {
           name: { fr: "Pot-au-feu", en: "Beef stew" },
           description: { fr: "Plat mijoté" },
-          altText: {},
         },
         priceCents: 1500,
         badge: "NONE",
         allergens: [],
-        imagePath: null,
-        altTextFr: "",
-        altTextEn: "",
         validUntilISO: "2026-03-25T22:00:00.000Z",
       },
     ]);
@@ -382,7 +368,6 @@ describe("PublishMenu", () => {
               badge: "NONE",
               allergens: [],
               isAvailable: true,
-              imagePath: null,
               order: 0,
               translations: {
                 fr: { name: "Soupe", description: "Soupe du jour" },
@@ -391,7 +376,6 @@ describe("PublishMenu", () => {
               texts: {
                 name: { fr: "Soupe", en: "Soup" },
                 description: { fr: "Soupe du jour", en: "Soup of the day" },
-                altText: {},
               },
             },
             {
@@ -400,7 +384,6 @@ describe("PublishMenu", () => {
               badge: "NEW",
               allergens: [],
               isAvailable: false,
-              imagePath: null,
               order: 1,
               translations: {
                 fr: { name: "Salade", description: "Salade verte" },
@@ -409,7 +392,6 @@ describe("PublishMenu", () => {
               texts: {
                 name: { fr: "Salade", en: "Salad" },
                 description: { fr: "Salade verte", en: "Green salad" },
-                altText: {},
               },
             },
           ],
@@ -451,14 +433,10 @@ describe("PublishMenu", () => {
                 texts: {
                   name: { fr: "Soupe", en: "Soup" },
                   description: { fr: "Soupe du jour", en: "Soup of the day" },
-                  altText: {},
                 },
                 priceCents: 850,
                 badge: "NONE",
                 allergens: [],
-                imagePath: null,
-                altTextFr: "",
-                altTextEn: "",
               },
             ],
           },

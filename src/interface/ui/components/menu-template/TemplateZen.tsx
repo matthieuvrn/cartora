@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { collectPresentAllergens, resolveLcpPriority } from "@/domain/menu/publicMenuView";
+import { collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
 import { TodaySection } from "./TodaySection";
@@ -28,7 +28,6 @@ export function TemplateZen({
   todaySectionFormulasSubtitle,
 }: MenuTemplateProps) {
   const presentAllergens = collectPresentAllergens(snapshot);
-  const { firstPhotoLocator } = resolveLcpPriority(snapshot);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -87,9 +86,6 @@ export function TemplateZen({
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}
-            priorityItemIndex={
-              firstPhotoLocator?.categoryName === category.name ? firstPhotoLocator.itemIndex : null
-            }
           />
         ))}
       </div>

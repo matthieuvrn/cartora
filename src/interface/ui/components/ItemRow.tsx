@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useOptimistic, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -30,7 +29,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteItemAction, setItemAvailabilityAction } from "@/app/(app)/app/actions";
 import { deferDelete } from "@/hooks/use-deferred-delete";
-import { itemImageUrl } from "@/lib/storage-url";
 import { cn, HIT_AREA, HIT_AREA_TALL } from "@/lib/utils";
 import { actionErrorText } from "./actionErrorText";
 import { ItemFormDialog } from "./ItemFormDialog";
@@ -157,9 +155,6 @@ export function ItemRow({
     });
   }
 
-  const thumbnailUrl = item.imagePath ? itemImageUrl(item.imagePath) : null;
-  const thumbnailAlt = resolveText(item.texts.altText ?? {}, sourceLocale, sourceLocale) || name;
-
   return (
     <>
       <div
@@ -187,18 +182,6 @@ export function ItemRow({
             <GripVertical className="size-4" aria-hidden="true" />
           </button>
         )}
-        {thumbnailUrl && (
-          <div className="relative size-10 shrink-0 overflow-hidden rounded-md bg-muted">
-            <Image
-              src={thumbnailUrl}
-              alt={thumbnailAlt}
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
-          </div>
-        )}
-
         <div className={cn("min-w-0 flex-1", !optimisticAvailable && "opacity-60")}>
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate font-medium">{name}</span>

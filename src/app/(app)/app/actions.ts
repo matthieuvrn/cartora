@@ -9,9 +9,6 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { CreateItem } from "@/application/use-cases/CreateItem";
 import { UpdateItem } from "@/application/use-cases/UpdateItem";
 import { DeleteItem } from "@/application/use-cases/DeleteItem";
-import { CreateItemImageUploadUrl } from "@/application/use-cases/CreateItemImageUploadUrl";
-import { SetItemImage } from "@/application/use-cases/SetItemImage";
-import { DeleteItemImage } from "@/application/use-cases/DeleteItemImage";
 import { ReorderItems } from "@/application/use-cases/ReorderItems";
 import { CreateCategory } from "@/application/use-cases/CreateCategory";
 import { RenameCategory } from "@/application/use-cases/RenameCategory";
@@ -33,7 +30,6 @@ import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRe
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { ALLERGEN_VALUES, MAX_PRICE_CENTS } from "@/domain/menu/ItemPolicy";
-import { ALLOWED_IMAGE_MIME_TYPES, MAX_ALT_TEXT_LENGTH } from "@/domain/menu/ItemPhotoPolicy";
 import { ALLOWED_LOGO_MIME_TYPES } from "@/domain/restaurant/BrandingPolicy";
 import { MAX_DISPLAY_NAME_LENGTH } from "@/domain/restaurant/RestaurantPolicy";
 import { CreateRestaurantLogoUploadUrl } from "@/application/use-cases/CreateRestaurantLogoUploadUrl";
@@ -43,9 +39,6 @@ import { CreateDailyDish } from "@/application/use-cases/CreateDailyDish";
 import { UpdateDailyDish } from "@/application/use-cases/UpdateDailyDish";
 import { DeleteDailyDish } from "@/application/use-cases/DeleteDailyDish";
 import { ReorderDailyDishes } from "@/application/use-cases/ReorderDailyDishes";
-import { CreateDailyDishImageUploadUrl } from "@/application/use-cases/CreateDailyDishImageUploadUrl";
-import { SetDailyDishImage } from "@/application/use-cases/SetDailyDishImage";
-import { DeleteDailyDishImage } from "@/application/use-cases/DeleteDailyDishImage";
 import { CreateFormula } from "@/application/use-cases/CreateFormula";
 import { UpdateFormula } from "@/application/use-cases/UpdateFormula";
 import { DeleteFormula } from "@/application/use-cases/DeleteFormula";
@@ -224,21 +217,6 @@ const DeleteDailyDishSchema = z.object({
 
 const ReorderDailyDishesSchema = z.object({
   orderedIds: z.array(z.uuid()).min(1),
-});
-
-const CreateDailyDishImageUploadUrlSchema = z.object({
-  dishId: z.uuid(),
-  mime: z.enum(ALLOWED_IMAGE_MIME_TYPES),
-});
-
-const SetDailyDishImageSchema = z.object({
-  dishId: z.uuid(),
-  imagePath: z.string().min(1).max(500),
-  altText: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
-});
-
-const DeleteDailyDishImageSchema = z.object({
-  dishId: z.uuid(),
 });
 
 // Formules (S3.2) — pas de badge ni d'allergens (cf. `FormulaData`). `validUntilISO`
@@ -433,8 +411,7 @@ export async function deleteItemAction(
     { actionName: "deleteItem", restaurantId, input: { itemId: parsed.data.itemId } },
     async () => {
       const repo = new PrismaMenuRepository(prisma);
-      const itemImageStorage = new SupabaseStorageService("item-images");
-      const useCase = new DeleteItem(repo, itemImageStorage);
+      const useCase = new DeleteItem(repo);
 
       await useCase.execute({
         itemId: parsed.data.itemId,
@@ -499,8 +476,7 @@ const SetItemAvailabilitySchema = z.object({
 /**
  * Bascule de disponibilité en un tap depuis la carte (« 86 » un plat).
  * Action à input objet (pas de formulaire) appelée dans une transition
- * optimiste côté client. `markMenuAsDraft` vit dans le use case
- * (précédent `SetItemImage`).
+ * optimiste côté client. `markMenuAsDraft` vit dans le use case.
  */
 export async function setItemAvailabilityAction(input: {
   itemId: string;
@@ -532,128 +508,12 @@ export async function setItemAvailabilityAction(input: {
   );
 }
 
-// ─── Photos d'items ─────────────────────────────────────────────────────────
-
-const CreateImageUploadUrlSchema = z.object({
-  itemId: z.uuid(),
-  mime: z.enum(ALLOWED_IMAGE_MIME_TYPES),
-});
-
-const SetItemImageSchema = z.object({
-  itemId: z.uuid(),
-  imagePath: z.string().min(1).max(500),
-  altText: z.string().max(MAX_ALT_TEXT_LENGTH).optional(),
-});
-
-const DeleteItemImageSchema = z.object({
-  itemId: z.uuid(),
-});
-
+// Types partagés par les uploads signés restants (logo restaurant).
 export type ImageUploadUrlResult =
   | { ok: true; uploadUrl: string; token: string; path: string }
   | { ok: false; error: string };
 
-export async function createItemImageUploadUrlAction(input: {
-  itemId: string;
-  mime: string;
-}): Promise<ImageUploadUrlResult> {
-  const parsed = CreateImageUploadUrlSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const restaurantRepo = new PrismaRestaurantRepository(prisma);
-    const useCase = new CreateItemImageUploadUrl(repo, storage, restaurantRepo);
-
-    const result = await useCase.execute({
-      restaurantId,
-      itemId: parsed.data.itemId,
-      mime: parsed.data.mime,
-    });
-
-    return { ok: true, ...result };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "createItemImageUploadUrl" },
-      extra: { itemId: parsed.data.itemId, mime: parsed.data.mime },
-    });
-    return { ok: false, error: "generic" };
-  }
-}
-
 export type ImageMutationResult = { ok: true } | { ok: false; error: string };
-
-export async function setItemImageAction(input: {
-  itemId: string;
-  imagePath: string;
-  altText?: string;
-}): Promise<ImageMutationResult> {
-  const parsed = SetItemImageSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const useCase = new SetItemImage(repo, storage);
-
-    await useCase.execute({
-      restaurantId,
-      itemId: parsed.data.itemId,
-      imagePath: parsed.data.imagePath,
-      sourceLocale,
-      altText: parsed.data.altText,
-    });
-
-    revalidatePath("/app");
-    return { ok: true };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "setItemImage" },
-      extra: { itemId: parsed.data.itemId },
-    });
-    return { ok: false, error: "generic" };
-  }
-}
-
-export async function deleteItemImageAction(input: {
-  itemId: string;
-}): Promise<ImageMutationResult> {
-  const parsed = DeleteItemImageSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const useCase = new DeleteItemImage(repo, storage);
-
-    await useCase.execute({
-      restaurantId,
-      itemId: parsed.data.itemId,
-    });
-
-    revalidatePath("/app");
-    return { ok: true };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "deleteItemImage" },
-      extra: { itemId: parsed.data.itemId },
-    });
-    return { ok: false, error: "generic" };
-  }
-}
 
 // ─── Logo restaurant (S2.3) ─────────────────────────────────────────────────
 
@@ -1321,8 +1181,7 @@ export async function deleteDailyDishAction(
     { actionName: "deleteDailyDish", restaurantId, input: { dishId: parsed.data.dishId } },
     async () => {
       const menuRepo = new PrismaMenuRepository(prisma);
-      const storage = new SupabaseStorageService("item-images");
-      const useCase = new DeleteDailyDish(menuRepo, storage);
+      const useCase = new DeleteDailyDish(menuRepo);
 
       await useCase.execute({ dishId: parsed.data.dishId, restaurantId });
       revalidatePath("/app");
@@ -1360,102 +1219,6 @@ export async function reorderDailyDishesAction(
     revalidatePath("/app");
     return { error: null, success: true };
   });
-}
-
-export async function createDailyDishImageUploadUrlAction(input: {
-  dishId: string;
-  mime: string;
-}): Promise<ImageUploadUrlResult> {
-  const parsed = CreateDailyDishImageUploadUrlSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const useCase = new CreateDailyDishImageUploadUrl(repo, storage);
-
-    const result = await useCase.execute({
-      restaurantId,
-      dishId: parsed.data.dishId,
-      mime: parsed.data.mime,
-    });
-
-    return { ok: true, ...result };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "createDailyDishImageUploadUrl" },
-      extra: { dishId: parsed.data.dishId, mime: parsed.data.mime },
-    });
-    return { ok: false, error: "generic" };
-  }
-}
-
-export async function setDailyDishImageAction(input: {
-  dishId: string;
-  imagePath: string;
-  altText?: string;
-}): Promise<ImageMutationResult> {
-  const parsed = SetDailyDishImageSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const { restaurantId, sourceLocale } = await getAuthenticatedRestaurantContext();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const useCase = new SetDailyDishImage(repo, storage);
-
-    await useCase.execute({
-      restaurantId,
-      dishId: parsed.data.dishId,
-      imagePath: parsed.data.imagePath,
-      sourceLocale,
-      altText: parsed.data.altText,
-    });
-
-    revalidatePath("/app");
-    return { ok: true };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "setDailyDishImage" },
-      extra: { dishId: parsed.data.dishId },
-    });
-    return { ok: false, error: "generic" };
-  }
-}
-
-export async function deleteDailyDishImageAction(input: {
-  dishId: string;
-}): Promise<ImageMutationResult> {
-  const parsed = DeleteDailyDishImageSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "validation" };
-
-  try {
-    const restaurantId = await getAuthenticatedRestaurantId();
-    const repo = new PrismaMenuRepository(prisma);
-    const storage = new SupabaseStorageService("item-images");
-    const useCase = new DeleteDailyDishImage(repo, storage);
-
-    await useCase.execute({ restaurantId, dishId: parsed.data.dishId });
-
-    revalidatePath("/app");
-    return { ok: true };
-  } catch (e) {
-    if (isDomainError(e)) {
-      return { ok: false, error: e.code };
-    }
-    Sentry.captureException(e, {
-      tags: { action: "deleteDailyDishImage" },
-      extra: { dishId: parsed.data.dishId },
-    });
-    return { ok: false, error: "generic" };
-  }
 }
 
 // ─── Formules (S3.2) ─────────────────────────────────────────────────────────

@@ -21,7 +21,6 @@ export class DeleteRestaurant {
     private readonly qrAssetRepo: QrAssetRepository,
     private readonly paymentGateway: PaymentGateway,
     private readonly qrStorage: StorageService,
-    private readonly itemImageStorage: StorageService,
     private readonly logoStorage: StorageService,
     private readonly restaurantRepo: RestaurantRepository,
     private readonly authAdmin: AuthAdminService,
@@ -59,26 +58,17 @@ export class DeleteRestaurant {
       );
     }
 
-    // 3. Cleanup item images (non-blocking)
-    try {
-      await this.itemImageStorage.deleteByPrefix(`${input.restaurantId}/`);
-    } catch (error) {
-      errors.push(
-        `Item images cleanup failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-
-    // 4. Cleanup restaurant logo (non-blocking)
+    // 3. Cleanup restaurant logo (non-blocking)
     try {
       await this.logoStorage.deleteByPrefix(`${input.restaurantId}/`);
     } catch (error) {
       errors.push(`Logo cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    // 5. Delete restaurant (CASCADE handles all child tables)
+    // 4. Delete restaurant (CASCADE handles all child tables)
     await this.restaurantRepo.delete(input.restaurantId);
 
-    // 6. Delete auth user
+    // 5. Delete auth user
     await this.authAdmin.deleteUser(input.ownerUserId);
 
     return { status: "completed", errors };

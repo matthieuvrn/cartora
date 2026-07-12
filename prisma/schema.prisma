@@ -197,7 +197,6 @@ model Item {
   badge        ItemBadge  @default(NONE)
   allergens    Allergen[] @default([])
   isAvailable  Boolean    @default(true) @map("is_available")
-  imagePath    String?    @map("image_path")
   order        Int
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -214,7 +213,7 @@ model Item {
 
 /// Store unique des textes de menu multilingues (S4) : items, catégories (langues
 /// cibles uniquement — la source vit sur categories.name), plats du jour, formules.
-/// `entityType`: ITEM|CATEGORY|DAILY_DISH|FORMULA, `field`: name|description|altText,
+/// `entityType`: ITEM|CATEGORY|DAILY_DISH|FORMULA, `field`: name|description,
 /// `locale`: codes ISO minuscules — tous contraints par CHECK SQL (076), pas par enum,
 /// pour qu'ajouter une langue reste une constante TS + un CHECK.
 model Translation {
@@ -300,7 +299,6 @@ model DailyDish {
   priceCents    Int        @map("price_cents")
   badge         ItemBadge  @default(NONE)
   allergens     Allergen[] @default([])
-  imagePath     String?    @map("image_path")
   validUntil    DateTime   @map("valid_until")
   order         Int        @default(0)
   createdAt     DateTime   @default(now()) @map("created_at")

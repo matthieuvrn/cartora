@@ -9,7 +9,7 @@ import { hashSourceText } from "./textHash";
 export const TRANSLATION_ENTITY_TYPES = ["ITEM", "CATEGORY", "DAILY_DISH", "FORMULA"] as const;
 export type TranslationEntityType = (typeof TRANSLATION_ENTITY_TYPES)[number];
 
-export const TRANSLATION_FIELDS = ["name", "description", "altText"] as const;
+export const TRANSLATION_FIELDS = ["name", "description"] as const;
 export type TranslationField = (typeof TRANSLATION_FIELDS)[number];
 
 /**
@@ -88,18 +88,12 @@ export function buildTranslationUnits(
     for (const item of category.items) {
       push("ITEM", item.id, "name", item.texts.name[sl], category.name);
       push("ITEM", item.id, "description", item.texts.description[sl], category.name);
-      if (item.imagePath) {
-        push("ITEM", item.id, "altText", item.texts.altText?.[sl], category.name);
-      }
     }
   }
 
   for (const dish of dailyDishes) {
     push("DAILY_DISH", dish.id, "name", dish.texts.name[sl], "today");
     push("DAILY_DISH", dish.id, "description", dish.texts.description[sl], "today");
-    if (dish.imagePath) {
-      push("DAILY_DISH", dish.id, "altText", dish.texts.altText?.[sl], "today");
-    }
   }
 
   for (const formula of formulas) {
@@ -115,7 +109,6 @@ export function maxTranslationValueLength(
   entityType: TranslationEntityType,
   field: TranslationField,
 ): number {
-  if (field === "altText") return 200;
   if (field === "description") return 500;
   return entityType === "CATEGORY" ? 50 : 100;
 }

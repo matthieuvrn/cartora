@@ -45,10 +45,7 @@ export interface MenuRepository {
   deleteItem(params: { itemId: string; restaurantId: string }): Promise<void>;
 
   /** Returns null if the item does not exist or does not belong to the restaurant. */
-  getItem(params: {
-    itemId: string;
-    restaurantId: string;
-  }): Promise<{ imagePath: string | null } | null>;
+  getItem(params: { itemId: string; restaurantId: string }): Promise<{ id: string } | null>;
 
   /**
    * Bascule uniquement la disponibilité (« 86 » un plat en plein service) —
@@ -58,18 +55,6 @@ export interface MenuRepository {
     itemId: string;
     restaurantId: string;
     isAvailable: boolean;
-  }): Promise<void>;
-
-  /**
-   * `imagePath: null` (suppression de photo) efface aussi les alt-texts de TOUTES
-   * les locales ; sinon, seul l'alt-text de la langue source est écrit.
-   */
-  updateItemImage(params: {
-    itemId: string;
-    restaurantId: string;
-    imagePath: string | null;
-    sourceLocale: MenuLocale;
-    altText: string | null;
   }): Promise<void>;
 
   reorderItems(params: {
@@ -129,9 +114,6 @@ export interface MenuRepository {
   /** Récupère le menuId d'un restaurant (pour les actions catégories qui n'ont que restaurantId). */
   getMenuIdByRestaurantId(restaurantId: string): Promise<string | null>;
 
-  /** Nombre d'items du restaurant qui ont une `imagePath` non-null (utilisé pour le paywall photos). */
-  countItemsWithImage(restaurantId: string): Promise<number>;
-
   // ─ Menu du jour (S3.1) ─────────────────────────────────────────────────────
 
   /**
@@ -142,10 +124,7 @@ export interface MenuRepository {
   listDailyDishes(restaurantId: string): Promise<DailyDishData[]>;
 
   /** Retourne null si l'entrée n'existe pas ou ne lui appartient pas. */
-  getDailyDish(params: {
-    dishId: string;
-    restaurantId: string;
-  }): Promise<{ imagePath: string | null } | null>;
+  getDailyDish(params: { dishId: string; restaurantId: string }): Promise<{ id: string } | null>;
 
   createDailyDish(params: {
     restaurantId: string;
@@ -168,15 +147,6 @@ export interface MenuRepository {
     validUntilISO: string;
     sourceLocale: MenuLocale;
     texts: { name: string; description: string };
-  }): Promise<void>;
-
-  /** Cf. `updateItemImage` : `imagePath: null` efface les alt-texts de toutes les locales. */
-  updateDailyDishImage(params: {
-    dishId: string;
-    restaurantId: string;
-    imagePath: string | null;
-    sourceLocale: MenuLocale;
-    altText: string | null;
   }): Promise<void>;
 
   deleteDailyDish(params: { dishId: string; restaurantId: string }): Promise<void>;

@@ -24,7 +24,6 @@ const MENU_FIXTURE: MenuOverview = {
           badge: "NEW",
           allergens: [],
           isAvailable: true,
-          imagePath: null,
           order: 0,
           translations: {
             fr: { name: "Soupe", description: "Soupe du jour" },
@@ -33,7 +32,6 @@ const MENU_FIXTURE: MenuOverview = {
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },
-            altText: {},
           },
         },
       ],

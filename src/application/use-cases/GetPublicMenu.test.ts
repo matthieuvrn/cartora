@@ -8,7 +8,7 @@ const FIXED_NOW = "2026-03-25T12:00:00.000Z";
 const clock: Clock = { nowISO: () => FIXED_NOW };
 
 // Snapshots reçus par GetPublicMenu = déjà normalisés (v2) par PrismaSnapshotRepository.
-const EMPTY_TEXTS = { name: {}, description: {}, altText: {} };
+const EMPTY_TEXTS = { name: {}, description: {} };
 
 const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
   snapshotVersion: 2,
@@ -28,14 +28,10 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },
-            altText: {},
           },
           priceCents: 850,
           badge: "NONE",
           allergens: [],
-          imagePath: null,
-          altTextFr: "",
-          altTextEn: "",
         },
       ],
     },
@@ -90,9 +86,6 @@ describe("GetPublicMenu", () => {
             priceCents: 1500,
             badge: "NONE",
             allergens: [],
-            imagePath: null,
-            altTextFr: "",
-            altTextEn: "",
             texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T23:59:59.000Z", // > FIXED_NOW
           },
@@ -105,9 +98,6 @@ describe("GetPublicMenu", () => {
             priceCents: 1200,
             badge: "NONE",
             allergens: [],
-            imagePath: null,
-            altTextFr: "",
-            altTextEn: "",
             texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T11:00:00.000Z", // < FIXED_NOW
           },
@@ -145,9 +135,6 @@ describe("GetPublicMenu", () => {
             priceCents: 1200,
             badge: "NONE",
             allergens: [],
-            imagePath: null,
-            altTextFr: "",
-            altTextEn: "",
             texts: EMPTY_TEXTS,
             validUntilISO: "2026-03-25T11:00:00.000Z",
           },

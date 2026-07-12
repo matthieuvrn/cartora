@@ -42,13 +42,6 @@ export class PlanPolicy {
     return Infinity;
   }
 
-  /** Quota max de photos par tier. Infinity = illimité (PRO). */
-  static maxPhotosFor(tier: PlanTier): number {
-    if (tier === "FREE") return 5;
-    if (tier === "STARTER") return 20;
-    return Infinity;
-  }
-
   /**
    * Templates de rendu autorisés par tier. La règle vit dans `TEMPLATE_META`
    * (domaine) : `requiredTier === "FREE"` ⇒ sélectionnable par tous (set 2026 : la

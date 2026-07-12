@@ -4,10 +4,10 @@ import type { PublicMenuSnapshot } from "./PublicMenuTypes";
 
 /**
  * Couche « headless » du rendu public : la prépa de données **pure** partagée par
- * tous les templates (résolution locale, format prix, collecte allergènes, priorité
- * LCP). Vit dans le domaine — donc sans React et couvert par vitest — pour que la
- * logique délicate (quel item prend le slot LCP, quels allergènes alimentent la
- * légende) soit testée une fois, pas répliquée dans chaque skin.
+ * tous les templates (résolution locale, format prix, collecte allergènes). Vit dans
+ * le domaine — donc sans React et couvert par vitest — pour que la logique délicate
+ * (quels allergènes alimentent la légende) soit testée une fois, pas répliquée dans
+ * chaque skin.
  *
  * Avant cette extraction, ces fonctions étaient copiées-collées dans `MenuItemRow`
  * et les skins legacy (3+ copies, dont une `formatPrice` hardcodée `fr-FR`).
@@ -107,43 +107,4 @@ export function categoryAnchorId(name: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return `cat-${slug || "section"}`;
-}
-
-/** Localise le premier item de catégorie portant une photo (slot LCP candidat). */
-export type LcpItemLocator = { categoryName: string; itemIndex: number };
-
-export type LcpPriority = {
-  /** Au moins un plat du jour a une photo → c'est lui qui prend la priorité LCP. */
-  dailyHasPhoto: boolean;
-  /** Index du 1er plat du jour avec photo (`-1` si aucun) — comme `findIndex`. */
-  firstDailyPhotoIndex: number;
-  /**
-   * 1er item de catégorie avec photo, retenu pour le `priority` Next/Image —
-   * UNIQUEMENT si aucun plat du jour n'a de photo (le daily prime, rendu plus haut).
-   */
-  firstPhotoLocator: LcpItemLocator | null;
-};
-
-/**
- * Calcule la cible de chargement prioritaire (LCP) d'un snapshot. Règle conservée
- * à l'identique des templates : si un plat du jour a une photo, il prend le slot
- * (rendu en tête) ; sinon on retombe sur la 1re photo des catégories.
- */
-export function resolveLcpPriority(snapshot: PublicMenuSnapshot): LcpPriority {
-  const dailyItems = snapshot.dailyItems ?? [];
-  const dailyHasPhoto = dailyItems.some((d) => d.imagePath);
-  const firstDailyPhotoIndex = dailyItems.findIndex((d) => d.imagePath);
-
-  let firstPhotoLocator: LcpItemLocator | null = null;
-  if (!dailyHasPhoto) {
-    for (const category of snapshot.categories) {
-      const itemIndex = category.items.findIndex((item) => item.imagePath);
-      if (itemIndex !== -1) {
-        firstPhotoLocator = { categoryName: category.name, itemIndex };
-        break;
-      }
-    }
-  }
-
-  return { dailyHasPhoto, firstDailyPhotoIndex, firstPhotoLocator };
 }

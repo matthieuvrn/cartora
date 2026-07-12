@@ -34,7 +34,7 @@ describe("UpdateDailyDish", () => {
     const updateDailyDish = vi.fn(async () => {});
     const markMenuAsDraft = vi.fn(async () => {});
     const menuRepo = createMockMenuRepo({
-      getDailyDish: async () => ({ imagePath: null }),
+      getDailyDish: async () => ({ id: "daily-1" }),
       updateDailyDish,
       markMenuAsDraft,
     });

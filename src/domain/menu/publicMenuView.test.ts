@@ -3,7 +3,6 @@ import {
   formatPrice,
   formatPriceAria,
   collectPresentAllergens,
-  resolveLcpPriority,
   categoryAnchorId,
 } from "./publicMenuView";
 import type { PublicMenuSnapshot, PublicMenuItem, PublicMenuDailyDish } from "./PublicMenuTypes";
@@ -17,14 +16,10 @@ function makeItem(overrides: Partial<PublicMenuItem> = {}): PublicMenuItem {
     texts: {
       name: { fr: "Salade", en: "Salad" },
       description: { fr: "Fraîche", en: "Fresh" },
-      altText: {},
     },
     priceCents: 1200,
     badge: "NONE",
     allergens: [],
-    imagePath: null,
-    altTextFr: "",
-    altTextEn: "",
     ...overrides,
   };
 }
@@ -39,14 +34,10 @@ function makeDaily(overrides: Partial<PublicMenuDailyDish> = {}): PublicMenuDail
     texts: {
       name: { fr: "Plat du jour", en: "Dish of the day" },
       description: {},
-      altText: {},
     },
     priceCents: 1500,
     badge: "NONE",
     allergens: [],
-    imagePath: null,
-    altTextFr: "",
-    altTextEn: "",
     validUntilISO: "2026-03-25T22:00:00.000Z",
     ...overrides,
   };
@@ -148,47 +139,5 @@ describe("categoryAnchorId", () => {
 
   it("falls back to cat-section when no latin character remains", () => {
     expect(categoryAnchorId("🍕")).toBe("cat-section");
-  });
-});
-
-describe("resolveLcpPriority", () => {
-  it("gives priority to the first daily dish with a photo over category items", () => {
-    const snapshot = makeSnapshot({
-      categories: [makeCategory("Plats", [makeItem({ imagePath: "cat/p.jpg" })])],
-      dailyItems: [
-        makeDaily({ imagePath: null }),
-        makeDaily({ id: "daily-2", imagePath: "d/p.jpg" }),
-      ],
-    });
-
-    const result = resolveLcpPriority(snapshot);
-    expect(result.dailyHasPhoto).toBe(true);
-    expect(result.firstDailyPhotoIndex).toBe(1);
-    // Daily wins → category locator stays null even though an item has a photo.
-    expect(result.firstPhotoLocator).toBeNull();
-  });
-
-  it("falls back to the first category item with a photo when no daily has one", () => {
-    const snapshot = makeSnapshot({
-      categories: [
-        makeCategory("Entrées", [makeItem({ imagePath: null })]),
-        makeCategory("Plats", [makeItem({ imagePath: null }), makeItem({ imagePath: "p.jpg" })]),
-      ],
-      dailyItems: [makeDaily({ imagePath: null })],
-    });
-
-    const result = resolveLcpPriority(snapshot);
-    expect(result.dailyHasPhoto).toBe(false);
-    expect(result.firstDailyPhotoIndex).toBe(-1);
-    expect(result.firstPhotoLocator).toEqual({ categoryName: "Plats", itemIndex: 1 });
-  });
-
-  it("returns a null locator when there is no photo at all", () => {
-    const result = resolveLcpPriority(makeSnapshot());
-    expect(result).toEqual({
-      dailyHasPhoto: false,
-      firstDailyPhotoIndex: -1,
-      firstPhotoLocator: null,
-    });
   });
 });

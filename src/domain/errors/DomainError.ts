@@ -20,7 +20,6 @@ export type DomainErrorCode =
 
   // Quotas (transportent `metadata.limit`, `metadata.current`, `metadata.tier`)
   | "max_categories"
-  | "max_photos"
 
   // Collisions
   | "duplicate_name"

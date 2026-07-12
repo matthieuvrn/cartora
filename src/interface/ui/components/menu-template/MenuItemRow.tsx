@@ -1,10 +1,8 @@
-import Image from "next/image";
 import { Sparkles, Flame } from "lucide-react";
 import type { PublicMenuItem } from "@/domain/menu/PublicMenuTypes";
 import type { ItemBadge } from "@/domain/menu/ItemPolicy";
 import { formatPrice, formatPriceAria } from "@/domain/menu/publicMenuView";
 import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
-import { itemImageUrl } from "@/lib/storage-url";
 import { AllergenIcons, type AllergenLabels } from "../AllergenIcons";
 
 type Props = {
@@ -15,7 +13,6 @@ type Props = {
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
-  priority?: boolean;
 };
 
 // Couleurs des badges via le contrat `--menu-badge-*` (cf. globals.css), avec un défaut clair
@@ -45,27 +42,12 @@ export function MenuItemRow({
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
-  priority = false,
 }: Props) {
   const name = resolveText(item.texts.name, locale, sourceLocale);
   const description = resolveText(item.texts.description, locale, sourceLocale);
-  const imageUrl = item.imagePath ? itemImageUrl(item.imagePath) : null;
-  const altText = resolveText(item.texts.altText ?? {}, locale, sourceLocale) || name;
 
   return (
     <li className="space-y-2 py-3">
-      {imageUrl && (
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-md bg-muted">
-          <Image
-            src={imageUrl}
-            alt={altText}
-            fill
-            sizes="(min-width: 768px) 600px, 100vw"
-            className="object-cover"
-            priority={priority}
-          />
-        </div>
-      )}
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">

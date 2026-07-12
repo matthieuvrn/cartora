@@ -11,7 +11,6 @@ type Props = {
   badgeLabels: Record<"NEW" | "POPULAR", string>;
   allergenLabels: AllergenLabels;
   allergenSectionLabel: string;
-  priorityItemIndex?: number | null;
   /** Ancre de la nav rapide (cf. `categoryAnchorId`) — `scroll-mt` compense le header sticky. */
   id?: string;
 };
@@ -23,7 +22,6 @@ export function MenuCategorySection({
   badgeLabels,
   allergenLabels,
   allergenSectionLabel,
-  priorityItemIndex = null,
   id,
 }: Props) {
   if (category.items.length === 0) return null;
@@ -44,7 +42,6 @@ export function MenuCategorySection({
             badgeLabels={badgeLabels}
             allergenLabels={allergenLabels}
             allergenSectionLabel={allergenSectionLabel}
-            priority={index === priorityItemIndex}
           />
         ))}
       </ul>

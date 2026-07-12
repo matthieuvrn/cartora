@@ -38,7 +38,6 @@ export class PrismaMenuRepository implements MenuRepository {
                 badge: true,
                 allergens: true,
                 isAvailable: true,
-                imagePath: true,
                 order: true,
               },
             },
@@ -83,20 +82,18 @@ export class PrismaMenuRepository implements MenuRepository {
         items: cat.items.map((item): MenuItemData => {
           const name = localizedTextOf(index, "ITEM", item.id, "name");
           const description = localizedTextOf(index, "ITEM", item.id, "description");
-          const altText = localizedTextOf(index, "ITEM", item.id, "altText");
           return {
             id: item.id,
             priceCents: item.priceCents,
             badge: item.badge as ItemBadge,
             allergens: item.allergens as Allergen[],
             isAvailable: item.isAvailable,
-            imagePath: item.imagePath,
             order: item.order,
             translations: {
               fr: { name: name.fr ?? "", description: description.fr ?? "" },
               en: { name: name.en ?? "", description: description.en ?? "" },
             },
-            texts: { name, description, altText },
+            texts: { name, description },
           };
         }),
       })),
@@ -178,13 +175,10 @@ export class PrismaMenuRepository implements MenuRepository {
     });
   }
 
-  async getItem(params: {
-    itemId: string;
-    restaurantId: string;
-  }): Promise<{ imagePath: string | null } | null> {
+  async getItem(params: { itemId: string; restaurantId: string }): Promise<{ id: string } | null> {
     const item = await this.db.item.findFirst({
       where: { id: params.itemId, restaurantId: params.restaurantId },
-      select: { imagePath: true },
+      select: { id: true },
     });
     return item;
   }
@@ -197,44 +191,6 @@ export class PrismaMenuRepository implements MenuRepository {
     await this.db.item.update({
       where: { id: params.itemId, restaurantId: params.restaurantId },
       data: { isAvailable: params.isAvailable },
-    });
-  }
-
-  async updateItemImage(params: {
-    itemId: string;
-    restaurantId: string;
-    imagePath: string | null;
-    sourceLocale: MenuLocale;
-    altText: string | null;
-  }): Promise<void> {
-    await this.db.$transaction(async (tx) => {
-      if (params.imagePath === null) {
-        // Photo supprimée ⇒ purge des alt-texts de TOUTES les locales.
-        await tx.item.update({
-          where: { id: params.itemId, restaurantId: params.restaurantId },
-          data: { imagePath: null },
-        });
-        await tx.translation.deleteMany({
-          where: {
-            entityType: "ITEM",
-            entityId: params.itemId,
-            field: "altText",
-            restaurantId: params.restaurantId,
-          },
-        });
-        return;
-      }
-
-      await tx.item.update({
-        where: { id: params.itemId, restaurantId: params.restaurantId },
-        data: { imagePath: params.imagePath },
-      });
-      await upsertEntityTexts(tx, {
-        entityType: "ITEM",
-        entityId: params.itemId,
-        restaurantId: params.restaurantId,
-        upserts: [{ field: "altText", locale: params.sourceLocale, value: params.altText ?? "" }],
-      });
     });
   }
 
@@ -319,12 +275,6 @@ export class PrismaMenuRepository implements MenuRepository {
       select: { id: true },
     });
     return menu?.id ?? null;
-  }
-
-  async countItemsWithImage(restaurantId: string): Promise<number> {
-    return this.db.item.count({
-      where: { restaurantId, imagePath: { not: null } },
-    });
   }
 
   async listCategoryNames(menuId: string): Promise<{ id: string; name: string }[]> {
@@ -418,20 +368,18 @@ export class PrismaMenuRepository implements MenuRepository {
     return rows.map((row): DailyDishData => {
       const name = localizedTextOf(index, "DAILY_DISH", row.id, "name");
       const description = localizedTextOf(index, "DAILY_DISH", row.id, "description");
-      const altText = localizedTextOf(index, "DAILY_DISH", row.id, "altText");
       return {
         id: row.id,
         priceCents: row.priceCents,
         badge: row.badge as ItemBadge,
         allergens: row.allergens as Allergen[],
-        imagePath: row.imagePath,
         validUntilISO: row.validUntil.toISOString(),
         order: row.order,
         translations: {
           fr: { name: name.fr ?? "", description: description.fr ?? "" },
           en: { name: name.en ?? "", description: description.en ?? "" },
         },
-        texts: { name, description, altText },
+        texts: { name, description },
       };
     });
   }
@@ -439,10 +387,10 @@ export class PrismaMenuRepository implements MenuRepository {
   async getDailyDish(params: {
     dishId: string;
     restaurantId: string;
-  }): Promise<{ imagePath: string | null } | null> {
+  }): Promise<{ id: string } | null> {
     const row = await this.db.dailyDish.findFirst({
       where: { id: params.dishId, restaurantId: params.restaurantId },
-      select: { imagePath: true },
+      select: { id: true },
     });
     return row;
   }
@@ -499,43 +447,6 @@ export class PrismaMenuRepository implements MenuRepository {
           { field: "name", locale: params.sourceLocale, value: params.texts.name },
           { field: "description", locale: params.sourceLocale, value: params.texts.description },
         ],
-      });
-    });
-  }
-
-  async updateDailyDishImage(params: {
-    dishId: string;
-    restaurantId: string;
-    imagePath: string | null;
-    sourceLocale: MenuLocale;
-    altText: string | null;
-  }): Promise<void> {
-    await this.db.$transaction(async (tx) => {
-      if (params.imagePath === null) {
-        await tx.dailyDish.update({
-          where: { id: params.dishId, restaurantId: params.restaurantId },
-          data: { imagePath: null },
-        });
-        await tx.translation.deleteMany({
-          where: {
-            entityType: "DAILY_DISH",
-            entityId: params.dishId,
-            field: "altText",
-            restaurantId: params.restaurantId,
-          },
-        });
-        return;
-      }
-
-      await tx.dailyDish.update({
-        where: { id: params.dishId, restaurantId: params.restaurantId },
-        data: { imagePath: params.imagePath },
-      });
-      await upsertEntityTexts(tx, {
-        entityType: "DAILY_DISH",
-        entityId: params.dishId,
-        restaurantId: params.restaurantId,
-        upserts: [{ field: "altText", locale: params.sourceLocale, value: params.altText ?? "" }],
       });
     });
   }

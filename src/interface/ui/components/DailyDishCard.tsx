@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -11,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteDailyDishAction } from "@/app/(app)/app/actions";
 import { deferDelete } from "@/hooks/use-deferred-delete";
-import { itemImageUrl } from "@/lib/storage-url";
 import { HIT_AREA_TALL } from "@/lib/utils";
 import { actionErrorText } from "./actionErrorText";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
@@ -76,9 +74,6 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
     });
   }
 
-  const thumbnailUrl = dish.imagePath ? itemImageUrl(dish.imagePath) : null;
-  const thumbnailAlt =
-    dish.texts.altText?.fr || dish.texts.altText?.en || dish.translations.fr.name;
   const exp = formatExpiration(dish.validUntilISO);
 
   return (
@@ -86,17 +81,6 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
       <div
         className={`flex items-start justify-between rounded-lg border p-3 gap-4 ${isExpired ? "opacity-60" : ""}`}
       >
-        {thumbnailUrl && (
-          <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-md bg-muted">
-            <Image
-              src={thumbnailUrl}
-              alt={thumbnailAlt}
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
-          </div>
-        )}
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-medium truncate">{dish.translations.fr.name}</span>

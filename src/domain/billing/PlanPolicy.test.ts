@@ -89,20 +89,6 @@ describe("PlanPolicy", () => {
     });
   });
 
-  describe("maxPhotosFor", () => {
-    it("FREE = 5", () => {
-      expect(PlanPolicy.maxPhotosFor("FREE")).toBe(5);
-    });
-
-    it("STARTER = 20", () => {
-      expect(PlanPolicy.maxPhotosFor("STARTER")).toBe(20);
-    });
-
-    it("PRO = Infinity", () => {
-      expect(PlanPolicy.maxPhotosFor("PRO")).toBe(Infinity);
-    });
-  });
-
   describe("canUseTemplate", () => {
     // Set 2026 : la Base (CLASSIC + CARTORA, `requiredTier: "FREE"`) est sélectionnable
     // par tous les tiers ; les premium sont réservés PRO. Le gating lit `TEMPLATE_META`.

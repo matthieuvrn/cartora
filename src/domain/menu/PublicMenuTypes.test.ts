@@ -10,7 +10,6 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
     badge: "NONE",
     allergens: [],
     isAvailable: true,
-    imagePath: null,
     order: 0,
     translations: {
       fr: { name: "Salade", description: "Fraîche" },
@@ -19,7 +18,6 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
     texts: {
       name: { fr: "Salade", en: "Salad" },
       description: { fr: "Fraîche", en: "Fresh" },
-      altText: {},
     },
     ...overrides,
   };
@@ -76,14 +74,10 @@ describe("buildPublicSnapshot", () => {
               texts: {
                 name: { fr: "Salade", en: "Salad" },
                 description: { fr: "Fraîche", en: "Fresh" },
-                altText: {},
               },
               priceCents: 1200,
               badge: "NONE",
               allergens: [],
-              imagePath: null,
-              altTextFr: "",
-              altTextEn: "",
             },
           ],
         },
@@ -221,8 +215,8 @@ describe("buildPublicSnapshot", () => {
 });
 
 describe("normalizePublicSnapshot", () => {
-  it("fills allergens, imagePath and altText on legacy items lacking them", () => {
-    // Simule un snapshot écrit avant les commits 29a988a (allergens) et 005f4d5 (photos).
+  it("fills allergens and texts on legacy items lacking them", () => {
+    // Simule un snapshot écrit avant le commit 29a988a (allergens).
     const legacy = {
       restaurantName: "R",
       publishedAt: PUBLISHED_AT,
@@ -253,11 +247,8 @@ describe("normalizePublicSnapshot", () => {
       priceCents: 1200,
       badge: "NONE",
       allergens: [],
-      imagePath: null,
-      altTextFr: "",
-      altTextEn: "",
       // Up-conversion v1 → v2 : `texts` reconstruit depuis les champs legacy fr/en.
-      texts: { name: { fr: "Salade", en: "Salad" }, description: {}, altText: {} },
+      texts: { name: { fr: "Salade", en: "Salad" }, description: {} },
     });
   });
 
@@ -281,7 +272,7 @@ describe("normalizePublicSnapshot", () => {
     expect(normalizePublicSnapshot(complete)).toEqual(complete);
   });
 
-  it("normalizes daily items missing allergens / imagePath / altText", () => {
+  it("normalizes daily items missing allergens / texts", () => {
     const legacy = {
       restaurantName: "R",
       publishedAt: PUBLISHED_AT,
@@ -304,9 +295,7 @@ describe("normalizePublicSnapshot", () => {
 
     expect(result.dailyItems?.[0]).toMatchObject({
       allergens: [],
-      imagePath: null,
-      altTextFr: "",
-      altTextEn: "",
+      texts: { name: { fr: "Plat du jour", en: "Today's special" }, description: {} },
     });
   });
 

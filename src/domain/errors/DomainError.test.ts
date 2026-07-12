@@ -24,16 +24,16 @@ describe("DomainError", () => {
   });
 
   it("toJSON produit un POJO sérialisable", () => {
-    const err = new DomainError("max_photos", { limit: 5, tier: "STARTER" });
+    const err = new DomainError("max_categories", { limit: 6, tier: "FREE" });
     expect(err.toJSON()).toEqual({
       name: "DomainError",
-      code: "max_photos",
-      metadata: { limit: 5, tier: "STARTER" },
+      code: "max_categories",
+      metadata: { limit: 6, tier: "FREE" },
     });
     // Round-trip JSON : les instances doivent survivre comme objets plats.
     const round = JSON.parse(JSON.stringify(err));
     expect(round.name).toBe("DomainError");
-    expect(round.code).toBe("max_photos");
+    expect(round.code).toBe("max_categories");
   });
 });
 

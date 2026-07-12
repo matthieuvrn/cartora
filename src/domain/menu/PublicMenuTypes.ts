@@ -22,11 +22,6 @@ export type PublicMenuItem = {
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
-  imagePath: string | null;
-  /** @deprecated S4 — lire `texts.altText`. */
-  altTextFr: string;
-  /** @deprecated S4 — lire `texts.altText`. */
-  altTextEn: string;
 };
 
 /**
@@ -48,11 +43,6 @@ export type PublicMenuDailyDish = {
   priceCents: number;
   badge: ItemBadge;
   allergens: Allergen[];
-  imagePath: string | null;
-  /** @deprecated S4 — lire `texts.altText`. */
-  altTextFr: string;
-  /** @deprecated S4 — lire `texts.altText`. */
-  altTextEn: string;
   validUntilISO: string;
 };
 
@@ -154,7 +144,6 @@ function entityTextsForSnapshot(texts: EntityTexts, locales: readonly MenuLocale
   return {
     name: pickLocales(texts.name, locales),
     description: pickLocales(texts.description, locales),
-    altText: texts.altText ? pickLocales(texts.altText, locales) : {},
   };
 }
 
@@ -187,9 +176,6 @@ export function buildPublicSnapshot(
           priceCents: item.priceCents,
           badge: item.badge,
           allergens: item.allergens,
-          imagePath: item.imagePath,
-          altTextFr: item.texts.altText?.fr ?? "",
-          altTextEn: item.texts.altText?.en ?? "",
         })),
     }))
     .filter((category) => category.items.length > 0);
@@ -208,9 +194,6 @@ export function buildPublicSnapshot(
       priceCents: entry.priceCents,
       badge: entry.badge,
       allergens: entry.allergens,
-      imagePath: entry.imagePath,
-      altTextFr: entry.texts.altText?.fr ?? "",
-      altTextEn: entry.texts.altText?.en ?? "",
       validUntilISO: entry.validUntilISO,
     }));
 
@@ -260,8 +243,6 @@ type LegacyTextFields = {
   nameEn?: string;
   descriptionFr?: string;
   descriptionEn?: string;
-  altTextFr?: string;
-  altTextEn?: string;
   texts?: EntityTexts;
 };
 
@@ -276,7 +257,6 @@ function textsFromLegacy(entity: LegacyTextFields): EntityTexts {
   return {
     name: loc(entity.nameFr, entity.nameEn),
     description: loc(entity.descriptionFr, entity.descriptionEn),
-    altText: loc(entity.altTextFr, entity.altTextEn),
   };
 }
 
@@ -314,9 +294,6 @@ function normalizePublicItem(item: PublicMenuItem): PublicMenuItem {
   return {
     ...item,
     allergens: item.allergens ?? [],
-    imagePath: item.imagePath ?? null,
-    altTextFr: item.altTextFr ?? "",
-    altTextEn: item.altTextEn ?? "",
     texts: item.texts ?? textsFromLegacy(item),
   };
 }
@@ -325,9 +302,6 @@ function normalizePublicDailyDish(dish: PublicMenuDailyDish): PublicMenuDailyDis
   return {
     ...dish,
     allergens: dish.allergens ?? [],
-    imagePath: dish.imagePath ?? null,
-    altTextFr: dish.altTextFr ?? "",
-    altTextEn: dish.altTextEn ?? "",
     texts: dish.texts ?? textsFromLegacy(dish),
   };
 }

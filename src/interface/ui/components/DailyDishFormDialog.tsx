@@ -25,7 +25,6 @@ import { formatCentsToEurInput } from "@/lib/price";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
-import { DailyDishPhotoEditor } from "./DailyDishPhotoEditor";
 
 type Props = {
   mode: "create" | "edit";
@@ -204,14 +203,6 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
                 <p className="text-xs text-destructive">{state.fieldErrors.validUntilISO}</p>
               )}
             </div>
-
-            {mode === "edit" && dish && (
-              <DailyDishPhotoEditor
-                dishId={dish.id}
-                initialImagePath={dish.imagePath}
-                initialAltText={dish.texts.altText?.fr ?? null}
-              />
-            )}
           </div>
 
           <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">

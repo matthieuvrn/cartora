@@ -1,9 +1,5 @@
 import Image from "next/image";
-import {
-  categoryAnchorId,
-  collectPresentAllergens,
-  resolveLcpPriority,
-} from "@/domain/menu/publicMenuView";
+import { categoryAnchorId, collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { resolveText } from "@/domain/menu/MenuLocale";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -34,10 +30,8 @@ export function TemplateClassic({
   todaySectionFormulasSubtitle,
   categoriesNavLabel,
 }: MenuTemplateProps) {
-  // Légende INCO partagée (items + plats du jour) + cible LCP (le daily avec photo prime,
-  // sinon 1re photo de catégorie). Logique factorisée + testée en domaine.
+  // Légende INCO partagée (items + plats du jour). Logique factorisée + testée en domaine.
   const presentAllergens = collectPresentAllergens(snapshot);
-  const { firstPhotoLocator } = resolveLcpPriority(snapshot);
 
   const logoUrl = snapshot.restaurantLogoPath
     ? restaurantLogoUrl(snapshot.restaurantLogoPath)
@@ -127,11 +121,6 @@ export function TemplateClassic({
               badgeLabels={badgeLabels}
               allergenLabels={allergenLabels}
               allergenSectionLabel={allergenSectionLabel}
-              priorityItemIndex={
-                firstPhotoLocator?.categoryName === category.name
-                  ? firstPhotoLocator.itemIndex
-                  : null
-              }
             />
           ))}
         </div>
