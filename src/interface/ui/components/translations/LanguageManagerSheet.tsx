@@ -6,7 +6,14 @@ import { toast } from "sonner";
 import { Languages, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
   MENU_LOCALE_LABELS,
@@ -21,17 +28,27 @@ type Props = {
   sourceLocale: MenuLocale;
   enabledLocales: MenuLocale[];
   planTier: PlanTier;
+  /** Rend le déclencheur en variante « ajouter » (état vide onboarding). */
+  variant?: "manage" | "add";
 };
 
 const initialState: RenameActionState = { error: null };
 
 /**
- * Activation des langues cibles du menu public. Le quota par tier est affiché et
- * pré-appliqué côté UI (switches désactivés au-delà), mais la règle vit dans
- * `PlanPolicy`/`UpdateMenuLocales` — le serveur reste l'autorité.
+ * Gestion des langues cibles (activation/désactivation) dans un Sheet, ouvert depuis
+ * le header ou l'état vide. Sorti du flux quotidien de revue : l'activation d'une
+ * langue est un choix délibéré (bouton « Enregistrer » explicite), qui ne concurrence
+ * plus l'autosave des champs. Le quota par tier est pré-appliqué côté UI, mais la
+ * règle vit dans `PlanPolicy`/`UpdateMenuLocales` — le serveur reste l'autorité.
  */
-export function LanguageSettingsCard({ sourceLocale, enabledLocales, planTier }: Props) {
+export function LanguageManagerSheet({
+  sourceLocale,
+  enabledLocales,
+  planTier,
+  variant = "manage",
+}: Props) {
   const t = useTranslations("Translations");
+  const [open, setOpen] = useState(false);
   const wrappedAction = useCallback(
     async (prev: RenameActionState, formData: FormData) => {
       const result = await updateMenuLocalesAction(prev, formData);
@@ -57,16 +74,26 @@ export function LanguageSettingsCard({ sourceLocale, enabledLocales, planTier }:
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Languages className="size-4" aria-hidden="true" />
-          {t("languagesTitle")}
-        </CardTitle>
-        <CardDescription>{t("languagesDescription")}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form action={formAction} className="space-y-5">
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant={variant === "add" ? "default" : "outline"} size="sm">
+          <Languages className="size-4" aria-hidden />
+          {variant === "add" ? t("addLanguage") : t("manageLanguages")}
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full gap-0 sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2">
+            <Languages className="size-4" aria-hidden />
+            {t("languagesTitle")}
+          </SheetTitle>
+          <SheetDescription>{t("languagesDescription")}</SheetDescription>
+        </SheetHeader>
+
+        <form
+          action={formAction}
+          className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-6"
+        >
           <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3">
             <div>
               <p className="text-sm font-medium">{MENU_LOCALE_LABELS[sourceLocale]}</p>
@@ -105,15 +132,15 @@ export function LanguageSettingsCard({ sourceLocale, enabledLocales, planTier }:
               : t("quotaLimited", { limit: maxExtra, tier: planTier })}
           </p>
 
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={isPending}>
+          <div className="mt-auto space-y-3">
+            <ErrorMessage error={state.error} />
+            <Button type="submit" className="w-full" disabled={isPending}>
               {isPending && <Loader2 className="size-4 animate-spin" aria-hidden />}
               {t("save")}
             </Button>
           </div>
-          <ErrorMessage error={state.error} />
         </form>
-      </CardContent>
-    </Card>
+      </SheetContent>
+    </Sheet>
   );
 }
