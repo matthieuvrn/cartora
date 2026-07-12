@@ -1,7 +1,8 @@
 "use client";
 
-import { startTransition, useActionState, useEffect } from "react";
+import { startTransition, useActionState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -17,19 +18,34 @@ import { ErrorMessage } from "./ErrorMessage";
 type Props = {
   categoryId: string;
   categoryName: string;
+  /** Nombre d'items supprimés en cascade — affiché dans la confirmation. */
+  itemCount: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 const initialState: ItemActionState = { error: null };
 
-export function DeleteCategoryDialog({ categoryId, categoryName, open, onOpenChange }: Props) {
+export function DeleteCategoryDialog({
+  categoryId,
+  categoryName,
+  itemCount,
+  open,
+  onOpenChange,
+}: Props) {
   const t = useTranslations("Dashboard");
-  const [state, formAction, isPending] = useActionState(deleteCategoryAction, initialState);
-
-  useEffect(() => {
-    if (state.success) onOpenChange(false);
-  }, [state.success, onOpenChange]);
+  const wrappedDelete = useCallback(
+    async (prev: ItemActionState, formData: FormData) => {
+      const result = await deleteCategoryAction(prev, formData);
+      if (result.success) {
+        onOpenChange(false);
+        toast.success(t("toast.categoryDeleted"));
+      }
+      return result;
+    },
+    [onOpenChange, t],
+  );
+  const [state, formAction, isPending] = useActionState(wrappedDelete, initialState);
 
   function handleConfirm() {
     const formData = new FormData();
@@ -43,7 +59,7 @@ export function DeleteCategoryDialog({ categoryId, categoryName, open, onOpenCha
         <DialogHeader>
           <DialogTitle>{t("category.delete")}</DialogTitle>
           <DialogDescription>
-            {t("category.deleteConfirm", { name: categoryName })}
+            {t("category.deleteConfirmWithCount", { name: categoryName, count: itemCount })}
           </DialogDescription>
         </DialogHeader>
 

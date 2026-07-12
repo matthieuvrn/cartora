@@ -1,110 +1,101 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { ListTree } from "lucide-react";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PublishActionState } from "@/app/(app)/app/actions";
 import type { ActionState } from "@/lib/action-result";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { CategoryChipBar } from "./CategoryChipBar";
+import { EditorSearchInput } from "./EditorSearchInput";
 import { PreviewDialog } from "./PreviewDialog";
 import { PublishButton } from "./PublishButton";
-
-/** Ancre stable par catégorie — posée par CategorySection, ciblée par la nav « Aller à… ». */
-export function categoryAnchorId(categoryId: string): string {
-  return `cat-${categoryId}`;
-}
 
 type Props = {
   menu: MenuOverview;
   restaurantName: string;
+  /** Slug public — lien « Voir mon menu » quand le menu est publié. */
+  slug: string;
   planTier: PlanTier;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   regenerateQrAction: (
     _prev: ActionState<{ success?: boolean }>,
   ) => Promise<ActionState<{ success?: boolean }>>;
   categories: { id: string; name: string }[];
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
 };
 
 /**
- * Barre d'actions persistante de « Ma carte » : navigation par catégorie (« Aller à… »), Aperçu
- * (PreviewDialog), Publier et statut. Sortie du flux pour rester atteignable quel que soit le scroll :
- * barre basse fixe sur mobile (pouce-friendly), toolbar flottante collante (`sticky top`) sur desktop.
- *
- * ⚠ À monter HORS de StaggerReveal : ses enfants sont enveloppés dans un `m.div` (transform), et un
- * ancêtre transformé casse `position: sticky/fixed`.
+ * Barre d'actions persistante de « Ma carte » : recherche + statut + Aperçu +
+ * Publier, avec la nav par chips (scroll-spy) en seconde rangée sur desktop.
+ * Sortie du flux pour rester atteignable quel que soit le scroll : barre basse
+ * fixe sur mobile (pouce-friendly — recherche et chips mobiles vivent en haut
+ * du contenu, cf. MenuEditor), toolbar flottante collante sur desktop.
  */
 export function MenuActionBar({
   menu,
   restaurantName,
+  slug,
   planTier,
   publishAction,
   regenerateQrAction,
   categories,
+  searchQuery,
+  onSearchQueryChange,
 }: Props) {
   const t = useTranslations("Dashboard");
   const isPublished = menu.status === "PUBLISHED";
+  // Trois états lisibles (au lieu d'un binaire Brouillon/Publié) : à jour /
+  // modifications en attente de publication / jamais publié.
+  const statusLabel = isPublished
+    ? t("status.upToDate")
+    : menu.publishedAt
+      ? t("status.unpublishedChanges")
+      : t("status.DRAFT");
 
-  function scrollToCategory(categoryId: string) {
-    document
-      .getElementById(categoryAnchorId(categoryId))
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
+  const isSearching = searchQuery.trim().length > 0;
 
   return (
     <div
       className={cn(
         // Mobile : barre basse fixe, safe-area iOS incluse.
-        "fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur",
+        "fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 px-4 py-3 backdrop-blur",
         "pb-[max(0.75rem,env(safe-area-inset-bottom))]",
         // Desktop : toolbar flottante collante dans le flux de la colonne.
         "md:sticky md:inset-x-auto md:bottom-auto md:top-4 md:z-20 md:rounded-xl md:border md:px-3 md:py-2.5 md:pb-2.5 md:shadow-sm",
       )}
     >
-      {categories.length > 1 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button type="button" variant="outline" size="sm">
-              <ListTree className="size-4 md:mr-2" />
-              <span className="sr-only md:not-sr-only">{t("jumpToCategory")}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
-            {categories.map((c) => (
-              <DropdownMenuItem key={c.id} onSelect={() => scrollToCategory(c.id)}>
-                {c.name}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-
-      <div className="ml-auto flex items-center gap-2">
-        <span
-          className="flex items-center gap-1.5 text-caption text-muted-foreground"
-          title={t(`status.${menu.status}`)}
-        >
+      <div className="flex items-center gap-2">
+        <div className="hidden min-w-0 max-w-xs flex-1 md:block">
+          <EditorSearchInput value={searchQuery} onChange={onSearchQueryChange} withShortcut />
+        </div>
+        <div className="ml-auto flex items-center gap-2">
           <span
-            className={cn("size-2 rounded-full", isPublished ? "bg-success" : "bg-warning")}
-            aria-hidden
+            className="flex items-center gap-1.5 text-caption text-muted-foreground"
+            title={statusLabel}
+          >
+            <span
+              className={cn("size-2 rounded-full", isPublished ? "bg-success" : "bg-warning")}
+              aria-hidden
+            />
+            <span className="sr-only sm:not-sr-only">{statusLabel}</span>
+          </span>
+          <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />
+          <PublishButton
+            planTier={planTier}
+            menuStatus={menu.status}
+            publishedAt={menu.publishedAt}
+            slug={slug}
+            publishAction={publishAction}
+            regenerateQrAction={regenerateQrAction}
           />
-          <span className="sr-only sm:not-sr-only">{t(`status.${menu.status}`)}</span>
-        </span>
-        <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />
-        <PublishButton
-          planTier={planTier}
-          menuStatus={menu.status}
-          publishAction={publishAction}
-          regenerateQrAction={regenerateQrAction}
-        />
+        </div>
       </div>
+
+      {categories.length > 1 && !isSearching && (
+        <CategoryChipBar categories={categories} className="mt-2 hidden md:block" />
+      )}
     </div>
   );
 }

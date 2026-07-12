@@ -2,6 +2,7 @@
 
 import { useActionState, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Trash2, Upload } from "lucide-react";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -25,7 +26,9 @@ import {
 } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
-import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
+import { ALLERGEN_VALUES, type Allergen, type ItemBadge } from "@/domain/menu/ItemPolicy";
+import { formatCentsToEurInput } from "@/lib/price";
+import { prefersReducedMotion } from "@/lib/utils";
 import {
   ALLOWED_IMAGE_MIME_TYPES,
   MAX_ALT_TEXT_LENGTH,
@@ -38,17 +41,32 @@ type Props = {
   mode: "create" | "edit";
   categoryId: string;
   item?: MenuItemData;
+  /** Préremplissage du mode create — utilisé par « Dupliquer » (photo exclue). */
+  initialValues?: {
+    name: string;
+    description: string;
+    priceCents: number;
+    badge: ItemBadge;
+    allergens: Allergen[];
+  };
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 const initialState: ItemActionState = { error: null };
 
-export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: Props) {
+export function ItemFormDialog({
+  mode,
+  categoryId,
+  item,
+  initialValues,
+  open,
+  onOpenChange,
+}: Props) {
   const t = useTranslations("Dashboard");
   const tAllergen = useTranslations("Allergen");
   const id = useId();
-  const selectedAllergens = new Set(item?.allergens ?? []);
+  const selectedAllergens = new Set(item?.allergens ?? initialValues?.allergens ?? []);
   const serverAction = mode === "create" ? createItemAction : updateItemAction;
 
   // Create-mode photo: held in memory until the item is created, then uploaded.
@@ -96,6 +114,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
     async (prev: ItemActionState, formData: FormData) => {
       const result = await serverAction(prev, formData);
 
+      let photoFailed = false;
       if (result.success && mode === "create" && pendingFile && result.createdItemId) {
         setIsUploadingPhoto(true);
         try {
@@ -118,9 +137,11 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
             altText: pendingAlt.trim() || undefined,
           });
         } catch {
-          // Item created, photo failed. Sentry already captured it server-side.
-          // We close the dialog regardless — the user sees the dish in the list and
-          // can retry the photo via the Edit dialog (zero data loss).
+          // Item créé, photo échouée (Sentry l'a capturée côté serveur). On ferme
+          // quand même — l'item est dans la liste, zéro perte de données — et le
+          // toast d'erreur guide vers « Modifier » pour retenter l'envoi.
+          photoFailed = true;
+          toast.error(t("toast.photoFailedRetryEdit"));
         } finally {
           setIsUploadingPhoto(false);
         }
@@ -129,14 +150,41 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
       if (result.success) {
         clearPendingFile();
         onOpenChange(false);
+        if (!photoFailed) {
+          toast.success(mode === "create" ? t("toast.itemCreated") : t("toast.itemUpdated"));
+        }
       }
       return result;
     },
-    [serverAction, onOpenChange, mode, pendingFile, pendingAlt],
+    [serverAction, onOpenChange, mode, pendingFile, pendingAlt, t],
   );
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
   const isBusy = isPending || isUploadingPhoto;
   const nameError = state.fieldErrors?.name;
+
+  // Après création : amener la nouvelle rangée à l'écran et lui donner le focus.
+  // Elle n'existe qu'après le refresh RSC déclenché par revalidatePath — d'où
+  // la courte attente en requestAnimationFrame.
+  const createdItemId = state.createdItemId;
+  useEffect(() => {
+    if (!createdItemId) return;
+    let raf = 0;
+    let attempts = 0;
+    const tryFocus = () => {
+      const el = document.getElementById(`item-${createdItemId}`);
+      if (el) {
+        el.scrollIntoView({
+          block: "center",
+          behavior: prefersReducedMotion() ? "auto" : "smooth",
+        });
+        el.focus({ preventScroll: true });
+      } else if (attempts++ < 15) {
+        raf = requestAnimationFrame(tryFocus);
+      }
+    };
+    tryFocus();
+    return () => cancelAnimationFrame(raf);
+  }, [createdItemId]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -166,7 +214,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
                   id={`${id}-name`}
                   name="name"
                   placeholder="ex: Spaghetti Carbonara"
-                  defaultValue={item?.translations.fr.name ?? ""}
+                  defaultValue={item?.translations.fr.name ?? initialValues?.name ?? ""}
                   aria-invalid={!!nameError}
                 />
                 {nameError && <p className="text-xs text-destructive">{nameError}</p>}
@@ -177,7 +225,9 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
                   id={`${id}-desc`}
                   name="description"
                   placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
-                  defaultValue={item?.translations.fr.description ?? ""}
+                  defaultValue={
+                    item?.translations.fr.description ?? initialValues?.description ?? ""
+                  }
                 />
               </div>
             </div>
@@ -190,13 +240,18 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
                   <Input
                     id={`${id}-price`}
                     name="priceEur"
-                    type="number"
-                    step="0.01"
-                    min="0"
+                    type="text"
+                    inputMode="decimal"
                     required
                     className="pr-8"
-                    placeholder="0.00"
-                    defaultValue={item ? (item.priceCents / 100).toFixed(2) : ""}
+                    placeholder="12,50"
+                    defaultValue={
+                      item
+                        ? formatCentsToEurInput(item.priceCents)
+                        : initialValues
+                          ? formatCentsToEurInput(initialValues.priceCents)
+                          : ""
+                    }
                     aria-invalid={!!state.fieldErrors?.priceEur}
                   />
                   <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -210,7 +265,7 @@ export function ItemFormDialog({ mode, categoryId, item, open, onOpenChange }: P
 
               <div className="space-y-1">
                 <Label htmlFor={`${id}-badge`}>{t("badgeLabel")}</Label>
-                <Select name="badge" defaultValue={item?.badge ?? "NONE"}>
+                <Select name="badge" defaultValue={item?.badge ?? initialValues?.badge ?? "NONE"}>
                   <SelectTrigger id={`${id}-badge`} className="w-full">
                     <SelectValue />
                   </SelectTrigger>

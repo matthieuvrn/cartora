@@ -2,6 +2,7 @@
 
 import { useActionState, useCallback, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Pencil, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,11 +21,17 @@ export function EditableRestaurantName({ currentName }: Props) {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const wrappedAction = useCallback(async (prev: RenameActionState, formData: FormData) => {
-    const result = await renameRestaurantAction(prev, formData);
-    if (result.success) setEditing(false);
-    return result;
-  }, []);
+  const wrappedAction = useCallback(
+    async (prev: RenameActionState, formData: FormData) => {
+      const result = await renameRestaurantAction(prev, formData);
+      if (result.success) {
+        setEditing(false);
+        toast.success(t("toast.nameSaved"));
+      }
+      return result;
+    },
+    [t],
+  );
   const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
 
   if (!editing) {

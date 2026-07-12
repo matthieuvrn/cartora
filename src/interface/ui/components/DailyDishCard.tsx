@@ -1,23 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { deleteDailyDishAction, type DailyDishActionState } from "@/app/(app)/app/actions";
+import { deleteDailyDishAction } from "@/app/(app)/app/actions";
+import { deferDelete } from "@/hooks/use-deferred-delete";
 import { itemImageUrl } from "@/lib/storage-url";
 import { HIT_AREA_TALL } from "@/lib/utils";
+import { actionErrorText } from "./actionErrorText";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
@@ -46,11 +42,10 @@ function formatExpiration(validUntilISO: string): { date: string; time: string }
   return { date, time };
 }
 
-const deleteInitialState: DailyDishActionState = { error: null };
-
 export function DailyDishCard({ dish, isExpired = false }: Props) {
   const t = useTranslations("Dashboard");
   const tDaily = useTranslations("Dashboard.dailyDishes");
+  const tErrors = useTranslations("Errors");
   const tAllergen = useTranslations("Allergen");
   const allergenLabels: AllergenLabels = ALLERGEN_VALUES.reduce((acc, a) => {
     acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
@@ -59,18 +54,26 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const wrappedDelete = useCallback(async (prev: DailyDishActionState, formData: FormData) => {
-    const result = await deleteDailyDishAction(prev, formData);
-    if (result.success) setDeleteOpen(false);
-    return result;
-  }, []);
-  const [deleteState, deleteAction, isDeleting] = useActionState(wrappedDelete, deleteInitialState);
 
   function handleEdit() {
     setEditKey((k) => k + 1);
     setEditOpen(true);
+  }
+
+  // Suppression optimiste avec « Annuler » (cf. deferDelete) — la carte est
+  // masquée via usePendingDeletes côté section.
+  function handleDelete() {
+    deferDelete({
+      id: dish.id,
+      message: t("undoDelete.deleted", { name: dish.translations.fr.name }),
+      undoLabel: t("undoDelete.undo"),
+      execute: async () => {
+        const formData = new FormData();
+        formData.set("dishId", dish.id);
+        const result = await deleteDailyDishAction({ error: null }, formData);
+        if (result.error) toast.error(actionErrorText(tErrors, result.error));
+      },
+    });
   }
 
   const thumbnailUrl = dish.imagePath ? itemImageUrl(dish.imagePath) : null;
@@ -133,7 +136,7 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
             size="icon-xs"
             className={HIT_AREA_TALL}
             aria-label={tDaily("delete")}
-            onClick={() => setDeleteOpen(true)}
+            onClick={handleDelete}
           >
             <Trash2 />
           </Button>
@@ -147,31 +150,6 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
         open={editOpen}
         onOpenChange={setEditOpen}
       />
-
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>{tDaily("delete")}</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">{tDaily("deleteConfirm")}</p>
-          {deleteState.error && (
-            <p role="alert" className="text-sm text-destructive">
-              {t(`error.generic`)}
-            </p>
-          )}
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
-              {t("cancel")}
-            </Button>
-            <form action={deleteAction}>
-              <input type="hidden" name="dishId" value={dish.id} />
-              <Button type="submit" variant="destructive" disabled={isDeleting}>
-                {isDeleting ? "…" : tDaily("delete")}
-              </Button>
-            </form>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,15 +33,27 @@ const initialState: ItemActionState = { error: null };
 
 export function CategoryFormDialog(props: Props) {
   const t = useTranslations("Dashboard");
-  const action = props.mode === "create" ? createCategoryAction : renameCategoryAction;
-  const [state, formAction, isPending] = useActionState(action, initialState);
+  const serverAction = props.mode === "create" ? createCategoryAction : renameCategoryAction;
+  const successMessage =
+    props.mode === "create" ? t("toast.categoryCreated") : t("toast.categoryRenamed");
 
-  // Auto-close on success. Le SheetContent démonte son contenu à open=false (Radix Dialog),
-  // donc l'état local du form est réinitialisé à la prochaine ouverture — rien à reset ici.
+  // Fermeture + toast impératifs, par résultat, dans l'action wrappée. Contrairement à un
+  // useEffect sur `state.success`, ce pattern reste correct pour deux soumissions réussies
+  // d'affilée (le booléen ne changerait pas → l'effet ne re-déclencherait pas). Le
+  // SheetContent démonte son contenu à open=false (Radix), donc rien à reset ici.
   const onOpenChange = props.onOpenChange;
-  useEffect(() => {
-    if (state.success) onOpenChange(false);
-  }, [state.success, onOpenChange]);
+  const wrappedAction = useCallback(
+    async (prev: ItemActionState, formData: FormData) => {
+      const result = await serverAction(prev, formData);
+      if (result.success) {
+        onOpenChange(false);
+        toast.success(successMessage);
+      }
+      return result;
+    },
+    [serverAction, onOpenChange, successMessage],
+  );
+  const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
 
   const defaultName = props.mode === "rename" ? props.initialName : "";
 

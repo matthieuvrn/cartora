@@ -189,6 +189,17 @@ export class PrismaMenuRepository implements MenuRepository {
     return item;
   }
 
+  async updateItemAvailability(params: {
+    itemId: string;
+    restaurantId: string;
+    isAvailable: boolean;
+  }): Promise<void> {
+    await this.db.item.update({
+      where: { id: params.itemId, restaurantId: params.restaurantId },
+      data: { isAvailable: params.isAvailable },
+    });
+  }
+
   async updateItemImage(params: {
     itemId: string;
     restaurantId: string;

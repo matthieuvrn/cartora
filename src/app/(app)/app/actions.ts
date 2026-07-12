@@ -52,12 +52,14 @@ import { DeleteFormula } from "@/application/use-cases/DeleteFormula";
 import { ReorderFormulas } from "@/application/use-cases/ReorderFormulas";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { UpdateBrandColors } from "@/application/use-cases/UpdateBrandColors";
+import { SetItemAvailability } from "@/application/use-cases/SetItemAvailability";
 import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
 import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import * as Sentry from "@sentry/nextjs";
 import { withActionContext, type ActionError, type ActionState } from "@/lib/action-result";
+import { parsePriceEurToCents } from "@/lib/price";
 
 // ─── State ──────────────────────────────────────────────────────────────────
 //
@@ -75,14 +77,23 @@ export type RenameActionState = ActionState<{ success?: boolean }>;
 
 const AllergensSchema = z.array(z.enum(ALLERGEN_VALUES)).max(ALLERGEN_VALUES.length).default([]);
 
+// Prix saisi librement (« 12,50 », « 12.50 », « 12 € ») → CENTIMES entiers.
+// La normalisation vit dans `parsePriceEurToCents` (src/lib/price, testé).
+// Le champ FormData reste `priceEur` ; sa valeur PARSÉE est en centimes.
+const PriceEurSchema = z.string().transform((value, ctx) => {
+  const cents = parsePriceEurToCents(value);
+  if (cents === null || cents > MAX_PRICE_CENTS) {
+    ctx.addIssue({ code: "custom", message: "Prix invalide (ex : 12,50)" });
+    return z.NEVER;
+  }
+  return cents;
+});
+
 // S4 (saisie monolingue) : un seul nom/description — la langue de saisie vient du
 // restaurant (`source_locale`), les traductions cibles vivent dans /app/traductions.
 const CreateItemSchema = z.object({
   categoryId: z.uuid(),
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   name: z.string(),
@@ -91,10 +102,7 @@ const CreateItemSchema = z.object({
 
 const UpdateItemSchema = z.object({
   itemId: z.uuid(),
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   isAvailable: z.boolean(),
@@ -189,10 +197,7 @@ const ValidUntilSchema = z
   .optional();
 
 const CreateDailyDishSchema = z.object({
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   validUntilISO: ValidUntilSchema,
@@ -202,10 +207,7 @@ const CreateDailyDishSchema = z.object({
 
 const UpdateDailyDishSchema = z.object({
   dishId: z.uuid(),
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   badge: z.enum(["NONE", "NEW", "POPULAR"]),
   allergens: AllergensSchema,
   validUntilISO: z
@@ -244,10 +246,7 @@ const DeleteDailyDishImageSchema = z.object({
 // la date au formulaire pour qu'un restaurateur ne crée pas par erreur une formule
 // expirée le jour même.
 const CreateFormulaSchema = z.object({
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   validUntilISO: z
     .string()
     .min(1)
@@ -258,10 +257,7 @@ const CreateFormulaSchema = z.object({
 
 const UpdateFormulaSchema = z.object({
   formulaId: z.uuid(),
-  priceEur: z.coerce
-    .number()
-    .min(0)
-    .max(MAX_PRICE_CENTS / 100),
+  priceEur: PriceEurSchema,
   validUntilISO: z
     .string()
     .min(1)
@@ -318,10 +314,6 @@ async function getAuthenticatedRestaurantContext(): Promise<{
   return { restaurantId: restaurant.id, sourceLocale: restaurant.sourceLocale as MenuLocale };
 }
 
-function eurToCents(eur: number): number {
-  return Math.round(eur * 100);
-}
-
 /**
  * Construit la map `fieldErrors` consommée par les composants à partir d'une
  * `ZodSafeParseResult` en échec. Clé = chemin pointé du champ (ex: `translations.fr.name`).
@@ -365,7 +357,7 @@ export async function createItemAction(
       const { itemId } = await useCase.execute({
         categoryId: parsed.data.categoryId,
         restaurantId,
-        priceCents: eurToCents(parsed.data.priceEur),
+        priceCents: parsed.data.priceEur,
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
         sourceLocale,
@@ -408,7 +400,7 @@ export async function updateItemAction(
       await useCase.execute({
         itemId: parsed.data.itemId,
         restaurantId,
-        priceCents: eurToCents(parsed.data.priceEur),
+        priceCents: parsed.data.priceEur,
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
         isAvailable: parsed.data.isAvailable,
@@ -493,6 +485,47 @@ export async function reorderItemsAction(
       });
 
       await repo.markMenuAsDraft(restaurantId);
+      revalidatePath("/app");
+      return { error: null, success: true };
+    },
+  );
+}
+
+const SetItemAvailabilitySchema = z.object({
+  itemId: z.uuid(),
+  isAvailable: z.boolean(),
+});
+
+/**
+ * Bascule de disponibilité en un tap depuis la carte (« 86 » un plat).
+ * Action à input objet (pas de formulaire) appelée dans une transition
+ * optimiste côté client. `markMenuAsDraft` vit dans le use case
+ * (précédent `SetItemImage`).
+ */
+export async function setItemAvailabilityAction(input: {
+  itemId: string;
+  isAvailable: boolean;
+}): Promise<ActionState<{ success?: boolean }>> {
+  const parsed = SetItemAvailabilitySchema.safeParse(input);
+  if (!parsed.success) return { error: VALIDATION_ERROR };
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    {
+      actionName: "setItemAvailability",
+      restaurantId,
+      input: { itemId: parsed.data.itemId, isAvailable: parsed.data.isAvailable },
+    },
+    async () => {
+      const repo = new PrismaMenuRepository(prisma);
+      const useCase = new SetItemAvailability(repo);
+
+      await useCase.execute({
+        itemId: parsed.data.itemId,
+        restaurantId,
+        isAvailable: parsed.data.isAvailable,
+      });
+
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -1209,7 +1242,7 @@ export async function createDailyDishAction(
 
     const { dishId } = await useCase.execute({
       restaurantId,
-      priceCents: eurToCents(parsed.data.priceEur),
+      priceCents: parsed.data.priceEur,
       badge: parsed.data.badge,
       allergens: parsed.data.allergens,
       validUntilISO: parsed.data.validUntilISO,
@@ -1253,7 +1286,7 @@ export async function updateDailyDishAction(
       await useCase.execute({
         dishId: parsed.data.dishId,
         restaurantId,
-        priceCents: eurToCents(parsed.data.priceEur),
+        priceCents: parsed.data.priceEur,
         badge: parsed.data.badge,
         allergens: parsed.data.allergens,
         validUntilISO: parsed.data.validUntilISO,
@@ -1450,7 +1483,7 @@ export async function createFormulaAction(
 
     const { formulaId } = await useCase.execute({
       restaurantId,
-      priceCents: eurToCents(parsed.data.priceEur),
+      priceCents: parsed.data.priceEur,
       validUntilISO: parsed.data.validUntilISO,
       sourceLocale,
       name: parsed.data.name,
@@ -1490,7 +1523,7 @@ export async function updateFormulaAction(
       await useCase.execute({
         formulaId: parsed.data.formulaId,
         restaurantId,
-        priceCents: eurToCents(parsed.data.priceEur),
+        priceCents: parsed.data.priceEur,
         validUntilISO: parsed.data.validUntilISO,
         sourceLocale,
         name: parsed.data.name,

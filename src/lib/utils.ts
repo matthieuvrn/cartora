@@ -6,6 +6,16 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * `true` si l'utilisateur préfère un mouvement réduit — à consulter avant tout
+ * scroll ou animation programmés (scrollIntoView smooth, Web Animations…).
+ */
+export function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+/**
  * Zones tactiles confortables (~44px, Apple HIG) sans grossir l'icône : un pseudo-élément
  * `::after` transparent, centré, capte le tap — un clic sur le pseudo est attribué au bouton
  * parent. Le plancher WCAG 2.2 AA (24px, SC 2.5.8) reste assuré par la taille visuelle ; ceci

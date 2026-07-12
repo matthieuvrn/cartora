@@ -127,11 +127,12 @@
       "add": "Add category",
       "rename": "Rename",
       "delete": "Delete",
-      "deleteConfirm": "Delete the category \"{name}\" and all its items?",
+      "deleteConfirmWithCount": "{count, plural, =0 {Delete the empty category \"{name}\"?} one {Delete the category \"{name}\" and its only item?} other {Delete the category \"{name}\" and its # items?}}",
       "deleteLast": "You must keep at least one category",
       "duplicate": "A category with this name already exists",
       "limitReached": "{max} categories limit reached",
       "namePlaceholder": "Category name",
+      "menuLabel": "Category actions",
       "moveUp": "Move category up",
       "moveDown": "Move category down",
       "collapse": "Collapse category",
@@ -174,8 +175,51 @@
     "moveUp": "Move up",
     "moveDown": "Move down",
     "emptyCategory": "No items in this category",
-    "confirmDelete": "Delete this item? This action cannot be undone.",
     "publish": "Publish",
+    "publishChanges": "Publish changes",
+    "viewMyMenu": "View my menu",
+    "unavailable": "Sold out",
+    "availability": {
+      "shownAfterPublish": "Visible on the menu after the next publish",
+      "hiddenAfterPublish": "Hidden from the menu after the next publish"
+    },
+    "search": {
+      "placeholder": "Search dishes…",
+      "clear": "Clear search",
+      "results": "{count, plural, one {# result} other {# results}}",
+      "noResults": "No results for “{query}”"
+    },
+    "categoryNav": {
+      "label": "Menu categories"
+    },
+    "itemMenu": {
+      "label": "Item actions"
+    },
+    "today": {
+      "title": "Today",
+      "description": "Today's dishes and combos, shown at the top of your public menu until they expire.",
+      "teaser": "Today's dishes and combos at the top of your menu — from the Starter plan.",
+      "teaserCta": "Discover Starter"
+    },
+    "quickAdd": {
+      "namePlaceholder": "Quick add: dish name…",
+      "submit": "Add"
+    },
+    "duplicate": "Duplicate",
+    "duplicateSuffix": "(copy)",
+    "dnd": {
+      "instructions": "Press Space to pick up the item, move it with the up and down arrow keys, Space to drop, Escape to cancel.",
+      "pickedUp": "{name} picked up — position {position} of {total}.",
+      "movedOver": "{name} moved — position {position} of {total}.",
+      "dropped": "{name} dropped — position {position} of {total}.",
+      "canceled": "Move canceled — {name} returned.",
+      "grabItem": "Reorder {name}",
+      "grabCategory": "Reorder category {name}"
+    },
+    "undoDelete": {
+      "deleted": "“{name}” deleted",
+      "undo": "Undo"
+    },
     "preview": "Preview",
     "jumpToCategory": "Go to…",
     "previewTitle": "Menu preview",
@@ -188,7 +232,9 @@
     "publicLinkLabel": "View menu",
     "status": {
       "DRAFT": "Draft",
-      "PUBLISHED": "Published"
+      "PUBLISHED": "Published",
+      "upToDate": "Published · up to date",
+      "unpublishedChanges": "Unpublished changes"
     },
     "qrCode": {
       "title": "QR Code",
@@ -228,6 +274,18 @@
       "regenerate": "Regenerate QR code",
       "regenerated": "QR code regenerated."
     },
+    "toast": {
+      "itemCreated": "Item added",
+      "itemUpdated": "Item updated",
+      "categoryCreated": "Category added",
+      "categoryRenamed": "Category renamed",
+      "categoryDeleted": "Category deleted",
+      "dishSaved": "Today's dish saved",
+      "formulaSaved": "Combo saved",
+      "nameSaved": "Name saved",
+      "published": "Menu published",
+      "photoFailedRetryEdit": "Item saved, but the photo upload failed. Reopen it via \"Edit\" to retry."
+    },
     "deleteAccount": "Delete my account",
     "deleteAccountConfirmTitle": "Delete your account?",
     "deleteAccountConfirmDescription": "This action is irreversible. All your data, menu and subscription will be deleted.",
@@ -237,7 +295,6 @@
     "deleteAccountError": "An error occurred while deleting your account.",
     "dailyDishes": {
       "title": "Today's dishes",
-      "description": "Add an exclusive dish for today. Shown in the \"Today\" section of your public menu until it expires.",
       "add": "Add today's dish",
       "edit": "Edit dish",
       "delete": "Delete dish",
@@ -246,17 +303,10 @@
       "expiresAt": "Expires {date} at {time}",
       "expired": "Expired",
       "validUntilLabel": "Expiration",
-      "validUntilHint": "Defaults to end of day (Paris time).",
-      "paywall": {
-        "title": "Available from the Starter plan",
-        "description": "Upgrade to Starter or Pro to add today's specials at the top of your public menu."
-      },
-      "deleteConfirm": "Delete this special?",
-      "publishHint": "Re-publish your menu so new specials appear publicly."
+      "validUntilHint": "Defaults to end of day (Paris time)."
     },
     "formula": {
       "title": "Combo menus",
-      "description": "Create a combo (lunch deal, brunch…) shown in the \"Today\" section of your public menu.",
       "add": "Add a combo",
       "edit": "Edit combo",
       "delete": "Delete combo",
@@ -273,13 +323,7 @@
       "compositionPlaceholder": "Starter of your choice\nMain dish\nCoffee",
       "priceLabel": "Price (€)",
       "nameEnLabel": "Name (English)",
-      "compositionEnLabel": "Composition (English)",
-      "paywall": {
-        "title": "Available from the Starter plan",
-        "description": "Upgrade to Starter or Pro to create flat-rate combo menus."
-      },
-      "deleteConfirm": "Delete this combo?",
-      "publishHint": "Re-publish your menu so new combos appear publicly."
+      "compositionEnLabel": "Composition (English)"
     }
   },
   "PublicMenu": {

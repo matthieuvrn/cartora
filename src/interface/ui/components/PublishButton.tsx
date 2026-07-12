@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Send, Loader2, AlertTriangle, RefreshCw, Check } from "lucide-react";
+import { toast } from "sonner";
+import { Send, Loader2, AlertTriangle, RefreshCw, Check, ExternalLink } from "lucide-react";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { PublishActionState } from "@/app/(app)/app/actions";
 import type { ActionState } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
+import { flushAllPendingDeletes } from "@/hooks/use-deferred-delete";
 import { ErrorMessage } from "./ErrorMessage";
 import { PopIn } from "./PopIn";
 import { PricingModal } from "./PricingModal";
@@ -16,15 +18,38 @@ type RegenerateState = ActionState<{ success?: boolean }>;
 type Props = {
   planTier: PlanTier;
   menuStatus: "DRAFT" | "PUBLISHED";
+  /** Dernière publication (ISO) — null si le menu n'a jamais été publié. */
+  publishedAt: string | null;
+  /** Slug public — cible du lien « Voir mon menu ». */
+  slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   regenerateQrAction: (_prev: RegenerateState) => Promise<RegenerateState>;
 };
 
-export function PublishButton({ planTier, menuStatus, publishAction, regenerateQrAction }: Props) {
+export function PublishButton({
+  planTier,
+  menuStatus,
+  publishedAt,
+  slug,
+  publishAction,
+  regenerateQrAction,
+}: Props) {
   const t = useTranslations("Dashboard");
   const [pricingOpen, setPricingOpen] = useState(false);
 
-  const [state, formAction, isPending] = useActionState(publishAction, {
+  const wrappedPublish = useCallback(
+    async (prev: PublishActionState) => {
+      // Publier snapshote l'état SERVEUR : purge d'abord les suppressions en
+      // attente (fenêtre « Annuler ») pour ne pas snapshoter un item que
+      // l'utilisateur voit déjà supprimé.
+      await flushAllPendingDeletes();
+      const result = await publishAction(prev);
+      if (result.error === null) toast.success(t("toast.published"));
+      return result;
+    },
+    [publishAction, t],
+  );
+  const [state, formAction, isPending] = useActionState(wrappedPublish, {
     error: null,
   });
 
@@ -48,19 +73,41 @@ export function PublishButton({ planTier, menuStatus, publishAction, regenerateQ
     );
   }
 
+  // Sémantique explicite au lieu d'un bouton grisé :
+  // - PUBLISHED (à jour)      → lien « Voir mon menu » vers /m/[slug] (le vrai résultat).
+  // - DRAFT déjà publié       → CTA « Publier les modifications ».
+  // - DRAFT jamais publié     → CTA « Publier ».
+  // Toute mutation repasse le menu en DRAFT (markMenuAsDraft) → le CTA se rallume seul.
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <form action={formAction}>
-          <Button type="submit" size="sm" disabled={isPending || menuStatus === "PUBLISHED"}>
-            {isPending ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Send className="mr-2 size-4" />
-            )}
-            {t("publish")}
+        {menuStatus === "PUBLISHED" ? (
+          <Button asChild size="sm" variant="outline">
+            <a href={`/m/${slug}`} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-2 size-4" />
+              {t("viewMyMenu")}
+            </a>
           </Button>
-        </form>
+        ) : (
+          <form action={formAction}>
+            <Button type="submit" size="sm" disabled={isPending}>
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Send className="mr-2 size-4" />
+              )}
+              {publishedAt ? (
+                <>
+                  {/* Libellé long sur desktop, court sur la barre basse mobile. */}
+                  <span className="sm:hidden">{t("publish")}</span>
+                  <span className="hidden sm:inline">{t("publishChanges")}</span>
+                </>
+              ) : (
+                t("publish")
+              )}
+            </Button>
+          </form>
+        )}
       </div>
 
       {state.error && <ErrorMessage error={state.error} namespace="Dashboard.publishError" />}

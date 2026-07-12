@@ -127,11 +127,12 @@
       "add": "Ajouter une catégorie",
       "rename": "Renommer",
       "delete": "Supprimer",
-      "deleteConfirm": "Supprimer la catégorie « {name} » et tous ses items ?",
+      "deleteConfirmWithCount": "{count, plural, =0 {Supprimer la catégorie « {name} » (vide) ?} one {Supprimer la catégorie « {name} » et son unique item ?} other {Supprimer la catégorie « {name} » et ses # items ?}}",
       "deleteLast": "Vous devez garder au moins une catégorie",
       "duplicate": "Une catégorie avec ce nom existe déjà",
       "limitReached": "Limite de {max} catégories atteinte",
       "namePlaceholder": "Nom de la catégorie",
+      "menuLabel": "Actions de la catégorie",
       "moveUp": "Monter la catégorie",
       "moveDown": "Descendre la catégorie",
       "collapse": "Replier la catégorie",
@@ -174,8 +175,51 @@
     "moveUp": "Monter",
     "moveDown": "Descendre",
     "emptyCategory": "Aucun item dans cette catégorie",
-    "confirmDelete": "Supprimer cet item ? Cette action est irréversible.",
     "publish": "Publier",
+    "publishChanges": "Publier les modifications",
+    "viewMyMenu": "Voir mon menu",
+    "unavailable": "Épuisé",
+    "availability": {
+      "shownAfterPublish": "Visible sur le menu à la prochaine publication",
+      "hiddenAfterPublish": "Masqué du menu à la prochaine publication"
+    },
+    "search": {
+      "placeholder": "Rechercher un plat…",
+      "clear": "Effacer la recherche",
+      "results": "{count, plural, one {# résultat} other {# résultats}}",
+      "noResults": "Aucun résultat pour « {query} »"
+    },
+    "categoryNav": {
+      "label": "Catégories de la carte"
+    },
+    "itemMenu": {
+      "label": "Actions de l'item"
+    },
+    "today": {
+      "title": "Aujourd'hui",
+      "description": "Plats du jour et formules, affichés en tête du menu public jusqu'à leur expiration.",
+      "teaser": "Plats du jour et formules en tête de votre menu — dès la formule Starter.",
+      "teaserCta": "Découvrir Starter"
+    },
+    "quickAdd": {
+      "namePlaceholder": "Ajout rapide : nom du plat…",
+      "submit": "Ajouter"
+    },
+    "duplicate": "Dupliquer",
+    "duplicateSuffix": "(copie)",
+    "dnd": {
+      "instructions": "Appuyez sur Espace pour saisir l'élément, déplacez-le avec les flèches haut et bas, Espace pour déposer, Échap pour annuler.",
+      "pickedUp": "{name} saisi — position {position} sur {total}.",
+      "movedOver": "{name} déplacé — position {position} sur {total}.",
+      "dropped": "{name} déposé — position {position} sur {total}.",
+      "canceled": "Déplacement annulé — {name} reposé.",
+      "grabItem": "Réordonner {name}",
+      "grabCategory": "Réordonner la catégorie {name}"
+    },
+    "undoDelete": {
+      "deleted": "« {name} » supprimé",
+      "undo": "Annuler"
+    },
     "preview": "Aperçu",
     "jumpToCategory": "Aller à…",
     "previewTitle": "Aperçu du menu",
@@ -188,7 +232,9 @@
     "publicLinkLabel": "Voir le menu",
     "status": {
       "DRAFT": "Brouillon",
-      "PUBLISHED": "Publié"
+      "PUBLISHED": "Publié",
+      "upToDate": "Publié · à jour",
+      "unpublishedChanges": "Modifications non publiées"
     },
     "qrCode": {
       "title": "QR Code",
@@ -228,6 +274,18 @@
       "regenerate": "Régénérer le QR code",
       "regenerated": "QR code régénéré."
     },
+    "toast": {
+      "itemCreated": "Item ajouté",
+      "itemUpdated": "Item modifié",
+      "categoryCreated": "Catégorie ajoutée",
+      "categoryRenamed": "Catégorie renommée",
+      "categoryDeleted": "Catégorie supprimée",
+      "dishSaved": "Plat du jour enregistré",
+      "formulaSaved": "Formule enregistrée",
+      "nameSaved": "Nom enregistré",
+      "published": "Menu publié",
+      "photoFailedRetryEdit": "Item enregistré, mais l'envoi de la photo a échoué. Rouvrez-le via « Modifier » pour réessayer."
+    },
     "deleteAccount": "Supprimer mon compte",
     "deleteAccountConfirmTitle": "Supprimer votre compte ?",
     "deleteAccountConfirmDescription": "Cette action est irréversible. Toutes vos données, votre menu et votre abonnement seront supprimés.",
@@ -237,7 +295,6 @@
     "deleteAccountError": "Une erreur est survenue lors de la suppression.",
     "dailyDishes": {
       "title": "Plats du jour",
-      "description": "Ajoutez un plat exclusif pour aujourd'hui. Affiché dans la section « Aujourd'hui » du menu public jusqu'à son expiration.",
       "add": "Ajouter un plat du jour",
       "edit": "Modifier le plat",
       "delete": "Supprimer le plat",
@@ -246,17 +303,10 @@
       "expiresAt": "Expire le {date} à {time}",
       "expired": "Expiré",
       "validUntilLabel": "Expiration",
-      "validUntilHint": "Par défaut, fin de la journée (heure de Paris).",
-      "paywall": {
-        "title": "Disponible à partir de la formule Starter",
-        "description": "Passez à Starter ou Pro pour ajouter un plat du jour qui s'affiche en tête de votre menu public."
-      },
-      "deleteConfirm": "Supprimer ce plat du jour ?",
-      "publishHint": "Republiez votre menu pour que vos nouveaux plats du jour apparaissent."
+      "validUntilHint": "Par défaut, fin de la journée (heure de Paris)."
     },
     "formula": {
       "title": "Formules",
-      "description": "Créez une formule (menu du midi, brunch…) affichée dans la section « Aujourd'hui » du menu public.",
       "add": "Ajouter une formule",
       "edit": "Modifier la formule",
       "delete": "Supprimer la formule",
@@ -273,13 +323,7 @@
       "compositionPlaceholder": "Entrée au choix\nPlat du jour\nCafé gourmand",
       "priceLabel": "Prix (€)",
       "nameEnLabel": "Nom (anglais)",
-      "compositionEnLabel": "Composition (anglais)",
-      "paywall": {
-        "title": "Disponible à partir de la formule Starter",
-        "description": "Passez à Starter ou Pro pour créer des formules à prix forfaitaire."
-      },
-      "deleteConfirm": "Supprimer cette formule ?",
-      "publishHint": "Republiez votre menu pour que vos nouvelles formules apparaissent."
+      "compositionEnLabel": "Composition (anglais)"
     }
   },
   "PublicMenu": {

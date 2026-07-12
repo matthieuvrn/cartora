@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 // `ActionError` est un type pur — l'`import type` évite de tirer
 // `@sentry/nextjs` et `next/navigation` dans le bundle client de ce composant.
 import type { ActionError } from "@/lib/action-result";
+import { actionErrorText } from "./actionErrorText";
 
 type Props = {
   error: ActionError | null | undefined;
@@ -17,42 +18,18 @@ type Props = {
 };
 
 /**
- * Mappe un `ActionError` vers une string i18n. Tombe sur `generic` si la clé
- * `${namespace}.${code}` n'existe pas (sécurité contre les codes ajoutés
- * sans clé i18n correspondante).
- *
- * Pour les codes paramétrés (`max_categories`, `max_photos`), tente la clé
- * enrichie `${code}_with_limit` avec les `metadata` injectées comme variables ICU.
+ * Affichage inline d'un `ActionError`. La résolution code→message (clé enrichie
+ * `_with_limit`, fallback `generic`) vit dans `actionErrorText`, partagée avec
+ * les toasts.
  */
 export function ErrorMessage({ error, namespace = "Errors", className }: Props) {
   // ⚠️ useTranslations doit être appelé inconditionnellement.
   const t = useTranslations(namespace);
   if (!error) return null;
 
-  // Codes paramétrés : on tente d'abord la clé enrichie avec metadata.
-  if (
-    (error.code === "max_categories" ||
-      error.code === "max_photos" ||
-      error.code === "locale_quota_exceeded") &&
-    error.metadata?.limit !== undefined
-  ) {
-    const richKey = `${error.code}_with_limit`;
-    if (t.has(richKey)) {
-      return (
-        <p role="alert" className={className ?? "text-sm text-destructive"}>
-          {t(richKey, {
-            limit: error.metadata.limit,
-            tier: error.metadata.tier ?? "",
-          })}
-        </p>
-      );
-    }
-  }
-
-  const key = t.has(error.code) ? error.code : "generic";
   return (
     <p role="alert" className={className ?? "text-sm text-destructive"}>
-      {t(key)}
+      {actionErrorText(t, error)}
     </p>
   );
 }

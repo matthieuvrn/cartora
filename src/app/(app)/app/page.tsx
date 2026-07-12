@@ -122,6 +122,7 @@ export default async function AppPage({
       <MenuEditor
         menu={menu}
         restaurantName={restaurant.displayName}
+        slug={restaurant.slug}
         logoPath={restaurant.logoPath}
         planTier={restaurant.planTier}
         publishAction={publishMenuAction}

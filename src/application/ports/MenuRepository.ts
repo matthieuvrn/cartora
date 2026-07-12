@@ -51,6 +51,16 @@ export interface MenuRepository {
   }): Promise<{ imagePath: string | null } | null>;
 
   /**
+   * Bascule uniquement la disponibilité (« 86 » un plat en plein service) —
+   * ne touche ni textes ni traductions, contrairement à `updateItem`.
+   */
+  updateItemAvailability(params: {
+    itemId: string;
+    restaurantId: string;
+    isAvailable: boolean;
+  }): Promise<void>;
+
+  /**
    * `imagePath: null` (suppression de photo) efface aussi les alt-texts de TOUTES
    * les locales ; sinon, seul l'alt-text de la langue source est écrit.
    */

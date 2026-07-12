@@ -67,7 +67,7 @@ export function AllergenIcons({ allergens, labels, size = 16, listLabel, classNa
         <li
           key={a}
           // Couleurs via le contrat `--menu-allergen-*` avec défaut amber inline : ce composant rend
-          // AUSSI dans les cartes de l'éditeur (ItemCard/DailyDishCard), hors `[data-template]` —
+          // AUSSI dans les rangées de l'éditeur (ItemRow/DailyDishCard), hors `[data-template]` —
           // le fallback garde le rendu actuel partout, et seuls les skins sombres (NOIR/NEON)
           // redéfinissent les tokens pour éviter une pastille claire sur fond foncé (Étape 6).
           className="inline-flex items-center rounded-full p-1"

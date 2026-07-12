@@ -1,6 +1,7 @@
 import { GeistMono } from "geist/font/mono";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { AppShell } from "@/interface/ui/components/app/AppShell";
+import { Toaster } from "@/components/ui/sonner";
 
 // `theme-app` : scope de marque (canard/sand, Fraunces, focus, charts) en miroir de `.theme-cartora`
 // de la landing — voir globals.css. `bg-background text-foreground` re-résout les tokens au niveau du
@@ -20,6 +21,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       className={`theme-app min-h-svh bg-background text-foreground ${GeistMono.variable}`}
     >
       <AppShell email={user?.email ?? ""}>{children}</AppShell>
+      {/* Dans le scope .theme-app : les toasts consomment --popover/--border/--card-shadow. */}
+      <Toaster />
     </div>
   );
 }

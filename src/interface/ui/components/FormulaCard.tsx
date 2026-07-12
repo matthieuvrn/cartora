@@ -1,20 +1,16 @@
 "use client";
 
-import { useActionState, useCallback, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { deleteFormulaAction, type FormulaActionState } from "@/app/(app)/app/actions";
+import { deleteFormulaAction } from "@/app/(app)/app/actions";
+import { deferDelete } from "@/hooks/use-deferred-delete";
 import { HIT_AREA_TALL } from "@/lib/utils";
+import { actionErrorText } from "./actionErrorText";
 import { FormulaFormDialog } from "./FormulaFormDialog";
 
 type Props = {
@@ -41,26 +37,33 @@ function formatExpiration(validUntilISO: string): { date: string; time: string }
   return { date, time };
 }
 
-const deleteInitialState: FormulaActionState = { error: null };
-
 export function FormulaCard({ formula, isExpired = false }: Props) {
   const t = useTranslations("Dashboard");
   const tFormula = useTranslations("Dashboard.formula");
+  const tErrors = useTranslations("Errors");
 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const wrappedDelete = useCallback(async (prev: FormulaActionState, formData: FormData) => {
-    const result = await deleteFormulaAction(prev, formData);
-    if (result.success) setDeleteOpen(false);
-    return result;
-  }, []);
-  const [deleteState, deleteAction, isDeleting] = useActionState(wrappedDelete, deleteInitialState);
 
   function handleEdit() {
     setEditKey((k) => k + 1);
     setEditOpen(true);
+  }
+
+  // Suppression optimiste avec « Annuler » (cf. deferDelete) — la carte est
+  // masquée via usePendingDeletes côté section.
+  function handleDelete() {
+    deferDelete({
+      id: formula.id,
+      message: t("undoDelete.deleted", { name: formula.translations.fr.name }),
+      undoLabel: t("undoDelete.undo"),
+      execute: async () => {
+        const formData = new FormData();
+        formData.set("formulaId", formula.id);
+        const result = await deleteFormulaAction({ error: null }, formData);
+        if (result.error) toast.error(actionErrorText(tErrors, result.error));
+      },
+    });
   }
 
   const exp = formatExpiration(formula.validUntilISO);
@@ -104,7 +107,7 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
             size="icon-xs"
             className={HIT_AREA_TALL}
             aria-label={tFormula("delete")}
-            onClick={() => setDeleteOpen(true)}
+            onClick={handleDelete}
           >
             <Trash2 />
           </Button>
@@ -118,31 +121,6 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
         open={editOpen}
         onOpenChange={setEditOpen}
       />
-
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>{tFormula("delete")}</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">{tFormula("deleteConfirm")}</p>
-          {deleteState.error && (
-            <p role="alert" className="text-sm text-destructive">
-              {t(`error.generic`)}
-            </p>
-          )}
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setDeleteOpen(false)}>
-              {t("cancel")}
-            </Button>
-            <form action={deleteAction}>
-              <input type="hidden" name="formulaId" value={formula.id} />
-              <Button type="submit" variant="destructive" disabled={isDeleting}>
-                {isDeleting ? "…" : tFormula("delete")}
-              </Button>
-            </form>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

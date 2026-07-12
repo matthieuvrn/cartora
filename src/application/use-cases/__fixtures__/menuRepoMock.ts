@@ -23,6 +23,7 @@ export function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): Men
     updateItem: vi.fn(async () => {}),
     deleteItem: vi.fn(async () => {}),
     getItem: vi.fn(async () => ({ imagePath: null })),
+    updateItemAvailability: vi.fn(async () => {}),
     updateItemImage: vi.fn(async () => {}),
     reorderItems: vi.fn(async () => {}),
     verifyCategoryOwnership: vi.fn(async () => true),

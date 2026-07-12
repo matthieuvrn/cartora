@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +21,7 @@ import {
   type DailyDishActionState,
 } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
+import { formatCentsToEurInput } from "@/lib/price";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
@@ -71,6 +73,7 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
     const result = await serverAction(prev, formData);
     if (result.error === null) {
       onOpenChange(false);
+      toast.success(t("toast.dishSaved"));
     }
     return result;
   }
@@ -127,13 +130,12 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
                   <Input
                     id={`${id}-price`}
                     name="priceEur"
-                    type="number"
-                    step="0.01"
-                    min="0"
+                    type="text"
+                    inputMode="decimal"
                     required
                     className="pr-8"
-                    placeholder="0.00"
-                    defaultValue={dish ? (dish.priceCents / 100).toFixed(2) : ""}
+                    placeholder="12,50"
+                    defaultValue={dish ? formatCentsToEurInput(dish.priceCents) : ""}
                     aria-invalid={!!state.fieldErrors?.priceEur}
                   />
                   <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">

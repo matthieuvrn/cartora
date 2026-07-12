@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,6 +14,7 @@ import {
   type FormulaActionState,
 } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
+import { formatCentsToEurInput } from "@/lib/price";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
 import { FormulaPolicy } from "@/domain/menu/FormulaPolicy";
 
@@ -51,6 +53,7 @@ export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) 
     const result = await serverAction(prev, formData);
     if (result.error === null) {
       onOpenChange(false);
+      toast.success(t("toast.formulaSaved"));
     }
     return result;
   }
@@ -111,13 +114,12 @@ export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) 
                 <Input
                   id={`${id}-price`}
                   name="priceEur"
-                  type="number"
-                  step="0.01"
-                  min="0"
+                  type="text"
+                  inputMode="decimal"
                   required
                   className="pr-8"
-                  placeholder="0.00"
-                  defaultValue={formula ? (formula.priceCents / 100).toFixed(2) : ""}
+                  placeholder="12,50"
+                  defaultValue={formula ? formatCentsToEurInput(formula.priceCents) : ""}
                   aria-invalid={!!state.fieldErrors?.priceEur}
                 />
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
