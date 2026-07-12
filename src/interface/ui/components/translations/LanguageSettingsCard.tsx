@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Languages } from "lucide-react";
+import { toast } from "sonner";
+import { Languages, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +32,15 @@ const initialState: RenameActionState = { error: null };
  */
 export function LanguageSettingsCard({ sourceLocale, enabledLocales, planTier }: Props) {
   const t = useTranslations("Translations");
-  const [state, formAction, isPending] = useActionState(updateMenuLocalesAction, initialState);
+  const wrappedAction = useCallback(
+    async (prev: RenameActionState, formData: FormData) => {
+      const result = await updateMenuLocalesAction(prev, formData);
+      if (result.error === null) toast.success(t("saved"));
+      return result;
+    },
+    [t],
+  );
+  const [state, formAction, isPending] = useActionState(wrappedAction, initialState);
   const [selected, setSelected] = useState<ReadonlySet<MenuLocale>>(new Set(enabledLocales));
 
   const targets = SUPPORTED_MENU_LOCALES.filter((locale) => locale !== sourceLocale);
@@ -98,13 +107,9 @@ export function LanguageSettingsCard({ sourceLocale, enabledLocales, planTier }:
 
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="size-4 animate-spin" aria-hidden />}
               {t("save")}
             </Button>
-            {state.success && !isPending && (
-              <p className="text-sm text-success" role="status">
-                {t("saved")}
-              </p>
-            )}
           </div>
           <ErrorMessage error={state.error} />
         </form>

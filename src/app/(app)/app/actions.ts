@@ -1106,8 +1106,11 @@ export async function saveTranslationsAction(
       });
 
       await menuRepo.markMenuAsDraft(restaurantId);
-      revalidatePath("/app");
-      revalidatePath("/app/traductions");
+      // Pas de revalidatePath ici : c'est l'autosave par champ (un appel à chaque
+      // perte de focus). L'écran de revue est optimiste côté client, et /app comme
+      // /app/traductions sont des routes dynamiques refetchées à la navigation — la
+      // couverture et le statut « brouillon » se rafraîchissent donc au retour, sans
+      // imposer un refetch serveur complet à chaque blur.
       return { error: null, success: true };
     },
   );

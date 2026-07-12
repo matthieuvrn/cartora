@@ -35,6 +35,26 @@
     "autoTranslating": "Traduction en cours…",
     "autoTranslateHint": "Remplit les champs manquants ou à relire (PRO).",
     "autoTranslateResult": "{translated, plural, =0 {Aucun champ à traduire} one {# champ traduit} other {# champs traduits}}, {skipped} déjà à jour.",
+    "autoTranslateLockedHint": "Passez en PRO pour traduire toute votre carte en un clic.",
+    "autoTranslateConfirmTitle": "Traduire automatiquement en {language} ?",
+    "autoTranslateConfirmBody": "{count, plural, =0 {Aucun champ à traduire pour le moment. } one {# champ manquant ou à relire sera traduit via DeepL. } other {# champs manquants ou à relire seront traduits via DeepL. }}Les champs déjà à jour ne sont pas modifiés.",
+    "autoTranslateConfirmCta": "Lancer la traduction",
+    "cancel": "Annuler",
+    "progress": "{fresh}/{total} à jour",
+    "remaining": "{count, plural, =0 {Tout est à jour} one {# champ à relire} other {# champs à relire}}",
+    "fieldSaved": "Enregistré",
+    "filterEmpty": "Rien à faire ici — tout est à jour dans cette langue.",
+    "filters": {
+      "todo": "À faire",
+      "all": "Tout",
+      "stale": "À relire",
+      "missing": "Manquant"
+    },
+    "field": {
+      "name": "Nom",
+      "description": "Description",
+      "altText": "Texte alternatif"
+    },
     "status": {
       "fresh": "À jour",
       "stale": "À relire",

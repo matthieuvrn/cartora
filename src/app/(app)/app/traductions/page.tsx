@@ -26,7 +26,7 @@ export default async function TranslationsPage() {
   const t = await getTranslations("Translations");
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-4xl space-y-8">
       <div>
         <h1 className="text-h2">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
@@ -48,6 +48,7 @@ export default async function TranslationsPage() {
             sourceLocale={overview.sourceLocale}
             enabledLocales={overview.enabledLocales}
             units={overview.units}
+            coverage={overview.coverage}
             canAutoTranslate={PlanPolicy.canUseAutoTranslation(restaurant.planTier)}
           />
         </section>

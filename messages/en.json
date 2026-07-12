@@ -35,6 +35,26 @@
     "autoTranslating": "Translating…",
     "autoTranslateHint": "Fills in missing or outdated fields (PRO).",
     "autoTranslateResult": "{translated, plural, =0 {No field to translate} one {# field translated} other {# fields translated}}, {skipped} already up to date.",
+    "autoTranslateLockedHint": "Upgrade to PRO to translate your whole menu in one click.",
+    "autoTranslateConfirmTitle": "Auto-translate into {language}?",
+    "autoTranslateConfirmBody": "{count, plural, =0 {Nothing to translate right now. } one {# missing or outdated field will be translated via DeepL. } other {# missing or outdated fields will be translated via DeepL. }}Fields already up to date are left untouched.",
+    "autoTranslateConfirmCta": "Start translation",
+    "cancel": "Cancel",
+    "progress": "{fresh}/{total} up to date",
+    "remaining": "{count, plural, =0 {Everything is up to date} one {# field to review} other {# fields to review}}",
+    "fieldSaved": "Saved",
+    "filterEmpty": "Nothing to do here — everything is up to date in this language.",
+    "filters": {
+      "todo": "To do",
+      "all": "All",
+      "stale": "To review",
+      "missing": "Missing"
+    },
+    "field": {
+      "name": "Name",
+      "description": "Description",
+      "altText": "Alt text"
+    },
     "status": {
       "fresh": "Up to date",
       "stale": "Needs review",
