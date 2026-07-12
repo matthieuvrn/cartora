@@ -58,6 +58,22 @@ describe("BrandingPolicy", () => {
     });
   });
 
+  describe("isValidHexColor", () => {
+    it.each(["#000000", "#ffffff", "#a1B2c3", "#FF00FF", "  #aabbcc  "])(
+      "accepts %s (trimmed, case-insensitive)",
+      (input) => {
+        expect(BrandingPolicy.isValidHexColor(input)).toBe(true);
+      },
+    );
+
+    it.each(["", "#", "#fff", "#ff00", "#ff00ff0", "abc123", "rgb(0,0,0)", "#zzzzzz"])(
+      "rejects %s without throwing",
+      (input) => {
+        expect(BrandingPolicy.isValidHexColor(input)).toBe(false);
+      },
+    );
+  });
+
   describe("normalizeHexColor", () => {
     it.each(["#000000", "#ffffff", "#a1B2c3", "#FF00FF", "  #aabbcc  "])(
       "accepts %s and returns lowercase trimmed",

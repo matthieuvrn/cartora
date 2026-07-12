@@ -66,8 +66,15 @@ export function BrandColorsEditor({ initialPrimary, initialAccent, initialBackgr
     );
   }, [primary, accent, background]);
 
+  // Garde-fou render : `meetsContrastAA` throw sur un hex malformé, or le champ
+  // texte propage la saisie partielle (`#`, `#5a`…) au state. On ne calcule le
+  // contraste que sur deux hex complets et valides.
   const lowContrast =
-    primary != null && background != null && !BrandingPolicy.meetsContrastAA(primary, background);
+    primary != null &&
+    background != null &&
+    BrandingPolicy.isValidHexColor(primary) &&
+    BrandingPolicy.isValidHexColor(background) &&
+    !BrandingPolicy.meetsContrastAA(primary, background);
 
   const applyPreset = (preset: Preset) => {
     setPrimary(preset.primary);

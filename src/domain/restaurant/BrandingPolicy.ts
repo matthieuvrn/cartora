@@ -53,6 +53,16 @@ export class BrandingPolicy {
   }
 
   /**
+   * Prédicat pur (ne throw jamais) : true si `input` est un hex `#RRGGBB` valide
+   * (insensible à la casse, trim implicite). À utiliser pour garder les appels à
+   * `meetsContrastAA` / `normalizeHexColor` dans le chemin de render, où la saisie
+   * en cours peut être partielle (`#`, `#5a`, …) sans devoir attraper une exception.
+   */
+  static isValidHexColor(input: string): boolean {
+    return HEX_RE.test(input.trim());
+  }
+
+  /**
    * Valide qu'une chaîne est au format hex `#RRGGBB` (insensible à la casse) et
    * retourne la forme normalisée en lowercase. Throw `DomainError('invalid_brand_color')`
    * sinon — sert de point d'entrée unique pour toutes les couleurs persistées.
