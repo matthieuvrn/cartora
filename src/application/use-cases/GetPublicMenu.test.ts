@@ -21,10 +21,6 @@ const SNAPSHOT_FIXTURE: PublicMenuSnapshot = {
       texts: { name: { fr: "Entrées" } },
       items: [
         {
-          nameFr: "Soupe",
-          nameEn: "Soup",
-          descriptionFr: "Soupe du jour",
-          descriptionEn: "Soup of the day",
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },
@@ -79,10 +75,6 @@ describe("GetPublicMenu", () => {
         dailyItems: [
           {
             id: "active",
-            nameFr: "Plat du jour actif",
-            nameEn: "Today's special active",
-            descriptionFr: "",
-            descriptionEn: "",
             priceCents: 1500,
             badge: "NONE",
             allergens: [],
@@ -91,10 +83,6 @@ describe("GetPublicMenu", () => {
           },
           {
             id: "expired",
-            nameFr: "Plat expiré",
-            nameEn: "Expired special",
-            descriptionFr: "",
-            descriptionEn: "",
             priceCents: 1200,
             badge: "NONE",
             allergens: [],
@@ -128,10 +116,6 @@ describe("GetPublicMenu", () => {
         dailyItems: [
           {
             id: "expired",
-            nameFr: "Plat expiré",
-            nameEn: "Expired",
-            descriptionFr: "",
-            descriptionEn: "",
             priceCents: 1200,
             badge: "NONE",
             allergens: [],

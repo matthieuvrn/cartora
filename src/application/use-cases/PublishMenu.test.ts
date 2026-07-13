@@ -91,10 +91,6 @@ describe("PublishMenu", () => {
             texts: { name: { fr: "Entrées" } },
             items: [
               {
-                nameFr: "Soupe",
-                nameEn: "Soup",
-                descriptionFr: "Soupe du jour",
-                descriptionEn: "Soup of the day",
                 texts: {
                   name: { fr: "Soupe", en: "Soup" },
                   description: { fr: "Soupe du jour", en: "Soup of the day" },
@@ -247,10 +243,6 @@ describe("PublishMenu", () => {
     expect(call.snapshotData.dailyItems).toEqual([
       {
         id: "daily-1",
-        nameFr: "Pot-au-feu",
-        nameEn: "Beef stew",
-        descriptionFr: "Plat mijoté",
-        descriptionEn: "",
         texts: {
           name: { fr: "Pot-au-feu", en: "Beef stew" },
           description: { fr: "Plat mijoté" },
@@ -426,10 +418,6 @@ describe("PublishMenu", () => {
             texts: { name: { fr: "Entrées" } },
             items: [
               {
-                nameFr: "Soupe",
-                nameEn: "Soup",
-                descriptionFr: "Soupe du jour",
-                descriptionEn: "Soup of the day",
                 texts: {
                   name: { fr: "Soupe", en: "Soup" },
                   description: { fr: "Soupe du jour", en: "Soup of the day" },

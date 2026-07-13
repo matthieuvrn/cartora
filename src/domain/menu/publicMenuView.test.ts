@@ -9,10 +9,6 @@ import type { PublicMenuSnapshot, PublicMenuItem, PublicMenuDailyDish } from "./
 
 function makeItem(overrides: Partial<PublicMenuItem> = {}): PublicMenuItem {
   return {
-    nameFr: "Salade",
-    nameEn: "Salad",
-    descriptionFr: "Fraîche",
-    descriptionEn: "Fresh",
     texts: {
       name: { fr: "Salade", en: "Salad" },
       description: { fr: "Fraîche", en: "Fresh" },
@@ -27,10 +23,6 @@ function makeItem(overrides: Partial<PublicMenuItem> = {}): PublicMenuItem {
 function makeDaily(overrides: Partial<PublicMenuDailyDish> = {}): PublicMenuDailyDish {
   return {
     id: "daily-1",
-    nameFr: "Plat du jour",
-    nameEn: "Dish of the day",
-    descriptionFr: "",
-    descriptionEn: "",
     texts: {
       name: { fr: "Plat du jour", en: "Dish of the day" },
       description: {},

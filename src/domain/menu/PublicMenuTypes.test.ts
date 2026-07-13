@@ -51,7 +51,7 @@ function makeMenu(overrides: Partial<MenuOverview> = {}): MenuOverview {
 const PUBLISHED_AT = "2026-03-25T12:00:00.000Z";
 
 describe("buildPublicSnapshot", () => {
-  it("builds snapshot with flattened translations", () => {
+  it("builds a v2 snapshot with localized texts", () => {
     const result = buildPublicSnapshot(makeMenu(), "Mon Restaurant", PUBLISHED_AT);
 
     expect(result).toEqual({
@@ -67,10 +67,6 @@ describe("buildPublicSnapshot", () => {
           texts: { name: { fr: "Entrées" } },
           items: [
             {
-              nameFr: "Salade",
-              nameEn: "Salad",
-              descriptionFr: "Fraîche",
-              descriptionEn: "Fresh",
               texts: {
                 name: { fr: "Salade", en: "Salad" },
                 description: { fr: "Fraîche", en: "Fresh" },
@@ -143,19 +139,13 @@ describe("buildPublicSnapshot", () => {
               id: "1",
               order: 0,
               priceCents: 100,
-              translations: {
-                fr: { name: "Premier", description: "" },
-                en: { name: "First", description: "" },
-              },
+              texts: { name: { fr: "Premier" }, description: {} },
             }),
             makeItem({
               id: "2",
               order: 1,
               priceCents: 200,
-              translations: {
-                fr: { name: "Deuxième", description: "" },
-                en: { name: "Second", description: "" },
-              },
+              texts: { name: { fr: "Deuxième" }, description: {} },
             }),
           ],
         }),
@@ -163,19 +153,19 @@ describe("buildPublicSnapshot", () => {
     });
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);
-    expect(result.categories[0].items[0].nameFr).toBe("Premier");
-    expect(result.categories[0].items[1].nameFr).toBe("Deuxième");
+    expect(result.categories[0].items[0].texts.name.fr).toBe("Premier");
+    expect(result.categories[0].items[1].texts.name.fr).toBe("Deuxième");
   });
 
-  it("maps all translation fields correctly", () => {
+  it("maps all localized texts correctly (source + target locale)", () => {
     const menu = makeMenu({
       categories: [
         makeCategory({
           items: [
             makeItem({
-              translations: {
-                fr: { name: "Nom FR", description: "Desc FR" },
-                en: { name: "Name EN", description: "Desc EN" },
+              texts: {
+                name: { fr: "Nom FR", en: "Name EN" },
+                description: { fr: "Desc FR", en: "Desc EN" },
               },
             }),
           ],
@@ -185,10 +175,10 @@ describe("buildPublicSnapshot", () => {
 
     const result = buildPublicSnapshot(menu, "R", PUBLISHED_AT);
     const item = result.categories[0].items[0];
-    expect(item.nameFr).toBe("Nom FR");
-    expect(item.nameEn).toBe("Name EN");
-    expect(item.descriptionFr).toBe("Desc FR");
-    expect(item.descriptionEn).toBe("Desc EN");
+    expect(item.texts).toEqual({
+      name: { fr: "Nom FR", en: "Name EN" },
+      description: { fr: "Desc FR", en: "Desc EN" },
+    });
   });
 
   it("includes multiple categories with items", () => {
@@ -215,20 +205,20 @@ describe("buildPublicSnapshot", () => {
 });
 
 describe("normalizePublicSnapshot", () => {
-  it("fills allergens and texts on legacy items lacking them", () => {
-    // Simule un snapshot écrit avant le commit 29a988a (allergens).
-    const legacy = {
+  it("forces snapshotVersion to 2 and fills allergens defensively on items", () => {
+    // Colonne JSON non typée : un item sans `allergens` ne doit pas casser le rendu.
+    const snapshot = {
+      sourceLocale: "fr",
+      availableLocales: ["fr", "en"],
       restaurantName: "R",
       publishedAt: PUBLISHED_AT,
       categories: [
         {
           name: "Entrées",
+          texts: { name: { fr: "Entrées" } },
           items: [
             {
-              nameFr: "Salade",
-              nameEn: "Salad",
-              descriptionFr: "",
-              descriptionEn: "",
+              texts: { name: { fr: "Salade" }, description: {} },
               priceCents: 1200,
               badge: "NONE",
             },
@@ -237,53 +227,28 @@ describe("normalizePublicSnapshot", () => {
       ],
     } as unknown as PublicMenuSnapshot;
 
-    const result = normalizePublicSnapshot(legacy);
+    const result = normalizePublicSnapshot(snapshot);
 
+    expect(result.snapshotVersion).toBe(2);
     expect(result.categories[0].items[0]).toEqual({
-      nameFr: "Salade",
-      nameEn: "Salad",
-      descriptionFr: "",
-      descriptionEn: "",
+      texts: { name: { fr: "Salade" }, description: {} },
       priceCents: 1200,
       badge: "NONE",
       allergens: [],
-      // Up-conversion v1 → v2 : `texts` reconstruit depuis les champs legacy fr/en.
-      texts: { name: { fr: "Salade", en: "Salad" }, description: {} },
     });
   });
 
-  it("up-converts a v1 snapshot to v2 (root locales + category texts)", () => {
-    const legacy = {
-      restaurantName: "R",
-      publishedAt: PUBLISHED_AT,
-      categories: [{ name: "Entrées", items: [] }],
-    } as unknown as PublicMenuSnapshot;
-
-    const result = normalizePublicSnapshot(legacy);
-
-    expect(result.snapshotVersion).toBe(2);
-    expect(result.sourceLocale).toBe("fr");
-    expect(result.availableLocales).toEqual(["fr", "en"]);
-    expect(result.categories[0].texts).toEqual({ name: { fr: "Entrées" } });
-  });
-
-  it("leaves a complete snapshot unchanged at the value level", () => {
-    const complete = buildPublicSnapshot(makeMenu(), "R", PUBLISHED_AT);
-    expect(normalizePublicSnapshot(complete)).toEqual(complete);
-  });
-
-  it("normalizes daily items missing allergens / texts", () => {
-    const legacy = {
+  it("fills allergens defensively on daily items missing them", () => {
+    const snapshot = {
+      sourceLocale: "fr",
+      availableLocales: ["fr", "en"],
       restaurantName: "R",
       publishedAt: PUBLISHED_AT,
       categories: [],
       dailyItems: [
         {
           id: "d-1",
-          nameFr: "Plat du jour",
-          nameEn: "Today's special",
-          descriptionFr: "",
-          descriptionEn: "",
+          texts: { name: { fr: "Plat du jour" }, description: {} },
           priceCents: 1500,
           badge: "NONE",
           validUntilISO: "2026-12-31T23:59:59.000Z",
@@ -291,16 +256,20 @@ describe("normalizePublicSnapshot", () => {
       ],
     } as unknown as PublicMenuSnapshot;
 
-    const result = normalizePublicSnapshot(legacy);
+    const result = normalizePublicSnapshot(snapshot);
 
-    expect(result.dailyItems?.[0]).toMatchObject({
-      allergens: [],
-      texts: { name: { fr: "Plat du jour", en: "Today's special" }, description: {} },
-    });
+    expect(result.dailyItems?.[0].allergens).toEqual([]);
+  });
+
+  it("leaves a complete v2 snapshot unchanged at the value level", () => {
+    const complete = buildPublicSnapshot(makeMenu(), "R", PUBLISHED_AT);
+    expect(normalizePublicSnapshot(complete)).toEqual(complete);
   });
 
   it("does not introduce a dailyItems key when absent", () => {
     const noDaily = {
+      sourceLocale: "fr",
+      availableLocales: ["fr"],
       restaurantName: "R",
       publishedAt: PUBLISHED_AT,
       categories: [],
