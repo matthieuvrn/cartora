@@ -36,6 +36,7 @@ import { SortableList } from "./dnd/SortableList";
 import { EditableRestaurantName } from "./EditableRestaurantName";
 import { EditorSearchInput } from "./EditorSearchInput";
 import { MenuActionBar } from "./MenuActionBar";
+import type { PendingTranslation } from "./PublishButton";
 import { TodaySection } from "./TodaySection";
 
 // Persistance de l'état replié des catégories (par menu) : localStorage lu via
@@ -68,6 +69,8 @@ type Props = {
   dismissActivationAction: () => Promise<void>;
   dailyDishes: { active: DailyDishData[]; expired: DailyDishData[] };
   formulas: { active: FormulaData[]; expired: FormulaData[] };
+  /** Nudge à la publication (PRO) — transmis à la barre d'actions / PublishButton. */
+  pendingTranslation?: PendingTranslation;
 };
 
 /**
@@ -91,6 +94,7 @@ export function MenuEditor({
   dismissActivationAction,
   dailyDishes,
   formulas,
+  pendingTranslation,
 }: Props) {
   const t = useTranslations("Dashboard");
   const tErrors = useTranslations("Errors");
@@ -225,6 +229,7 @@ export function MenuEditor({
         categories={chipCategories}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
+        pendingTranslation={pendingTranslation}
       />
 
       {/* Équivalents mobiles de la toolbar desktop : recherche en haut du contenu,

@@ -305,6 +305,12 @@
       "priceLabel": "Prix (€)",
       "nameEnLabel": "Nom (anglais)",
       "compositionEnLabel": "Composition (anglais)"
+    },
+    "publishNudge": {
+      "title": "Des traductions sont en attente",
+      "body": "{count, plural, one {# champ n’est pas encore traduit} other {# champs ne sont pas encore traduits}} ({langs}). Publier maintenant figera cette version incomplète pour vos visiteurs.",
+      "translateAndPublish": "Traduire puis publier",
+      "publishAnyway": "Publier sans traduire"
     }
   },
   "PublicMenu": {

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { CategoryChipBar } from "./CategoryChipBar";
 import { EditorSearchInput } from "./EditorSearchInput";
 import { PreviewDialog } from "./PreviewDialog";
-import { PublishButton } from "./PublishButton";
+import { PublishButton, type PendingTranslation } from "./PublishButton";
 
 type Props = {
   menu: MenuOverview;
@@ -24,6 +24,8 @@ type Props = {
   categories: { id: string; name: string }[];
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
+  /** Nudge à la publication (PRO) — transmis à PublishButton. */
+  pendingTranslation?: PendingTranslation;
 };
 
 /**
@@ -43,6 +45,7 @@ export function MenuActionBar({
   categories,
   searchQuery,
   onSearchQueryChange,
+  pendingTranslation,
 }: Props) {
   const t = useTranslations("Dashboard");
   const isPublished = menu.status === "PUBLISHED";
@@ -89,6 +92,7 @@ export function MenuActionBar({
             slug={slug}
             publishAction={publishAction}
             regenerateQrAction={regenerateQrAction}
+            pendingTranslation={pendingTranslation}
           />
         </div>
       </div>

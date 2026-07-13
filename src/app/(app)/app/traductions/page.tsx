@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireRestaurant } from "../_lib/requireRestaurant";
-import { loadTranslationOverview } from "../_lib/translationOverview";
+import { loadTranslationOverview, translationTodoCount } from "../_lib/translationOverview";
 import { publishMenuAction, regenerateQrAction } from "../actions";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -53,6 +53,16 @@ export default async function TranslationsPage() {
   // renvoyer l'utilisateur vers l'éditeur.
   const publishState = await new PrismaMenuRepository(prisma).getMenuPublishState(restaurantId);
 
+  // Nudge à la publication : mêmes données de couverture que la carte ci-dessous.
+  const pendingTranslation = overview
+    ? {
+        todoCount: translationTodoCount(overview.coverage),
+        targetLocales: overview.coverage
+          .filter((c) => c.stale + c.missing > 0)
+          .map((c) => c.locale),
+      }
+    : undefined;
+
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -65,6 +75,7 @@ export default async function TranslationsPage() {
             slug={restaurant.slug}
             publishAction={publishMenuAction}
             regenerateQrAction={regenerateQrAction}
+            pendingTranslation={pendingTranslation}
           />
         )}
       </div>

@@ -30,11 +30,8 @@ import {
   type MenuLocale,
 } from "@/domain/menu/MenuLocale";
 import type { LocaleCoverage } from "@/domain/menu/translationStatus";
-import {
-  autoTranslateMenuAction,
-  updateMenuLocalesAction,
-  type AutoTranslateActionState,
-} from "@/app/(app)/app/actions";
+import { useAutoTranslate } from "@/hooks/use-auto-translate";
+import { updateMenuLocalesAction } from "@/app/(app)/app/actions";
 
 type Props = {
   sourceLocale: MenuLocale;
@@ -69,14 +66,9 @@ export function LanguagesCard({ sourceLocale, enabledLocales, coverage }: Props)
   const [isSaving, startSaveTransition] = useTransition();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [progress, setProgress] = useState<{
-    locale: MenuLocale;
-    done: number;
-    total: number;
-  } | null>(null);
-  const [isTranslating, startTranslateTransition] = useTransition();
+  const { run: runTranslate, progress, isTranslating } = useAutoTranslate();
 
-  const busy = isSaving || isTranslating || progress !== null;
+  const busy = isSaving || isTranslating;
 
   const targets = SUPPORTED_MENU_LOCALES.filter((locale) => locale !== sourceLocale);
   const countByLocale = new Map(coverage.map((c) => [c.locale, c]));
@@ -109,25 +101,9 @@ export function LanguagesCard({ sourceLocale, enabledLocales, coverage }: Props)
   };
 
   const runAutoTranslate = () => {
-    startTranslateTransition(async () => {
-      let translated = 0;
-      for (let i = 0; i < translateTargets.length; i++) {
-        const locale = translateTargets[i];
-        setProgress({ locale, done: i + 1, total: translateTargets.length });
-        const prev: AutoTranslateActionState = { error: null };
-        const formData = new FormData();
-        formData.set("targetLocale", locale);
-        const result = await autoTranslateMenuAction(prev, formData);
-        if (result.error !== null) {
-          toast.error(tErrors(tErrors.has(result.error.code) ? result.error.code : "generic"));
-          break;
-        }
-        translated += result.translatedCount ?? 0;
-      }
-      setProgress(null);
-      if (translated > 0) toast.success(t("autoTranslateAllResult", { translated }));
-      router.refresh();
-    });
+    // Recharge la couverture serveur une fois la boucle terminée (succès ou échec
+    // partiel) : chaque champ traduit est déjà persisté + revalidé côté action.
+    void runTranslate(translateTargets).then(() => router.refresh());
   };
 
   return (

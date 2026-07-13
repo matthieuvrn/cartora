@@ -305,6 +305,12 @@
       "priceLabel": "Price (€)",
       "nameEnLabel": "Name (English)",
       "compositionEnLabel": "Composition (English)"
+    },
+    "publishNudge": {
+      "title": "Translations are pending",
+      "body": "{count, plural, one {# field isn’t translated yet} other {# fields aren’t translated yet}} ({langs}). Publishing now freezes this incomplete version for your visitors.",
+      "translateAndPublish": "Translate, then publish",
+      "publishAnyway": "Publish without translating"
     }
   },
   "PublicMenu": {
