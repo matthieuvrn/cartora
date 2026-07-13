@@ -19,17 +19,10 @@
     "upsellTitle": "Touchez une clientèle internationale",
     "upsellBody": "Avec le forfait PRO, traduisez automatiquement toute votre carte en 5 langues (français, anglais, espagnol, allemand, italien). Vous rédigez une fois, Cartora traduit et garde tout à jour.",
     "upsellCta": "Passer au forfait PRO",
-    "emptyTitle": "Touchez une nouvelle clientèle",
-    "emptyBody": "Activez une langue : Cartora traduit automatiquement votre carte et la garde à jour à chaque modification.",
-    "manageLanguages": "Gérer les langues",
-    "addLanguage": "Ajouter une langue",
     "languagesTitle": "Langues du menu",
     "languagesDescription": "Les langues activées apparaissent dans le sélecteur de votre menu public. Pensez à republier après modification.",
     "sourceBadge": "Langue de saisie",
     "sourceHint": "La langue dans laquelle vous rédigez votre carte. Toujours affichée.",
-    "quotaUnlimited": "Votre formule PRO permet d'activer toutes les langues.",
-    "save": "Enregistrer",
-    "saved": "Langues mises à jour",
     "allUpToDate": "Tout est à jour",
     "remaining": "{count, plural, =0 {Tout est à jour} one {# champ à traduire} other {# champs à traduire}}",
     "freshnessHint": "Un champ repasse « à traduire » dès que vous modifiez le texte d'origine. Relancez la traduction avant de republier.",
@@ -42,7 +35,10 @@
     "cancel": "Annuler",
     "status": {
       "fresh": "À jour"
-    }
+    },
+    "noLocalesHint": "Activez une langue : Cartora traduit automatiquement votre carte et la garde à jour à chaque modification.",
+    "localeEnabled": "{lang} activé — pensez à republier",
+    "localeDisabled": "{lang} désactivé — pensez à republier"
   },
   "Share": {
     "title": "Partage",

@@ -18,7 +18,7 @@ export type UpdateMenuLocalesOutput = {
  * Remplace la liste des langues cibles activées du menu (S4 — multilingue).
  *
  * Règles métier : quota par tier via `PlanPolicy.maxExtraMenuLocalesFor`
- * (FREE=0, STARTER=1, PRO=∞) ; la langue source est toujours disponible et
+ * (FREE=0, STARTER=0, PRO=∞) ; la langue source est toujours disponible et
  * jamais comptée. Désactiver une langue ne supprime PAS ses traductions —
  * elles restent en base et réapparaissent si la langue est réactivée.
  * L'effet public suit le pattern projet : `markMenuAsDraft` côté action,
