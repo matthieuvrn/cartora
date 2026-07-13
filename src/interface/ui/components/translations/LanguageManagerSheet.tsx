@@ -20,14 +20,12 @@ import {
   SUPPORTED_MENU_LOCALES,
   type MenuLocale,
 } from "@/domain/menu/MenuLocale";
-import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
 import { updateMenuLocalesAction, type RenameActionState } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "@/interface/ui/components/ErrorMessage";
 
 type Props = {
   sourceLocale: MenuLocale;
   enabledLocales: MenuLocale[];
-  planTier: PlanTier;
   /** Rend le déclencheur en variante « ajouter » (état vide onboarding). */
   variant?: "manage" | "add";
 };
@@ -36,17 +34,10 @@ const initialState: RenameActionState = { error: null };
 
 /**
  * Gestion des langues cibles (activation/désactivation) dans un Sheet, ouvert depuis
- * le header ou l'état vide. Sorti du flux quotidien de revue : l'activation d'une
- * langue est un choix délibéré (bouton « Enregistrer » explicite), qui ne concurrence
- * plus l'autosave des champs. Le quota par tier est pré-appliqué côté UI, mais la
- * règle vit dans `PlanPolicy`/`UpdateMenuLocales` — le serveur reste l'autorité.
+ * le header ou l'état vide. N'est rendu que pour un PRO (le multilingue est PRO-only
+ * et illimité) : aucun quota côté UI. `UpdateMenuLocales` reste l'autorité serveur.
  */
-export function LanguageManagerSheet({
-  sourceLocale,
-  enabledLocales,
-  planTier,
-  variant = "manage",
-}: Props) {
+export function LanguageManagerSheet({ sourceLocale, enabledLocales, variant = "manage" }: Props) {
   const t = useTranslations("Translations");
   const [open, setOpen] = useState(false);
   const wrappedAction = useCallback(
@@ -61,8 +52,6 @@ export function LanguageManagerSheet({
   const [selected, setSelected] = useState<ReadonlySet<MenuLocale>>(new Set(enabledLocales));
 
   const targets = SUPPORTED_MENU_LOCALES.filter((locale) => locale !== sourceLocale);
-  const maxExtra = PlanPolicy.maxExtraMenuLocalesFor(planTier);
-  const quotaReached = selected.size >= maxExtra;
 
   const toggle = (locale: MenuLocale, on: boolean) => {
     setSelected((prev) => {
@@ -105,7 +94,6 @@ export function LanguageManagerSheet({
           <ul className="space-y-1">
             {targets.map((locale) => {
               const checked = selected.has(locale);
-              const disabled = isPending || (!checked && quotaReached);
               return (
                 <li
                   key={locale}
@@ -117,7 +105,7 @@ export function LanguageManagerSheet({
                   <Switch
                     id={`locale-${locale}`}
                     checked={checked}
-                    disabled={disabled}
+                    disabled={isPending}
                     onCheckedChange={(on) => toggle(locale, on)}
                   />
                   {checked && <input type="hidden" name="locales" value={locale} />}
@@ -126,11 +114,7 @@ export function LanguageManagerSheet({
             })}
           </ul>
 
-          <p className="text-xs text-muted-foreground">
-            {maxExtra === Infinity
-              ? t("quotaUnlimited")
-              : t("quotaLimited", { limit: maxExtra, tier: planTier })}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("quotaUnlimited")}</p>
 
           <div className="mt-auto space-y-3">
             <ErrorMessage error={state.error} />

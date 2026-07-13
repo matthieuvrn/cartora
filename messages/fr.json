@@ -11,55 +11,37 @@
     "partage": "Partage",
     "abonnement": "Abonnement",
     "reglages": "Réglages",
-    "translationsPending": "{count} à relire"
+    "translationsPending": "{count} à traduire"
   },
   "Translations": {
     "title": "Traductions",
     "description": "Proposez votre carte en plusieurs langues à vos visiteurs.",
+    "upsellTitle": "Touchez une clientèle internationale",
+    "upsellBody": "Avec le forfait PRO, traduisez automatiquement toute votre carte en 5 langues (français, anglais, espagnol, allemand, italien). Vous rédigez une fois, Cartora traduit et garde tout à jour.",
+    "upsellCta": "Passer au forfait PRO",
     "emptyTitle": "Touchez une nouvelle clientèle",
-    "emptyBody": "Activez une langue pour proposer votre carte aux visiteurs étrangers. Vous traduisez une fois, Cartora garde tout à jour.",
+    "emptyBody": "Activez une langue : Cartora traduit automatiquement votre carte et la garde à jour à chaque modification.",
     "manageLanguages": "Gérer les langues",
     "addLanguage": "Ajouter une langue",
     "languagesTitle": "Langues du menu",
     "languagesDescription": "Les langues activées apparaissent dans le sélecteur de votre menu public. Pensez à republier après modification.",
     "sourceBadge": "Langue de saisie",
     "sourceHint": "La langue dans laquelle vous rédigez votre carte. Toujours affichée.",
-    "quotaLimited": "Votre formule {tier} permet {limit, plural, =0 {aucune langue supplémentaire} one {# langue supplémentaire} other {# langues supplémentaires}}. Passez en supérieur pour en activer plus.",
     "quotaUnlimited": "Votre formule PRO permet d'activer toutes les langues.",
     "save": "Enregistrer",
     "saved": "Langues mises à jour",
-    "scopeLabel": "Langue affichée",
-    "scopeAll": "Toutes",
-    "filterLabel": "Filtre",
-    "filters": {
-      "stale": "À relire",
-      "all": "Tout"
-    },
-    "groupCategories": "Catégories",
-    "groupToday": "Aujourd'hui",
-    "groupFormulas": "Formules",
-    "freshnessHint": "Un champ passe « à relire » dès que vous modifiez le texte d'origine.",
     "allUpToDate": "Tout est à jour",
-    "seeAll": "Voir tout",
-    "remaining": "{count, plural, =0 {Tout est à jour} one {# champ à relire} other {# champs à relire}}",
-    "freshCollapsed": "{count, plural, one {# langue à jour} other {# langues à jour}} : {langs}",
-    "fieldSaved": "Enregistré",
-    "autoTranslateMissing": "Traduire ce qui manque",
+    "remaining": "{count, plural, =0 {Tout est à jour} one {# champ à traduire} other {# champs à traduire}}",
+    "freshnessHint": "Un champ repasse « à traduire » dès que vous modifiez le texte d'origine. Relancez la traduction avant de republier.",
+    "autoTranslateMissing": "Traduire automatiquement",
     "autoTranslateProgress": "Traduction… {lang} ({done}/{total})",
-    "autoTranslateLockedHint": "Réservé au forfait PRO",
-    "autoTranslateAllConfirmTitle": "Traduire ce qui manque ?",
-    "autoTranslateAllConfirmBody": "{count, plural, one {# champ manquant ou à relire sera traduit via DeepL} other {# champs manquants ou à relire seront traduits via DeepL}} dans : {langs}. Les champs déjà à jour ne sont pas modifiés.",
+    "autoTranslateAllConfirmTitle": "Traduire automatiquement ?",
+    "autoTranslateAllConfirmBody": "{count, plural, one {# champ manquant ou obsolète sera traduit via DeepL} other {# champs manquants ou obsolètes seront traduits via DeepL}} dans : {langs}. Les champs déjà à jour ne sont pas modifiés.",
     "autoTranslateConfirmCta": "Lancer la traduction",
     "autoTranslateAllResult": "{translated, plural, one {# champ traduit} other {# champs traduits}}.",
     "cancel": "Annuler",
-    "field": {
-      "name": "Nom",
-      "description": "Description"
-    },
     "status": {
-      "fresh": "À jour",
-      "stale": "À relire",
-      "missing": "Manquant"
+      "fresh": "À jour"
     }
   },
   "Share": {
@@ -471,7 +453,6 @@
         "Publication sans filigrane",
         "Jusqu'à 10 catégories",
         "Menus du jour & formules",
-        "+1 langue de menu",
         "Couleurs de marque",
         "Statistiques temps réel"
       ]
@@ -570,8 +551,8 @@
       },
       "bilingual": {
         "title": "Menu multilingue",
-        "body": "Vous rédigez votre carte une fois dans votre langue, puis activez d'autres langues (jusqu'à 5 : fr, en, es, de, it). Votre client voit automatiquement la sienne selon son navigateur.",
-        "tier": "STARTER et PRO"
+        "body": "Vous rédigez votre carte une fois dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu'à 5 langues (fr, en, es, de, it). Votre client voit automatiquement la sienne selon son navigateur.",
+        "tier": "PRO"
       },
       "daily": {
         "title": "Menus du jour et formules",
@@ -654,7 +635,7 @@
         },
         "bilingual": {
           "q": "Puis-je proposer ma carte en plusieurs langues ?",
-          "a": "Oui. Vous rédigez votre carte dans votre langue, puis vous activez d'autres langues (jusqu'à 5 : français, anglais, espagnol, allemand, italien). Le plan STARTER inclut 1 langue supplémentaire ; le plan PRO les débloque toutes avec la traduction automatique. Vos clients voient automatiquement leur langue selon les réglages de leur navigateur."
+          "a": "Oui, avec le plan PRO. Vous rédigez votre carte dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu'à 5 langues : français, anglais, espagnol, allemand, italien. Vos clients voient automatiquement leur langue selon les réglages de leur navigateur."
         },
         "dataHosting": {
           "q": "Où sont stockées les données de mon restaurant ?",

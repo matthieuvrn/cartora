@@ -17,7 +17,6 @@ import { ReorderCategories } from "@/application/use-cases/ReorderCategories";
 import { PublishMenu } from "@/application/use-cases/PublishMenu";
 import { UpdateMenuTemplate } from "@/application/use-cases/UpdateMenuTemplate";
 import { UpdateMenuLocales } from "@/application/use-cases/UpdateMenuLocales";
-import { SaveTranslations } from "@/application/use-cases/SaveTranslations";
 import { AutoTranslateMenu } from "@/application/use-cases/AutoTranslateMenu";
 import { PrismaTranslationRepository } from "@/infrastructure/menu/PrismaTranslationRepository";
 import { DeepLTranslationService } from "@/infrastructure/translation/DeepLTranslationService";
@@ -143,22 +142,6 @@ const SetTemplateSchema = z.object({
 // MenuLocalePolicy via le use case, pas ici.
 const UpdateMenuLocalesSchema = z.object({
   locales: z.array(z.string().max(10)).max(SUPPORTED_MENU_LOCALES.length * 2),
-});
-
-// Bornes larges côté Zod (anti-abus) — la validation métier (unité existante,
-// longueur par champ) vit dans SaveTranslations.
-const SaveTranslationsSchema = z.object({
-  locale: z.string().max(10),
-  entries: z
-    .array(
-      z.object({
-        entityType: z.string().max(20),
-        entityId: z.uuid(),
-        field: z.string().max(20),
-        value: z.string().max(1000),
-      }),
-    )
-    .max(500),
 });
 
 const AutoTranslateMenuSchema = z.object({
@@ -927,53 +910,6 @@ export async function updateMenuLocalesAction(
     revalidatePath("/app/traductions");
     return { error: null, success: true };
   });
-}
-
-export async function saveTranslationsAction(
-  _prev: RenameActionState,
-  formData: FormData,
-): Promise<RenameActionState> {
-  let entries: unknown = [];
-  const raw = formData.get("entries");
-  if (typeof raw === "string") {
-    try {
-      entries = JSON.parse(raw);
-    } catch {
-      return { error: VALIDATION_ERROR };
-    }
-  }
-
-  const parsed = SaveTranslationsSchema.safeParse({
-    locale: formData.get("locale"),
-    entries,
-  });
-
-  if (!parsed.success) {
-    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
-  }
-
-  const restaurantId = await getAuthenticatedRestaurantId();
-  return withActionContext(
-    { actionName: "saveTranslations", restaurantId, input: { locale: parsed.data.locale } },
-    async () => {
-      const menuRepo = new PrismaMenuRepository(prisma);
-      const translationRepo = new PrismaTranslationRepository(prisma);
-
-      await new SaveTranslations(menuRepo, translationRepo).execute({
-        restaurantId,
-        locale: parsed.data.locale,
-        entries: parsed.data.entries,
-      });
-
-      await menuRepo.markMenuAsDraft(restaurantId);
-      // Pas de revalidatePath ici : c'est l'autosave par champ (un appel à chaque
-      // perte de focus). L'écran de revue est optimiste côté client, et /app comme
-      // /app/traductions sont des routes dynamiques refetchées à la navigation — la
-      // couverture et le statut « brouillon » se rafraîchissent donc au retour, sans
-      // imposer un refetch serveur complet à chaque blur.
-      return { error: null, success: true };
-    },
-  );
 }
 
 export type AutoTranslateActionState = ActionState<{

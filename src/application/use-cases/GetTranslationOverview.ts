@@ -5,8 +5,6 @@ import {
   buildTranslationUnits,
   computeFieldStatus,
   type LocaleCoverage,
-  type TranslationFieldStatus,
-  type TranslationUnit,
 } from "@/domain/menu/translationStatus";
 import { DomainError } from "@/domain/errors/DomainError";
 
@@ -14,22 +12,19 @@ export type GetTranslationOverviewInput = {
   restaurantId: string;
 };
 
-export type TranslationUnitView = TranslationUnit & {
-  /** Valeur + statut par langue cible activée. */
-  perLocale: Partial<Record<MenuLocale, { value: string; status: TranslationFieldStatus }>>;
-};
-
 export type GetTranslationOverviewOutput = {
   sourceLocale: MenuLocale;
   enabledLocales: MenuLocale[];
-  units: TranslationUnitView[];
   coverage: LocaleCoverage[];
 };
 
 /**
- * Construit l'état complet de l'écran de revue (S4) : chaque champ traduisible
- * (source non vide) avec sa valeur et son statut (`fresh`/`stale`/`missing`) par
- * langue activée, plus l'agrégat de couverture par langue.
+ * Agrège la couverture de traduction par langue activée (`fresh`/`stale`/`missing`)
+ * pour l'écran `/app/traductions` (barres de progression) et la pastille de la
+ * sidebar. En flux full-auto (S4, refonte 2026), il n'y a plus de saisie manuelle :
+ * cette vue est en lecture seule et n'expose que l'agrégat — plus de valeurs par
+ * champ ni de matrice. L'auto-traduction (`AutoTranslateMenu`) reconstruit son propre
+ * périmètre d'unités à partir de la même base domaine (`buildTranslationUnits`).
  */
 export class GetTranslationOverview {
   constructor(
@@ -65,8 +60,7 @@ export class GetTranslationOverview {
       ]),
     );
 
-    const unitViews: TranslationUnitView[] = units.map((unit) => {
-      const perLocale: TranslationUnitView["perLocale"] = {};
+    for (const unit of units) {
       for (const locale of menu.enabledLocales) {
         const row = rowByKey.get(`${unit.entityType}:${unit.entityId}:${unit.field}:${locale}`);
         const status = computeFieldStatus({
@@ -74,17 +68,14 @@ export class GetTranslationOverview {
           sourceTextHash: row?.sourceTextHash,
           sourceText: unit.sourceText,
         });
-        perLocale[locale] = { value: row?.value ?? "", status };
         const coverage = coverageByLocale.get(locale);
         if (coverage) coverage[status] += 1;
       }
-      return { ...unit, perLocale };
-    });
+    }
 
     return {
       sourceLocale: menu.sourceLocale,
       enabledLocales: menu.enabledLocales,
-      units: unitViews,
       coverage: [...coverageByLocale.values()],
     };
   }

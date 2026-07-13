@@ -150,8 +150,8 @@ describe("PlanPolicy", () => {
     it("FREE = 0 (langue source seule)", () => {
       expect(PlanPolicy.maxExtraMenuLocalesFor("FREE")).toBe(0);
     });
-    it("STARTER = 1", () => {
-      expect(PlanPolicy.maxExtraMenuLocalesFor("STARTER")).toBe(1);
+    it("STARTER = 0 (multilingue PRO-only)", () => {
+      expect(PlanPolicy.maxExtraMenuLocalesFor("STARTER")).toBe(0);
     });
     it("PRO = Infinity", () => {
       expect(PlanPolicy.maxExtraMenuLocalesFor("PRO")).toBe(Infinity);

@@ -76,20 +76,21 @@ export class PlanPolicy {
 
   /**
    * Langues cibles supplémentaires (en plus de la langue source) par tier (S4).
-   * FREE = 0 (langue source seule), STARTER = 1 (typiquement l'anglais),
-   * PRO = illimité. Le multilingue est un levier d'upgrade explicite.
+   * FREE = 0, STARTER = 0, PRO = illimité. Le multilingue est PRO-only : c'est
+   * un levier d'upgrade explicite, entièrement piloté par l'auto-traduction (il
+   * n'y a plus de saisie manuelle, donc pas de tier intermédiaire qui pourrait
+   * activer une langue sans pouvoir la remplir).
    */
   static maxExtraMenuLocalesFor(tier: PlanTier): number {
-    if (tier === "FREE") return 0;
-    if (tier === "STARTER") return 1;
-    return Infinity;
+    return tier === "PRO" ? Infinity : 0;
   }
 
   /**
-   * Traduction automatique (S4) — réservée PRO. La saisie manuelle des traductions
-   * reste possible sur toute langue activée quel que soit le tier ; seul le bouton
-   * « Traduire automatiquement » (DeepL) est gated, car il consomme un quota
-   * externe partagé.
+   * Traduction automatique (S4) — réservée PRO, et **seule** voie de remplissage
+   * des traductions (la saisie manuelle a été retirée). Comme `maxExtraMenuLocalesFor`
+   * n'ouvre les langues cibles qu'au PRO, ce gate leur est équivalent : tout tier
+   * capable d'activer une langue peut la traduire, sans cul-de-sac. Le bouton
+   * consomme un quota DeepL externe partagé (rate-limité côté action).
    */
   static canUseAutoTranslation(tier: PlanTier): boolean {
     return tier === "PRO";

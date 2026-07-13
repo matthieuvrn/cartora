@@ -7,46 +7,58 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { LanguageManagerSheet } from "@/interface/ui/components/translations/LanguageManagerSheet";
-import { TranslationWorkspace } from "@/interface/ui/components/translations/TranslationWorkspace";
+import { TranslationPanel } from "@/interface/ui/components/translations/TranslationPanel";
+import { TranslationUpsell } from "@/interface/ui/components/translations/TranslationUpsell";
 
-// Section "Traductions" (S4, refonte 2026) : gestion des langues du menu public + revue
-// des traductions par entité (une carte par plat, statuts frais/obsolète/manquant live).
+// Section « Traductions » (S4, refonte 2026 — flux full-auto). Le multilingue est
+// PRO uniquement : un non-PRO voit un pitch d'upsell ; un PRO gère ses langues cibles
+// et lance la traduction automatique (DeepL). Plus aucune saisie manuelle.
 export default async function TranslationsPage() {
   const { restaurantId } = await requireRestaurant();
 
   const restaurant = await new PrismaRestaurantRepository(prisma).getRestaurantById(restaurantId);
   if (!restaurant) redirect("/app");
 
+  const t = await getTranslations("Translations");
+
+  const canUseMultilingual = PlanPolicy.canUseAutoTranslation(restaurant.planTier);
+
+  const header = (
+    <div>
+      <h1 className="text-h2">{t("title")}</h1>
+      <p className="text-sm text-muted-foreground">{t("description")}</p>
+    </div>
+  );
+
+  // Non-PRO : multilingue verrouillé → pitch d'upsell (aucune langue activable).
+  if (!canUseMultilingual) {
+    return (
+      <div className="mx-auto max-w-4xl space-y-8">
+        {header}
+        <TranslationUpsell />
+      </div>
+    );
+  }
+
   // Mutualisé (`cache()`) avec le compteur de la sidebar : même requête, même restaurant
   // ⇒ un seul chargement. `null` tant qu'aucune langue cible n'est activée.
   const overview =
     restaurant.menuLocales.length > 0 ? await loadTranslationOverview(restaurantId) : null;
 
-  const t = await getTranslations("Translations");
-
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-h2">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
-        </div>
+        {header}
         {overview && (
           <LanguageManagerSheet
             sourceLocale={restaurant.sourceLocale}
             enabledLocales={restaurant.menuLocales}
-            planTier={restaurant.planTier}
           />
         )}
       </div>
 
       {overview ? (
-        <TranslationWorkspace
-          sourceLocale={overview.sourceLocale}
-          enabledLocales={overview.enabledLocales}
-          units={overview.units}
-          canAutoTranslate={PlanPolicy.canUseAutoTranslation(restaurant.planTier)}
-        />
+        <TranslationPanel enabledLocales={overview.enabledLocales} coverage={overview.coverage} />
       ) : (
         <div className="rounded-xl border border-dashed py-16 text-center">
           <Languages className="mx-auto size-8 text-canard-400" strokeWidth={1.75} aria-hidden />
@@ -56,7 +68,6 @@ export default async function TranslationsPage() {
             <LanguageManagerSheet
               sourceLocale={restaurant.sourceLocale}
               enabledLocales={restaurant.menuLocales}
-              planTier={restaurant.planTier}
               variant="add"
             />
           </div>

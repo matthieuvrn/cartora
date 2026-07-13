@@ -20,7 +20,7 @@ export type TranslationRow = {
 };
 
 /**
- * Accès direct aux lignes de traduction (S4) pour l'écran de revue et
+ * Accès direct aux lignes de traduction (S4) pour l'aperçu de couverture et
  * l'auto-traduction. Les lectures/écritures « par entité » (items, plats du jour…)
  * restent dans `MenuRepository` ; ce port travaille en masse, par restaurant.
  */
@@ -31,7 +31,7 @@ export interface TranslationRepository {
   /**
    * Upsert en masse. Une `value` vide ⇒ suppression de la ligne (sémantique
    * « missing », jamais de ligne vide en base). ⚠️ L'appelant DOIT avoir validé
-   * que chaque `entityId` appartient bien au restaurant (cf. `SaveTranslations`) —
+   * que chaque `entityId` appartient bien au restaurant (cf. `AutoTranslateMenu`) —
    * l'implémentation refuse en plus de réécrire une ligne d'un autre restaurant.
    */
   upsertMany(params: { restaurantId: string; rows: TranslationRow[] }): Promise<void>;

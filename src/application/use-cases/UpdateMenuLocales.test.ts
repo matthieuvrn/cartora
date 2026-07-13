@@ -38,18 +38,20 @@ describe("UpdateMenuLocales", () => {
     });
   });
 
-  it("allows STARTER to enable exactly one extra locale", async () => {
+  it("rejects STARTER with any extra locale (multilingue PRO-only, limit 0)", async () => {
     const repo = createMockRestaurantRepo({
       getRestaurantById: vi.fn(async () => restaurantFixtureForTier("STARTER")),
     });
     const useCase = new UpdateMenuLocales(repo);
 
-    await useCase.execute({ restaurantId: "resto-1", locales: ["en"] });
-
-    expect(repo.updateMenuLocales).toHaveBeenCalledWith({
-      restaurantId: "resto-1",
-      menuLocales: ["en"],
+    await expect(
+      useCase.execute({ restaurantId: "resto-1", locales: ["en"] }),
+    ).rejects.toMatchObject({
+      name: "DomainError",
+      code: "locale_quota_exceeded",
+      metadata: { limit: 0, current: 1, tier: "STARTER" },
     });
+    expect(repo.updateMenuLocales).not.toHaveBeenCalled();
   });
 
   it("allows clearing every extra locale regardless of tier", async () => {
@@ -77,7 +79,7 @@ describe("UpdateMenuLocales", () => {
     ).rejects.toMatchObject({
       name: "DomainError",
       code: "locale_quota_exceeded",
-      metadata: { limit: 1, current: 2, tier: "STARTER" },
+      metadata: { limit: 0, current: 2, tier: "STARTER" },
     });
     expect(repo.updateMenuLocales).not.toHaveBeenCalled();
   });

@@ -15,32 +15,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
+import type { LocaleCoverage } from "@/domain/menu/translationStatus";
 import { autoTranslateMenuAction, type AutoTranslateActionState } from "@/app/(app)/app/actions";
-import { PricingModal } from "@/interface/ui/components/PricingModal";
-import type { LocaleCount, Scope } from "./types";
+
+type Props = {
+  enabledLocales: MenuLocale[];
+  coverage: LocaleCoverage[];
+};
 
 /**
- * Bandeau de statut en tête de /app/traductions — source de vérité unique et LIVE
- * (remplace l'ancien résumé serveur qui se périmait après autosave) : reste global
- * à relire, progression par langue (chips qui wrappent → scale à N langues), et
- * l'action « Traduire ce qui manque » (DeepL, multi-langues, PRO).
+ * Panneau de traduction (S4, refonte 2026 — flux full-auto, PRO uniquement).
+ * En lecture seule : progression de couverture par langue + une seule action
+ * « Traduire automatiquement » (DeepL), qui boucle sur toutes les langues activées
+ * ayant des champs manquants/obsolètes. Plus aucune saisie manuelle. N'est rendu
+ * que pour un PRO (la page gate en amont), donc pas de garde de tier ici.
  */
-export function TranslationStatusBar({
-  enabledLocales,
-  scope,
-  coverageLive,
-  canAutoTranslate,
-}: {
-  enabledLocales: MenuLocale[];
-  scope: Scope;
-  coverageLive: LocaleCount[];
-  canAutoTranslate: boolean;
-}) {
+export function TranslationPanel({ enabledLocales, coverage }: Props) {
   const t = useTranslations("Translations");
   const tErrors = useTranslations("Errors");
   const router = useRouter();
 
-  const [pricingOpen, setPricingOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [progress, setProgress] = useState<{
     locale: MenuLocale;
@@ -49,11 +43,11 @@ export function TranslationStatusBar({
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const countByLocale = new Map(coverageLive.map((c) => [c.locale, c]));
-  const totalTodo = coverageLive.reduce((acc, c) => acc + c.stale + c.missing, 0);
+  const countByLocale = new Map(coverage.map((c) => [c.locale, c]));
+  const totalTodo = coverage.reduce((acc, c) => acc + c.stale + c.missing, 0);
 
-  // Langues à traiter selon le périmètre courant.
-  const targets = (scope === "all" ? enabledLocales : [scope]).filter((locale) => {
+  // Langues avec au moins un champ manquant/obsolète — cibles de l'auto-traduction.
+  const targets = enabledLocales.filter((locale) => {
     const c = countByLocale.get(locale);
     return c ? c.stale + c.missing > 0 : false;
   });
@@ -78,7 +72,7 @@ export function TranslationStatusBar({
       if (translated > 0) {
         toast.success(t("autoTranslateAllResult", { translated }));
       }
-      // Recharge les données serveur : chaque champ est déjà persisté, rien n'est perdu.
+      // Recharge les données serveur (couverture) : chaque champ est déjà persisté.
       router.refresh();
     });
   };
@@ -105,35 +99,29 @@ export function TranslationStatusBar({
           <p className="text-caption text-muted-foreground">{t("freshnessHint")}</p>
         </div>
 
-        <div className="flex flex-col items-end gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={busy || (canAutoTranslate && targets.length === 0)}
-            onClick={() => (canAutoTranslate ? setConfirmOpen(true) : setPricingOpen(true))}
-          >
-            {busy ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden />
-            ) : (
-              <Sparkles className="size-4" aria-hidden />
-            )}
-            {progress
-              ? t("autoTranslateProgress", {
-                  lang: MENU_LOCALE_LABELS[progress.locale],
-                  done: progress.done,
-                  total: progress.total,
-                })
-              : t("autoTranslateMissing")}
-          </Button>
-          {!canAutoTranslate && (
-            <span className="text-micro text-muted-foreground">{t("autoTranslateLockedHint")}</span>
+        <Button
+          type="button"
+          size="sm"
+          disabled={busy || targets.length === 0}
+          onClick={() => setConfirmOpen(true)}
+        >
+          {busy ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Sparkles className="size-4" aria-hidden />
           )}
-        </div>
+          {progress
+            ? t("autoTranslateProgress", {
+                lang: MENU_LOCALE_LABELS[progress.locale],
+                done: progress.done,
+                total: progress.total,
+              })
+            : t("autoTranslateMissing")}
+        </Button>
       </div>
 
       <ul className="flex flex-wrap gap-x-4 gap-y-2">
-        {coverageLive.map((c) => {
+        {coverage.map((c) => {
           const remaining = c.stale + c.missing;
           const pct = c.total === 0 ? 100 : Math.round((c.fresh / c.total) * 100);
           return (
@@ -156,15 +144,13 @@ export function TranslationStatusBar({
         })}
       </ul>
 
-      <PricingModal open={pricingOpen} onOpenChange={setPricingOpen} />
-
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("autoTranslateAllConfirmTitle")}</DialogTitle>
             <DialogDescription>
               {t("autoTranslateAllConfirmBody", {
-                count: totalTodoInScope(targets, countByLocale),
+                count: totalTodo,
                 langs: targets.map((l) => MENU_LOCALE_LABELS[l]).join(", "),
               })}
             </DialogDescription>
@@ -188,14 +174,4 @@ export function TranslationStatusBar({
       </Dialog>
     </section>
   );
-}
-
-function totalTodoInScope(
-  targets: MenuLocale[],
-  countByLocale: Map<MenuLocale, LocaleCount>,
-): number {
-  return targets.reduce((acc, locale) => {
-    const c = countByLocale.get(locale);
-    return acc + (c ? c.stale + c.missing : 0);
-  }, 0);
 }

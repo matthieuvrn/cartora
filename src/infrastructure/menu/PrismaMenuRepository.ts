@@ -669,7 +669,7 @@ function localizedTextOf(
  * Upsert des textes d'une entité : valeur vide ⇒ suppression de la ligne (sémantique
  * « missing »), sinon upsert. `sourceTextHash` est remis à `null` à chaque écriture
  * par ce chemin legacy (formulaires d'édition) — les écritures « conscientes » du
- * hash passent par `TranslationRepository.upsertMany` (revue + auto-traduction).
+ * hash passent par `TranslationRepository.upsertMany` (auto-traduction).
  */
 async function upsertEntityTexts(
   tx: Pick<PrismaClient, "translation">,

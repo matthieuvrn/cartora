@@ -11,55 +11,37 @@
     "partage": "Share",
     "abonnement": "Subscription",
     "reglages": "Settings",
-    "translationsPending": "{count} to review"
+    "translationsPending": "{count} to translate"
   },
   "Translations": {
     "title": "Translations",
     "description": "Offer your menu in several languages to your visitors.",
+    "upsellTitle": "Reach an international audience",
+    "upsellBody": "With the PRO plan, automatically translate your entire menu into 5 languages (French, English, Spanish, German, Italian). Write it once, Cartora translates and keeps everything up to date.",
+    "upsellCta": "Upgrade to PRO",
     "emptyTitle": "Reach new customers",
-    "emptyBody": "Enable a language to offer your menu to foreign visitors. Translate once, Cartora keeps everything up to date.",
+    "emptyBody": "Enable a language: Cartora automatically translates your menu and keeps it up to date on every change.",
     "manageLanguages": "Manage languages",
     "addLanguage": "Add a language",
     "languagesTitle": "Menu languages",
     "languagesDescription": "Enabled languages appear in your public menu's language selector. Remember to republish after changes.",
     "sourceBadge": "Writing language",
     "sourceHint": "The language you write your menu in. Always displayed.",
-    "quotaLimited": "Your {tier} plan allows {limit, plural, =0 {no extra language} one {# extra language} other {# extra languages}}. Upgrade to enable more.",
     "quotaUnlimited": "Your PRO plan allows every language.",
     "save": "Save",
     "saved": "Languages updated",
-    "scopeLabel": "Displayed language",
-    "scopeAll": "All",
-    "filterLabel": "Filter",
-    "filters": {
-      "stale": "To review",
-      "all": "All"
-    },
-    "groupCategories": "Categories",
-    "groupToday": "Today",
-    "groupFormulas": "Combo menus",
-    "freshnessHint": "A field becomes \"to review\" as soon as you edit the original text.",
     "allUpToDate": "Everything is up to date",
-    "seeAll": "See all",
-    "remaining": "{count, plural, =0 {Everything is up to date} one {# field to review} other {# fields to review}}",
-    "freshCollapsed": "{count, plural, one {# language up to date} other {# languages up to date}}: {langs}",
-    "fieldSaved": "Saved",
-    "autoTranslateMissing": "Translate what's missing",
+    "remaining": "{count, plural, =0 {Everything is up to date} one {# field to translate} other {# fields to translate}}",
+    "freshnessHint": "A field becomes \"to translate\" as soon as you edit the original text. Re-run the translation before republishing.",
+    "autoTranslateMissing": "Translate automatically",
     "autoTranslateProgress": "Translating… {lang} ({done}/{total})",
-    "autoTranslateLockedHint": "PRO plan only",
-    "autoTranslateAllConfirmTitle": "Translate what's missing?",
+    "autoTranslateAllConfirmTitle": "Translate automatically?",
     "autoTranslateAllConfirmBody": "{count, plural, one {# missing or outdated field will be translated via DeepL} other {# missing or outdated fields will be translated via DeepL}} into: {langs}. Fields already up to date are left untouched.",
     "autoTranslateConfirmCta": "Start translation",
     "autoTranslateAllResult": "{translated, plural, one {# field translated} other {# fields translated}}.",
     "cancel": "Cancel",
-    "field": {
-      "name": "Name",
-      "description": "Description"
-    },
     "status": {
-      "fresh": "Up to date",
-      "stale": "To review",
-      "missing": "Missing"
+      "fresh": "Up to date"
     }
   },
   "Share": {
@@ -471,7 +453,6 @@
         "Publish without watermark",
         "Up to 10 categories",
         "Daily dishes & set menus",
-        "1 extra menu language",
         "Brand colors",
         "Real-time analytics"
       ]
@@ -570,8 +551,8 @@
       },
       "bilingual": {
         "title": "Multilingual menu",
-        "body": "Write your menu once in your language, then enable more languages (up to 5: fr, en, es, de, it). Your guest sees theirs automatically, based on their browser.",
-        "tier": "STARTER and PRO"
+        "body": "Write your menu once in your language, and Cartora translates it automatically (DeepL) into up to 5 languages (fr, en, es, de, it). Your guest sees theirs automatically, based on their browser.",
+        "tier": "PRO"
       },
       "daily": {
         "title": "Daily specials and set menus",
@@ -654,7 +635,7 @@
         },
         "bilingual": {
           "q": "Can I offer my menu in several languages?",
-          "a": "Yes. Write your menu in your language, then enable more languages (up to 5: French, English, Spanish, German, Italian). The Starter plan includes 1 extra language; the Pro plan unlocks them all with automatic translation. Your customers automatically see theirs based on their browser settings."
+          "a": "Yes, with the PRO plan. Write your menu in your language, and Cartora translates it automatically (DeepL) into up to 5 languages: French, English, Spanish, German, Italian. Your customers automatically see theirs based on their browser settings."
         },
         "dataHosting": {
           "q": "Where is my restaurant's data stored?",
