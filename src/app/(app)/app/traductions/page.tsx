@@ -3,12 +3,15 @@ import { getTranslations } from "next-intl/server";
 import { Languages } from "lucide-react";
 import { requireRestaurant } from "../_lib/requireRestaurant";
 import { loadTranslationOverview } from "../_lib/translationOverview";
+import { publishMenuAction, regenerateQrAction } from "../actions";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
+import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { LanguageManagerSheet } from "@/interface/ui/components/translations/LanguageManagerSheet";
 import { TranslationPanel } from "@/interface/ui/components/translations/TranslationPanel";
 import { TranslationUpsell } from "@/interface/ui/components/translations/TranslationUpsell";
+import { PublishButton } from "@/interface/ui/components/PublishButton";
 
 // Section « Traductions » (S4, refonte 2026 — flux full-auto). Le multilingue est
 // PRO uniquement : un non-PRO voit un pitch d'upsell ; un PRO gère ses langues cibles
@@ -45,15 +48,34 @@ export default async function TranslationsPage() {
   const overview =
     restaurant.menuLocales.length > 0 ? await loadTranslationOverview(restaurantId) : null;
 
+  // Activer/traduire une langue repasse le menu en DRAFT (markMenuAsDraft) sans le
+  // republier : on offre l'affordance « Publier » ici pour fermer la boucle sans
+  // renvoyer l'utilisateur vers l'éditeur.
+  const publishState = overview
+    ? await new PrismaMenuRepository(prisma).getMenuPublishState(restaurantId)
+    : null;
+
   return (
     <div className="mx-auto max-w-4xl space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         {header}
         {overview && (
-          <LanguageManagerSheet
-            sourceLocale={restaurant.sourceLocale}
-            enabledLocales={restaurant.menuLocales}
-          />
+          <div className="flex flex-wrap items-start gap-2">
+            {publishState && (
+              <PublishButton
+                planTier={restaurant.planTier}
+                menuStatus={publishState.status}
+                publishedAt={publishState.publishedAt}
+                slug={restaurant.slug}
+                publishAction={publishMenuAction}
+                regenerateQrAction={regenerateQrAction}
+              />
+            )}
+            <LanguageManagerSheet
+              sourceLocale={restaurant.sourceLocale}
+              enabledLocales={restaurant.menuLocales}
+            />
+          </div>
         )}
       </div>
 

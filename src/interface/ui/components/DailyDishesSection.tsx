@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { usePendingDeletes } from "@/hooks/use-deferred-delete";
 import { DailyDishCard } from "./DailyDishCard";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
@@ -12,6 +13,7 @@ import { DailyDishFormDialog } from "./DailyDishFormDialog";
 type Props = {
   activeDishes: DailyDishData[];
   expiredDishes: DailyDishData[];
+  sourceLocale: MenuLocale;
 };
 
 /**
@@ -19,7 +21,7 @@ type Props = {
  * h2 et le gating de plan). Liste active + « Ajouter » + expirées repliées en
  * bas, grisées, pour suppression manuelle.
  */
-export function DailyDishesSection({ activeDishes, expiredDishes }: Props) {
+export function DailyDishesSection({ activeDishes, expiredDishes, sourceLocale }: Props) {
   const t = useTranslations("Dashboard.dailyDishes");
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
@@ -59,7 +61,7 @@ export function DailyDishesSection({ activeDishes, expiredDishes }: Props) {
         <ul className="space-y-2" role="list">
           {visibleActive.map((dish) => (
             <li key={dish.id}>
-              <DailyDishCard dish={dish} />
+              <DailyDishCard dish={dish} sourceLocale={sourceLocale} />
             </li>
           ))}
         </ul>
@@ -73,7 +75,7 @@ export function DailyDishesSection({ activeDishes, expiredDishes }: Props) {
           <ul className="mt-3 space-y-2" role="list">
             {visibleExpired.map((dish) => (
               <li key={dish.id}>
-                <DailyDishCard dish={dish} isExpired />
+                <DailyDishCard dish={dish} isExpired sourceLocale={sourceLocale} />
               </li>
             ))}
           </ul>
@@ -83,6 +85,7 @@ export function DailyDishesSection({ activeDishes, expiredDishes }: Props) {
       <DailyDishFormDialog
         key={createKey}
         mode="create"
+        sourceLocale={sourceLocale}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />

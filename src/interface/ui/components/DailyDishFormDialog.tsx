@@ -23,12 +23,15 @@ import {
 import { ErrorMessage } from "./ErrorMessage";
 import { formatCentsToEurInput } from "@/lib/price";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { DailyDishPolicy } from "@/domain/menu/DailyDishPolicy";
 
 type Props = {
   mode: "create" | "edit";
   dish?: DailyDishData;
+  /** Langue de saisie du restaurateur (S4) — pré-remplissage du formulaire. */
+  sourceLocale: MenuLocale;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -45,7 +48,7 @@ function isoToDatetimeLocal(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
+export function DailyDishFormDialog({ mode, dish, sourceLocale, open, onOpenChange }: Props) {
   const t = useTranslations("Dashboard");
   const tDaily = useTranslations("Dashboard.dailyDishes");
   const tAllergen = useTranslations("Allergen");
@@ -106,7 +109,9 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
                   id={`${id}-name`}
                   name="name"
                   placeholder="ex : Pot-au-feu maison"
-                  defaultValue={dish?.translations.fr.name ?? ""}
+                  defaultValue={
+                    dish ? resolveText(dish.texts.name, sourceLocale, sourceLocale) : ""
+                  }
                   aria-invalid={!!nameError}
                 />
                 {nameError && <p className="text-xs text-destructive">{nameError}</p>}
@@ -116,7 +121,9 @@ export function DailyDishFormDialog({ mode, dish, open, onOpenChange }: Props) {
                 <Textarea
                   id={`${id}-desc`}
                   name="description"
-                  defaultValue={dish?.translations.fr.description ?? ""}
+                  defaultValue={
+                    dish ? resolveText(dish.texts.description, sourceLocale, sourceLocale) : ""
+                  }
                 />
               </div>
             </div>

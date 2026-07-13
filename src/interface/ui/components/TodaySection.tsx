@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DailyDishData, FormulaData } from "@/domain/menu/MenuTypes";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
 import { PricingModal } from "./PricingModal";
 import { DailyDishesSection } from "./DailyDishesSection";
@@ -14,6 +15,7 @@ type Props = {
   dailyDishes: { active: DailyDishData[]; expired: DailyDishData[] };
   formulas: { active: FormulaData[]; expired: FormulaData[] };
   planTier: PlanTier;
+  sourceLocale: MenuLocale;
 };
 
 /**
@@ -22,7 +24,7 @@ type Props = {
  * unique ouvrant la PricingModal — au lieu de deux pavés paywall empilés
  * au-dessus de la carte.
  */
-export function TodaySection({ dailyDishes, formulas, planTier }: Props) {
+export function TodaySection({ dailyDishes, formulas, planTier, sourceLocale }: Props) {
   const t = useTranslations("Dashboard");
   const [pricingOpen, setPricingOpen] = useState(false);
   const dishesAllowed = PlanPolicy.canUseDailyDishes(planTier);
@@ -56,10 +58,18 @@ export function TodaySection({ dailyDishes, formulas, planTier }: Props) {
       </div>
 
       {dishesAllowed && (
-        <DailyDishesSection activeDishes={dailyDishes.active} expiredDishes={dailyDishes.expired} />
+        <DailyDishesSection
+          activeDishes={dailyDishes.active}
+          expiredDishes={dailyDishes.expired}
+          sourceLocale={sourceLocale}
+        />
       )}
       {formulasAllowed && (
-        <FormulasSection activeFormulas={formulas.active} expiredFormulas={formulas.expired} />
+        <FormulasSection
+          activeFormulas={formulas.active}
+          expiredFormulas={formulas.expired}
+          sourceLocale={sourceLocale}
+        />
       )}
     </section>
   );

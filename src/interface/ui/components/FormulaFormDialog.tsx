@@ -16,11 +16,14 @@ import {
 import { ErrorMessage } from "./ErrorMessage";
 import { formatCentsToEurInput } from "@/lib/price";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { FormulaPolicy } from "@/domain/menu/FormulaPolicy";
 
 type Props = {
   mode: "create" | "edit";
   formula?: FormulaData;
+  /** Langue de saisie du restaurateur (S4) — pré-remplissage du formulaire. */
+  sourceLocale: MenuLocale;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -33,7 +36,7 @@ function isoToDatetimeLocal(iso: string): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) {
+export function FormulaFormDialog({ mode, formula, sourceLocale, open, onOpenChange }: Props) {
   const t = useTranslations("Dashboard");
   const tFormula = useTranslations("Dashboard.formula");
   const id = useId();
@@ -89,7 +92,9 @@ export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) 
                   id={`${id}-name`}
                   name="name"
                   placeholder={tFormula("namePlaceholder")}
-                  defaultValue={formula?.translations.fr.name ?? ""}
+                  defaultValue={
+                    formula ? resolveText(formula.texts.name, sourceLocale, sourceLocale) : ""
+                  }
                   aria-invalid={!!nameError}
                 />
                 {nameError && <p className="text-xs text-destructive">{nameError}</p>}
@@ -101,7 +106,11 @@ export function FormulaFormDialog({ mode, formula, open, onOpenChange }: Props) 
                   name="description"
                   rows={4}
                   placeholder={tFormula("compositionPlaceholder")}
-                  defaultValue={formula?.translations.fr.description ?? ""}
+                  defaultValue={
+                    formula
+                      ? resolveText(formula.texts.description, sourceLocale, sourceLocale)
+                      : ""
+                  }
                 />
                 <p className="text-xs text-muted-foreground">{tFormula("compositionHint")}</p>
               </div>

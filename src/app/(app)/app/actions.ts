@@ -780,6 +780,9 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
 
     revalidateTag(`public-menu-${slug}`, "default");
     revalidatePath("/app");
+    // La page /app/traductions porte aussi une affordance « Publier » : la
+    // revalider pour que son état bascule en PUBLISHED après publication.
+    revalidatePath("/app/traductions");
     return { error: null, slug, warning };
   });
 }

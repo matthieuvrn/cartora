@@ -25,10 +25,6 @@ const MENU_FIXTURE: MenuOverview = {
           allergens: [],
           isAvailable: true,
           order: 0,
-          translations: {
-            fr: { name: "Soupe", description: "Soupe du jour" },
-            en: { name: "Soup", description: "Soup of the day" },
-          },
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },

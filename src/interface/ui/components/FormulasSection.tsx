@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Plus, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
+import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { usePendingDeletes } from "@/hooks/use-deferred-delete";
 import { FormulaCard } from "./FormulaCard";
 import { FormulaFormDialog } from "./FormulaFormDialog";
@@ -12,6 +13,7 @@ import { FormulaFormDialog } from "./FormulaFormDialog";
 type Props = {
   activeFormulas: FormulaData[];
   expiredFormulas: FormulaData[];
+  sourceLocale: MenuLocale;
 };
 
 /**
@@ -19,7 +21,7 @@ type Props = {
  * et le gating de plan). Pile identique à `DailyDishesSection` : liste active
  * + « Ajouter » + expirées repliées pour suppression manuelle.
  */
-export function FormulasSection({ activeFormulas, expiredFormulas }: Props) {
+export function FormulasSection({ activeFormulas, expiredFormulas, sourceLocale }: Props) {
   const t = useTranslations("Dashboard.formula");
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
@@ -59,7 +61,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas }: Props) {
         <ul className="space-y-2" role="list">
           {visibleActive.map((formula) => (
             <li key={formula.id}>
-              <FormulaCard formula={formula} />
+              <FormulaCard formula={formula} sourceLocale={sourceLocale} />
             </li>
           ))}
         </ul>
@@ -73,7 +75,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas }: Props) {
           <ul className="mt-3 space-y-2" role="list">
             {visibleExpired.map((formula) => (
               <li key={formula.id}>
-                <FormulaCard formula={formula} isExpired />
+                <FormulaCard formula={formula} isExpired sourceLocale={sourceLocale} />
               </li>
             ))}
           </ul>
@@ -83,6 +85,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas }: Props) {
       <FormulaFormDialog
         key={createKey}
         mode="create"
+        sourceLocale={sourceLocale}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />

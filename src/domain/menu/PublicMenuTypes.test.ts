@@ -11,10 +11,6 @@ function makeItem(overrides: Partial<MenuItemData> = {}): MenuItemData {
     allergens: [],
     isAvailable: true,
     order: 0,
-    translations: {
-      fr: { name: "Salade", description: "Fraîche" },
-      en: { name: "Salad", description: "Fresh" },
-    },
     texts: {
       name: { fr: "Salade", en: "Salad" },
       description: { fr: "Fraîche", en: "Fresh" },

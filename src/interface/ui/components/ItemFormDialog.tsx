@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { createItemAction, updateItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES, type Allergen, type ItemBadge } from "@/domain/menu/ItemPolicy";
 import { formatCentsToEurInput } from "@/lib/price";
 import { prefersReducedMotion } from "@/lib/utils";
@@ -26,6 +27,8 @@ import { prefersReducedMotion } from "@/lib/utils";
 type Props = {
   mode: "create" | "edit";
   categoryId: string;
+  /** Langue de saisie du restaurateur (S4) — pré-remplissage du formulaire. */
+  sourceLocale: MenuLocale;
   item?: MenuItemData;
   /** Préremplissage du mode create — utilisé par « Dupliquer ». */
   initialValues?: {
@@ -44,6 +47,7 @@ const initialState: ItemActionState = { error: null };
 export function ItemFormDialog({
   mode,
   categoryId,
+  sourceLocale,
   item,
   initialValues,
   open,
@@ -111,9 +115,8 @@ export function ItemFormDialog({
 
             {state.error?.code !== "validation" && <ErrorMessage error={state.error} />}
 
-            {/* Saisie monolingue (S4) : une seule langue — celle du restaurateur.
-                Les traductions se gèrent dans /app/traductions. v1 : source = fr,
-                `translations.fr` EST le texte source (swap vers `texts` au step 11). */}
+            {/* Saisie monolingue (S4) : une seule langue — celle du restaurateur
+                (`sourceLocale`). Les traductions se gèrent dans /app/traductions. */}
             <div className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor={`${id}-name`}>{t("name")}</Label>
@@ -121,7 +124,11 @@ export function ItemFormDialog({
                   id={`${id}-name`}
                   name="name"
                   placeholder="ex: Spaghetti Carbonara"
-                  defaultValue={item?.translations.fr.name ?? initialValues?.name ?? ""}
+                  defaultValue={
+                    item
+                      ? resolveText(item.texts.name, sourceLocale, sourceLocale)
+                      : (initialValues?.name ?? "")
+                  }
                   aria-invalid={!!nameError}
                 />
                 {nameError && <p className="text-xs text-destructive">{nameError}</p>}
@@ -133,7 +140,9 @@ export function ItemFormDialog({
                   name="description"
                   placeholder="ex: Pâtes fraîches, pancetta, parmesan..."
                   defaultValue={
-                    item?.translations.fr.description ?? initialValues?.description ?? ""
+                    item
+                      ? resolveText(item.texts.description, sourceLocale, sourceLocale)
+                      : (initialValues?.description ?? "")
                   }
                 />
               </div>

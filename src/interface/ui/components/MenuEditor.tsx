@@ -287,7 +287,12 @@ export function MenuEditor({
               <EditableRestaurantName currentName={restaurantName} />
             </div>
 
-            <TodaySection dailyDishes={dailyDishes} formulas={formulas} planTier={planTier} />
+            <TodaySection
+              dailyDishes={dailyDishes}
+              formulas={formulas}
+              planTier={planTier}
+              sourceLocale={sourceLocale}
+            />
           </>
         )}
 

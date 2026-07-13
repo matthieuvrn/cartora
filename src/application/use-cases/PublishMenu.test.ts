@@ -29,10 +29,6 @@ const MENU_FIXTURE: MenuOverview = {
           allergens: [],
           isAvailable: true,
           order: 0,
-          translations: {
-            fr: { name: "Soupe", description: "Soupe du jour" },
-            en: { name: "Soup", description: "Soup of the day" },
-          },
           texts: {
             name: { fr: "Soupe", en: "Soup" },
             description: { fr: "Soupe du jour", en: "Soup of the day" },
@@ -219,10 +215,6 @@ describe("PublishMenu", () => {
         allergens: [],
         validUntilISO: "2026-03-25T22:00:00.000Z",
         order: 0,
-        translations: {
-          fr: { name: "Pot-au-feu", description: "Plat mijoté" },
-          en: { name: "Beef stew", description: "" },
-        },
         texts: {
           name: { fr: "Pot-au-feu", en: "Beef stew" },
           description: { fr: "Plat mijoté" },
@@ -361,10 +353,6 @@ describe("PublishMenu", () => {
               allergens: [],
               isAvailable: true,
               order: 0,
-              translations: {
-                fr: { name: "Soupe", description: "Soupe du jour" },
-                en: { name: "Soup", description: "Soup of the day" },
-              },
               texts: {
                 name: { fr: "Soupe", en: "Soup" },
                 description: { fr: "Soupe du jour", en: "Soup of the day" },
@@ -377,10 +365,6 @@ describe("PublishMenu", () => {
               allergens: [],
               isAvailable: false,
               order: 1,
-              translations: {
-                fr: { name: "Salade", description: "Salade verte" },
-                en: { name: "Salad", description: "Green salad" },
-              },
               texts: {
                 name: { fr: "Salade", en: "Salad" },
                 description: { fr: "Salade verte", en: "Green salad" },

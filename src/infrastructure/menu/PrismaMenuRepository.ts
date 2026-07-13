@@ -89,10 +89,6 @@ export class PrismaMenuRepository implements MenuRepository {
             allergens: item.allergens as Allergen[],
             isAvailable: item.isAvailable,
             order: item.order,
-            translations: {
-              fr: { name: name.fr ?? "", description: description.fr ?? "" },
-              en: { name: name.en ?? "", description: description.en ?? "" },
-            },
             texts: { name, description },
           };
         }),
@@ -277,6 +273,17 @@ export class PrismaMenuRepository implements MenuRepository {
     return menu?.id ?? null;
   }
 
+  async getMenuPublishState(
+    restaurantId: string,
+  ): Promise<{ status: "DRAFT" | "PUBLISHED"; publishedAt: string | null } | null> {
+    const menu = await this.db.menu.findUnique({
+      where: { restaurantId },
+      select: { status: true, publishedAt: true },
+    });
+    if (!menu) return null;
+    return { status: menu.status, publishedAt: menu.publishedAt?.toISOString() ?? null };
+  }
+
   async listCategoryNames(menuId: string): Promise<{ id: string; name: string }[]> {
     return this.db.category.findMany({
       where: { menuId },
@@ -375,10 +382,6 @@ export class PrismaMenuRepository implements MenuRepository {
         allergens: row.allergens as Allergen[],
         validUntilISO: row.validUntil.toISOString(),
         order: row.order,
-        translations: {
-          fr: { name: name.fr ?? "", description: description.fr ?? "" },
-          en: { name: name.en ?? "", description: description.en ?? "" },
-        },
         texts: { name, description },
       };
     });
@@ -503,10 +506,6 @@ export class PrismaMenuRepository implements MenuRepository {
         priceCents: row.priceCents,
         validUntilISO: row.validUntil.toISOString(),
         order: row.order,
-        translations: {
-          fr: { name: name.fr ?? "", description: description.fr ?? "" },
-          en: { name: name.en ?? "", description: description.en ?? "" },
-        },
         texts: { name, description },
       };
     });

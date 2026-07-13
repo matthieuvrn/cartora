@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteFormulaAction } from "@/app/(app)/app/actions";
@@ -15,6 +16,7 @@ import { FormulaFormDialog } from "./FormulaFormDialog";
 
 type Props = {
   formula: FormulaData;
+  sourceLocale: MenuLocale;
   isExpired?: boolean;
 };
 
@@ -37,10 +39,13 @@ function formatExpiration(validUntilISO: string): { date: string; time: string }
   return { date, time };
 }
 
-export function FormulaCard({ formula, isExpired = false }: Props) {
+export function FormulaCard({ formula, sourceLocale, isExpired = false }: Props) {
   const t = useTranslations("Dashboard");
   const tFormula = useTranslations("Dashboard.formula");
   const tErrors = useTranslations("Errors");
+
+  const name = resolveText(formula.texts.name, sourceLocale, sourceLocale);
+  const description = resolveText(formula.texts.description, sourceLocale, sourceLocale);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
@@ -55,7 +60,7 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
   function handleDelete() {
     deferDelete({
       id: formula.id,
-      message: t("undoDelete.deleted", { name: formula.translations.fr.name }),
+      message: t("undoDelete.deleted", { name }),
       undoLabel: t("undoDelete.undo"),
       execute: async () => {
         const formData = new FormData();
@@ -75,12 +80,12 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
       >
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium truncate">{formula.translations.fr.name}</span>
+            <span className="font-medium truncate">{name}</span>
             {isExpired && <Badge variant="warning">{tFormula("expired")}</Badge>}
           </div>
-          {formula.translations.fr.description && (
+          {description && (
             <p className="whitespace-pre-line text-sm text-foreground/80 line-clamp-4">
-              {formula.translations.fr.description}
+              {description}
             </p>
           )}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -118,6 +123,7 @@ export function FormulaCard({ formula, isExpired = false }: Props) {
         key={editKey}
         mode="edit"
         formula={formula}
+        sourceLocale={sourceLocale}
         open={editOpen}
         onOpenChange={setEditOpen}
       />

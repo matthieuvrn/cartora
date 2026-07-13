@@ -37,6 +37,10 @@ export function createMockMenuRepo(overrides: Partial<MenuRepository> = {}): Men
     deleteCategory: vi.fn(async () => {}),
     reorderCategories: vi.fn(async () => {}),
     getMenuIdByRestaurantId: vi.fn(async () => "menu-1"),
+    getMenuPublishState: vi.fn(async () => ({
+      status: "PUBLISHED" as const,
+      publishedAt: null,
+    })),
     listDailyDishes: vi.fn(async () => []),
     getDailyDish: vi.fn(async () => ({ id: "daily-1" })),
     createDailyDish: vi.fn(async () => ({ id: "new-daily-id" })),

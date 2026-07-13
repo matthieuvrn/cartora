@@ -114,6 +114,11 @@ export interface MenuRepository {
   /** Récupère le menuId d'un restaurant (pour les actions catégories qui n'ont que restaurantId). */
   getMenuIdByRestaurantId(restaurantId: string): Promise<string | null>;
 
+  /** État de publication du menu (affordance « Publier » hors éditeur, ex: /app/traductions). */
+  getMenuPublishState(
+    restaurantId: string,
+  ): Promise<{ status: "DRAFT" | "PUBLISHED"; publishedAt: string | null } | null>;
+
   // ─ Menu du jour (S3.1) ─────────────────────────────────────────────────────
 
   /**

@@ -13,7 +13,6 @@ function formula(id: string, validUntilISO: string, order = 0): FormulaData {
     priceCents: 1600,
     validUntilISO,
     order,
-    translations: { fr: { name: id, description: "" }, en: { name: "", description: "" } },
     texts: { name: { fr: id }, description: {} },
   };
 }

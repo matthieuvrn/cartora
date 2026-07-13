@@ -285,6 +285,7 @@ export function CategorySection({
         key={formKey}
         mode="create"
         categoryId={category.id}
+        sourceLocale={sourceLocale}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />

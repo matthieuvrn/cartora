@@ -14,11 +14,6 @@ export const MENU_TEMPLATE_VALUES = [
 ] as const;
 export type MenuTemplate = (typeof MENU_TEMPLATE_VALUES)[number];
 
-export type ItemTranslations = {
-  name: string;
-  description: string;
-};
-
 /**
  * Textes localisés d'une entité de menu (S4 — multilingue), toutes locales
  * confondues (source comprise). Source de vérité : table `translations`.
@@ -35,8 +30,6 @@ export type MenuItemData = {
   allergens: Allergen[];
   isAvailable: boolean;
   order: number;
-  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
-  translations: { fr: ItemTranslations; en: ItemTranslations };
   texts: EntityTexts;
 };
 
@@ -76,14 +69,12 @@ export type DailyDishData = {
   allergens: Allergen[];
   validUntilISO: string;
   order: number;
-  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
-  translations: { fr: ItemTranslations; en: ItemTranslations };
   texts: EntityTexts;
 };
 
 /**
  * Formule de menu (S3.2). Entité autonome — pas de FK vers Item. Composition libre
- * multi-ligne dans `translations.fr.description` (séparateurs `\n`, rendu via
+ * multi-ligne dans `texts.description` (séparateurs `\n`, rendu via
  * `whitespace-pre-line` côté template). Pas d'image ni d'allergènes pour le MVP :
  * une formule mélange typiquement plusieurs plats avec leurs propres allergènes,
  * la granularité allergène-par-composant est hors scope. `validUntilISO` est ISO 8601 UTC.
@@ -93,7 +84,5 @@ export type FormulaData = {
   priceCents: number;
   validUntilISO: string;
   order: number;
-  /** @deprecated S4 — lire `texts` ; supprimé au step 11 (contract). */
-  translations: { fr: ItemTranslations; en: ItemTranslations };
   texts: EntityTexts;
 };

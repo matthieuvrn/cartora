@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
+import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 
 type Props = {
   dish: DailyDishData;
+  sourceLocale: MenuLocale;
   /** Si true, l'entrée est expirée — affichée en grisé avec un badge "Expiré". */
   isExpired?: boolean;
 };
@@ -40,7 +42,7 @@ function formatExpiration(validUntilISO: string): { date: string; time: string }
   return { date, time };
 }
 
-export function DailyDishCard({ dish, isExpired = false }: Props) {
+export function DailyDishCard({ dish, sourceLocale, isExpired = false }: Props) {
   const t = useTranslations("Dashboard");
   const tDaily = useTranslations("Dashboard.dailyDishes");
   const tErrors = useTranslations("Errors");
@@ -49,6 +51,9 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
     acc[a] = { short: tAllergen(`${a}.short`), legal: tAllergen(`${a}.legal`) };
     return acc;
   }, {} as AllergenLabels);
+
+  const name = resolveText(dish.texts.name, sourceLocale, sourceLocale);
+  const description = resolveText(dish.texts.description, sourceLocale, sourceLocale);
 
   const [editOpen, setEditOpen] = useState(false);
   const [editKey, setEditKey] = useState(0);
@@ -63,7 +68,7 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
   function handleDelete() {
     deferDelete({
       id: dish.id,
-      message: t("undoDelete.deleted", { name: dish.translations.fr.name }),
+      message: t("undoDelete.deleted", { name }),
       undoLabel: t("undoDelete.undo"),
       execute: async () => {
         const formData = new FormData();
@@ -83,14 +88,10 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
       >
         <div className="flex-1 min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium truncate">{dish.translations.fr.name}</span>
+            <span className="font-medium truncate">{name}</span>
             {isExpired && <Badge variant="warning">{tDaily("expired")}</Badge>}
           </div>
-          {dish.translations.fr.description && (
-            <p className="text-sm text-foreground/80 line-clamp-2">
-              {dish.translations.fr.description}
-            </p>
-          )}
+          {description && <p className="text-sm text-foreground/80 line-clamp-2">{description}</p>}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="size-3" aria-hidden="true" />
             <span>{tDaily("expiresAt", { date: exp.date, time: exp.time })}</span>
@@ -131,6 +132,7 @@ export function DailyDishCard({ dish, isExpired = false }: Props) {
         key={editKey}
         mode="edit"
         dish={dish}
+        sourceLocale={sourceLocale}
         open={editOpen}
         onOpenChange={setEditOpen}
       />

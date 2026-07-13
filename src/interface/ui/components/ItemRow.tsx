@@ -288,6 +288,7 @@ export function ItemRow({
         key={editKey}
         mode="edit"
         categoryId={categoryId}
+        sourceLocale={sourceLocale}
         item={item}
         open={editOpen}
         onOpenChange={setEditOpen}
@@ -299,6 +300,7 @@ export function ItemRow({
         key={`duplicate-${duplicateKey}`}
         mode="create"
         categoryId={categoryId}
+        sourceLocale={sourceLocale}
         initialValues={{
           name: `${name} ${t("duplicateSuffix")}`,
           description,
