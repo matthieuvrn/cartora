@@ -38,7 +38,10 @@ export function StatusDot({ view, className }: { view: PublishView; className?: 
     <span className={cn("relative flex size-2 shrink-0", className)} aria-hidden>
       {pulse && !reduce && (
         <span
-          className={cn("absolute inline-flex size-full animate-ping rounded-full opacity-60", color)}
+          className={cn(
+            "absolute inline-flex size-full animate-ping rounded-full opacity-60",
+            color,
+          )}
         />
       )}
       <span className={cn("relative inline-flex size-2 rounded-full", color)} />
@@ -46,11 +49,12 @@ export function StatusDot({ view, className }: { view: PublishView; className?: 
   );
 }
 
-const BADGE: Record<PublishView, { variant: "success" | "warning" | "canard"; labelKey: string }> = {
-  published: { variant: "success", labelKey: "status.online" },
-  changes: { variant: "warning", labelKey: "status.unpublishedChanges" },
-  draft: { variant: "canard", labelKey: "status.DRAFT" },
-};
+const BADGE: Record<PublishView, { variant: "success" | "warning" | "canard"; labelKey: string }> =
+  {
+    published: { variant: "success", labelKey: "status.online" },
+    changes: { variant: "warning", labelKey: "status.unpublishedChanges" },
+    draft: { variant: "canard", labelKey: "status.DRAFT" },
+  };
 
 /**
  * Chip de statut (point + libellé via le primitive `Badge`) suivi d'un temps relatif

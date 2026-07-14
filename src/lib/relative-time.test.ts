@@ -15,7 +15,7 @@ const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
 
 describe("formatRelativeTime", () => {
-  it("renvoie \"\" pour un ISO invalide", () => {
+  it('renvoie "" pour un ISO invalide', () => {
     expect(formatRelativeTime("pas-une-date", "fr", NOW)).toBe("");
   });
 

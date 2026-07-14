@@ -22,7 +22,13 @@ function absoluteMenuUrl(slug: string): string {
  * Deux formes : complète (barre desktop, boutons libellés) et `compact` (topbar mobile, icônes).
  * La copie passe par `navigator.clipboard` et confirme par un toast.
  */
-export function PublishShareCluster({ slug, compact = false }: { slug: string; compact?: boolean }) {
+export function PublishShareCluster({
+  slug,
+  compact = false,
+}: {
+  slug: string;
+  compact?: boolean;
+}) {
   const t = useTranslations("Dashboard");
 
   const copy = async () => {
