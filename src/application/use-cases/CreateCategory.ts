@@ -52,6 +52,10 @@ export class CreateCategory {
       order: existing.length,
     });
 
+    // Toute mutation de la carte diverge du snapshot publié → repasse en DRAFT jusqu'à
+    // republication (invariant porté par le use case, cf. markMenuAsDraft).
+    await this.repo.markMenuAsDraft(input.restaurantId);
+
     return { categoryId: id };
   }
 }

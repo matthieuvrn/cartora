@@ -10,7 +10,6 @@ import {
   type RestaurantType,
 } from "@/domain/restaurant/RestaurantInitPolicy";
 import { ActivationPolicy } from "@/domain/restaurant/ActivationPolicy";
-import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
@@ -19,8 +18,7 @@ import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDi
 import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
 import { MenuEditor } from "@/interface/ui/components/MenuEditor";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
-import { dismissActivationChecklistAction, publishMenuAction, regenerateQrAction } from "./actions";
-import { loadTranslationOverview, translationTodoCount } from "./_lib/translationOverview";
+import { dismissActivationChecklistAction } from "./actions";
 
 // Section "Carte" : le canvas d'édition. C'est la racine du shell — elle exécute aussi le
 // provisioning initial (EnsureRestaurantExists) et reçoit les retours de paiement Stripe
@@ -84,20 +82,6 @@ export default async function AppPage({
   const listFormulas = new ListActiveFormulas(menuRepo, clock);
   const formulas = await listFormulas.execute({ restaurantId });
 
-  // Nudge à la publication (PRO) : couverture de traduction mutualisée `cache()` avec
-  // le compteur de la sidebar (même requête) ⇒ pas de coût de requête supplémentaire.
-  const canTranslate =
-    PlanPolicy.canUseAutoTranslation(restaurant.planTier) && restaurant.menuLocales.length > 0;
-  const translationOverview = canTranslate ? await loadTranslationOverview(restaurantId) : null;
-  const pendingTranslation = translationOverview
-    ? {
-        todoCount: translationTodoCount(translationOverview.coverage),
-        targetLocales: translationOverview.coverage
-          .filter((c) => c.stale + c.missing > 0)
-          .map((c) => c.locale),
-      }
-    : undefined;
-
   const totalItems = menu.categories.reduce((acc, c) => acc + c.items.length, 0);
   const checklist =
     restaurant.activationDismissedAt !== null
@@ -119,16 +103,12 @@ export default async function AppPage({
       <MenuEditor
         menu={menu}
         restaurantName={restaurant.displayName}
-        slug={restaurant.slug}
         logoPath={restaurant.logoPath}
         planTier={restaurant.planTier}
-        publishAction={publishMenuAction}
-        regenerateQrAction={regenerateQrAction}
         activationChecklist={checklist}
         dismissActivationAction={dismissActivationChecklistAction}
         dailyDishes={dailyDishes}
         formulas={formulas}
-        pendingTranslation={pendingTranslation}
       />
     </div>
   );

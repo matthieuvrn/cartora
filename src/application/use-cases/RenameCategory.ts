@@ -32,5 +32,9 @@ export class RenameCategory {
       restaurantId: input.restaurantId,
       name,
     });
+
+    // Toute mutation de la carte diverge du snapshot publié → repasse en DRAFT jusqu'à
+    // republication (invariant porté par le use case, cf. markMenuAsDraft).
+    await this.repo.markMenuAsDraft(input.restaurantId);
   }
 }

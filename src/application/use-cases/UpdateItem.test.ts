@@ -20,6 +20,7 @@ describe("UpdateItem", () => {
 
     await uc.execute(VALID_INPUT);
 
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
     expect(repo.updateItem).toHaveBeenCalledWith({
       itemId: "item-1",
       restaurantId: "resto-1",

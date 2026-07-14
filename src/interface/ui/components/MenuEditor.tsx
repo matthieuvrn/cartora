@@ -17,12 +17,7 @@ import type { DailyDishData, FormulaData, MenuOverview } from "@/domain/menu/Men
 import { resolveText } from "@/domain/menu/MenuLocale";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
-import {
-  reorderCategoriesAction,
-  type ItemActionState,
-  type PublishActionState,
-} from "@/app/(app)/app/actions";
-import type { ActionState } from "@/lib/action-result";
+import { reorderCategoriesAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { matchesQuery } from "@/lib/text-search";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { cn } from "@/lib/utils";
@@ -36,7 +31,7 @@ import { SortableList } from "./dnd/SortableList";
 import { EditableRestaurantName } from "./EditableRestaurantName";
 import { EditorSearchInput } from "./EditorSearchInput";
 import { MenuActionBar } from "./MenuActionBar";
-import type { PendingTranslation } from "./PublishButton";
+import { PreviewDialog } from "./PreviewDialog";
 import { TodaySection } from "./TodaySection";
 
 // Persistance de l'état replié des catégories (par menu) : localStorage lu via
@@ -57,44 +52,32 @@ function subscribeToCollapseStore(callback: () => void) {
 type Props = {
   menu: MenuOverview;
   restaurantName: string;
-  /** Slug public du restaurant — alimente le lien « Voir mon menu » (/m/[slug]). */
-  slug: string;
   logoPath: string | null;
   planTier: PlanTier;
-  publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
-  regenerateQrAction: (
-    _prev: ActionState<{ success?: boolean }>,
-  ) => Promise<ActionState<{ success?: boolean }>>;
   activationChecklist: ActivationChecklist | null;
   dismissActivationAction: () => Promise<void>;
   dailyDishes: { active: DailyDishData[]; expired: DailyDishData[] };
   formulas: { active: FormulaData[]; expired: FormulaData[] };
-  /** Nudge à la publication (PRO) — transmis à la barre d'actions / PublishButton. */
-  pendingTranslation?: PendingTranslation;
 };
 
 /**
- * Canvas d'édition de la carte : barre d'actions persistante (recherche + Aperçu
- * + Publier + statut, cf. MenuActionBar), nav par chips scroll-spy, en-tête
- * d'identité compact, section « Aujourd'hui » (plats du jour + formules),
- * catégories repliables (état persisté par menu). L'aperçu du rendu public se
- * fait à la demande (bouton « Aperçu ») ; le menu publié s'ouvre via « Voir mon
- * menu ». Les surfaces de consultation/admin vivent dans leurs sections du
- * shell — /app/stats, /app/partage, /app/abonnement.
+ * Canvas d'édition de la carte : toolbar d'édition (recherche + Aperçu, cf.
+ * MenuActionBar), nav par chips scroll-spy, en-tête d'identité compact, section
+ * « Aujourd'hui » (plats du jour + formules), catégories repliables (état persisté
+ * par menu). Statut + Publier vivent dans la barre de publication globale du shell
+ * (PublishBar) — commune à toutes les sections. L'aperçu du rendu public se fait à
+ * la demande (bouton « Aperçu »). Les surfaces de consultation/admin ont leurs
+ * sections — /app/stats, /app/partage, /app/abonnement.
  */
 export function MenuEditor({
   menu,
   restaurantName,
-  slug,
   logoPath,
   planTier,
-  publishAction,
-  regenerateQrAction,
   activationChecklist,
   dismissActivationAction,
   dailyDishes,
   formulas,
-  pendingTranslation,
 }: Props) {
   const t = useTranslations("Dashboard");
   const tErrors = useTranslations("Errors");
@@ -215,28 +198,26 @@ export function MenuEditor({
   const chipCategories = optimisticCategories.map((c) => ({ id: c.id, name: c.name }));
   const listedCategories = isSearching ? visibleCategories : optimisticCategories;
 
-  // `pb-24` : dégage la barre basse fixe (mobile) pour ne pas masquer le bouton
-  // « Ajouter une catégorie ». Sur desktop la barre est collante dans le flux.
   return (
-    <div className="space-y-6 pb-24 md:pb-0">
+    <div className="space-y-6">
       <MenuActionBar
         menu={menu}
         restaurantName={restaurantName}
-        slug={slug}
         planTier={planTier}
-        publishAction={publishAction}
-        regenerateQrAction={regenerateQrAction}
         categories={chipCategories}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
-        pendingTranslation={pendingTranslation}
       />
 
-      {/* Équivalents mobiles de la toolbar desktop : recherche en haut du contenu,
-          chips sticky sous le topbar (enfant direct de la colonne pour que le
-          sticky tienne sur toute la hauteur de la page). */}
-      <div className="md:hidden">
-        <EditorSearchInput value={searchQuery} onChange={setSearchQuery} />
+      {/* Équivalents mobiles de la toolbar desktop : recherche + Aperçu en haut du
+          contenu, chips sticky sous le topbar (enfant direct de la colonne pour que
+          le sticky tienne sur toute la hauteur de la page). Publier vit dans la barre
+          globale du shell (PublishBar). */}
+      <div className="flex items-center gap-2 md:hidden">
+        <div className="min-w-0 flex-1">
+          <EditorSearchInput value={searchQuery} onChange={setSearchQuery} />
+        </div>
+        <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />
       </div>
       {!isSearching && chipCategories.length > 1 && (
         <div className="sticky top-14 z-10 -mx-4 border-b bg-background/95 px-4 py-2 backdrop-blur sm:-mx-6 sm:px-6 md:hidden">

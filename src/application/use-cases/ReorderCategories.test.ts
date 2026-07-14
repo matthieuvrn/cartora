@@ -24,6 +24,7 @@ describe("ReorderCategories", () => {
       restaurantId: "resto-1",
       orderedIds: ["cat-3", "cat-1", "cat-2"],
     });
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
 
   it("refuses empty list", async () => {
@@ -41,6 +42,7 @@ describe("ReorderCategories", () => {
       uc.execute({ restaurantId: "resto-1", menuId: "menu-1", orderedIds: ["cat-1"] }),
     ).rejects.toMatchObject({ name: "DomainError", code: "ownership_mismatch" });
     expect(repo.reorderCategories).not.toHaveBeenCalled();
+    expect(repo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("refuses if orderedIds is missing existing categories", async () => {

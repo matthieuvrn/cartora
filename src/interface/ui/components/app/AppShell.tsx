@@ -7,7 +7,9 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Button } from "@/components/ui/button";
 import { HIT_AREA } from "@/lib/utils";
 import { Logo } from "@/interface/ui/components/Logo";
+import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
 import { AppSidebar } from "./AppSidebar";
+import { PublishBar } from "./PublishBar";
 
 /**
  * Shell de l'app produit : rail latéral persistant (desktop ≥ md) + barre supérieure à hamburger
@@ -17,11 +19,14 @@ import { AppSidebar } from "./AppSidebar";
 export function AppShell({
   email,
   translationTodoCount,
+  publishBarState,
   children,
 }: {
   email: string;
   /** Champs de traduction « à relire » — pastille de comptage sur l'entrée « Traductions ». */
   translationTodoCount: number;
+  /** État de publication global (barre PublishBar) — `null` avant le provisioning du 1er login. */
+  publishBarState: PublishBarState | null;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -64,6 +69,7 @@ export function AppShell({
 
       {/* Contenu */}
       <main id="main" className="md:pl-60">
+        {publishBarState && <PublishBar state={publishBarState} />}
         <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</div>
       </main>
     </div>

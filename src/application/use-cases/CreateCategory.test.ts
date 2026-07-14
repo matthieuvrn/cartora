@@ -23,6 +23,7 @@ describe("CreateCategory", () => {
     const result = await uc.execute(VALID_INPUT);
 
     expect(result).toEqual({ categoryId: "new-cat-id" });
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
     expect(repo.createCategory).toHaveBeenCalledWith({
       menuId: "menu-1",
       restaurantId: "resto-1",
@@ -63,6 +64,7 @@ describe("CreateCategory", () => {
       code: "ownership_mismatch",
     });
     expect(repo.createCategory).not.toHaveBeenCalled();
+    expect(repo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("refuses on FREE tier when quota reached (6 categories)", async () => {

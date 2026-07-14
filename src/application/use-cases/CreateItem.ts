@@ -60,6 +60,10 @@ export class CreateItem {
       texts: { name, description },
     });
 
+    // Toute mutation de la carte diverge du snapshot publié → repasse en DRAFT jusqu'à
+    // republication (invariant porté par le use case, cf. markMenuAsDraft).
+    await this.repo.markMenuAsDraft(input.restaurantId);
+
     return { itemId: id };
   }
 }

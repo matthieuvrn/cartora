@@ -74,17 +74,15 @@ describe("AutoTranslateMenu", () => {
       ],
     });
     const service = createMockTranslationService();
-    const uc = new AutoTranslateMenu(
-      menuRepoOf(menu),
-      restaurantRepoOf("PRO"),
-      translationRepo,
-      service,
-    );
+    const menuRepo = menuRepoOf(menu);
+    const uc = new AutoTranslateMenu(menuRepo, restaurantRepoOf("PRO"), translationRepo, service);
 
     const result = await uc.execute({ restaurantId: "resto-1", targetLocale: "en" });
 
     // 3 units total (category name, item name, item desc); item name fresh → 2 translated.
     expect(result).toEqual({ translatedCount: 2, skippedCount: 1 });
+    // Des lignes ont été écrites → repasse en DRAFT.
+    expect(menuRepo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
     expect(service.translateBatch).toHaveBeenCalledWith({
       sourceLocale: "fr",
       targetLocale: "en",
@@ -143,18 +141,16 @@ describe("AutoTranslateMenu", () => {
       ],
     });
     const service = createMockTranslationService();
-    const uc = new AutoTranslateMenu(
-      menuRepoOf(menuFixture()),
-      restaurantRepoOf("PRO"),
-      translationRepo,
-      service,
-    );
+    const menuRepo = menuRepoOf(menuFixture());
+    const uc = new AutoTranslateMenu(menuRepo, restaurantRepoOf("PRO"), translationRepo, service);
 
     const result = await uc.execute({ restaurantId: "resto-1", targetLocale: "en" });
 
     expect(result).toEqual({ translatedCount: 0, skippedCount: 3 });
     expect(service.translateBatch).not.toHaveBeenCalled();
     expect(translationRepo.upsertMany).not.toHaveBeenCalled();
+    // Rien n'a changé (tout à jour) → pas de re-brouillon inutile.
+    expect(menuRepo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("rejects non-PRO tiers", async () => {

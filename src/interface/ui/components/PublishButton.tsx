@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useState } from "react";
+import { startTransition, useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
@@ -94,8 +94,10 @@ export function PublishButton({
   });
 
   // Déclenche la publication (dispatch useActionState) sans payload : l'action ne
-  // lit que l'état serveur. Équivaut au submit du <form> historique.
-  const doPublish = () => formAction();
+  // lit que l'état serveur. Équivaut au submit du <form> historique — un <form action>
+  // enveloppe le dispatch dans une transition, ce qu'on doit reproduire à la main ici
+  // (sinon `isPending` ne se met pas à jour). Même convention que DeleteCategoryDialog.
+  const doPublish = () => startTransition(() => formAction());
 
   const hasPending = pendingTranslation != null && pendingTranslation.todoCount > 0;
 

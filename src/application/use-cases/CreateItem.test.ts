@@ -20,6 +20,7 @@ describe("CreateItem", () => {
     const result = await uc.execute(VALID_INPUT);
 
     expect(result).toEqual({ itemId: "new-item-id" });
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
     expect(repo.getNextItemOrder).toHaveBeenCalledWith("cat-1");
     expect(repo.createItem).toHaveBeenCalledWith({
       categoryId: "cat-1",
@@ -119,6 +120,7 @@ describe("CreateItem", () => {
       code: "ownership_mismatch",
     });
     expect(repo.createItem).not.toHaveBeenCalled();
+    expect(repo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("calls verifyCategoryOwnership with correct arguments", async () => {

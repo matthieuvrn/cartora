@@ -23,6 +23,7 @@ describe("DeleteCategory", () => {
       categoryId: "cat-1",
       restaurantId: "resto-1",
     });
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
 
   it("refuses to delete the last remaining category", async () => {
@@ -36,6 +37,7 @@ describe("DeleteCategory", () => {
       code: "must_keep_one_category",
     });
     expect(repo.deleteCategory).not.toHaveBeenCalled();
+    expect(repo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("refuses if category does not belong to restaurant", async () => {

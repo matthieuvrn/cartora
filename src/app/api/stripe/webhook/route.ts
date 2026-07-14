@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { revalidateTag } from "next/cache";
 import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/infrastructure/db/prisma";
@@ -101,9 +100,9 @@ export async function POST(request: NextRequest) {
         priceId,
       });
 
-      if (result.status === "processed") {
-        revalidateTag(`public-menu-${result.slug}`, "default");
-      }
+      // Pas de revalidation de cache : la page publique /m/[slug] lit frais depuis la DB à
+      // chaque requête (aucun cache par tag), donc un changement d'abonnement (ex. CANCELED
+      // → menu indisponible) est reflété immédiatement sans invalidation.
       return NextResponse.json(result);
     } catch (error) {
       if (isDomainError(error)) {

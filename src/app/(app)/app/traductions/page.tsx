@@ -1,15 +1,12 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireRestaurant } from "../_lib/requireRestaurant";
-import { loadTranslationOverview, translationTodoCount } from "../_lib/translationOverview";
-import { publishMenuAction, regenerateQrAction } from "../actions";
+import { loadTranslationOverview } from "../_lib/translationOverview";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
-import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
 import { LanguagesCard } from "@/interface/ui/components/translations/LanguagesCard";
 import { TranslationUpsell } from "@/interface/ui/components/translations/TranslationUpsell";
-import { PublishButton } from "@/interface/ui/components/PublishButton";
 
 // Section « Traductions » (S4, refonte 2026 — flux full-auto). Le multilingue est
 // PRO uniquement : un non-PRO voit un pitch d'upsell ; un PRO gère ses langues cibles
@@ -48,37 +45,12 @@ export default async function TranslationsPage() {
   const overview =
     restaurant.menuLocales.length > 0 ? await loadTranslationOverview(restaurantId) : null;
 
-  // Activer/traduire une langue repasse le menu en DRAFT (markMenuAsDraft) sans le
-  // republier : on offre l'affordance « Publier » ici pour fermer la boucle sans
-  // renvoyer l'utilisateur vers l'éditeur.
-  const publishState = await new PrismaMenuRepository(prisma).getMenuPublishState(restaurantId);
-
-  // Nudge à la publication : mêmes données de couverture que la carte ci-dessous.
-  const pendingTranslation = overview
-    ? {
-        todoCount: translationTodoCount(overview.coverage),
-        targetLocales: overview.coverage
-          .filter((c) => c.stale + c.missing > 0)
-          .map((c) => c.locale),
-      }
-    : undefined;
-
+  // Activer/traduire une langue repasse le menu en DRAFT (markMenuAsDraft) sans le republier :
+  // l'affordance « Publier » (+ nudge de traduction) vit dans la barre de publication globale du
+  // shell (PublishBar), présente sur cette page comme partout ailleurs.
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        {header}
-        {publishState && (
-          <PublishButton
-            planTier={restaurant.planTier}
-            menuStatus={publishState.status}
-            publishedAt={publishState.publishedAt}
-            slug={restaurant.slug}
-            publishAction={publishMenuAction}
-            regenerateQrAction={regenerateQrAction}
-            pendingTranslation={pendingTranslation}
-          />
-        )}
-      </div>
+      {header}
 
       <LanguagesCard
         sourceLocale={restaurant.sourceLocale}

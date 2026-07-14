@@ -116,6 +116,11 @@ export class AutoTranslateMenu {
 
     await this.translationRepo.upsertMany({ restaurantId: input.restaurantId, rows: newRows });
 
+    // Des traductions cibles sont embarquées dans le snapshot à la publication → repasse en
+    // DRAFT jusqu'à republication. Uniquement quand des lignes ont été écrites : si tout était
+    // déjà à jour (`toTranslate.length === 0`, retour anticipé), rien n'a changé.
+    await this.menuRepo.markMenuAsDraft(input.restaurantId);
+
     return {
       translatedCount: newRows.length,
       skippedCount: units.length - newRows.length,

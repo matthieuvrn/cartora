@@ -20,6 +20,7 @@ describe("UpdateMenuTemplate", () => {
       restaurantId: "resto-1",
       template: "NOIR",
     });
+    expect(menuRepo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
 
   it("persists BISTRO for a PRO restaurant", async () => {
@@ -120,6 +121,7 @@ describe("UpdateMenuTemplate", () => {
       metadata: { template: "NOIR", tier: "FREE" },
     });
     expect(menuRepo.updateTemplate).not.toHaveBeenCalled();
+    expect(menuRepo.markMenuAsDraft).not.toHaveBeenCalled();
   });
 
   it("refuses BISTRO for a STARTER restaurant", async () => {

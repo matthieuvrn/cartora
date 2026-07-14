@@ -25,6 +25,7 @@ describe("RenameCategory", () => {
       restaurantId: "resto-1",
       name: "Plats principaux",
     });
+    expect(repo.markMenuAsDraft).toHaveBeenCalledWith("resto-1");
   });
 
   it("refuses if category does not belong to restaurant", async () => {

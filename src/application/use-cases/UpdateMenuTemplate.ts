@@ -14,7 +14,7 @@ export type UpdateMenuTemplateInput = {
  *
  * Règle métier : les templates premium (tout sauf CLASSIC) sont gatés PRO via `PlanPolicy.canUseTemplate`.
  * Le snapshot existant n'est pas régénéré ici — l'effet visible côté `/m/[slug]` suit le
- * pattern projet : `markMenuAsDraft` côté action puis republication explicite par l'utilisateur.
+ * pattern projet : `markMenuAsDraft` (porté par le use case) puis republication explicite.
  */
 export class UpdateMenuTemplate {
   constructor(
@@ -39,5 +39,9 @@ export class UpdateMenuTemplate {
       restaurantId: input.restaurantId,
       template: input.template,
     });
+
+    // Changer de template diverge du snapshot publié → repasse en DRAFT jusqu'à
+    // republication (invariant porté par le use case, cf. markMenuAsDraft).
+    await this.menuRepo.markMenuAsDraft(input.restaurantId);
   }
 }

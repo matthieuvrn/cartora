@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
@@ -326,7 +326,6 @@ export async function createItemAction(
         description: parsed.data.description,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true, createdItemId: itemId };
     },
@@ -370,7 +369,6 @@ export async function updateItemAction(
         description: parsed.data.description,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -401,7 +399,6 @@ export async function deleteItemAction(
         restaurantId,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -444,7 +441,6 @@ export async function reorderItemsAction(
         itemIds: parsed.data.itemIds,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -625,7 +621,6 @@ export async function createCategoryAction(
         name: parsed.data.name,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -662,7 +657,6 @@ export async function renameCategoryAction(
         name: parsed.data.name,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -697,7 +691,6 @@ export async function deleteCategoryAction(
         categoryId: parsed.data.categoryId,
       });
 
-      await repo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       return { error: null, success: true };
     },
@@ -738,7 +731,6 @@ export async function reorderCategoriesAction(
       orderedIds: parsed.data.orderedIds,
     });
 
-    await repo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     return { error: null, success: true };
   });
@@ -778,11 +770,11 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
       warning = { code: "qr_failed" };
     }
 
-    revalidateTag(`public-menu-${slug}`, "default");
-    revalidatePath("/app");
-    // La page /app/traductions porte aussi une affordance « Publier » : la
-    // revalider pour que son état bascule en PUBLISHED après publication.
-    revalidatePath("/app/traductions");
+    // Revalide tout le sous-arbre (app) en mode "layout" : la barre de publication globale
+    // (résolue dans le layout) + chaque section (/app, /app/traductions, /app/partage…)
+    // reflètent l'état PUBLISHED sans rechargement. Pas de revalidateTag : la page publique
+    // /m/[slug] lit frais depuis la DB à chaque requête, aucun cache par tag ne la consomme.
+    revalidatePath("/app", "layout");
     return { error: null, slug, warning };
   });
 }
@@ -849,6 +841,10 @@ export async function renameRestaurantAction(
       displayName: parsed.data.displayName,
     });
 
+    // Le nom du restaurant s'affiche sur le menu public → repasse en DRAFT. Exception au
+    // pattern « le use case porte markMenuAsDraft » : RenameRestaurant n'opère que sur
+    // l'agrégat Restaurant (RestaurantRepository) — on ne lui injecte pas un MenuRepository
+    // juste pour cet effet de bord, la ré-draft reste ici.
     const menuRepo = new PrismaMenuRepository(prisma);
     await menuRepo.markMenuAsDraft(restaurantId);
 
@@ -877,7 +873,6 @@ export async function setTemplateAction(
       restaurantId,
       template: parsed.data.template,
     });
-    await menuRepo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     revalidatePath("/app/apparence");
     return { error: null, success: true };
@@ -907,7 +902,9 @@ export async function updateMenuLocalesAction(
     });
 
     // Les langues activées sont embarquées dans le snapshot à la publication
-    // (availableLocales) → repasser en DRAFT jusqu'à republication explicite.
+    // (availableLocales) → repasser en DRAFT jusqu'à republication explicite. Exception
+    // au pattern use-case (comme RenameRestaurant) : UpdateMenuLocales n'opère que sur
+    // l'agrégat Restaurant — la ré-draft reste côté action.
     await menuRepo.markMenuAsDraft(restaurantId);
     revalidatePath("/app");
     revalidatePath("/app/traductions");
@@ -966,7 +963,6 @@ export async function autoTranslateMenuAction(
         service,
       ).execute({ restaurantId, targetLocale: parsed.data.targetLocale });
 
-      await menuRepo.markMenuAsDraft(restaurantId);
       revalidatePath("/app");
       revalidatePath("/app/traductions");
       return { error: null, ...result };
@@ -1009,7 +1005,6 @@ export async function updateBrandColorsAction(
 
     revalidatePath("/app");
     revalidatePath("/app/apparence");
-    revalidateTag(`public-menu-${restaurant.slug}`, "default");
     return { error: null, success: true };
   });
 }
