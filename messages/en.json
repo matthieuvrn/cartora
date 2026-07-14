@@ -160,6 +160,10 @@
     "publish": "Publish",
     "publishChanges": "Publish changes",
     "viewMyMenu": "View my menu",
+    "viewLiveVersion": "View live version",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "copyLinkError": "Couldn't copy the link",
     "unavailable": "Sold out",
     "availability": {
       "shownAfterPublish": "Visible on the menu after the next publish",
@@ -215,8 +219,12 @@
     "status": {
       "DRAFT": "Draft",
       "PUBLISHED": "Published",
+      "online": "Online",
       "upToDate": "Published · up to date",
-      "unpublishedChanges": "Unpublished changes"
+      "unpublishedChanges": "Unpublished changes",
+      "notYetOnline": "Not online yet",
+      "publishedAgo": "Published {time}",
+      "lastPublished": "Last published {time}"
     },
     "qrCode": {
       "title": "QR Code",

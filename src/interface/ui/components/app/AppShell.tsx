@@ -10,6 +10,7 @@ import { Logo } from "@/interface/ui/components/Logo";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
 import { AppSidebar } from "./AppSidebar";
 import { PublishBar } from "./PublishBar";
+import { PublishControlCompact } from "./PublishControlCompact";
 
 /**
  * Shell de l'app produit : rail latéral persistant (desktop ≥ md) + barre supérieure à hamburger
@@ -65,6 +66,8 @@ export function AppShell({
           </SheetContent>
         </Sheet>
         <Logo variant="lockup" className="h-6" />
+        {/* Contrôle de publication fusionné dans la topbar (plus de 2ᵉ barre sticky mobile). */}
+        {publishBarState && <PublishControlCompact state={publishBarState} className="ml-auto" />}
       </header>
 
       {/* Contenu */}

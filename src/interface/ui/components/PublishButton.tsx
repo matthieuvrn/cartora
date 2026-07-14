@@ -1,17 +1,9 @@
 "use client";
 
-import { startTransition, useActionState, useCallback, useState } from "react";
+import { startTransition, useActionState, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import {
-  Send,
-  Loader2,
-  AlertTriangle,
-  RefreshCw,
-  Check,
-  ExternalLink,
-  Sparkles,
-} from "lucide-react";
+import { Send, Loader2, Sparkles } from "lucide-react";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
 import type { PublishActionState } from "@/app/(app)/app/actions";
@@ -27,8 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { flushAllPendingDeletes } from "@/hooks/use-deferred-delete";
 import { useAutoTranslate } from "@/hooks/use-auto-translate";
-import { ErrorMessage } from "./ErrorMessage";
-import { PopIn } from "./PopIn";
+import { actionErrorText } from "./actionErrorText";
 import { PricingModal } from "./PricingModal";
 
 type RegenerateState = ActionState<{ success?: boolean }>;
@@ -46,8 +37,6 @@ type Props = {
   menuStatus: "DRAFT" | "PUBLISHED";
   /** Dernière publication (ISO) — null si le menu n'a jamais été publié. */
   publishedAt: string | null;
-  /** Slug public — cible du lien « Voir mon menu ». */
-  slug: string;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
   regenerateQrAction: (_prev: RegenerateState) => Promise<RegenerateState>;
   /**
@@ -56,47 +45,74 @@ type Props = {
    * publication directe (comportement historique).
    */
   pendingTranslation?: PendingTranslation;
+  /** `full` (« Publier les modifications ») ou `short` (« Publier ») — court sur la topbar mobile. */
+  labelVariant?: "full" | "short";
 };
 
+/**
+ * CTA de publication (le cluster de partage « URL / Copier / Voir » de l'état publié vit,
+ * lui, dans la barre — pas ici). Trois retours :
+ * - FREE            → bouton « Publier » ouvrant les tarifs (PricingModal).
+ * - PUBLISHED       → `null` (rien à publier ; la barre affiche le partage).
+ * - DRAFT (payant)  → bouton « Publier [les modifications] » + nudge de traduction.
+ *
+ * Tout le feedback (succès / erreur / QR raté / QR régénéré) passe par des **toasts** sonner :
+ * la barre globale reste ainsi une seule ligne, sans bloc qui s'y empile.
+ */
 export function PublishButton({
   planTier,
   menuStatus,
   publishedAt,
-  slug,
   publishAction,
   regenerateQrAction,
   pendingTranslation,
+  labelVariant = "full",
 }: Props) {
   const t = useTranslations("Dashboard");
   const tt = useTranslations("Translations");
+  const tPublishError = useTranslations("Dashboard.publishError");
+  const tErrors = useTranslations("Errors");
   const [pricingOpen, setPricingOpen] = useState(false);
   const [nudgeOpen, setNudgeOpen] = useState(false);
   const { run: runTranslate, progress, isTranslating } = useAutoTranslate();
 
+  const [regenState, regenAction] = useActionState(regenerateQrAction, { error: null });
+
+  // Résultat de la régénération QR (relancée depuis le toast d'avertissement) → toast.
+  useEffect(() => {
+    if (regenState.success) toast.success(t("publishWarning.regenerated"));
+    else if (regenState.error) toast.error(actionErrorText(tErrors, regenState.error));
+  }, [regenState, t, tErrors]);
+
   const wrappedPublish = useCallback(
     async (prev: PublishActionState) => {
-      // Publier snapshote l'état SERVEUR : purge d'abord les suppressions en
-      // attente (fenêtre « Annuler ») pour ne pas snapshoter un item que
-      // l'utilisateur voit déjà supprimé.
+      // Publier snapshote l'état SERVEUR : purge d'abord les suppressions en attente (fenêtre
+      // « Annuler ») pour ne pas snapshoter un item que l'utilisateur voit déjà supprimé.
       await flushAllPendingDeletes();
       const result = await publishAction(prev);
-      if (result.error === null) toast.success(t("toast.published"));
+      if (result.error) {
+        toast.error(actionErrorText(tPublishError, result.error));
+      } else {
+        toast.success(t("toast.published"));
+        // QR raté = non-fatal : le menu est publié. Toast avec action pour régénérer.
+        if (result.warning?.code === "qr_failed") {
+          toast.warning(t("publishWarning.qr_failed"), {
+            action: {
+              label: t("publishWarning.regenerate"),
+              onClick: () => startTransition(() => regenAction()),
+            },
+          });
+        }
+      }
       return result;
     },
-    [publishAction, t],
+    [publishAction, regenAction, t, tPublishError],
   );
-  const [state, formAction, isPending] = useActionState(wrappedPublish, {
-    error: null,
-  });
+  const [, formAction, isPending] = useActionState(wrappedPublish, { error: null });
 
-  const [regenState, regenAction, isRegenPending] = useActionState(regenerateQrAction, {
-    error: null,
-  });
-
-  // Déclenche la publication (dispatch useActionState) sans payload : l'action ne
-  // lit que l'état serveur. Équivaut au submit du <form> historique — un <form action>
-  // enveloppe le dispatch dans une transition, ce qu'on doit reproduire à la main ici
-  // (sinon `isPending` ne se met pas à jour). Même convention que DeleteCategoryDialog.
+  // Déclenche la publication (dispatch useActionState) sans payload : l'action ne lit que
+  // l'état serveur. Un `<form action>` envelopperait le dispatch dans une transition — on le
+  // reproduit à la main ici (sinon `isPending` ne se met pas à jour).
   const doPublish = () => startTransition(() => formAction());
 
   const hasPending = pendingTranslation != null && pendingTranslation.todoCount > 0;
@@ -123,15 +139,13 @@ export function PublishButton({
     doPublish();
   };
 
-  // FREE = pas de publication. Starter et Pro ont le droit de publier.
-  // Le serveur (PublishMenu use case) re-vérifie via PlanPolicy.canPublish, qui
-  // refuse aussi les status non-ACTIVE (PAST_DUE, CANCELED) — couvert par
-  // le code `plan_inactive` côté state.error.
+  // FREE = pas de publication : le CTA ouvre les tarifs. Le serveur re-vérifie de toute façon
+  // (PlanPolicy.canPublish refuse FREE + les status non-ACTIVE → toast d'erreur `plan_inactive`).
   if (planTier === "FREE") {
     return (
       <>
         <Button variant="default" size="sm" onClick={() => setPricingOpen(true)}>
-          <Send className="mr-2 size-4" />
+          <Send />
           {t("publish")}
         </Button>
         <PricingModal open={pricingOpen} onOpenChange={setPricingOpen} />
@@ -139,84 +153,24 @@ export function PublishButton({
     );
   }
 
-  // Sémantique explicite au lieu d'un bouton grisé :
-  // - PUBLISHED (à jour)      → lien « Voir mon menu » vers /m/[slug] (le vrai résultat).
-  // - DRAFT déjà publié       → CTA « Publier les modifications ».
-  // - DRAFT jamais publié     → CTA « Publier ».
-  // Toute mutation repasse le menu en DRAFT (markMenuAsDraft) → le CTA se rallume seul.
+  // PUBLISHED (à jour) : rien à publier — le cluster de partage (URL/Copier/Voir) vit dans la barre.
+  if (menuStatus === "PUBLISHED") return null;
+
+  // DRAFT : CTA de publication. Toute mutation repasse le menu en DRAFT (markMenuAsDraft) → il se rallume seul.
+  const label =
+    labelVariant === "short" ? t("publish") : publishedAt ? t("publishChanges") : t("publish");
+
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        {menuStatus === "PUBLISHED" ? (
-          <Button asChild size="sm" variant="outline">
-            <a href={`/m/${slug}`} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-2 size-4" />
-              {t("viewMyMenu")}
-            </a>
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            size="sm"
-            disabled={isPending || isTranslating}
-            onClick={handlePublishClick}
-          >
-            {isPending || isTranslating ? (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            ) : (
-              <Send className="mr-2 size-4" />
-            )}
-            {publishedAt ? (
-              <>
-                {/* Libellé long sur desktop, court sur la barre basse mobile. */}
-                <span className="sm:hidden">{t("publish")}</span>
-                <span className="hidden sm:inline">{t("publishChanges")}</span>
-              </>
-            ) : (
-              t("publish")
-            )}
-          </Button>
-        )}
-      </div>
-
-      {state.error && <ErrorMessage error={state.error} namespace="Dashboard.publishError" />}
-
-      {state.warning?.code === "qr_failed" && !regenState.success && (
-        <div
-          role="status"
-          className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-foreground"
-        >
-          <AlertTriangle className="size-4 shrink-0 text-warning" aria-hidden="true" />
-          <span className="flex-1">{t("publishWarning.qr_failed")}</span>
-          <form action={regenAction}>
-            <Button
-              type="submit"
-              size="sm"
-              variant="outline"
-              disabled={isRegenPending}
-              className="h-7"
-            >
-              {isRegenPending ? (
-                <Loader2 className="mr-1 size-3 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-1 size-3" />
-              )}
-              {t("publishWarning.regenerate")}
-            </Button>
-          </form>
-        </div>
-      )}
-
-      {regenState.success && (
-        <p role="status" className="flex items-center gap-1 text-sm text-success">
-          <PopIn>
-            <Check className="size-4" aria-hidden="true" />
-          </PopIn>
-          {t("publishWarning.regenerated")}
-        </p>
-      )}
-
-      {regenState.error && <ErrorMessage error={regenState.error} />}
+    <>
+      <Button
+        type="button"
+        size="sm"
+        disabled={isPending || isTranslating}
+        onClick={handlePublishClick}
+      >
+        {isPending || isTranslating ? <Loader2 className="animate-spin" /> : <Send />}
+        {label}
+      </Button>
 
       {hasPending && (
         <Dialog open={nudgeOpen} onOpenChange={(open) => !isTranslating && setNudgeOpen(open)}>
@@ -237,11 +191,7 @@ export function PublishButton({
                 {t("publishNudge.publishAnyway")}
               </Button>
               <Button onClick={handleTranslateThenPublish} disabled={isTranslating}>
-                {isTranslating ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-2 size-4" />
-                )}
+                {isTranslating ? <Loader2 className="animate-spin" /> : <Sparkles />}
                 {progress
                   ? tt("autoTranslateProgress", {
                       lang: MENU_LOCALE_LABELS[progress.locale],
@@ -254,6 +204,6 @@ export function PublishButton({
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </>
   );
 }

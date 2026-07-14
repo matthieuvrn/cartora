@@ -160,6 +160,10 @@
     "publish": "Publier",
     "publishChanges": "Publier les modifications",
     "viewMyMenu": "Voir mon menu",
+    "viewLiveVersion": "Voir la version en ligne",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "copyLinkError": "Impossible de copier le lien",
     "unavailable": "Épuisé",
     "availability": {
       "shownAfterPublish": "Visible sur le menu à la prochaine publication",
@@ -215,8 +219,12 @@
     "status": {
       "DRAFT": "Brouillon",
       "PUBLISHED": "Publié",
+      "online": "En ligne",
       "upToDate": "Publié · à jour",
-      "unpublishedChanges": "Modifications non publiées"
+      "unpublishedChanges": "Modifications non publiées",
+      "notYetOnline": "Pas encore en ligne",
+      "publishedAgo": "Publié {time}",
+      "lastPublished": "Dernière publication {time}"
     },
     "qrCode": {
       "title": "QR Code",
