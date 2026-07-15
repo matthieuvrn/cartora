@@ -1,6 +1,6 @@
 "use client";
 
-import { publishMenuAction, regenerateQrAction } from "@/app/(app)/app/actions";
+import { publishMenuAction } from "@/app/(app)/app/actions";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
 import { cn } from "@/lib/utils";
 import { PublishButton } from "../PublishButton";
@@ -33,7 +33,6 @@ export function PublishControlCompact({
           menuStatus={state.status}
           publishedAt={state.publishedAt}
           publishAction={publishMenuAction}
-          regenerateQrAction={regenerateQrAction}
           pendingTranslation={state.pendingTranslation}
           labelVariant="short"
         />

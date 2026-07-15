@@ -96,6 +96,16 @@ export class BrandingPolicy {
   static meetsContrastAA(fg: string, bg: string): boolean {
     return BrandingPolicy.contrastRatio(fg, bg) >= WCAG_AA_CONTRAST;
   }
+
+  /**
+   * Luminance relative WCAG 2.1 d'une couleur hex `#RRGGBB` (0 = noir, 1 = blanc).
+   * Exposée pour comparer deux couleurs entre elles — ex. `QrStylePolicy` détecte un
+   * QR « inversé » (modules plus clairs que le fond) que le seul ratio de contraste
+   * ne distingue pas. Throw `invalid_brand_color` sur un hex malformé.
+   */
+  static relativeLuminance(hex: string): number {
+    return relativeLuminance(hex);
+  }
 }
 
 function relativeLuminance(hex: string): number {

@@ -22,12 +22,10 @@ export type ActionError = {
  * - `error: ActionError` ⇒ échec. Le code identifie la cause (paywall, quota, …).
  * - `fieldErrors` ⇒ erreurs de validation par champ (Zod parse failures).
  *   C'est orthogonal à `error.code === "validation"` : les deux peuvent coexister.
- * - `warning` ⇒ état non-fatal accompagnant un succès (ex: publish OK mais QR a foiré).
  */
 export type ActionState<TExtra = Record<string, never>> = {
   error: ActionError | null;
   fieldErrors?: Record<string, string>;
-  warning?: { code: string; metadata?: Record<string, unknown> } | null;
 } & TExtra;
 
 /**

@@ -3,7 +3,8 @@ import type { InitialCategory, RestaurantType } from "@/domain/restaurant/Restau
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
-import type { PrismaClient } from "@/generated/prisma/client";
+import type { QrStyle } from "@/domain/restaurant/QrStylePolicy";
+import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 
 export class PrismaRestaurantRepository implements RestaurantRepository {
   constructor(private readonly db: PrismaClient) {}
@@ -82,6 +83,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
     brandBackground: string | null;
     sourceLocale: MenuLocale;
     menuLocales: MenuLocale[];
+    qrStyle: QrStyle | null;
   } | null> {
     const restaurant = await this.db.restaurant.findUnique({
       where: { id },
@@ -98,6 +100,7 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
         brandBackground: true,
         sourceLocale: true,
         menuLocales: true,
+        qrStyle: true,
       },
     });
 
@@ -117,6 +120,8 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       // Contraints par CHECK SQL (076) — le cast reflète l'invariant DB.
       sourceLocale: restaurant.sourceLocale as MenuLocale,
       menuLocales: restaurant.menuLocales as MenuLocale[],
+      // Forme garantie par QrStylePolicy à l'écriture (JSONB sans CHECK — app seul writer).
+      qrStyle: restaurant.qrStyle == null ? null : (restaurant.qrStyle as unknown as QrStyle),
     };
   }
 
@@ -129,6 +134,13 @@ export class PrismaRestaurantRepository implements RestaurantRepository {
       data: { menuLocales: params.menuLocales },
     });
   }
+  async updateQrStyle(params: { restaurantId: string; style: QrStyle }): Promise<void> {
+    await this.db.restaurant.update({
+      where: { id: params.restaurantId },
+      data: { qrStyle: params.style as unknown as Prisma.InputJsonValue },
+    });
+  }
+
   async updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void> {
     await this.db.restaurant.update({
       where: { id: params.restaurantId },

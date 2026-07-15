@@ -131,13 +131,15 @@ model Restaurant {
   sourceLocale          String          @default("fr") @map("source_locale")
   /// Langues cibles activées (S4). CHECK SQL: sous-ensemble de fr|en|es|de|it.
   menuLocales           String[]        @default([]) @map("menu_locales")
+  /// Personnalisation du QR (page Partage), découplée du template. NULL = look par défaut.
+  /// Forme validée par QrStylePolicy (l'app est le seul writer) — pas de CHECK DB.
+  qrStyle               Json?           @map("qr_style")
   activationDismissedAt DateTime?       @map("activation_dismissed_at")
   createdAt             DateTime        @default(now()) @map("created_at")
   updatedAt             DateTime        @updatedAt @map("updated_at")
 
   menu         Menu?
   billing      Billing?
-  qrAsset      QrAsset?
   categories   Category[]
   items        Item[]
   translations Translation[]
@@ -259,18 +261,6 @@ model ProcessedWebhookEvent {
   createdAt     DateTime  @default(now()) @map("created_at")
 
   @@map("processed_webhook_events")
-}
-
-model QrAsset {
-  id           String   @id @default(uuid()) @db.Uuid
-  restaurantId String   @unique @map("restaurant_id") @db.Uuid
-  storagePath  String   @map("storage_path")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-
-  @@map("qr_assets")
 }
 
 model MenuPublicSnapshot {

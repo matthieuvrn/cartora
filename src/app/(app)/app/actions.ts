@@ -44,11 +44,9 @@ import { DeleteFormula } from "@/application/use-cases/DeleteFormula";
 import { ReorderFormulas } from "@/application/use-cases/ReorderFormulas";
 import { RenameRestaurant } from "@/application/use-cases/RenameRestaurant";
 import { UpdateBrandColors } from "@/application/use-cases/UpdateBrandColors";
+import { UpdateQrStyle } from "@/application/use-cases/UpdateQrStyle";
 import { SetItemAvailability } from "@/application/use-cases/SetItemAvailability";
-import { GenerateQrCode } from "@/application/use-cases/GenerateQrCode";
-import { NodeQrCodeGenerator } from "@/infrastructure/qr/NodeQrCodeGenerator";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
-import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import * as Sentry from "@sentry/nextjs";
 import { withActionContext, type ActionError, type ActionState } from "@/lib/action-result";
 import { parsePriceEurToCents } from "@/lib/price";
@@ -160,6 +158,17 @@ const UpdateBrandColorsSchema = z.object({
   accent: HexColorSchema,
   background: HexColorSchema,
   forceLowContrast: z.boolean().default(false),
+});
+
+// Personnalisation du QR (page Partage). Couleurs requises (un QR a toujours 2 tons) ;
+// les styles restent des `string` — l'énumération curée + les invariants de
+// scannabilité (contraste, code non inversé) sont validés par `QrStylePolicy`.
+const HexRequiredSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/);
+const UpdateQrStyleSchema = z.object({
+  darkColor: HexRequiredSchema,
+  lightColor: HexRequiredSchema,
+  dotsStyle: z.string().min(1).max(20),
+  cornersStyle: z.string().min(1).max(20),
 });
 
 // Menu du jour (S3.1) — `validUntil` est ISO 8601 UTC. Vide ⇒ default = fin de
@@ -745,64 +754,17 @@ export async function publishMenuAction(_prev: PublishActionState): Promise<Publ
     const clock = new SystemClock();
     const useCase = new PublishMenu(menuRepo, restaurantRepo, snapshotRepo, clock);
 
-    // 1. Publication — peut throw DomainError("plan_inactive" | "no_items" | …)
-    //    qui sera converti en `state.error.code` par `withActionContext`.
+    // Publication — peut throw DomainError("plan_inactive" | "no_items" | …)
+    // qui sera converti en `state.error.code` par `withActionContext`.
     const { slug } = await useCase.execute({ restaurantId });
-
-    // 2. Génération QR — non bloquante. Échec ⇒ warning ambre côté UI, le menu reste
-    //    publié. L'utilisateur peut relancer via `regenerateQrAction`.
-    let warning: PublishActionState["warning"] = null;
-    try {
-      const qrGenerator = new NodeQrCodeGenerator();
-      const storageService = new SupabaseStorageService("qr-codes");
-      const qrAssetRepo = new PrismaQrAssetRepository(prisma);
-      const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
-      const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${slug}?utm_source=qr`;
-      await generateQr.execute({ restaurantId, slug, menuUrl });
-    } catch (qrError) {
-      // Warning niveau Sentry : on veut le voir mais ce n'est pas une exception bloquante.
-      Sentry.captureException(qrError, {
-        tags: { action: "publishMenu", phase: "qr" },
-        user: { id: restaurantId },
-        level: "warning",
-        extra: { slug },
-      });
-      warning = { code: "qr_failed" };
-    }
 
     // Revalide tout le sous-arbre (app) en mode "layout" : la barre de publication globale
     // (résolue dans le layout) + chaque section (/app, /app/traductions, /app/partage…)
     // reflètent l'état PUBLISHED sans rechargement. Pas de revalidateTag : la page publique
     // /m/[slug] lit frais depuis la DB à chaque requête, aucun cache par tag ne la consomme.
+    // Le QR est désormais rendu/téléchargé côté navigateur (page Partage), aucune génération serveur.
     revalidatePath("/app", "layout");
-    return { error: null, slug, warning };
-  });
-}
-
-/**
- * Régénère un QR code pour le menu déjà publié de l'utilisateur courant.
- * Utilisé quand `publishMenuAction` a renvoyé `warning: { code: "qr_failed" }`.
- */
-export async function regenerateQrAction(
-  _prev: ActionState<{ success?: boolean }>,
-): Promise<ActionState<{ success?: boolean }>> {
-  const restaurantId = await getAuthenticatedRestaurantId();
-  return withActionContext({ actionName: "regenerateQr", restaurantId }, async () => {
-    const restaurantRepo = new PrismaRestaurantRepository(prisma);
-    const restaurant = await restaurantRepo.getRestaurantById(restaurantId);
-    if (!restaurant) {
-      // L'utilisateur est authentifié mais n'a pas de restaurant : édge case improbable
-      // (cf. EnsureRestaurantExists au login), mais on reste défensif.
-      throw new DomainError("restaurant_not_found", { entityId: restaurantId });
-    }
-    const qrGenerator = new NodeQrCodeGenerator();
-    const storageService = new SupabaseStorageService("qr-codes");
-    const qrAssetRepo = new PrismaQrAssetRepository(prisma);
-    const generateQr = new GenerateQrCode(qrGenerator, storageService, qrAssetRepo);
-    const menuUrl = `${process.env.NEXT_PUBLIC_APP_URL}/m/${restaurant.slug}?utm_source=qr`;
-    await generateQr.execute({ restaurantId, slug: restaurant.slug, menuUrl });
-    revalidatePath("/app");
-    return { error: null, success: true };
+    return { error: null, slug };
   });
 }
 
@@ -1005,6 +967,36 @@ export async function updateBrandColorsAction(
 
     revalidatePath("/app");
     revalidatePath("/app/apparence");
+    return { error: null, success: true };
+  });
+}
+
+/**
+ * Persiste la personnalisation du QR (couleurs + formes) sur la page Partage.
+ * Découplé du template et des couleurs de marque, ouvert à tous les forfaits.
+ * NE re-draft PAS le menu (le QrStyle n'entre pas dans le snapshot public) — d'où
+ * l'absence de `MenuRepository` et le `revalidatePath` limité à la page Partage.
+ */
+export async function updateQrStyleAction(
+  _prev: RenameActionState,
+  formData: FormData,
+): Promise<RenameActionState> {
+  const parsed = UpdateQrStyleSchema.safeParse({
+    darkColor: formData.get("darkColor") ?? "",
+    lightColor: formData.get("lightColor") ?? "",
+    dotsStyle: formData.get("dotsStyle") ?? "",
+    cornersStyle: formData.get("cornersStyle") ?? "",
+  });
+
+  if (!parsed.success) {
+    return { error: VALIDATION_ERROR, fieldErrors: zodFieldErrors(parsed.error.issues) };
+  }
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName: "updateQrStyle", restaurantId }, async () => {
+    const restaurantRepo = new PrismaRestaurantRepository(prisma);
+    await new UpdateQrStyle(restaurantRepo).execute({ restaurantId, ...parsed.data });
+    revalidatePath("/app/partage");
     return { error: null, success: true };
   });
 }

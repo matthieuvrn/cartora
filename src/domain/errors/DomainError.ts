@@ -75,6 +75,10 @@ export type DomainErrorCode =
   | "invalid_brand_color"
   | "low_brand_contrast"
 
+  // Personnalisation QR (page Partage)
+  | "invalid_qr_style"
+  | "qr_low_contrast"
+
   // Multilingue (S4) — gestion des langues du menu et traduction automatique
   | "invalid_locale"
   | "locale_not_enabled"

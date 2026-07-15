@@ -4,9 +4,7 @@ import { createMockBillingRepo } from "./__fixtures__/billingRepoMock";
 import { createMockRestaurantRepo } from "./__fixtures__/restaurantRepoMock";
 import { createMockPaymentGateway } from "./__fixtures__/paymentGatewayMock";
 import { createMockStorageService } from "./__fixtures__/storageServiceMock";
-import { createMockQrAssetRepo } from "./__fixtures__/qrAssetRepoMock";
 import type { BillingRepository } from "@/application/ports/BillingRepository";
-import type { QrAssetRepository } from "@/application/ports/QrAssetRepository";
 import type { PaymentGateway } from "@/application/ports/PaymentGateway";
 import type { StorageService } from "@/application/ports/StorageService";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
@@ -23,11 +21,6 @@ const BILLING_FIXTURE = {
   stripeSubscriptionId: "sub_xyz789",
 };
 
-const QR_ASSET_FIXTURE = {
-  restaurantId: "resto-1",
-  storagePath: "qr-codes/resto-1.png",
-};
-
 /**
  * AuthAdminService est utilisé uniquement ici — fixture local plutôt que dédié.
  */
@@ -41,9 +34,7 @@ function createMockAuthAdmin(overrides: Partial<AuthAdminService> = {}): AuthAdm
 function createUseCase(
   overrides: {
     billingRepo?: Partial<BillingRepository>;
-    qrAssetRepo?: Partial<QrAssetRepository>;
     paymentGateway?: Partial<PaymentGateway>;
-    qrStorage?: Partial<StorageService>;
     logoStorage?: Partial<StorageService>;
     restaurantRepo?: Partial<RestaurantRepository>;
     authAdmin?: Partial<AuthAdminService>;
@@ -53,12 +44,7 @@ function createUseCase(
     findByRestaurantId: async () => BILLING_FIXTURE,
     ...overrides.billingRepo,
   });
-  const qrAssetRepo = createMockQrAssetRepo({
-    findByRestaurantId: async () => QR_ASSET_FIXTURE,
-    ...overrides.qrAssetRepo,
-  });
   const paymentGateway = createMockPaymentGateway(overrides.paymentGateway);
-  const qrStorage = createMockStorageService(overrides.qrStorage);
   const logoStorage = createMockStorageService(overrides.logoStorage);
   const restaurantRepo = createMockRestaurantRepo({
     getRestaurantById: async () => null,
@@ -68,92 +54,39 @@ function createUseCase(
 
   const uc = new DeleteRestaurant(
     billingRepo,
-    qrAssetRepo,
     paymentGateway,
-    qrStorage,
     logoStorage,
     restaurantRepo,
     authAdmin,
   );
 
-  return {
-    uc,
-    billingRepo,
-    qrAssetRepo,
-    paymentGateway,
-    qrStorage,
-    logoStorage,
-    restaurantRepo,
-    authAdmin,
-  };
+  return { uc, billingRepo, paymentGateway, logoStorage, restaurantRepo, authAdmin };
 }
 
 describe("DeleteRestaurant", () => {
-  it("performs full cleanup (billing + QR + logo + restaurant + user)", async () => {
-    const { uc, paymentGateway, qrStorage, logoStorage, restaurantRepo, authAdmin } =
-      createUseCase();
+  it("performs full cleanup (billing + logo + restaurant + user)", async () => {
+    const { uc, paymentGateway, logoStorage, restaurantRepo, authAdmin } = createUseCase();
 
     const result = await uc.execute(VALID_INPUT);
 
     expect(result).toEqual({ status: "completed", errors: [] });
     expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
     expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
-    expect(qrStorage.delete).toHaveBeenCalledWith("qr-codes/resto-1.png");
     expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });
 
-  it("cleans only storage when no billing exists", async () => {
-    const { uc, paymentGateway, qrStorage, logoStorage, restaurantRepo, authAdmin } = createUseCase(
-      {
-        billingRepo: { findByRestaurantId: async () => null },
-      },
-    );
+  it("skips Stripe and still cleans logo + restaurant + user when no billing exists", async () => {
+    const { uc, paymentGateway, logoStorage, restaurantRepo, authAdmin } = createUseCase({
+      billingRepo: { findByRestaurantId: async () => null },
+    });
 
     const result = await uc.execute(VALID_INPUT);
 
     expect(result).toEqual({ status: "completed", errors: [] });
     expect(paymentGateway.cancelSubscription).not.toHaveBeenCalled();
     expect(paymentGateway.deleteCustomer).not.toHaveBeenCalled();
-    expect(qrStorage.delete).toHaveBeenCalledWith("qr-codes/resto-1.png");
-    expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
-    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
-    expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
-  });
-
-  it("cleans only Stripe + logo when no QR asset exists", async () => {
-    const { uc, paymentGateway, qrStorage, logoStorage, restaurantRepo, authAdmin } = createUseCase(
-      {
-        qrAssetRepo: { findByRestaurantId: async () => null },
-      },
-    );
-
-    const result = await uc.execute(VALID_INPUT);
-
-    expect(result).toEqual({ status: "completed", errors: [] });
-    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
-    expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
-    expect(qrStorage.delete).not.toHaveBeenCalled();
-    expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
-    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
-    expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
-  });
-
-  it("still wipes logo prefix when nothing else to clean (FREE user, no QR)", async () => {
-    const { uc, paymentGateway, qrStorage, logoStorage, restaurantRepo, authAdmin } = createUseCase(
-      {
-        billingRepo: { findByRestaurantId: async () => null },
-        qrAssetRepo: { findByRestaurantId: async () => null },
-      },
-    );
-
-    const result = await uc.execute(VALID_INPUT);
-
-    expect(result).toEqual({ status: "completed", errors: [] });
-    expect(paymentGateway.cancelSubscription).not.toHaveBeenCalled();
-    expect(paymentGateway.deleteCustomer).not.toHaveBeenCalled();
-    expect(qrStorage.delete).not.toHaveBeenCalled();
     expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
@@ -200,7 +133,7 @@ describe("DeleteRestaurant", () => {
   });
 
   it("captures Stripe error and still cleans rest", async () => {
-    const { uc, qrStorage, logoStorage, restaurantRepo, authAdmin } = createUseCase({
+    const { uc, logoStorage, restaurantRepo, authAdmin } = createUseCase({
       paymentGateway: {
         cancelSubscription: vi.fn(async () => {
           throw new Error("Stripe API error");
@@ -213,35 +146,13 @@ describe("DeleteRestaurant", () => {
     expect(result.status).toBe("completed");
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0]).toContain("Stripe cleanup failed");
-    expect(qrStorage.delete).toHaveBeenCalledWith("qr-codes/resto-1.png");
-    expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
-    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
-    expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
-  });
-
-  it("captures QR storage error and still cleans rest", async () => {
-    const { uc, paymentGateway, logoStorage, restaurantRepo, authAdmin } = createUseCase({
-      qrStorage: {
-        delete: vi.fn(async () => {
-          throw new Error("Storage API error");
-        }),
-      },
-    });
-
-    const result = await uc.execute(VALID_INPUT);
-
-    expect(result.status).toBe("completed");
-    expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain("Storage cleanup failed");
-    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
-    expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
     expect(logoStorage.deleteByPrefix).toHaveBeenCalledWith("resto-1/");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });
 
   it("captures logo cleanup error and still deletes restaurant + user", async () => {
-    const { uc, paymentGateway, qrStorage, restaurantRepo, authAdmin } = createUseCase({
+    const { uc, paymentGateway, restaurantRepo, authAdmin } = createUseCase({
       logoStorage: {
         deleteByPrefix: vi.fn(async () => {
           throw new Error("Bucket list failed");
@@ -255,7 +166,6 @@ describe("DeleteRestaurant", () => {
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0]).toContain("Logo cleanup failed");
     expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
-    expect(qrStorage.delete).toHaveBeenCalledWith("qr-codes/resto-1.png");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });
@@ -265,11 +175,6 @@ describe("DeleteRestaurant", () => {
       paymentGateway: {
         cancelSubscription: vi.fn(async () => {
           throw new Error("Stripe down");
-        }),
-      },
-      qrStorage: {
-        delete: vi.fn(async () => {
-          throw new Error("Storage down");
         }),
       },
       logoStorage: {
@@ -282,10 +187,9 @@ describe("DeleteRestaurant", () => {
     const result = await uc.execute(VALID_INPUT);
 
     expect(result.status).toBe("completed");
-    expect(result.errors).toHaveLength(3);
+    expect(result.errors).toHaveLength(2);
     expect(result.errors[0]).toContain("Stripe cleanup failed");
-    expect(result.errors[1]).toContain("Storage cleanup failed");
-    expect(result.errors[2]).toContain("Logo cleanup failed");
+    expect(result.errors[1]).toContain("Logo cleanup failed");
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });

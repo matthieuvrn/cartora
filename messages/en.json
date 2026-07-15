@@ -44,7 +44,49 @@
     "title": "Share",
     "description": "Get your menu out there: public link and a printable QR code for your tables.",
     "notPublishedTitle": "No QR code yet",
-    "notPublishedDescription": "Publish your menu from the \"My menu\" tab to generate your public link and QR code."
+    "notPublishedDescription": "Publish your menu from the \"My menu\" tab to generate your public link and QR code.",
+    "qrEditor": {
+      "title": "Customize the QR code",
+      "description": "Colors and shapes, independent of the rest of your menu.",
+      "presets": "Presets",
+      "presetLabels": {
+        "default": "Classic",
+        "encre": "Ink",
+        "canard": "Teal",
+        "foret": "Forest",
+        "bordeaux": "Bordeaux",
+        "prune": "Plum"
+      },
+      "colors": "Colors",
+      "darkColor": "Modules",
+      "darkColorHint": "Color of the code dots",
+      "lightColor": "Background",
+      "lightColorHint": "Keep a light background for good contrast",
+      "shapes": "Shapes",
+      "dotsStyle": "Dot style",
+      "cornersStyle": "Corner style",
+      "dotStyleLabels": {
+        "square": "Square",
+        "rounded": "Rounded",
+        "dots": "Dots",
+        "classy": "Classy",
+        "extra-rounded": "Extra rounded"
+      },
+      "cornerStyleLabels": {
+        "square": "Square",
+        "rounded": "Rounded",
+        "dots": "Dot"
+      },
+      "preview": "Preview",
+      "contrastWarning": "Contrast too low: this QR may not scan. Darken the modules or lighten the background.",
+      "downloadPng": "Download PNG",
+      "downloadSvg": "Download SVG",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "QR code updated",
+      "reset": "Reset",
+      "scanHint": "Always test the QR with a phone before printing."
+    }
   },
   "Auth": {
     "login": "Sign in",
@@ -258,11 +300,6 @@
       "restaurant_not_found": "We couldn't find your restaurant. Please reload the page.",
       "menu_not_found": "No menu to publish. Add at least one category.",
       "generic": "Publishing failed, please try again."
-    },
-    "publishWarning": {
-      "qr_failed": "Menu published, but QR code generation failed.",
-      "regenerate": "Regenerate QR code",
-      "regenerated": "QR code regenerated."
     },
     "toast": {
       "itemCreated": "Item added",
@@ -722,6 +759,8 @@
     "template_not_allowed": "This template requires the PRO plan",
     "invalid_brand_color": "Invalid color (expected format: #RRGGBB)",
     "low_brand_contrast": "Insufficient contrast between the primary color and the background (WCAG AA not met)",
+    "invalid_qr_style": "Invalid QR code style",
+    "qr_low_contrast": "Contrast too low: the QR code would not scan",
     "daily_dishes_not_allowed": "Today's specials require the Starter or PRO plan",
     "daily_dish_until_in_past": "Expiration must be in the future",
     "daily_dish_until_too_far": "Expiration cannot be more than 14 days away",

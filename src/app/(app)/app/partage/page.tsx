@@ -5,11 +5,9 @@ import { requireRestaurant } from "../_lib/requireRestaurant";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
-import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
-import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
-import { QrCodeCard } from "@/interface/ui/components/QrCodeCard";
+import { QrStyleEditor } from "@/interface/ui/components/QrStyleEditor";
 
 export default async function SharePage() {
   const { restaurantId } = await requireRestaurant();
@@ -21,12 +19,6 @@ export default async function SharePage() {
   const menuRepo = new PrismaMenuRepository(prisma);
   const menu = await menuRepo.getMenuByRestaurantId(restaurantId);
   const isPublished = menu?.publishedAt != null;
-
-  const qrAssetRepo = new PrismaQrAssetRepository(prisma);
-  const qrAsset = await qrAssetRepo.findByRestaurantId(restaurantId);
-  const qrCodeUrl = qrAsset
-    ? new SupabaseStorageService("qr-codes").getPublicUrl(qrAsset.storagePath)
-    : null;
 
   const t = await getTranslations("Share");
   const tDash = await getTranslations("Dashboard");
@@ -64,7 +56,11 @@ export default async function SharePage() {
               </a>
             </AlertDescription>
           </Alert>
-          {qrCodeUrl && <QrCodeCard qrCodeUrl={qrCodeUrl} />}
+          <QrStyleEditor
+            slug={restaurant.slug}
+            appUrl={process.env.NEXT_PUBLIC_APP_URL ?? ""}
+            initialStyle={restaurant.qrStyle}
+          />
         </>
       )}
     </div>

@@ -44,7 +44,49 @@
     "title": "Partage",
     "description": "Diffusez votre carte : lien public et QR code à imprimer pour vos tables.",
     "notPublishedTitle": "Pas encore de QR code",
-    "notPublishedDescription": "Publiez votre carte depuis l'onglet « Ma carte » pour générer votre lien public et votre QR code."
+    "notPublishedDescription": "Publiez votre carte depuis l'onglet « Ma carte » pour générer votre lien public et votre QR code.",
+    "qrEditor": {
+      "title": "Personnaliser le QR code",
+      "description": "Couleurs et formes, indépendamment du reste de votre carte.",
+      "presets": "Modèles",
+      "presetLabels": {
+        "default": "Classique",
+        "encre": "Encre",
+        "canard": "Canard",
+        "foret": "Forêt",
+        "bordeaux": "Bordeaux",
+        "prune": "Prune"
+      },
+      "colors": "Couleurs",
+      "darkColor": "Modules",
+      "darkColorHint": "Couleur des points du code",
+      "lightColor": "Fond",
+      "lightColorHint": "Gardez un fond clair pour un bon contraste",
+      "shapes": "Formes",
+      "dotsStyle": "Style des points",
+      "cornersStyle": "Style des coins",
+      "dotStyleLabels": {
+        "square": "Carré",
+        "rounded": "Arrondi",
+        "dots": "Points",
+        "classy": "Chic",
+        "extra-rounded": "Très arrondi"
+      },
+      "cornerStyleLabels": {
+        "square": "Carré",
+        "rounded": "Arrondi",
+        "dots": "Point"
+      },
+      "preview": "Aperçu",
+      "contrastWarning": "Contraste trop faible : ce QR risque de ne pas être scannable. Assombrissez les modules ou éclaircissez le fond.",
+      "downloadPng": "Télécharger PNG",
+      "downloadSvg": "Télécharger SVG",
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "saved": "QR code mis à jour",
+      "reset": "Réinitialiser",
+      "scanHint": "Testez toujours le QR avec un téléphone avant d'imprimer."
+    }
   },
   "Auth": {
     "login": "Se connecter",
@@ -258,11 +300,6 @@
       "restaurant_not_found": "Impossible de retrouver votre restaurant. Rechargez la page.",
       "menu_not_found": "Aucun menu à publier. Ajoutez au moins une catégorie.",
       "generic": "La publication a échoué, réessayez."
-    },
-    "publishWarning": {
-      "qr_failed": "Menu publié, mais la génération du QR code a échoué.",
-      "regenerate": "Régénérer le QR code",
-      "regenerated": "QR code régénéré."
     },
     "toast": {
       "itemCreated": "Item ajouté",
@@ -722,6 +759,8 @@
     "template_not_allowed": "Ce template nécessite la formule PRO",
     "invalid_brand_color": "Couleur invalide (format attendu : #RRGGBB)",
     "low_brand_contrast": "Contraste insuffisant entre la couleur principale et le fond (AA non atteint)",
+    "invalid_qr_style": "Style de QR code invalide",
+    "qr_low_contrast": "Contraste trop faible : le QR code ne serait pas scannable",
     "daily_dishes_not_allowed": "Le menu du jour nécessite la formule Starter ou PRO",
     "daily_dish_until_in_past": "L'expiration doit être dans le futur",
     "daily_dish_until_too_far": "L'expiration ne peut pas dépasser 14 jours",

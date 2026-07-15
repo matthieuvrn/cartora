@@ -2,6 +2,7 @@ import type { InitialCategory, RestaurantType } from "@/domain/restaurant/Restau
 import type { PlanStatus } from "@/domain/menu/PublicationPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
+import type { QrStyle } from "@/domain/restaurant/QrStylePolicy";
 
 export interface RestaurantRepository {
   findByOwnerUserId(ownerUserId: string): Promise<{ id: string } | null>;
@@ -29,6 +30,8 @@ export interface RestaurantRepository {
     sourceLocale: MenuLocale;
     /** Langues cibles activées (S4) — n'inclut jamais la langue source. */
     menuLocales: MenuLocale[];
+    /** Personnalisation du QR (page Partage). `null` = look par défaut. */
+    qrStyle: QrStyle | null;
   } | null>;
 
   updateDisplayName(params: { restaurantId: string; displayName: string }): Promise<void>;
@@ -44,6 +47,9 @@ export interface RestaurantRepository {
 
   /** Remplace la liste des langues cibles activées (S4). */
   updateMenuLocales(params: { restaurantId: string; menuLocales: MenuLocale[] }): Promise<void>;
+
+  /** Persiste la personnalisation du QR (déjà validée par `QrStylePolicy`). */
+  updateQrStyle(params: { restaurantId: string; style: QrStyle }): Promise<void>;
 
   markActivationDismissed(restaurantId: string): Promise<void>;
 

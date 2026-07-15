@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
-import { publishMenuAction, regenerateQrAction } from "@/app/(app)/app/actions";
+import { publishMenuAction } from "@/app/(app)/app/actions";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -49,7 +49,6 @@ export function PublishBar({ state }: { state: PublishBarState }) {
             menuStatus={state.status}
             publishedAt={state.publishedAt}
             publishAction={publishMenuAction}
-            regenerateQrAction={regenerateQrAction}
             pendingTranslation={state.pendingTranslation}
           />
         </div>

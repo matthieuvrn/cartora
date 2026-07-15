@@ -6,7 +6,6 @@ import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
-import { PrismaQrAssetRepository } from "@/infrastructure/qr/PrismaQrAssetRepository";
 import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { SupabaseAuthAdminService } from "@/infrastructure/auth/SupabaseAuthAdminService";
@@ -135,17 +134,13 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
     if (!restaurant) redirect("/app");
 
     const billingRepo = new PrismaBillingRepository(prisma);
-    const qrAssetRepo = new PrismaQrAssetRepository(prisma);
     const gateway = new StripePaymentGateway();
-    const qrStorage = new SupabaseStorageService("qr-codes");
     const logoStorage = new SupabaseStorageService("restaurant-logos");
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const authAdmin = new SupabaseAuthAdminService();
     const useCase = new DeleteRestaurant(
       billingRepo,
-      qrAssetRepo,
       gateway,
-      qrStorage,
       logoStorage,
       restaurantRepo,
       authAdmin,

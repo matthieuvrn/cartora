@@ -1,13 +1,12 @@
 "use client";
 
-import { startTransition, useActionState, useCallback, useEffect, useState } from "react";
+import { startTransition, useActionState, useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Send, Loader2, Sparkles } from "lucide-react";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
 import type { PublishActionState } from "@/app/(app)/app/actions";
-import type { ActionState } from "@/lib/action-result";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,8 +20,6 @@ import { flushAllPendingDeletes } from "@/hooks/use-deferred-delete";
 import { useAutoTranslate } from "@/hooks/use-auto-translate";
 import { actionErrorText } from "./actionErrorText";
 import { PricingModal } from "./PricingModal";
-
-type RegenerateState = ActionState<{ success?: boolean }>;
 
 /** Traductions en attente au moment de publier (nudge PRO). */
 export type PendingTranslation = {
@@ -38,7 +35,6 @@ type Props = {
   /** Dernière publication (ISO) — null si le menu n'a jamais été publié. */
   publishedAt: string | null;
   publishAction: (_prev: PublishActionState) => Promise<PublishActionState>;
-  regenerateQrAction: (_prev: RegenerateState) => Promise<RegenerateState>;
   /**
    * Nudge à la publication (PRO) : si des champs restent à traduire, publier ouvre
    * une confirmation proposant de traduire d'abord. Absent/`todoCount === 0` ⇒
@@ -56,33 +52,23 @@ type Props = {
  * - PUBLISHED       → `null` (rien à publier ; la barre affiche le partage).
  * - DRAFT (payant)  → bouton « Publier [les modifications] » + nudge de traduction.
  *
- * Tout le feedback (succès / erreur / QR raté / QR régénéré) passe par des **toasts** sonner :
- * la barre globale reste ainsi une seule ligne, sans bloc qui s'y empile.
+ * Tout le feedback (succès / erreur) passe par des **toasts** sonner : la barre globale
+ * reste ainsi une seule ligne, sans bloc qui s'y empile.
  */
 export function PublishButton({
   planTier,
   menuStatus,
   publishedAt,
   publishAction,
-  regenerateQrAction,
   pendingTranslation,
   labelVariant = "full",
 }: Props) {
   const t = useTranslations("Dashboard");
   const tt = useTranslations("Translations");
   const tPublishError = useTranslations("Dashboard.publishError");
-  const tErrors = useTranslations("Errors");
   const [pricingOpen, setPricingOpen] = useState(false);
   const [nudgeOpen, setNudgeOpen] = useState(false);
   const { run: runTranslate, progress, isTranslating } = useAutoTranslate();
-
-  const [regenState, regenAction] = useActionState(regenerateQrAction, { error: null });
-
-  // Résultat de la régénération QR (relancée depuis le toast d'avertissement) → toast.
-  useEffect(() => {
-    if (regenState.success) toast.success(t("publishWarning.regenerated"));
-    else if (regenState.error) toast.error(actionErrorText(tErrors, regenState.error));
-  }, [regenState, t, tErrors]);
 
   const wrappedPublish = useCallback(
     async (prev: PublishActionState) => {
@@ -94,19 +80,10 @@ export function PublishButton({
         toast.error(actionErrorText(tPublishError, result.error));
       } else {
         toast.success(t("toast.published"));
-        // QR raté = non-fatal : le menu est publié. Toast avec action pour régénérer.
-        if (result.warning?.code === "qr_failed") {
-          toast.warning(t("publishWarning.qr_failed"), {
-            action: {
-              label: t("publishWarning.regenerate"),
-              onClick: () => startTransition(() => regenAction()),
-            },
-          });
-        }
       }
       return result;
     },
-    [publishAction, regenAction, t, tPublishError],
+    [publishAction, t, tPublishError],
   );
   const [, formAction, isPending] = useActionState(wrappedPublish, { error: null });
 

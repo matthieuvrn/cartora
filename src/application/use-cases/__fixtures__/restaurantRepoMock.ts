@@ -25,6 +25,7 @@ export function restaurantFixture(overrides: Partial<RestaurantSnapshot> = {}): 
     brandBackground: null,
     sourceLocale: "fr",
     menuLocales: [],
+    qrStyle: null,
     ...overrides,
   };
 }
@@ -62,6 +63,7 @@ export function createMockRestaurantRepo(
     updateLogoPath: vi.fn(async () => {}),
     updateBrandColors: vi.fn(async () => {}),
     updateMenuLocales: vi.fn(async () => {}),
+    updateQrStyle: vi.fn(async () => {}),
     markActivationDismissed: vi.fn(async () => {}),
     delete: vi.fn(async () => {}),
     ...overrides,

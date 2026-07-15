@@ -1,5 +1,4 @@
 import type { BillingRepository } from "@/application/ports/BillingRepository";
-import type { QrAssetRepository } from "@/application/ports/QrAssetRepository";
 import type { PaymentGateway } from "@/application/ports/PaymentGateway";
 import type { StorageService } from "@/application/ports/StorageService";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
@@ -18,9 +17,7 @@ type Output = {
 export class DeleteRestaurant {
   constructor(
     private readonly billingRepo: BillingRepository,
-    private readonly qrAssetRepo: QrAssetRepository,
     private readonly paymentGateway: PaymentGateway,
-    private readonly qrStorage: StorageService,
     private readonly logoStorage: StorageService,
     private readonly restaurantRepo: RestaurantRepository,
     private readonly authAdmin: AuthAdminService,
@@ -46,29 +43,17 @@ export class DeleteRestaurant {
       );
     }
 
-    // 2. Cleanup QR storage (non-blocking)
-    try {
-      const qrAsset = await this.qrAssetRepo.findByRestaurantId(input.restaurantId);
-      if (qrAsset) {
-        await this.qrStorage.delete(qrAsset.storagePath);
-      }
-    } catch (error) {
-      errors.push(
-        `Storage cleanup failed: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-
-    // 3. Cleanup restaurant logo (non-blocking)
+    // 2. Cleanup restaurant logo (non-blocking)
     try {
       await this.logoStorage.deleteByPrefix(`${input.restaurantId}/`);
     } catch (error) {
       errors.push(`Logo cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
     }
 
-    // 4. Delete restaurant (CASCADE handles all child tables)
+    // 3. Delete restaurant (CASCADE handles all child tables)
     await this.restaurantRepo.delete(input.restaurantId);
 
-    // 5. Delete auth user
+    // 4. Delete auth user
     await this.authAdmin.deleteUser(input.ownerUserId);
 
     return { status: "completed", errors };
