@@ -414,6 +414,26 @@ body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
       0 0 0 4px var(--color-canard-300);
   }
 
+  /* Pastilles de couleur (éditeur QR /app/partage + couleurs de marque /app/apparence) :
+     neutraliser l'habillage natif pour que la couleur remplisse la boîte, arrondi cohérent
+     avec `rounded-md`. Seuls ces deux éditeurs utilisent `<input type="color">`. */
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: var(--radius-md);
+  }
+  input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: var(--radius-md);
+  }
+
   /* Aperçu du menu public DANS l'app (panneau live de l'éditeur). Le pendant inline du
      `brandScope={false}` de PreviewDialog : on RÉ-établit les tokens neutres :root pour que le
      rendu soit FIDÈLE à /m/[slug] malgré le scope .theme-app environnant. Sans ça, `bg-muted`/

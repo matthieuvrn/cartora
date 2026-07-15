@@ -57,7 +57,8 @@
         "bordeaux": "Bordeaux",
         "prune": "Prune"
       },
-      "colors": "Couleurs",
+      "advanced": "Mode avancé",
+      "advancedHint": "Choisissez librement les couleurs. Le QR doit rester scannable (contraste suffisant).",
       "darkColor": "Modules",
       "darkColorHint": "Couleur des points du code",
       "lightColor": "Fond",

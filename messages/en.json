@@ -57,7 +57,8 @@
         "bordeaux": "Bordeaux",
         "prune": "Plum"
       },
-      "colors": "Colors",
+      "advanced": "Advanced mode",
+      "advancedHint": "Pick any colors you like. The QR must stay scannable (enough contrast).",
       "darkColor": "Modules",
       "darkColorHint": "Color of the code dots",
       "lightColor": "Background",

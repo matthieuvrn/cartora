@@ -287,7 +287,7 @@ function ColorField({
           type="color"
           value={value ?? "#000000"}
           onChange={(e) => onChange(e.target.value)}
-          className="size-10 cursor-pointer rounded-md border bg-background"
+          className="size-10 cursor-pointer rounded-md border"
           aria-label={label}
         />
         <input

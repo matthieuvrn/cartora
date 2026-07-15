@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { ExternalLink, QrCode } from "lucide-react";
+import { QrCode } from "lucide-react";
 import { requireRestaurant } from "../_lib/requireRestaurant";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
+import { PublishShareCluster } from "@/interface/ui/components/app/PublishShareCluster";
 import { QrStyleEditor } from "@/interface/ui/components/QrStyleEditor";
 
 export default async function SharePage() {
@@ -23,8 +23,10 @@ export default async function SharePage() {
   const t = await getTranslations("Share");
   const tDash = await getTranslations("Dashboard");
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       <div>
         <h1 className="text-h2">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{t("description")}</p>
@@ -42,25 +44,20 @@ export default async function SharePage() {
         </Card>
       ) : (
         <>
-          <Alert>
-            <ExternalLink className="size-4" />
-            <AlertTitle>{tDash("publicLinkTitle")}</AlertTitle>
-            <AlertDescription>
-              <a
-                href={`/m/${restaurant.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
-              >
-                {tDash("publicLinkLabel")} &rarr; /m/{restaurant.slug}
-              </a>
-            </AlertDescription>
-          </Alert>
-          <QrStyleEditor
-            slug={restaurant.slug}
-            appUrl={process.env.NEXT_PUBLIC_APP_URL ?? ""}
-            initialStyle={restaurant.qrStyle}
-          />
+          <Card>
+            <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 space-y-1">
+                <p className="text-body font-medium">{tDash("publicLinkTitle")}</p>
+                <p className="truncate font-mono text-body-sm text-muted-foreground">
+                  {appUrl}/m/{restaurant.slug}
+                </p>
+              </div>
+              <div className="shrink-0">
+                <PublishShareCluster slug={restaurant.slug} />
+              </div>
+            </CardContent>
+          </Card>
+          <QrStyleEditor slug={restaurant.slug} appUrl={appUrl} initialStyle={restaurant.qrStyle} />
         </>
       )}
     </div>

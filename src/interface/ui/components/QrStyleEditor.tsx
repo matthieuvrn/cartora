@@ -6,6 +6,7 @@ import { Check, Download, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateQrStyleAction } from "@/app/(app)/app/actions";
 import { BrandingPolicy } from "@/domain/restaurant/BrandingPolicy";
@@ -119,6 +120,7 @@ export function QrStyleEditor({ slug, appUrl, initialStyle }: Props) {
   const [cornersStyle, setCornersStyle] = useState<QrCornerStyle>(
     initialStyle?.cornersStyle ?? DEFAULT_QR_STYLE.cornersStyle,
   );
+  const [advanced, setAdvanced] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const menuUrl = `${appUrl}/m/${slug}?utm_source=qr`;
@@ -233,138 +235,163 @@ export function QrStyleEditor({ slug, appUrl, initialStyle }: Props) {
         <CardTitle>{t("title")}</CardTitle>
         <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Aperçu + téléchargements */}
-        <div className="flex flex-col items-center gap-3">
-          <div
-            ref={ref}
-            className="w-64 max-w-full overflow-hidden rounded-md border [&>canvas]:h-auto [&>canvas]:w-full"
-            style={{ backgroundColor: lightColor }}
-            aria-label={t("preview")}
-          />
-          {!scannable && (
-            <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
-              <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
-              <span>{t("contrastWarning")}</span>
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Button type="button" size="sm" onClick={() => download("png")} disabled={!scannable}>
-              <Download className="size-4" />
-              {t("downloadPng")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => download("svg")}
-              disabled={!scannable}
-            >
-              <Download className="size-4" />
-              {t("downloadSvg")}
-            </Button>
-          </div>
-        </div>
-
-        {/* Presets */}
-        <section className="space-y-3">
-          <h3 className="text-sm font-medium">{t("presets")}</h3>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {PRESETS.map((preset) => (
-              <button
-                key={preset.key}
-                type="button"
-                onClick={() => applyPreset(preset)}
-                aria-pressed={selectedPreset === preset.key}
-                className={`group relative flex items-center gap-2 rounded-md border p-2 text-left transition-colors hover:bg-muted ${
-                  selectedPreset === preset.key
-                    ? "border-foreground ring-1 ring-foreground"
-                    : "border-border"
-                }`}
-              >
-                <span
-                  aria-hidden="true"
-                  className="flex size-6 shrink-0 items-center justify-center rounded-sm border border-border/40"
-                  style={{ backgroundColor: preset.lightColor }}
-                >
-                  <span
-                    className="size-3 rounded-[2px]"
-                    style={{ backgroundColor: preset.darkColor }}
-                  />
-                </span>
-                <span className="truncate text-xs font-medium">
-                  {t(`presetLabels.${preset.key}`)}
-                </span>
-                {selectedPreset === preset.key && (
-                  <Check
-                    className="absolute right-1.5 top-1.5 size-3 text-foreground"
+      <CardContent>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,18rem)_1fr]">
+          {/* Colonne aperçu — collante : reste visible pendant qu'on règle les contrôles */}
+          <div className="sticky top-14 z-10 -mx-6 border-b bg-background/95 px-6 pb-4 backdrop-blur lg:top-14 lg:mx-0 lg:self-start lg:border-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:backdrop-blur-none">
+            <div className="flex flex-col items-center gap-3">
+              <div
+                ref={ref}
+                className="w-40 max-w-full overflow-hidden rounded-md border lg:w-56 [&>canvas]:h-auto [&>canvas]:w-full"
+                style={{ backgroundColor: lightColor }}
+                aria-label={t("preview")}
+              />
+              {!scannable && (
+                <div className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
+                  <TriangleAlert
+                    className="mt-0.5 size-4 shrink-0 text-warning"
                     aria-hidden="true"
                   />
-                )}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Couleurs */}
-        <section className="space-y-3">
-          <h3 className="text-sm font-medium">{t("colors")}</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <ColorField
-              label={t("darkColor")}
-              hint={t("darkColorHint")}
-              value={darkColor}
-              onChange={setDarkColor}
-            />
-            <ColorField
-              label={t("lightColor")}
-              hint={t("lightColorHint")}
-              value={lightColor}
-              onChange={setLightColor}
-            />
-          </div>
-        </section>
-
-        {/* Formes */}
-        <section className="space-y-3">
-          <h3 className="text-sm font-medium">{t("shapes")}</h3>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">{t("dotsStyle")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {QR_DOT_STYLES.map((style) => (
-                <StyleChip
-                  key={style}
-                  label={t(`dotStyleLabels.${style}`)}
-                  selected={dotsStyle === style}
-                  onSelect={() => setDotsStyle(style)}
-                />
-              ))}
+                  <span>{t("contrastWarning")}</span>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => download("png")}
+                  disabled={!scannable}
+                >
+                  <Download className="size-4" />
+                  {t("downloadPng")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => download("svg")}
+                  disabled={!scannable}
+                >
+                  <Download className="size-4" />
+                  {t("downloadSvg")}
+                </Button>
+              </div>
             </div>
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-medium">{t("cornersStyle")}</Label>
-            <div className="flex flex-wrap gap-2">
-              {QR_CORNER_STYLES.map((style) => (
-                <StyleChip
-                  key={style}
-                  label={t(`cornerStyleLabels.${style}`)}
-                  selected={cornersStyle === style}
-                  onSelect={() => setCornersStyle(style)}
-                />
-              ))}
+
+          {/* Colonne contrôles */}
+          <div className="space-y-6">
+            {/* Presets */}
+            <section className="space-y-3">
+              <h3 className="text-sm font-medium">{t("presets")}</h3>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {PRESETS.map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => applyPreset(preset)}
+                    aria-pressed={selectedPreset === preset.key}
+                    className={`group relative flex items-center gap-2 rounded-md border p-2 text-left transition-colors ${
+                      selectedPreset === preset.key
+                        ? "border-foreground ring-1 ring-foreground"
+                        : "border-border hover:bg-muted"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex size-6 shrink-0 items-center justify-center rounded-sm border border-border/40"
+                      style={{ backgroundColor: preset.lightColor }}
+                    >
+                      <span
+                        className="size-3 rounded-[2px]"
+                        style={{ backgroundColor: preset.darkColor }}
+                      />
+                    </span>
+                    <span className="truncate text-xs font-medium">
+                      {t(`presetLabels.${preset.key}`)}
+                    </span>
+                    {selectedPreset === preset.key && (
+                      <Check
+                        className="absolute right-1.5 top-1.5 size-3 text-foreground"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Formes */}
+            <section className="space-y-3">
+              <h3 className="text-sm font-medium">{t("shapes")}</h3>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">{t("dotsStyle")}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {QR_DOT_STYLES.map((style) => (
+                    <StyleChip
+                      key={style}
+                      label={t(`dotStyleLabels.${style}`)}
+                      selected={dotsStyle === style}
+                      onSelect={() => setDotsStyle(style)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">{t("cornersStyle")}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {QR_CORNER_STYLES.map((style) => (
+                    <StyleChip
+                      key={style}
+                      label={t(`cornerStyleLabels.${style}`)}
+                      selected={cornersStyle === style}
+                      onSelect={() => setCornersStyle(style)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Mode avancé : couleurs hex libres (masquées par défaut) */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="qr-advanced-toggle" className="cursor-pointer text-sm font-medium">
+                  {t("advanced")}
+                </Label>
+                <Switch id="qr-advanced-toggle" checked={advanced} onCheckedChange={setAdvanced} />
+              </div>
+              {advanced && (
+                <>
+                  <p className="text-xs text-muted-foreground">{t("advancedHint")}</p>
+                  <div className="grid gap-4 rounded-md border bg-muted/40 p-4 sm:grid-cols-2">
+                    <ColorField
+                      label={t("darkColor")}
+                      hint={t("darkColorHint")}
+                      value={darkColor}
+                      onChange={setDarkColor}
+                    />
+                    <ColorField
+                      label={t("lightColor")}
+                      hint={t("lightColorHint")}
+                      value={lightColor}
+                      onChange={setLightColor}
+                    />
+                  </div>
+                </>
+              )}
+            </section>
+
+            <p className="text-xs text-muted-foreground">{t("scanHint")}</p>
+
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button type="button" variant="ghost" onClick={reset} disabled={isPending}>
+                {t("reset")}
+              </Button>
+              <Button type="button" onClick={save} disabled={isPending || !scannable}>
+                {isPending ? t("saving") : t("save")}
+              </Button>
             </div>
           </div>
-        </section>
-
-        <p className="text-xs text-muted-foreground">{t("scanHint")}</p>
-
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <Button type="button" variant="ghost" onClick={reset} disabled={isPending}>
-            {t("reset")}
-          </Button>
-          <Button type="button" onClick={save} disabled={isPending || !scannable}>
-            {isPending ? t("saving") : t("save")}
-          </Button>
         </div>
       </CardContent>
     </Card>
@@ -385,8 +412,10 @@ function StyleChip({
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors hover:bg-muted ${
-        selected ? "border-foreground bg-foreground text-background" : "border-border"
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+        selected
+          ? "border-foreground bg-foreground text-background hover:bg-foreground/90"
+          : "border-border hover:bg-muted"
       }`}
     >
       {label}
@@ -413,7 +442,7 @@ function ColorField({
           type="color"
           value={BrandingPolicy.isValidHexColor(value) ? value : "#000000"}
           onChange={(e) => onChange(e.target.value)}
-          className="size-10 cursor-pointer rounded-md border bg-background"
+          className="size-10 cursor-pointer rounded-md border"
           aria-label={label}
         />
         <input
