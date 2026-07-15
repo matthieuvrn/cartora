@@ -259,11 +259,13 @@ export function QrStyleEditor({ slug, appUrl, initialStyle }: Props) {
                 <Button
                   type="button"
                   size="sm"
+                  variant="outline"
                   onClick={() => download("png")}
                   disabled={!scannable}
+                  aria-label={t("downloadPng")}
                 >
-                  <Download className="size-4" />
-                  {t("downloadPng")}
+                  <Download className="size-4" aria-hidden="true" />
+                  PNG
                 </Button>
                 <Button
                   type="button"
@@ -271,9 +273,10 @@ export function QrStyleEditor({ slug, appUrl, initialStyle }: Props) {
                   variant="outline"
                   onClick={() => download("svg")}
                   disabled={!scannable}
+                  aria-label={t("downloadSvg")}
                 >
-                  <Download className="size-4" />
-                  {t("downloadSvg")}
+                  <Download className="size-4" aria-hidden="true" />
+                  SVG
                 </Button>
               </div>
             </div>
