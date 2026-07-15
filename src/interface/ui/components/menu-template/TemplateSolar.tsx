@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { TemplateLogo } from "./TemplateLogo";
 import { collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -45,16 +45,13 @@ export function TemplateSolar({
       <header className="mb-8">
         <div className="flex items-center gap-3">
           {logoUrl && (
-            <div className="relative h-12 w-12 shrink-0">
-              <Image
-                src={logoUrl}
-                alt={snapshot.restaurantName}
-                fill
-                sizes="48px"
-                className="object-contain object-left"
-                priority
-              />
-            </div>
+            <TemplateLogo
+              src={logoUrl}
+              alt={snapshot.restaurantName}
+              className="h-12 w-12 shrink-0"
+              sizes="48px"
+              priority
+            />
           )}
           <h1 className="menu-heading text-4xl font-extrabold leading-none">
             {snapshot.restaurantName}

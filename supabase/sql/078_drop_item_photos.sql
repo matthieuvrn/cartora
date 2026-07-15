@@ -1,3 +1,8 @@
+-- ⚠️ NE PAS APPLIER TEL QUEL — REMPLACÉ PAR 083_finish_drop_item_photos.sql.
+-- Les lignes 25-26 (DELETE storage.objects/buckets) sont bloquées par le trigger
+-- Supabase `storage.protect_delete` (err 42501) → rollback de toute la transaction.
+-- Utiliser 083 (partie base SQL-safe) + supprimer le bucket item-images via le Dashboard.
+--
 -- ─── Retrait total de la feature « photo de plat » (2026) ───────────────────
 -- Décision produit : Cartora devient un menu digital sans photos de plats.
 -- On supprime les colonnes image_path (items + plats du jour), les alt-texts

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { TemplateLogo } from "./TemplateLogo";
 import { categoryAnchorId, collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { resolveText } from "@/domain/menu/MenuLocale";
 import { restaurantLogoUrl } from "@/lib/storage-url";
@@ -57,16 +57,13 @@ export function TemplateClassic({
       >
         <div className="flex items-center gap-3">
           {logoUrl && (
-            <div className="relative h-10 w-10 shrink-0">
-              <Image
-                src={logoUrl}
-                alt={snapshot.restaurantName}
-                fill
-                sizes="40px"
-                className="object-contain object-left"
-                priority
-              />
-            </div>
+            <TemplateLogo
+              src={logoUrl}
+              alt={snapshot.restaurantName}
+              className="h-10 w-10 shrink-0"
+              sizes="40px"
+              priority
+            />
           )}
           <h1 className="menu-heading truncate text-xl font-bold tracking-tight">
             {snapshot.restaurantName}

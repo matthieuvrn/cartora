@@ -5,6 +5,14 @@ export type AllowedLogoMime = (typeof ALLOWED_LOGO_MIME_TYPES)[number];
 
 export const MAX_LOGO_SIZE_BYTES = 2 * 1024 * 1024;
 
+/**
+ * Côté carré (px) de l'asset logo normalisé produit par le recadrage client.
+ * Tout upload est recadré + downscalé à `LOGO_OUTPUT_SIZE × LOGO_OUTPUT_SIZE`
+ * puis ré-encodé en WebP avant PUT — garantit un asset propre et déterministe
+ * (fond transparent préservé, EXIF stripé). Consommé par `cropImage.ts`.
+ */
+export const LOGO_OUTPUT_SIZE = 512;
+
 const MIME_SET: ReadonlySet<string> = new Set(ALLOWED_LOGO_MIME_TYPES);
 
 const MIME_TO_EXT: Record<AllowedLogoMime, "jpg" | "png" | "webp"> = {

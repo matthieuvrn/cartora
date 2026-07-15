@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { TemplateLogo } from "./TemplateLogo";
 import { collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -45,16 +45,13 @@ export function TemplateNoir({
     >
       <header className="mb-14 text-center">
         {logoUrl && (
-          <div className="relative mx-auto mb-5 h-16 w-16">
-            <Image
-              src={logoUrl}
-              alt={snapshot.restaurantName}
-              fill
-              sizes="64px"
-              className="object-contain"
-              priority
-            />
-          </div>
+          <TemplateLogo
+            src={logoUrl}
+            alt={snapshot.restaurantName}
+            className="mx-auto mb-5 h-16 w-16"
+            sizes="64px"
+            priority
+          />
         )}
         <h1 className="menu-heading text-5xl font-medium">{snapshot.restaurantName}</h1>
         <div

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { TemplateLogo } from "./TemplateLogo";
 import { collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -44,16 +44,13 @@ export function TemplateZen({
     >
       <header className="mb-16 text-center">
         {logoUrl && (
-          <div className="relative mx-auto mb-4 h-10 w-10">
-            <Image
-              src={logoUrl}
-              alt={snapshot.restaurantName}
-              fill
-              sizes="40px"
-              className="object-contain"
-              priority
-            />
-          </div>
+          <TemplateLogo
+            src={logoUrl}
+            alt={snapshot.restaurantName}
+            className="mx-auto mb-4 h-10 w-10"
+            sizes="40px"
+            priority
+          />
         )}
         <h1 className="menu-heading text-2xl font-medium tracking-wide">
           {snapshot.restaurantName}

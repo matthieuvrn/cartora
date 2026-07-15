@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { TemplateLogo } from "./TemplateLogo";
 import { collectPresentAllergens } from "@/domain/menu/publicMenuView";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -44,16 +44,13 @@ export function TemplateNeon({
     >
       <header className="mb-10 text-center">
         {logoUrl && (
-          <div className="relative mx-auto mb-4 h-12 w-12">
-            <Image
-              src={logoUrl}
-              alt={snapshot.restaurantName}
-              fill
-              sizes="48px"
-              className="object-contain"
-              priority
-            />
-          </div>
+          <TemplateLogo
+            src={logoUrl}
+            alt={snapshot.restaurantName}
+            className="mx-auto mb-4 h-12 w-12"
+            sizes="48px"
+            priority
+          />
         )}
         <h1 className="menu-heading text-4xl font-extrabold">{snapshot.restaurantName}</h1>
         {/* Barre néon à halo (magenta) — `box-shadow` statique, pas d'animation. */}

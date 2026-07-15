@@ -17,7 +17,8 @@
     "db:generate": "prisma generate",
     "db:check": "tsx scripts/db-check.ts",
     "db:seed-demo": "tsx scripts/seed-demo.ts",
-    "db:backfill-translation-hashes": "tsx scripts/backfill-translation-hashes.ts"
+    "db:backfill-translation-hashes": "tsx scripts/backfill-translation-hashes.ts",
+    "db:purge-logo-files": "tsx scripts/purge-logo-files.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -52,6 +53,7 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.5",
     "react-dom": "19.2.5",
+    "react-easy-crop": "^6.2.2",
     "recharts": "3.8.1",
     "sonner": "^2.0.7",
     "stripe": "^22.1.0",

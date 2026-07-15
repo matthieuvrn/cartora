@@ -9,7 +9,6 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { SearchX } from "lucide-react";
@@ -33,6 +32,7 @@ import { EditorSearchInput } from "./EditorSearchInput";
 import { MenuActionBar } from "./MenuActionBar";
 import { PreviewDialog } from "./PreviewDialog";
 import { TodaySection } from "./TodaySection";
+import { TemplateLogo } from "./menu-template/TemplateLogo";
 
 // Persistance de l'état replié des catégories (par menu) : localStorage lu via
 // useSyncExternalStore — hydration-safe (server snapshot = null ⇒ tout déplié au
@@ -259,15 +259,12 @@ export function MenuEditor({
                 (() => {
                   const url = restaurantLogoUrl(logoPath);
                   return url ? (
-                    <div className="relative size-8 shrink-0 overflow-hidden rounded-md border bg-muted">
-                      <Image
-                        src={url}
-                        alt={restaurantName}
-                        fill
-                        sizes="32px"
-                        className="object-contain"
-                      />
-                    </div>
+                    <TemplateLogo
+                      src={url}
+                      alt={restaurantName}
+                      className="size-8 shrink-0"
+                      sizes="32px"
+                    />
                   ) : null;
                 })()}
               <EditableRestaurantName currentName={restaurantName} />
