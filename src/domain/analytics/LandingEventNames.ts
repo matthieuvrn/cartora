@@ -2,12 +2,13 @@
  * Catalog typé des events de tracking de la landing page.
  *
  * Une seule source de vérité, partagée entre :
- *  - le composant client `TrackedCtaButton` (autocomplete sur la prop `event`)
+ *  - les composants clients (`TrackedCtaButton`, `SectionViewTracker`, `ScrollDepthTracker`)
  *  - la validation Zod côté `/api/track` (z.enum(LANDING_EVENT_NAMES))
  *  - le use case `RecordLandingEvent` (type `LandingEventName`)
  *
- * Étendre cette liste UNIQUEMENT en cohérence avec la cartographie CTA de
- * docs/landing-plan.md (section 8 — Stratégie de conversion).
+ * Deux familles : les CLICS (`cta_*`, `demo_link_click`, `faq_opened`, `locale_switched`)
+ * et les IMPRESSIONS (`section_view` + metadata.section, `scroll_depth_*`) — les impressions
+ * fournissent le dénominateur des CTR ; sans elles, impossible de mesurer un funnel ou un A/B.
  */
 export const LANDING_EVENT_NAMES = [
   "cta_header_signup",
@@ -22,7 +23,11 @@ export const LANDING_EVENT_NAMES = [
   "cta_final_demo",
   "demo_link_click",
   "faq_opened",
+  "section_view",
+  "scroll_depth_25",
+  "scroll_depth_50",
   "scroll_depth_75",
+  "scroll_depth_100",
   "locale_switched",
 ] as const;
 

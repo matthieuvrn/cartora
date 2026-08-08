@@ -159,6 +159,12 @@ html {
   --shadow-xl:
     0 28px 54px -10px oklch(0.18 0.05 200 / 0.18), 0 10px 18px 0 oklch(0.18 0.05 200 / 0.08);
   --shadow-glow: 0 0 0 1px oklch(0.42 0.058 198 / 0.18), 0 0 32px -4px oklch(0.42 0.058 198 / 0.35);
+  /* Carte mise en avant (pricing Starter) : xl + glow fusionnées en UNE liste — deux
+     utilities box-shadow (shadow-xl + shadow-[…glow]) se disputaient la propriété, le
+     gagnant dépendait de l'ordre d'émission du CSS compilé. */
+  --shadow-featured:
+    0 28px 54px -10px oklch(0.18 0.05 200 / 0.18), 0 10px 18px 0 oklch(0.18 0.05 200 / 0.08),
+    0 0 0 1px oklch(0.42 0.058 198 / 0.18), 0 0 32px -4px oklch(0.42 0.058 198 / 0.35);
 
   /* === Tokens motion (additif — var(--ease-out-expo), var(--duration-200), …) === */
   --duration-100: 100ms;
@@ -172,19 +178,6 @@ html {
   --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);
   --ease-snappy: cubic-bezier(0.6, 0, 0.4, 1);
   --ease-editorial: cubic-bezier(0.32, 0.72, 0, 1);
-
-  /* Marquee TrustStrip mobile (durée surchargée inline). Le track contient 2 copies
-     identiques → -50% boucle sans couture. Voir Marquee.tsx. */
-  --animate-marquee: marquee 30s linear infinite;
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
 }
 
 :root {

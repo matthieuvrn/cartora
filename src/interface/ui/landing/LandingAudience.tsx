@@ -43,7 +43,7 @@ export function LandingAudience() {
   return (
     <LandingSection id="audience" innerClassName="py-16 md:py-24">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h1 md:text-h2">{t("title")}</h2>
+        <h2 className="text-h2 md:text-h1">{t("title")}</h2>
         <p className="mt-3 text-body-lg text-sand-700">{t("subtitle")}</p>
       </header>
 

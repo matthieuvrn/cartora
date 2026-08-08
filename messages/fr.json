@@ -103,6 +103,8 @@
     "resendLink": "Renvoyer le lien",
     "resendEmail": "Entre ton email pour recevoir un nouveau lien",
     "consentText": "En créant un compte, vous acceptez nos <cguLink>CGU</cguLink> et reconnaissez avoir lu notre <privacyLink>politique de confidentialité</privacyLink>.",
+    "planReminderStarter": "Vous avez choisi Starter — 9,90 €/mois, facturé uniquement au moment de publier votre carte. La création reste gratuite.",
+    "planReminderPro": "Vous avez choisi Pro — 29,90 €/mois, facturé uniquement au moment de publier votre carte. La création reste gratuite.",
     "error": {
       "invalid_credentials": "Email ou mot de passe incorrect",
       "invalid_email": "Adresse email invalide",
@@ -508,6 +510,7 @@
   },
   "Landing": {
     "skipToContent": "Aller au contenu",
+    "opensInNewTab": "(s'ouvre dans un nouvel onglet)",
     "header": {
       "navTarifs": "Tarifs",
       "navDemo": "Démo",

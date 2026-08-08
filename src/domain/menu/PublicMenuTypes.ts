@@ -200,14 +200,21 @@ function trimBranding(branding?: PublicMenuBranding | null): PublicMenuBranding 
 /**
  * Boundary de lecture (`PrismaSnapshotRepository`) : la colonne DB est un `Json`
  * non typé. On force `snapshotVersion` et on comble défensivement `allergens`
- * (le rendu itère `item.allergens` — cf. `collectPresentAllergens`). Idempotent
+ * (le rendu itère `item.allergens` — cf. `collectPresentAllergens`) ainsi que
+ * `sourceLocale`/`availableLocales` (le rendu itère `availableLocales` — un snapshot
+ * legacy sans ces champs faisait un 500 sur TOUTE la page publique). Idempotent
  * sur un snapshot v2 fraîchement produit. La compat des snapshots v1 (pré-multilingue,
- * champs `Fr`/`En` à plat) a été retirée en 2026 — plus de reconstruction `texts`.
+ * champs `Fr`/`En` à plat) a été retirée en 2026 — plus de reconstruction `texts` :
+ * un snapshot v1 rend une page dégradée (textes vides), jamais une erreur.
  */
 export function normalizePublicSnapshot(snapshot: PublicMenuSnapshot): PublicMenuSnapshot {
+  const sourceLocale = (snapshot.sourceLocale as MenuLocale | undefined) ?? "fr";
+  const availableLocales = (snapshot.availableLocales as MenuLocale[] | undefined) ?? [];
   return {
     ...snapshot,
     snapshotVersion: 2,
+    sourceLocale,
+    availableLocales: availableLocales.length > 0 ? availableLocales : [sourceLocale],
     categories: snapshot.categories.map((category) => ({
       ...category,
       items: category.items.map((item) => ({ ...item, allergens: item.allergens ?? [] })),

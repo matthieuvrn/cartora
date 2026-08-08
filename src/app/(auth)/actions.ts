@@ -11,6 +11,11 @@ import * as Sentry from "@sentry/nextjs";
 const EmailSchema = z.email();
 const PasswordSchema = z.string().min(8);
 const RestaurantTypeSchema = z.enum(RESTAURANT_TYPES);
+// Plan choisi sur la landing (?plan=…) et emplacement CTA d'origine (?src=…), relayés par
+// le formulaire signup. Persistés en user_metadata : `selected_plan` alimente l'upsell
+// post-onboarding, `signup_source` l'attribution clic→inscription des CTA landing.
+const PlanParamSchema = z.enum(["free", "starter", "pro"]);
+const SignupSourceSchema = z.string().regex(/^[a-z0-9_-]{1,32}$/);
 
 // ─── State ───
 
@@ -71,13 +76,24 @@ export async function signupAction(_prev: AuthState, formData: FormData): Promis
       : null;
   const restaurantType = restaurantTypeResult?.success ? restaurantTypeResult.data : undefined;
 
+  const planRaw = formData.get("plan");
+  const planResult = typeof planRaw === "string" ? PlanParamSchema.safeParse(planRaw) : null;
+  const srcRaw = formData.get("src");
+  const srcResult = typeof srcRaw === "string" ? SignupSourceSchema.safeParse(srcRaw) : null;
+
+  const userMetadata = {
+    ...(restaurantType ? { restaurant_type: restaurantType } : {}),
+    ...(planResult?.success ? { selected_plan: planResult.data } : {}),
+    ...(srcResult?.success ? { signup_source: srcResult.data } : {}),
+  };
+
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signUp({
     email: email as string,
     password: password as string,
     options: {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      data: restaurantType ? { restaurant_type: restaurantType } : undefined,
+      data: Object.keys(userMetadata).length > 0 ? userMetadata : undefined,
     },
   });
 

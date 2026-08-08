@@ -2,7 +2,6 @@ import { useTranslations } from "next-intl";
 import { CreditCard, MapPin, MessageSquare, ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
-import { Marquee } from "@/interface/ui/components/Marquee";
 
 interface TrustItem {
   key: "hostingEu" | "stripe" | "rgpd" | "supportFr";
@@ -24,21 +23,22 @@ export function LandingTrustStrip() {
       className="border-t-0 bg-canard-50/60 dark:bg-canard-900/60"
       innerClassName="py-12"
     >
-      {/* Mobile : marquee horizontale infinie (les items dépassent la largeur d'écran). */}
-      <Marquee className="md:hidden">
+      {/* Mobile : grille 2×2 statique. L'ancienne marquee infinie violait WCAG 2.2.2
+          (défilement auto > 5 s sans pause possible au tactile). */}
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-4 md:hidden">
         {items.map(({ key, Icon }) => (
-          <span
+          <li
             key={key}
-            className="flex shrink-0 items-center gap-2 px-6 text-body-sm font-medium text-canard-800 dark:text-canard-100"
+            className="flex items-center gap-2 text-body-sm font-medium text-canard-800 dark:text-canard-100"
           >
             <Icon
               className="size-[18px] shrink-0 stroke-[1.75] text-sapin-600 dark:text-sapin-300"
               aria-hidden="true"
             />
-            {t(key)}
-          </span>
+            <span>{t(key)}</span>
+          </li>
         ))}
-      </Marquee>
+      </ul>
 
       {/* Desktop : grille 4 colonnes avec séparateurs verticaux discrets. */}
       <ul className="hidden md:grid md:grid-cols-4 md:divide-x md:divide-canard-200/50 dark:md:divide-canard-800/50">

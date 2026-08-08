@@ -65,7 +65,7 @@ export function LandingHeader() {
           >
             {t("loginCta")}
           </TrackedCtaButton>
-          <TrackedCtaButton event="cta_header_signup" href="/signup" variant="primary">
+          <TrackedCtaButton event="cta_header_signup" href="/signup?src=header" variant="primary">
             {t("signupCta")}
           </TrackedCtaButton>
         </div>

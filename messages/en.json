@@ -103,6 +103,8 @@
     "resendLink": "Resend link",
     "resendEmail": "Enter your email to receive a new link",
     "consentText": "By creating an account, you accept our <cguLink>terms of service</cguLink> and acknowledge that you have read our <privacyLink>privacy policy</privacyLink>.",
+    "planReminderStarter": "You picked Starter — €9.90/month, billed only when you publish your menu. Creating it stays free.",
+    "planReminderPro": "You picked Pro — €29.90/month, billed only when you publish your menu. Creating it stays free.",
     "error": {
       "invalid_credentials": "Invalid email or password",
       "invalid_email": "Invalid email address",
@@ -508,6 +510,7 @@
   },
   "Landing": {
     "skipToContent": "Skip to content",
+    "opensInNewTab": "(opens in a new tab)",
     "header": {
       "navTarifs": "Pricing",
       "navDemo": "Demo",

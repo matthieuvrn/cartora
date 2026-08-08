@@ -16,7 +16,7 @@ export function LandingProblem() {
   return (
     <LandingSection id="problem" className="bg-sand-100/60" innerClassName="py-16 md:py-24">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h1 md:text-h2">{t("title")}</h2>
+        <h2 className="text-h2 md:text-h1">{t("title")}</h2>
       </header>
       <ProblemGrid items={items} />
     </LandingSection>

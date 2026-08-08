@@ -25,7 +25,7 @@ const TIERS: readonly TierConfig[] = [
   {
     key: "starter",
     event: "cta_pricing_starter",
-    href: "/signup?plan=starter",
+    href: "/signup?plan=starter&src=pricing",
     variant: "primary",
     highlighted: true,
     ctaKey: "ctaChoose",
@@ -35,7 +35,7 @@ const TIERS: readonly TierConfig[] = [
   {
     key: "free",
     event: "cta_pricing_free",
-    href: "/signup?plan=free",
+    href: "/signup?plan=free&src=pricing",
     variant: "outline",
     highlighted: false,
     ctaKey: "ctaStartFree",
@@ -45,7 +45,7 @@ const TIERS: readonly TierConfig[] = [
   {
     key: "pro",
     event: "cta_pricing_pro",
-    href: "/signup?plan=pro",
+    href: "/signup?plan=pro&src=pricing",
     variant: "outline",
     highlighted: false,
     ctaKey: "ctaChoose",
@@ -61,7 +61,7 @@ export function LandingPricing() {
   return (
     <LandingSection id="pricing" innerClassName="py-20 md:py-32">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h1 md:text-h2">{tLanding("title")}</h2>
+        <h2 className="text-h2 md:text-h1">{tLanding("title")}</h2>
         <p className="mt-3 text-body-lg text-sand-700">{tLanding("subtitle")}</p>
       </header>
 
@@ -77,7 +77,7 @@ export function LandingPricing() {
                 "relative flex flex-col overflow-hidden rounded-xl border p-7",
                 tier.mdOrder,
                 tier.highlighted
-                  ? "z-10 scale-[1.02] border-sapin-500 bg-sand-50 shadow-xl ring-2 ring-sapin-500 shadow-[var(--shadow-glow)] lg:scale-105"
+                  ? "z-10 scale-[1.02] border-sapin-500 bg-sand-50 shadow-featured ring-2 ring-sapin-500 lg:scale-105"
                   : "border-canard-100 bg-card shadow-sm",
               )}
             >

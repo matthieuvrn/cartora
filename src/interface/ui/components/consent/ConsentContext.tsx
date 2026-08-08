@@ -2,7 +2,11 @@
 
 import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 import type { ConsentStatus } from "@/domain/consent/ConsentTypes";
-import { CONSENT_COOKIE_NAME, CONSENT_MAX_AGE_SECONDS } from "@/domain/consent/ConsentTypes";
+import {
+  CONSENT_CHANGE_EVENT,
+  CONSENT_COOKIE_NAME,
+  CONSENT_MAX_AGE_SECONDS,
+} from "@/domain/consent/ConsentTypes";
 
 interface ConsentContextValue {
   status: ConsentStatus;
@@ -36,6 +40,10 @@ function deleteCookie() {
 let listeners: Array<() => void> = [];
 function emitChange() {
   for (const listener of listeners) listener();
+  // Notifie aussi les consommateurs hors React (chargement différé de Sentry).
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT));
+  }
 }
 function subscribe(listener: () => void) {
   listeners = [...listeners, listener];

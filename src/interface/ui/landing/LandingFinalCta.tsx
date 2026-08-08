@@ -23,7 +23,12 @@ export function LandingFinalCta() {
 
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <BreathingCta>
-            <TrackedCtaButton event="cta_final_signup" href="/signup" variant="primary" size="lg">
+            <TrackedCtaButton
+              event="cta_final_signup"
+              href="/signup?src=final"
+              variant="primary"
+              size="lg"
+            >
               {t("ctaPrimary")}
             </TrackedCtaButton>
           </BreathingCta>

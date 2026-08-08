@@ -31,6 +31,8 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      # Budget perf : JS initial de la landing (démarre `next start` sur le build ci-dessus).
+      - run: pnpm perf:landing
 
   audit:
     runs-on: ubuntu-latest

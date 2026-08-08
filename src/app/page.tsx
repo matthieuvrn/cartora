@@ -17,6 +17,7 @@ import { LandingTrustSafety } from "@/interface/ui/landing/LandingTrustSafety";
 import { LandingTrustStrip } from "@/interface/ui/landing/LandingTrustStrip";
 import { LandingFooter } from "@/interface/ui/components/LandingFooter";
 import { ScrollDepthTracker } from "@/interface/ui/landing/ScrollDepthTracker";
+import { SectionViewTracker } from "@/interface/ui/landing/SectionViewTracker";
 import { StickyMobileCTA } from "@/interface/ui/landing/StickyMobileCTA";
 
 const FR_TITLE = "Cartora — Menu digital pour restaurateurs indépendants";
@@ -190,6 +191,7 @@ export default async function HomePage() {
             <LandingFinalCta />
           </MotionSection>
           <ScrollDepthTracker />
+          <SectionViewTracker sectionIds={["demo", "pricing", "final-cta"]} />
         </main>
         <LandingFooter />
         <StickyMobileCTA />

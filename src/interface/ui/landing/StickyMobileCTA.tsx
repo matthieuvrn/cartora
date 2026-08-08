@@ -44,7 +44,7 @@ export function StickyMobileCTA() {
 
   const button = (
     <Link
-      href="/signup"
+      href="/signup?src=sticky"
       onClick={handleClick}
       tabIndex={visible ? undefined : -1}
       className="flex h-14 w-full items-center justify-center text-base font-medium text-sand-50 active:bg-canard-700"
@@ -69,7 +69,9 @@ export function StickyMobileCTA() {
       <m.div
         className={wrapperBase}
         initial={false}
-        animate={{ y: visible ? 0 : 88 }}
+        // "110%" (pas une valeur px fixe) : h-14 + safe-area-inset-bottom ≈ 90px sur iPhone
+        // à encoche — à y:88 un liseré de la barre et son ombre restaient visibles.
+        animate={{ y: visible ? 0 : "110%" }}
         transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
         aria-hidden={!visible}
       >

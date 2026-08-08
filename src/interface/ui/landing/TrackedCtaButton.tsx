@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
@@ -47,6 +47,7 @@ export function TrackedCtaButton({
   children,
 }: TrackedCtaButtonProps) {
   const locale = useLocale();
+  const t = useTranslations("Landing");
 
   const handleClick = React.useCallback(() => {
     trackLandingEvent({ event, locale, metadata });
@@ -64,6 +65,8 @@ export function TrackedCtaButton({
         className={classes}
       >
         {children}
+        {/* WCAG 3.2.5/G201 : annoncer l'ouverture dans un nouvel onglet aux lecteurs d'écran. */}
+        <span className="sr-only">{t("opensInNewTab")}</span>
       </a>
     );
   }

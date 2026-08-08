@@ -11,6 +11,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "perf:landing": "node scripts/check-landing-budget.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",

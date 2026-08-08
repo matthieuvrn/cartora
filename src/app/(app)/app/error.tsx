@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import * as Sentry from "@sentry/nextjs";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +16,13 @@ export default function DashboardError({
   useEffect(() => {
     // `digest` permet à Sentry de corréler le rapport client avec le log serveur
     // (le digest est généré côté serveur en App Router pour les erreurs throws).
-    Sentry.captureException(error, { tags: { digest: error.digest ?? null } });
+    // import() différé : un import statique embarquerait le SDK dans le bundle initial
+    // du dashboard alors qu'il ne sert qu'en cas de crash (cf. global-error.tsx).
+    void import("@sentry/nextjs")
+      .then((Sentry) => {
+        Sentry.captureException(error, { tags: { digest: error.digest ?? null } });
+      })
+      .catch(() => {});
   }, [error]);
 
   return (

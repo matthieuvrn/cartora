@@ -1,4 +1,5 @@
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
+import { CONSENT_COOKIE_NAME } from "@/domain/consent/ConsentTypes";
 
 interface TrackPayload {
   event: LandingEventName;
@@ -6,12 +7,40 @@ interface TrackPayload {
   metadata?: Record<string, unknown>;
 }
 
+const VISITOR_STORAGE_KEY = "cartora-visitor-id";
+
+/**
+ * Id de visite anonyme (sessionStorage — jamais de cookie, purgé à la fermeture de l'onglet),
+ * attaché aux events UNIQUEMENT quand le consentement est « accepted ». Sans consentement,
+ * les events restent strictement anonymes comme avant (mesure d'audience exemptée).
+ * Permet les funnels joints (« X % de ceux qui ont vu le pricing ont cliqué ») et les A/B.
+ */
+function getVisitorId(): string | null {
+  try {
+    if (typeof document === "undefined") return null;
+    const consented = document.cookie
+      .split(";")
+      .some((c) => c.trim().startsWith(`${CONSENT_COOKIE_NAME}=accepted`));
+    if (!consented) return null;
+    const existing = window.sessionStorage.getItem(VISITOR_STORAGE_KEY);
+    if (existing) return existing;
+    const id = window.crypto.randomUUID();
+    window.sessionStorage.setItem(VISITOR_STORAGE_KEY, id);
+    return id;
+  } catch {
+    // Storage bloqué (navigation privée…) : on track sans id plutôt que d'échouer.
+    return null;
+  }
+}
+
 export function trackLandingEvent({ event, locale, metadata }: TrackPayload) {
+  const visitorId = getVisitorId();
+  const mergedMetadata = { ...metadata, ...(visitorId ? { visitorId } : {}) };
   const payload = JSON.stringify({
     type: "landing",
     event,
     locale: locale === "en" ? "en" : "fr",
-    ...(metadata ? { metadata } : {}),
+    ...(Object.keys(mergedMetadata).length > 0 ? { metadata: mergedMetadata } : {}),
   });
 
   if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {

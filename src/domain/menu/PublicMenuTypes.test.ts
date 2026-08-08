@@ -274,4 +274,33 @@ describe("normalizePublicSnapshot", () => {
     const result = normalizePublicSnapshot(noDaily);
     expect("dailyItems" in result).toBe(false);
   });
+
+  it("fills sourceLocale and availableLocales on a legacy snapshot missing them", () => {
+    // Snapshot v1 (pré-multilingue) : aucun champ de locale. Le rendu itère
+    // `availableLocales` — sans ce comblement, TOUTE la page publique fait un 500
+    // (« availableLocales is not iterable », constaté sur la démo seedée pré-S4).
+    const legacy = {
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(legacy);
+
+    expect(result.sourceLocale).toBe("fr");
+    expect(result.availableLocales).toEqual(["fr"]);
+  });
+
+  it("derives availableLocales from a present sourceLocale when the list is missing", () => {
+    const legacy = {
+      sourceLocale: "en",
+      restaurantName: "R",
+      publishedAt: PUBLISHED_AT,
+      categories: [],
+    } as unknown as PublicMenuSnapshot;
+
+    const result = normalizePublicSnapshot(legacy);
+
+    expect(result.availableLocales).toEqual(["en"]);
+  });
 });

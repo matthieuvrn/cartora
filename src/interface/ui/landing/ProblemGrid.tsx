@@ -26,8 +26,12 @@ const CARD_CLASS =
   "group relative flex flex-col rounded-xl border border-canard-100 bg-card p-6 shadow-sm transition-shadow duration-200 hover:shadow-glow";
 const ICON_CLASS = "size-7 stroke-[1.75] text-canard-600";
 
-function Title({ children }: { children: string }) {
-  return <h3 className="mt-4 text-h3 text-balance text-canard-900">{children}</h3>;
+function Title({ id, children }: { id: string; children: string }) {
+  return (
+    <h3 id={id} className="mt-4 text-h3 text-balance text-canard-900">
+      {children}
+    </h3>
+  );
 }
 
 function Body({ children }: { children: string }) {
@@ -42,10 +46,11 @@ export function ProblemGrid({ items }: { items: ProblemItem[] }) {
       <div className={GRID_CLASS}>
         {items.map((it) => {
           const Icon = ICONS[it.key];
+          const titleId = `problem-${it.key}-title`;
           return (
-            <article key={it.key} className={CARD_CLASS} aria-label={it.title}>
+            <article key={it.key} className={CARD_CLASS} aria-labelledby={titleId}>
               <Icon className={ICON_CLASS} aria-hidden="true" />
-              <Title>{it.title}</Title>
+              <Title id={titleId}>{it.title}</Title>
               <Body>{it.body}</Body>
             </article>
           );
@@ -59,6 +64,7 @@ export function ProblemGrid({ items }: { items: ProblemItem[] }) {
       <div className={GRID_CLASS}>
         {items.map((it) => {
           const Icon = ICONS[it.key];
+          const titleId = `problem-${it.key}-title`;
           return (
             <m.article
               key={it.key}
@@ -68,7 +74,7 @@ export function ProblemGrid({ items }: { items: ProblemItem[] }) {
               whileHover="hover"
               variants={{ rest: { y: 0 }, hover: { y: -4 } }}
               transition={SPRING.softSpring}
-              aria-label={it.title}
+              aria-labelledby={titleId}
             >
               <m.span
                 className="inline-block"
@@ -77,7 +83,7 @@ export function ProblemGrid({ items }: { items: ProblemItem[] }) {
               >
                 <Icon className={ICON_CLASS} aria-hidden="true" />
               </m.span>
-              <Title>{it.title}</Title>
+              <Title id={titleId}>{it.title}</Title>
               <Body>{it.body}</Body>
             </m.article>
           );

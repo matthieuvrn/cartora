@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   UtensilsCrossed,
@@ -12,6 +13,7 @@ import {
   CookingPot,
   Beef,
   Croissant,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -41,7 +43,42 @@ const TYPE_ICONS: Record<RestaurantType, LucideIcon> = {
   BAKERY: Croissant,
 };
 
+// Plans annonçables depuis la landing (?plan=…). Toute autre valeur est ignorée :
+// on n'affiche jamais de rappel pour un plan inconnu et on ne persiste rien.
+const PLAN_PARAM_VALUES = ["free", "starter", "pro"] as const;
+type PlanParam = (typeof PLAN_PARAM_VALUES)[number];
+
+function parsePlan(value: string | null): PlanParam | null {
+  return PLAN_PARAM_VALUES.includes(value as PlanParam) ? (value as PlanParam) : null;
+}
+
+// Emplacement CTA d'origine (?src=hero|header|sticky|final|pricing) — attribution
+// clic→inscription. Whitelist stricte : jamais de chaîne libre dans les metadata.
+function parseSrc(value: string | null): string | null {
+  return value !== null && /^[a-z0-9_-]{1,32}$/.test(value) ? value : null;
+}
+
 export default function SignupPage() {
+  return (
+    // useSearchParams impose une frontière Suspense pour garder la route prerender-able ;
+    // le fallback rend le même formulaire sans le rappel de plan (aucun flash visible).
+    <Suspense fallback={<SignupCard plan={null} src={null} />}>
+      <SignupCardWithParams />
+    </Suspense>
+  );
+}
+
+function SignupCardWithParams() {
+  const searchParams = useSearchParams();
+  return (
+    <SignupCard
+      plan={parsePlan(searchParams.get("plan"))}
+      src={parseSrc(searchParams.get("src"))}
+    />
+  );
+}
+
+function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null }) {
   const t = useTranslations("Auth");
   const [state, action, isPending] = useActionState(signupAction, initialState);
 
@@ -73,11 +110,23 @@ export default function SignupPage() {
 
       <form action={action}>
         <CardContent className="space-y-4">
+          {/* Rappel du plan choisi sur la landing — le clic pricing le plus chaud de la
+              page ne doit pas atterrir sur un formulaire qui a oublié son choix. */}
+          {(plan === "starter" || plan === "pro") && (
+            <p className="flex items-start gap-2 rounded-md border border-primary/25 bg-primary/5 px-3 py-2.5 text-sm">
+              <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+              <span>{t(plan === "starter" ? "planReminderStarter" : "planReminderPro")}</span>
+            </p>
+          )}
+
           {state.error && (
             <p role="alert" className="text-sm text-destructive">
               {t(`error.${state.error}`)}
             </p>
           )}
+
+          {plan && <input type="hidden" name="plan" value={plan} />}
+          {src && <input type="hidden" name="src" value={src} />}
 
           <div className="space-y-1">
             <Label htmlFor="email">{t("email")}</Label>

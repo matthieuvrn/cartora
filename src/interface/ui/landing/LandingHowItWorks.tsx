@@ -16,7 +16,7 @@ export function LandingHowItWorks() {
   return (
     <LandingSection id="how-it-works" innerClassName="py-20 md:py-28">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h1 md:text-h2">{t("title")}</h2>
+        <h2 className="text-h2 md:text-h1">{t("title")}</h2>
       </header>
 
       <ol className="relative grid gap-6 lg:grid-cols-3">

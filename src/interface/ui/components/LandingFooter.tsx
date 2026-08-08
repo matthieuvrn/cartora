@@ -58,7 +58,7 @@ export async function LandingFooter() {
 
           {columns.map((col) => (
             <nav key={col.heading} aria-label={col.heading}>
-              <p className="text-caption tracking-wide text-sand-500 uppercase">{col.heading}</p>
+              <p className="text-caption tracking-wide text-sand-600 uppercase">{col.heading}</p>
               <ul className="mt-2 flex flex-col">
                 {col.links.map((link) =>
                   link.external ? (
@@ -81,7 +81,7 @@ export async function LandingFooter() {
 
           {/* Légal */}
           <nav aria-label={t("colLegal")}>
-            <p className="text-caption tracking-wide text-sand-500 uppercase">{t("colLegal")}</p>
+            <p className="text-caption tracking-wide text-sand-600 uppercase">{t("colLegal")}</p>
             <ul className="mt-2 flex flex-col">
               <li>
                 <Link href="/confidentialite" className={linkClass}>
@@ -105,7 +105,7 @@ export async function LandingFooter() {
           </nav>
         </div>
 
-        <div className="mt-12 border-t border-sand-200 pt-6 text-caption text-sand-500">
+        <div className="mt-12 border-t border-sand-200 pt-6 text-caption text-sand-600">
           &copy; {new Date().getFullYear()} Cartora
         </div>
       </div>

@@ -10,16 +10,18 @@ import "./globals.css";
 
 // Self-hosted via @fontsource-variable (woff2 servis depuis 'self' — CSP font-src 'self'
 // OK, build hermétique, aucun fetch Google). Geist (UI) reste chargée via le package geist.
-// Fraunces = display éditorial (axes opsz/SOFT/WONK pilotés en CSS via font-optical-sizing /
-// font-variation-settings). JetBrains Mono = prix/URLs/data.
+// Fraunces = display éditorial. Fichiers `opsz` (wght+opsz, 67+82 KB) et non `full`
+// (121+150 KB) : seul font-optical-sizing est consommé en CSS, les axes SOFT/WONK ne sont
+// pilotés nulle part — même rendu, −122 KB préchargés. L'italique reste préchargée : le
+// <em> du h1 hero (LCP) l'affiche au-dessus du fold. JetBrains Mono = prix/URLs/data.
 const fraunces = localFont({
   src: [
     {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2",
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2",
       style: "normal",
     },
     {
-      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-full-italic.woff2",
+      path: "../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-italic.woff2",
       style: "italic",
     },
   ],
@@ -34,9 +36,10 @@ const jetbrainsMono = localFont({
   weight: "100 800",
   variable: "--font-jetbrains-mono",
   display: "swap",
-  // Préchargée : CLASSIC (template par défaut, le plus rendu) l'utilise pour les prix
-  // (`--menu-font-mono`). Les polices premium restent `preload: false` (Étape 4).
-  preload: true,
+  // Pas de preload : ses seuls usages (prix du template CLASSIC sur /m/[slug], pill d'URL
+  // du BrowserMockup) sont below-the-fold ou hors landing — le preload root faisait payer
+  // 40 KB sur le chemin critique de TOUTES les pages. Fetch à la demande + swap.
+  preload: false,
 });
 
 // Polices des templates publics premium (Étape 4 — refonte menu, cf. docs/publicmenu.md).

@@ -21,7 +21,7 @@ export function LandingTrustSafety() {
   return (
     <LandingSection id="trust-safety" className="bg-canard-50/40" innerClassName="py-16 md:py-20">
       <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h1 md:text-h2">{t("title")}</h2>
+        <h2 className="text-h2 md:text-h1">{t("title")}</h2>
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">

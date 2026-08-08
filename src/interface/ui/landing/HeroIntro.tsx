@@ -38,7 +38,7 @@ export function HeroIntro() {
     <div className="mt-9 flex flex-wrap items-center gap-4">
       <TrackedCtaButton
         event="cta_hero_signup"
-        href="/signup"
+        href="/signup?src=hero"
         variant="primary"
         size="lg"
         className="h-12 px-7 shadow-glow hover:shadow-xl"

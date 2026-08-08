@@ -1,6 +1,5 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
 import { useEffect } from "react";
 
 /**
@@ -10,11 +9,19 @@ import { useEffect } from "react";
  * Ne s'affiche que pour les erreurs non rattrapées par les error boundaries
  * intermédiaires (`(app)/app/error.tsx`, etc.). En pratique : crash de layout root,
  * de provider, ou erreur côté `proxy.ts` / `instrumentation`.
+ *
+ * Sentry en import() différé : un import statique ici embarque ~70 KB gz de SDK dans
+ * le bundle initial de TOUTES les pages (le chunk du boundary est préchargé partout),
+ * alors que ce code ne sert qu'en cas de crash — où la latence d'un import est indolore.
  */
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
     // `digest` est la clé de dédup Sentry pour corréler client ↔ serveur en App Router.
-    Sentry.captureException(error, { tags: { digest: error.digest ?? null } });
+    void import("@sentry/nextjs")
+      .then((Sentry) => {
+        Sentry.captureException(error, { tags: { digest: error.digest ?? null } });
+      })
+      .catch(() => {});
   }, [error]);
 
   return (
