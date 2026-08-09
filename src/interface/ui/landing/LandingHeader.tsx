@@ -66,7 +66,10 @@ export function LandingHeader() {
             {t("loginCta")}
           </TrackedCtaButton>
           <TrackedCtaButton event="cta_header_signup" href="/signup?src=header" variant="primary">
-            {t("signupCta")}
+            {/* Libellé court < sm : le CTA complet wrappe sur 2 lignes à 390px dans un header
+                sticky — défaut de polish permanent (audit visuel 2026). */}
+            <span className="sm:hidden">{t("signupCtaShort")}</span>
+            <span className="hidden sm:inline">{t("signupCta")}</span>
           </TrackedCtaButton>
         </div>
       </div>

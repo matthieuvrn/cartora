@@ -3,11 +3,13 @@ import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { FeatureCard, type FeatureKey, type FeatureTier } from "./FeatureCard";
 
 // Le tier est un discriminant statique → la couleur du badge ne dépend jamais du texte i18n.
+// `qr` en starter : QR et stats n'ont de réalité qu'une fois la carte publiée (STARTER+) —
+// aligné avec la feature « Statistiques temps réel » de la carte pricing STARTER.
 const FEATURES: ReadonlyArray<{ key: FeatureKey; tier: FeatureTier }> = [
   { key: "editor", tier: "all" },
-  { key: "qr", tier: "all" },
+  { key: "qr", tier: "starter" },
   { key: "allergens", tier: "all" },
-  { key: "bilingual", tier: "all" },
+  { key: "bilingual", tier: "pro" },
   { key: "daily", tier: "starter" },
   { key: "branding", tier: "pro" },
 ] as const;

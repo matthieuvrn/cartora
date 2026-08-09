@@ -1,8 +1,6 @@
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { CookieBanner } from "@/interface/ui/components/consent/CookieBanner";
-import { LandingAudience } from "@/interface/ui/landing/LandingAudience";
-import { LandingComparison } from "@/interface/ui/landing/LandingComparison";
 import { LandingDemoPreview } from "@/interface/ui/landing/LandingDemoPreview";
 import { LandingFaqV2 } from "@/interface/ui/landing/LandingFaqV2";
 import { FAQ_ITEMS } from "@/interface/ui/landing/faqItems";
@@ -15,7 +13,6 @@ import { LandingLocaleSync } from "@/interface/ui/landing/LandingLocaleSync";
 import { LandingPricing } from "@/interface/ui/landing/LandingPricing";
 import { MotionSection } from "@/interface/ui/landing/MotionSection";
 import { LandingProblem } from "@/interface/ui/landing/LandingProblem";
-import { LandingTrustSafety } from "@/interface/ui/landing/LandingTrustSafety";
 import { LandingTrustStrip } from "@/interface/ui/landing/LandingTrustStrip";
 import { LandingFooter } from "@/interface/ui/components/LandingFooter";
 import { ScrollDepthTracker } from "@/interface/ui/landing/ScrollDepthTracker";
@@ -131,15 +128,16 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
           {tLanding("skipToContent")}
         </a>
         <LandingHeader />
+        {/* Arc en 9 sections (refonte 2026, ex-12) : Hero → TrustStrip → Problème (fusionné
+            avec l'ancienne Comparaison) → Comment ça marche → Features (audience intégrée à
+            l'étape 2) → Démo-preuve → Pricing → FAQ → Final CTA. TrustSafety supprimée : la
+            confiance vit dans la strip + la FAQ (elle était traitée trois fois). */}
         <main id="main">
           <LandingHero />
           {/* Reveal-on-scroll par section. Pas de delay cumulatif : chaque section apparaît à
               son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold. */}
           <MotionSection>
             <LandingTrustStrip />
-          </MotionSection>
-          <MotionSection>
-            <LandingAudience />
           </MotionSection>
           <MotionSection>
             <LandingProblem />
@@ -153,13 +151,8 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
           <MotionSection>
             <LandingDemoPreview />
           </MotionSection>
-          {/* Comparison gère son propre reveal (cascade des lignes) → pas de MotionSection ici. */}
-          <LandingComparison />
           <MotionSection>
             <LandingPricing />
-          </MotionSection>
-          <MotionSection>
-            <LandingTrustSafety />
           </MotionSection>
           <MotionSection>
             <LandingFaqV2 />

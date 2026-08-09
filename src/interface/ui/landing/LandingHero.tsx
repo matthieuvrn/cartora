@@ -12,11 +12,15 @@ export function LandingHero() {
       <HeroMeshCanvas className="absolute inset-0 -z-10 opacity-80" />
 
       <div className="mx-auto grid max-w-6xl gap-12 px-6 pt-20 pb-24 md:grid-cols-12 md:items-center md:gap-10 md:pt-28 md:pb-32">
-        {/* Texte — le h1 est l'élément LCP, rendu immédiat (aucun opacity-gate). */}
+        {/* Texte — le h1 est l'élément LCP, rendu immédiat (aucun opacity-gate). Le kicker
+            porte la catégorie (menu digital restaurateurs) pour laisser le h1 à la promesse. */}
         <div className="md:col-span-7">
+          <p className="text-caption font-medium tracking-[0.08em] text-canard-600 uppercase">
+            {t("kicker")}
+          </p>
           <h1
             id="hero-heading"
-            className="text-display-lg text-balance text-canard-900 md:text-display-xl lg:text-display-2xl"
+            className="mt-4 text-display-lg text-balance text-canard-900 md:text-display-xl lg:text-display-2xl"
           >
             {t.rich("title", {
               em: (chunks) => <em className="font-medium text-sapin-600 italic">{chunks}</em>,

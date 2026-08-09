@@ -36,7 +36,7 @@ export function LandingFinalCta() {
             event="cta_final_demo"
             href="/m/demo-cartora"
             external
-            variant="ghost"
+            variant="outline"
             size="lg"
           >
             {t("ctaSecondary")}

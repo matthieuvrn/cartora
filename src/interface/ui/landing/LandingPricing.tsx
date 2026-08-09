@@ -13,7 +13,7 @@ type TierConfig = {
   href: string;
   variant: "primary" | "outline";
   highlighted: boolean;
-  ctaKey: "ctaStartFree" | "ctaChoose";
+  ctaKey: "ctaStartFree" | "ctaPublish" | "ctaGoPro";
   taglineKey: "freeTagline" | "starterTagline" | "proTagline";
   /** Ordre desktop (≥ md). En DOM, Starter est premier → mis en avant au scroll mobile. */
   mdOrder: string;
@@ -28,7 +28,7 @@ const TIERS: readonly TierConfig[] = [
     href: "/signup?plan=starter&src=pricing",
     variant: "primary",
     highlighted: true,
-    ctaKey: "ctaChoose",
+    ctaKey: "ctaPublish",
     taglineKey: "starterTagline",
     mdOrder: "md:order-2",
   },
@@ -48,7 +48,7 @@ const TIERS: readonly TierConfig[] = [
     href: "/signup?plan=pro&src=pricing",
     variant: "outline",
     highlighted: false,
-    ctaKey: "ctaChoose",
+    ctaKey: "ctaGoPro",
     taglineKey: "proTagline",
     mdOrder: "md:order-3",
   },

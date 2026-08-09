@@ -49,7 +49,7 @@ export function HeroIntro() {
         event="cta_hero_demo"
         href="/m/demo-cartora"
         external
-        variant="ghost"
+        variant="outline"
         size="lg"
         className="group"
       >

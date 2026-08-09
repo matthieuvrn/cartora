@@ -493,6 +493,8 @@
     "ctaCurrent": "Current plan",
     "ctaChoose": "Choose",
     "ctaStartFree": "Start for free",
+    "ctaPublish": "Publish my menu",
+    "ctaGoPro": "Go Pro",
     "ctaStartPro": "Create my account",
     "starter": {
       "name": "Starter",
@@ -516,14 +518,16 @@
       "navDemo": "Demo",
       "loginCta": "Log in",
       "signupCta": "Create my menu for free",
+      "signupCtaShort": "Create my menu",
       "loggedInCta": ""
     },
     "hero": {
-      "title": "Your menu, online. Updated in <em>real time</em>. One QR scan away.",
-      "subtitle": "Build your digital menu in under 10 minutes — no technical skills required. Your guests scan, you edit live, your menu is never out of date.",
+      "kicker": "The digital menu for independent restaurants",
+      "title": "Your menu never <em>lies</em>.",
+      "subtitle": "Build your menu online and update it to the second from your phone. Your guests scan a QR and always see the real menu — today's prices, today's specials, allergens.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",
-      "microTrust": "No credit card · 10-minute setup · Cancel anytime",
+      "microTrust": "No credit card · Ready in 10 minutes · Cancel anytime",
       "demoImageAlt": "Cartora menu preview on mobile"
     },
     "trustStrip": {
@@ -531,21 +535,6 @@
       "stripe": "Secure payments via Stripe",
       "rgpd": "GDPR-compliant",
       "supportFr": "French-speaking support"
-    },
-    "audience": {
-      "title": "Cartora adapts to your type of establishment",
-      "subtitle": "Restaurant, pizzeria, brasserie, bar, café, creperie, fast food, bakery — eight ready-to-use profiles with pre-filled categories.",
-      "types": {
-        "traditional": "Traditional restaurant",
-        "pizzeria": "Pizzeria",
-        "brasserie": "Brasserie",
-        "bar": "Bar",
-        "cafe": "Café",
-        "creperie": "Creperie",
-        "fastfood": "Fast food",
-        "bakery": "Bakery"
-      },
-      "footnote": "Pick your type at signup: Cartora pre-fills the matching categories (starters/mains/desserts for a traditional restaurant, pizzas/pasta/antipasti for a pizzeria, etc.)."
     },
     "problem": {
       "title": "Today, your menu lives on…",
@@ -566,6 +555,16 @@
           "title": "A menu without allergens",
           "body": "EU Regulation 1169/2011 has required them since 2014. On paper, you improvise out loud — at every single service."
         }
+      },
+      "aside": {
+        "website": {
+          "title": "Already have a website?",
+          "body": "Keep it: address, opening hours, ambient photos. But a website isn't built for a menu that moves — Cartora slots in alongside, it doesn't replace it."
+        },
+        "others": {
+          "title": "Comparing digital menus?",
+          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, multilingual menus, no commitment. Up to you to compare what matters for your venue."
+        }
       }
     },
     "howItWorks": {
@@ -576,7 +575,7 @@
       },
       "step2": {
         "title": "Fill in your menu",
-        "body": "Dishes, categories, allergens: the editor works without any training. A full menu takes about 10 minutes."
+        "body": "Dishes, categories, allergens: the editor works without any training, with categories pre-filled for your type of establishment (pizzeria, brasserie, café…). A full menu takes about 10 minutes."
       },
       "step3": {
         "title": "Print your QR code",
@@ -584,7 +583,7 @@
       }
     },
     "features": {
-      "title": "Everything you need to serve your menu online",
+      "title": "Everything to keep your menu telling the truth",
       "editor": {
         "title": "Editor with no learning curve",
         "body": "Dishes, categories, allergens, prices: fill your menu without a tutorial. Edits go live to the second.",
@@ -593,7 +592,7 @@
       "qr": {
         "title": "QR code with analytics",
         "body": "One QR per restaurant, to print on tables or in the window. Track scans (time, device, source) from your dashboard.",
-        "tier": "All plans"
+        "tier": "STARTER and PRO"
       },
       "allergens": {
         "title": "14 EU allergens built in",
@@ -611,35 +610,17 @@
         "tier": "STARTER and PRO"
       },
       "branding": {
-        "title": "Premium templates & colors",
-        "body": "Nine designs to choose from: two base (Classic, Cartora) on every plan, and seven premium skins reserved for PRO. Brand colors are customizable on Classic — on every plan — with a WCAG AA contrast check.",
+        "title": "A menu that looks like you",
+        "body": "Nine designer styles, your brand colors, guaranteed readability: your menu looks professionally designed — without a designer.",
         "tier": "PRO"
       }
     },
     "demo": {
-      "title": "Here's what a published Cartora menu looks like.",
-      "subtitle": "Click to open a real live menu in a new tab. You can test the navigation, language switcher, allergens and QR flow.",
+      "title": "This menu was built in 8 minutes.",
+      "subtitle": "It's a real, published Cartora menu. Open it, switch the language, check the allergens — and time us.",
       "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today's specials.",
-      "openCta": "Open the demo",
-      "footnote": "This demo is a real Cartora menu, built in 8 minutes."
-    },
-    "comparison": {
-      "title": "How Cartora compares",
-      "subtitle": "Three concrete cases depending on what you use today for your menu.",
-      "cards": {
-        "paper": {
-          "label": "If you still use a paper menu",
-          "body": "Paper has a tangible charm and never crashes. But every price or dish change means reprinting, allergens stay handled by hand (with the legal risk that comes with it), and the menu ages fast. Cartora keeps the menu accurate without a single reprint."
-        },
-        "website": {
-          "label": "If you already have a website",
-          "body": "Your website still earns its place for general info: address, opening hours, ambient photos. But a website isn't built for a menu that moves: every change goes through edit mode, allergens aren't structured, and per-dish multilingual is rarely native. Cartora slots in alongside, it doesn't replace your site."
-        },
-        "other": {
-          "label": "If you're comparing other digital menus",
-          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, multilingual menus, and no commitment. Up to you to compare what matters for your venue."
-        }
-      }
+      "openCta": "Open the real menu",
+      "footnote": "No mockups: what you see is what your guests will see."
     },
     "pricing": {
       "title": "Fair pricing, no surprises.",
@@ -648,22 +629,6 @@
       "starterTagline": "To publish with confidence",
       "proTagline": "To go further",
       "footer": "No commitment · Cancel in 1 click · VAT included"
-    },
-    "trustSafety": {
-      "title": "Your data, your trust",
-      "hostingEu": {
-        "title": "Your data stays in Europe",
-        "body": "Your menu content (dishes, allergens) is stored with Supabase, in data centres located in France and Germany."
-      },
-      "stripe": {
-        "title": "Payments handled by Stripe",
-        "body": "When you upgrade to STARTER or PRO, Stripe processes the payment directly. Cartora never sees or stores your card number."
-      },
-      "rgpd": {
-        "title": "You stay in control of your data",
-        "body": "Export, account deletion and cancellation are all available from your account, in one click. Compliant with the General Data Protection Regulation (GDPR).",
-        "linkLabel": "Read our privacy policy"
-      }
     },
     "faq": {
       "title": "Frequently asked questions",
@@ -711,10 +676,10 @@
       }
     },
     "finalCta": {
-      "title": "Ready to digitize your menu?",
+      "title": "Your menu will never lie again.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",
-      "microTrust": "No credit card · 10-minute setup · Cancel anytime"
+      "microTrust": "No credit card · Ready in 10 minutes · Cancel anytime"
     }
   },
   "NotFound": {
