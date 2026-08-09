@@ -29,5 +29,9 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Uniquement les routes où le proxy AGIT : protection de /app/** et redirection des
+  // utilisateurs connectés hors de /login//signup. L'ancien matcher attrapait TOUT (dont la
+  // landing statique et /m/**) et payait un appel Supabase Auth par requête pour rien —
+  // et un middleware sur `/` empêcherait le service CDN pur des pages prérendues.
+  matcher: ["/app/:path*", "/login", "/signup"],
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Globe, Check } from "lucide-react";
 import { setLocaleAction } from "@/app/actions";
@@ -26,10 +27,20 @@ interface LocaleSwitcherProps {
    * landing funnel clean of dashboard/menu switches.
    */
   trackLanding?: boolean;
+  /**
+   * Landing statique : les deux locales sont des ROUTES (`/` fr, `/en` en) — changer de
+   * langue navigue au lieu de re-rendre (une page statique ne relit pas le cookie). Le
+   * cookie est quand même posé pour que le reste du site (signup, dashboard) suive.
+   */
+  landingPaths?: boolean;
 }
 
-export function LocaleSwitcher({ trackLanding = false }: LocaleSwitcherProps = {}) {
+export function LocaleSwitcher({
+  trackLanding = false,
+  landingPaths = false,
+}: LocaleSwitcherProps = {}) {
   const locale = useLocale();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleSelect = (next: "fr" | "en") => {
@@ -41,8 +52,11 @@ export function LocaleSwitcher({ trackLanding = false }: LocaleSwitcherProps = {
         metadata: { from: locale, to: next },
       });
     }
-    startTransition(() => {
-      setLocaleAction(next);
+    startTransition(async () => {
+      await setLocaleAction(next);
+      if (landingPaths) {
+        router.push(next === "en" ? "/en" : "/");
+      }
     });
   };
 

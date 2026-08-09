@@ -1,4 +1,5 @@
 import { GeistMono } from "geist/font/mono";
+import { LocaleShell } from "@/app/locale-shell";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
@@ -46,19 +47,21 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div
-      data-app-shell
-      className={`theme-app min-h-svh bg-background text-foreground ${GeistMono.variable}`}
-    >
-      <AppShell
-        email={user?.email ?? ""}
-        translationTodoCount={pendingTranslations}
-        publishBarState={publishBarState}
+    <LocaleShell>
+      <div
+        data-app-shell
+        className={`theme-app min-h-svh bg-background text-foreground ${GeistMono.variable}`}
       >
-        {children}
-      </AppShell>
-      {/* Dans le scope .theme-app : les toasts consomment --popover/--border/--card-shadow. */}
-      <Toaster />
-    </div>
+        <AppShell
+          email={user?.email ?? ""}
+          translationTodoCount={pendingTranslations}
+          publishBarState={publishBarState}
+        >
+          {children}
+        </AppShell>
+        {/* Dans le scope .theme-app : les toasts consomment --popover/--border/--card-shadow. */}
+        <Toaster />
+      </div>
+    </LocaleShell>
   );
 }

@@ -1,11 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import localFont from "next/font/local";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
 import { ConsentProvider } from "@/interface/ui/components/consent/ConsentContext";
-import { CookieBanner } from "@/interface/ui/components/consent/CookieBanner";
-import { Footer } from "@/interface/ui/components/Footer";
 import "./globals.css";
 
 // Self-hosted via @fontsource-variable (woff2 servis depuis 'self' — CSP font-src 'self'
@@ -134,24 +130,22 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-
+/**
+ * Root layout STATIQUE-COMPATIBLE : aucune lecture de cookies()/headers() ici — c'est ce qui
+ * permet à `/` et `/en` d'être prérendus et servis du CDN. Le provider next-intl (cookie
+ * `locale`), le footer global et la bannière cookies vivent dans <LocaleShell> (layouts des
+ * segments dynamiques) ; les pages landing embarquent leur propre provider. `lang="fr"` par
+ * défaut, corrigé côté client par HtmlLangSync/LandingLocaleSync pour les utilisateurs EN.
+ */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang={locale}
+      lang="fr"
       data-scroll-behavior="smooth"
       className={`${GeistSans.variable} ${fraunces.variable} ${jetbrainsMono.variable} ${cormorantGaramond.variable} ${bricolageGrotesque.variable} ${schibstedGrotesk.variable} ${archivo.variable} ${playfairDisplay.variable} ${newsreader.variable}`}
     >
       <body className="font-sans antialiased">
-        <NextIntlClientProvider messages={messages}>
-          <ConsentProvider>
-            {children}
-            <Footer />
-            <CookieBanner />
-          </ConsentProvider>
-        </NextIntlClientProvider>
+        <ConsentProvider>{children}</ConsentProvider>
       </body>
     </html>
   );

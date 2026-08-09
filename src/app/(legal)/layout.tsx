@@ -1,8 +1,17 @@
 import Link from "next/link";
+import { LocaleShell } from "@/app/locale-shell";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { Logo } from "@/interface/ui/components/Logo";
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <LocaleShell>
+      <LegalFrame>{children}</LegalFrame>
+    </LocaleShell>
+  );
+}
+
+function LegalFrame({ children }: { children: React.ReactNode }) {
   return (
     <div className="theme-app min-h-screen bg-background">
       <header className="border-b bg-background px-6 py-4">

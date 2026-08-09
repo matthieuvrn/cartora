@@ -335,11 +335,12 @@ html {
   --card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 6px -1px oklch(0 0 0 / 0.35);
 }
 
-/* Footer global ([data-global-footer], rendu via layout.tsx) masqué sur la landing (qui rend son
-   propre <LandingFooter/> riche) ET sur le shell dashboard ([data-app-shell]). Les pages auth
-   portent .theme-app mais PAS [data-app-shell] → elles conservent le footer légal/cookies.
-   Règle non-layered : prioritaire sur les utilities (pas de double footer possible). */
-body:has(.theme-cartora, [data-app-shell]) [data-global-footer] {
+/* Footer global ([data-global-footer], rendu via <LocaleShell>) masqué sur le shell dashboard
+   ([data-app-shell]). Les pages auth portent .theme-app mais PAS [data-app-shell] → elles
+   conservent le footer légal/cookies. La landing statique ne passe plus par LocaleShell et ne
+   rend donc jamais ce footer (elle a son <LandingFooter/> riche) — plus besoin du sélecteur
+   .theme-cartora. Règle non-layered : prioritaire sur les utilities. */
+body:has([data-app-shell]) [data-global-footer] {
   display: none;
 }
 

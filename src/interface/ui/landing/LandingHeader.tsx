@@ -56,7 +56,7 @@ export function LandingHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <LocaleSwitcher trackLanding />
+          <LocaleSwitcher trackLanding landingPaths />
           <TrackedCtaButton
             event="cta_header_login"
             href="/login"

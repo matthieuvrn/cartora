@@ -43,6 +43,21 @@ async function fetchLandingHtml(attempts = 60) {
 }
 
 try {
+  // Garde-fou statique : `/` et `/en` DOIVENT rester prérendues (○). Une lecture de
+  // cookies()/headers() glissée dans leur arbre les repasserait en dynamique (ƒ) —
+  // perte du cache CDN, TTFB dégradé — sans rien casser d'autre : on échoue ici.
+  const prerender = JSON.parse(
+    readFileSync(path.join(root, ".next/prerender-manifest.json"), "utf8"),
+  );
+  for (const route of ["/", "/en"]) {
+    if (!prerender.routes?.[route]) {
+      throw new Error(
+        `La route "${route}" n'est plus prérendue statique — une API dynamique (cookies()/headers()) a dû entrer dans son arbre. Voir src/app/page.tsx / locale-shell.tsx.`,
+      );
+    }
+  }
+  console.log("✓ / et /en prérendues statiques");
+
   const html = await fetchLandingHtml();
   const refs = new Set();
   for (const match of html.matchAll(/\/_next\/static\/[^"'\s\\]+?\.js\b/g)) refs.add(match[0]);
