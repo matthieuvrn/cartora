@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 
 /**
  * CTA collant en bas d'écran, mobile uniquement (`md:hidden`). Visible entre le hero et la
@@ -18,7 +20,7 @@ import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
 export function StickyMobileCTA() {
   const t = useTranslations("Landing.header");
   const locale = useLocale();
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   const [heroOut, setHeroOut] = useState(false);
   const [finalIn, setFinalIn] = useState(false);
 
@@ -72,7 +74,7 @@ export function StickyMobileCTA() {
         // "110%" (pas une valeur px fixe) : h-14 + safe-area-inset-bottom ≈ 90px sur iPhone
         // à encoche — à y:88 un liseré de la barre et son ombre restaient visibles.
         animate={{ y: visible ? 0 : "110%" }}
-        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
         aria-hidden={!visible}
       >
         {button}

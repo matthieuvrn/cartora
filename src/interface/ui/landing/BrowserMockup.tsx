@@ -3,14 +3,8 @@
 import Image, { type StaticImageData } from "next/image";
 import { useRef } from "react";
 import { Lock } from "lucide-react";
-import {
-  LazyMotion,
-  domAnimation,
-  m,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { LazyMotion, domAnimation, m, useScroll, useTransform } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 type BrowserMockupProps = {
   /** Import statique (pas string) → blurDataURL + dimensions intrinsèques pour CLS. */
@@ -49,7 +43,7 @@ function Chrome({ url }: { url: string }) {
  * fallback statique sous `prefers-reduced-motion`. Translation faible (±24px) — éditorial, pas gadget.
  */
 export function BrowserMockup({ src, alt, url, className }: BrowserMockupProps) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [24, -24]);

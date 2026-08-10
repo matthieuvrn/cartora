@@ -7,10 +7,8 @@ import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 import { PopIn } from "./PopIn";
-
-// cf. token CSS --ease-out-expo ; motion attend un tuple cubic-bezier (convention landing : inline).
-const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 type Props = {
   checklist: ActivationChecklist;

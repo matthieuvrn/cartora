@@ -1,14 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  LazyMotion,
-  domAnimation,
-  m,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { LazyMotion, domAnimation, m, useScroll, useTransform } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 
 /**
  * Ligne pointillée sapin reliant les 3 étapes (desktop uniquement), dessinée de gauche à
@@ -17,7 +11,7 @@ import {
  * `prefers-reduced-motion`, la ligne est rendue statique et entière.
  */
 export function HowItWorksProgressLine() {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 85%", "center 55%"] });
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);

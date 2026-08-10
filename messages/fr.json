@@ -528,7 +528,20 @@
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Voir un menu en direct",
       "microTrust": "Sans carte bancaire · Prêt en 10 minutes · Résiliable à tout moment",
-      "demoImageAlt": "Aperçu du menu Cartora affiché sur téléphone"
+      "demoImageAlt": "Démonstration animée : le menu du Bistrot Démo change de design et se met à jour en direct sur un téléphone",
+      "qrCaption": "Scannez : c'est une vraie carte",
+      "qrAlt": "QR code vers le menu de démonstration Cartora",
+      "liveMenu": {
+        "catStarters": "Entrées",
+        "catMains": "Plats",
+        "badgeNew": "Nouveau",
+        "badgePopular": "Populaire",
+        "soldOut": "Épuisé",
+        "updatedToast": "Mis à jour à l'instant",
+        "templateChip": "Design {name} · {index}/{total}",
+        "pause": "Mettre en pause les animations"
+      },
+      "demoImageAltStatic": "Aperçu du menu du Bistrot Démo affiché sur un téléphone"
     },
     "trustStrip": {
       "hostingEu": "Hébergé en France & UE (Supabase)",
@@ -616,7 +629,7 @@
       }
     },
     "demo": {
-      "title": "Cette carte a été créée en 8 minutes.",
+      "title": "Cette carte a été créée en <em>8 minutes</em>.",
       "subtitle": "C'est un vrai menu Cartora, publié et en ligne. Ouvrez-le, changez la langue, consultez les allergènes — et chronométrez-nous.",
       "imageAlt": "Aperçu desktop d'un menu Cartora publié, avec entrées, plats et formules du jour.",
       "openCta": "Ouvrir la vraie carte",

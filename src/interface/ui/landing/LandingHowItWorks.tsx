@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
+import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
 import { HowItWorksProgressLine } from "./HowItWorksProgressLine";
 
 type StepKey = "step1" | "step2" | "step3";
@@ -19,13 +20,15 @@ export function LandingHowItWorks() {
         <h2 className="text-h2 md:text-h1">{t("title")}</h2>
       </header>
 
-      <ol className="relative grid gap-6 lg:grid-cols-3">
+      {/* Stagger d'entrée des 3 étapes (Phase 3) — section parente en variant="fade". */}
+      <StaggerGroup as="ol" className="relative grid gap-6 lg:grid-cols-3">
         <HowItWorksProgressLine />
         {STEPS.map(({ key, number }) => {
           const titleId = `how-it-works-${key}-title`;
           return (
-            <li
+            <StaggerItem
               key={key}
+              as="li"
               className="relative rounded-xl border border-canard-100 bg-card p-6 shadow-sm"
             >
               {/* Numéro Fraunces « tampon » : écho canard décalé + chiffre sapin net dessus. */}
@@ -42,10 +45,10 @@ export function LandingHowItWorks() {
                 {t(`${key}.title`)}
               </h3>
               <p className="mt-2 text-body text-sand-700">{t(`${key}.body`)}</p>
-            </li>
+            </StaggerItem>
           );
         })}
-      </ol>
+      </StaggerGroup>
     </LandingSection>
   );
 }

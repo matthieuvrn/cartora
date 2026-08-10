@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
+import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
 import { cn } from "@/lib/utils";
@@ -65,66 +66,72 @@ export function LandingPricing() {
         <p className="mt-3 text-body-lg text-sand-700">{tLanding("subtitle")}</p>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-3 md:items-center">
+      {/* « Pricing vivant » (Phase 3) : cascade d'entrée (section parente en variant="fade")
+          + lift au survol en CSS pur (translate/scale composent — propriétés séparées TW4). */}
+      <StaggerGroup className="grid gap-6 md:grid-cols-3 md:items-center">
         {TIERS.map((tier) => {
           const titleId = `pricing-${tier.key}-title`;
           const period = tPricing(`${tier.key}.period`);
           return (
-            <article
-              key={tier.key}
-              aria-labelledby={titleId}
-              className={cn(
-                "relative flex flex-col overflow-hidden rounded-xl border p-7",
-                tier.mdOrder,
-                tier.highlighted
-                  ? "z-10 scale-[1.02] border-sapin-500 bg-sand-50 shadow-featured ring-2 ring-sapin-500 lg:scale-105"
-                  : "border-canard-100 bg-card shadow-sm",
-              )}
-            >
-              {tier.highlighted && (
-                <span className="absolute top-0 right-0 rounded-tr-xl rounded-bl-lg bg-sapin-600 px-3 py-1 text-caption font-medium text-sand-50">
-                  {tPricing("recommended")}
-                </span>
-              )}
-
-              <h3 id={titleId} className="text-h3 text-canard-900">
-                {tPricing(`${tier.key}.name`)}
-              </h3>
-              <p className="mt-1 text-body-sm text-sand-600">{tLanding(tier.taglineKey)}</p>
-
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="font-display text-display-lg font-medium tracking-[-0.04em] text-canard-900 tabular-nums">
-                  {tPricing(`${tier.key}.price`)}
-                </span>
-                {period && <span className="text-body text-sand-600">{period}</span>}
-              </div>
-
-              <ul className="mt-6 flex-1 space-y-3">
-                {(tPricing.raw(`${tier.key}.features`) as string[]).map((feature) => (
-                  <li key={feature} className="flex items-start gap-2 text-body-sm text-canard-800">
-                    <Check
-                      className="mt-0.5 size-4 shrink-0 stroke-[2] text-sapin-500"
-                      aria-hidden="true"
-                    />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <TrackedCtaButton
-                event={tier.event}
-                href={tier.href}
-                variant={tier.variant}
-                size="lg"
-                metadata={{ plan: tier.key }}
-                className="mt-8 w-full"
+            <StaggerItem key={tier.key} className={cn("h-full md:h-auto", tier.mdOrder)}>
+              <article
+                aria-labelledby={titleId}
+                className={cn(
+                  "relative flex h-full flex-col overflow-hidden rounded-xl border p-7",
+                  "transition-[translate,box-shadow] duration-200 ease-[var(--ease-out-expo)] hover:-translate-y-1",
+                  tier.highlighted
+                    ? "z-10 scale-[1.02] border-sapin-500 bg-sand-50 shadow-featured ring-2 ring-sapin-500 lg:scale-105"
+                    : "border-canard-100 bg-card shadow-sm hover:shadow-glow",
+                )}
               >
-                {tPricing(tier.ctaKey)}
-              </TrackedCtaButton>
-            </article>
+                {tier.highlighted && (
+                  <span className="absolute top-0 right-0 rounded-tr-xl rounded-bl-lg bg-sapin-600 px-3 py-1 text-caption font-medium text-sand-50">
+                    {tPricing("recommended")}
+                  </span>
+                )}
+
+                <h3 id={titleId} className="text-h3 text-canard-900">
+                  {tPricing(`${tier.key}.name`)}
+                </h3>
+                <p className="mt-1 text-body-sm text-sand-600">{tLanding(tier.taglineKey)}</p>
+
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="font-display text-display-lg font-medium tracking-[-0.04em] text-canard-900 tabular-nums">
+                    {tPricing(`${tier.key}.price`)}
+                  </span>
+                  {period && <span className="text-body text-sand-600">{period}</span>}
+                </div>
+
+                <ul className="mt-6 flex-1 space-y-3">
+                  {(tPricing.raw(`${tier.key}.features`) as string[]).map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-start gap-2 text-body-sm text-canard-800"
+                    >
+                      <Check
+                        className="mt-0.5 size-4 shrink-0 stroke-[2] text-sapin-500"
+                        aria-hidden="true"
+                      />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <TrackedCtaButton
+                  event={tier.event}
+                  href={tier.href}
+                  variant={tier.variant}
+                  size="lg"
+                  metadata={{ plan: tier.key }}
+                  className="mt-8 w-full"
+                >
+                  {tPricing(tier.ctaKey)}
+                </TrackedCtaButton>
+              </article>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerGroup>
 
       <p className="mt-8 text-center text-body-sm text-canard-700">{tLanding("footer")}</p>
     </LandingSection>

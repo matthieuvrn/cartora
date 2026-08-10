@@ -1,13 +1,15 @@
 import type { Transition } from "motion/react";
 
 /**
- * Presets motion partagés (landing + app produit). `SPRING`/`EASE_OUT_EXPO` consommés par
- * MotionSection et les composants landing ; `REVEAL_*` par le reveal du dashboard (étape 7,
- * cf. docs/ui-harmonisation-app-2026.md). Voir aussi docs/ui-refonte-2026.md §8.
+ * Presets motion partagés (landing + app produit) — SOURCE UNIQUE des constantes TS.
+ * `EASE_OUT_EXPO` est le miroir du token CSS `--ease-out-expo` (globals.css) : garder les
+ * deux en phase. `REVEAL_*` alimente HeroIntro et StaggerReveal (grilles landing) ; réutilisable
+ * par le reveal du dashboard (étape 7, cf. docs/ui-harmonisation-app-2026.md).
+ * Voir aussi docs/ui-refonte-2026.md §8.
  */
 
-// ease-out-expo : entrées éditoriales (cf. token CSS --ease-out-expo).
-const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
+// ease-out-expo : entrées éditoriales (miroir du token CSS --ease-out-expo).
+export const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export const SPRING = {
   softSpring: { type: "spring", stiffness: 120, damping: 20, mass: 1 },
@@ -16,10 +18,10 @@ export const SPRING = {
 } satisfies Record<string, Transition>;
 
 /**
- * Reveal d'arrivée en cascade (app produit, étape 7). Variants nommés `hidden`/`show` :
- * le conteneur orchestre via `staggerChildren`, chaque enfant porte `REVEAL_ITEM`. Calqué sur
- * le pattern landing fonctionnel (HeroIntro CONTAINER/ITEM). À monter avec `initial="hidden"
- * animate="show"` au mount. Toujours derrière `useReducedMotion()` côté composant.
+ * Reveal d'arrivée en cascade. Variants nommés `hidden`/`show` : le conteneur orchestre via
+ * `staggerChildren`, chaque enfant porte `REVEAL_ITEM`. Consommé par HeroIntro (mount) et
+ * StaggerReveal (`whileInView`, grilles landing). Toujours derrière `useReducedMotion()`
+ * côté composant.
  */
 export const REVEAL_CONTAINER = {
   hidden: {},

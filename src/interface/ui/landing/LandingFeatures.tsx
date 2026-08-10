@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
+import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
 import { FeatureCard, type FeatureKey, type FeatureTier } from "./FeatureCard";
 
 // Le tier est un discriminant statique → la couleur du badge ne dépend jamais du texte i18n.
@@ -23,18 +24,20 @@ export function LandingFeatures() {
         <h2 className="text-h2 md:text-h1">{t("title")}</h2>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Stagger d'entrée (Phase 3) — la section parente passe en MotionSection variant="fade". */}
+      <StaggerGroup className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map(({ key, tier }) => (
-          <FeatureCard
-            key={key}
-            featureKey={key}
-            tier={tier}
-            title={t(`${key}.title`)}
-            body={t(`${key}.body`)}
-            tierLabel={t(`${key}.tier`)}
-          />
+          <StaggerItem key={key} className="h-full [&>article]:h-full">
+            <FeatureCard
+              featureKey={key}
+              tier={tier}
+              title={t(`${key}.title`)}
+              body={t(`${key}.body`)}
+              tierLabel={t(`${key}.tier`)}
+            />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </LandingSection>
   );
 }

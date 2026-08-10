@@ -528,7 +528,20 @@
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",
       "microTrust": "No credit card · Ready in 10 minutes · Cancel anytime",
-      "demoImageAlt": "Cartora menu preview on mobile"
+      "demoImageAlt": "Animated demo: the Bistrot Démo menu switches designs and updates live on a phone",
+      "qrCaption": "Scan it — it's a real menu",
+      "qrAlt": "QR code to the live Cartora demo menu",
+      "liveMenu": {
+        "catStarters": "Starters",
+        "catMains": "Mains",
+        "badgeNew": "New",
+        "badgePopular": "Popular",
+        "soldOut": "Sold out",
+        "updatedToast": "Updated just now",
+        "templateChip": "Design {name} · {index}/{total}",
+        "pause": "Pause the animations"
+      },
+      "demoImageAltStatic": "Preview of the Bistrot Démo menu on a phone"
     },
     "trustStrip": {
       "hostingEu": "Hosted in France & EU (Supabase)",
@@ -616,7 +629,7 @@
       }
     },
     "demo": {
-      "title": "This menu was built in 8 minutes.",
+      "title": "This menu was built in <em>8 minutes</em>.",
       "subtitle": "It's a real, published Cartora menu. Open it, switch the language, check the allergens — and time us.",
       "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today's specials.",
       "openCta": "Open the real menu",

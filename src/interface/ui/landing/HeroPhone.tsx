@@ -1,41 +1,30 @@
 "use client";
 
-import { type StaticImageData } from "next/image";
-import { useRef } from "react";
-import {
-  LazyMotion,
-  domAnimation,
-  m,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
-import { PhoneMockup } from "@/interface/ui/components/PhoneMockup";
+import { useRef, type PropsWithChildren } from "react";
+import { LazyMotion, domAnimation, m, useScroll, useTransform } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
+import { EASE_OUT_EXPO } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-type HeroPhoneProps = {
-  src: StaticImageData;
-  alt: string;
-  priority?: boolean;
-  /** Inclinaison 3D statique (propagée à PhoneMockup). */
-  tilt?: number;
+type HeroPhoneProps = PropsWithChildren<{
   /** Largeur du téléphone (ex. "w-[280px] md:w-[320px]"). */
   className?: string;
-};
-
-const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
+  /** Suspend le float idle (bouton pause WCAG 2.2.2 du bloc démo — cf. HeroLiveDemo). */
+  paused?: boolean;
+}>;
 
 /**
- * Habillage motion du hero autour de `PhoneMockup` (gardé pur/server) :
+ * Coquille motion du hero autour du téléphone (children = `PhoneMockup` + écran) :
  *  - halo canard flou derrière le téléphone (ancre la colonne, remplit le vide),
  *  - entrée fade-up légère au chargement (delay → cascade après le texte),
  *  - float idle ±6px et parallaxe pilotée au scroll (mirror de `BrowserMockup`),
  *  - chaque transform sur sa propre couche pour ne pas se disputer la valeur `y`.
  * Sous `prefers-reduced-motion` : halo + téléphone statiques, aucun mouvement.
- * Cf. docs/ui-refonte-2026.md §8.
+ * Le LazyMotion posé ici sert aussi de contexte aux `m.*` du menu vivant enfant
+ * (HeroLiveDemo — même arbre React). Cf. docs/ui-refonte-2026.md §8.
  */
-export function HeroPhone({ src, alt, priority = false, tilt = 0, className }: HeroPhoneProps) {
-  const reduce = useReducedMotion();
+export function HeroPhone({ className, paused = false, children }: HeroPhoneProps) {
+  const reduce = useReducedMotionSafe();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const parallaxY = useTransform(scrollYProgress, [0, 1], [24, -24]);
@@ -47,15 +36,11 @@ export function HeroPhone({ src, alt, priority = false, tilt = 0, className }: H
     />
   );
 
-  const phone = (
-    <PhoneMockup src={src} alt={alt} priority={priority} tilt={tilt} className="w-full" />
-  );
-
   if (reduce) {
     return (
       <div ref={ref} className={cn("relative isolate", className)}>
         {halo}
-        {phone}
+        {children}
       </div>
     );
   }
@@ -72,12 +57,16 @@ export function HeroPhone({ src, alt, priority = false, tilt = 0, className }: H
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE_OUT_EXPO, delay: 0.15 }}
           >
-            {/* Couche float idle (boucle infinie subtile) */}
+            {/* Couche float idle (boucle infinie subtile, suspendue par le bouton pause) */}
             <m.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              animate={paused ? { y: 0 } : { y: [0, -6, 0] }}
+              transition={
+                paused
+                  ? { duration: 0.3, ease: "easeOut" }
+                  : { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }
             >
-              {phone}
+              {children}
             </m.div>
           </m.div>
         </m.div>

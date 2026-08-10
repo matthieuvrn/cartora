@@ -2,30 +2,22 @@
 
 import { useTranslations } from "next-intl";
 import { Clock, ShieldCheck, X } from "lucide-react";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
+import { REVEAL_CONTAINER, REVEAL_ITEM } from "@/lib/motion";
 
 // Icônes des 3 segments du micro-trust, dans l'ordre de la copy figée
 // (« Sans carte bancaire · Configuration en 10 minutes · Résiliable à tout moment »).
 const MICRO_TRUST_ICONS = [X, Clock, ShieldCheck] as const;
 
-const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
 // Le h1 (LCP) reste rendu hors de ce composant, instantané. Ici on fait apparaître
-// le reste du bloc texte en cascade après lui : sous-titre → CTA → micro-trust.
-const CONTAINER = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
-} as const;
-
-const ITEM = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE_OUT_EXPO } },
-} as const;
+// le reste du bloc texte en cascade après lui : sous-titre → CTA → micro-trust
+// (presets partagés REVEAL_* — src/lib/motion.ts).
 
 export function HeroIntro() {
   const t = useTranslations("Landing.hero");
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
 
   const microTrustItems = t("microTrust")
     .split(" · ")
@@ -90,10 +82,10 @@ export function HeroIntro() {
 
   return (
     <LazyMotion features={domAnimation} strict>
-      <m.div variants={CONTAINER} initial="hidden" animate="show">
-        <m.div variants={ITEM}>{subtitle}</m.div>
-        <m.div variants={ITEM}>{ctas}</m.div>
-        <m.div variants={ITEM}>{trust}</m.div>
+      <m.div variants={REVEAL_CONTAINER} initial="hidden" animate="show">
+        <m.div variants={REVEAL_ITEM}>{subtitle}</m.div>
+        <m.div variants={REVEAL_ITEM}>{ctas}</m.div>
+        <m.div variants={REVEAL_ITEM}>{trust}</m.div>
       </m.div>
     </LazyMotion>
   );

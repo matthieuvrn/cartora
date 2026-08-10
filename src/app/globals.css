@@ -98,6 +98,23 @@ html {
   --color-sand-900: oklch(0.2 0.006 50);
   --color-sand-950: oklch(0.13 0.005 50);
 
+  /* === Corail — accent haute-chroma (Phase 3 waw) ===
+     Contrepoint chaud complémentaire du canard (même famille que le corail SOLAR #f4502e).
+     Usage PARCIMONIEUX et décoratif : soulignement du h1, pastille kicker, highlight « 8 min »,
+     blob mesh. Pour du TEXTE sur fond clair : corail-600 minimum (AA) ; 400/500 = décor
+     ou texte sur fond sombre uniquement. */
+  --color-corail-50: oklch(0.97 0.015 40);
+  --color-corail-100: oklch(0.93 0.04 40);
+  --color-corail-200: oklch(0.86 0.08 40);
+  --color-corail-300: oklch(0.78 0.12 40);
+  --color-corail-400: oklch(0.72 0.16 40);
+  --color-corail-500: oklch(0.66 0.19 40);
+  --color-corail-600: oklch(0.55 0.18 38);
+  --color-corail-700: oklch(0.47 0.15 36);
+  --color-corail-800: oklch(0.38 0.12 34);
+  --color-corail-900: oklch(0.3 0.09 32);
+  --color-corail-950: oklch(0.22 0.06 32);
+
   /* === Sémantiques additionnelles (utilities text-danger / text-info / …) === */
   --color-success: var(--color-sapin-500);
   --color-warning: oklch(0.78 0.13 78);
@@ -141,13 +158,16 @@ html {
   --text-display-lg--line-height: 3.55rem;
   --text-display-lg--letter-spacing: -0.03em;
   --text-display-lg--font-weight: 500;
-  --text-display-xl: 4.5rem;
-  --text-display-xl--line-height: 4.7rem;
-  --text-display-xl--letter-spacing: -0.035em;
+  /* display-xl / display-2xl : FLUIDES en clamp() (Phase 3) — calées pour valoir 3.25rem
+     (l'ancien display-lg mobile) à 390px et leur maximum à 1440px. Le hero et la FinalCta
+     n'ont plus besoin de swap md:/lg: ; line-height sans unité pour suivre le corps. */
+  --text-display-xl: clamp(3.25rem, 2.79rem + 1.9vw, 4.5rem);
+  --text-display-xl--line-height: 1.06;
+  --text-display-xl--letter-spacing: -0.032em;
   --text-display-xl--font-weight: 500;
-  --text-display-2xl: 6rem;
-  --text-display-2xl--line-height: 6.2rem;
-  --text-display-2xl--letter-spacing: -0.04em;
+  --text-display-2xl: clamp(3.25rem, 2.23rem + 4.19vw, 6rem);
+  --text-display-2xl--line-height: 1.04;
+  --text-display-2xl--letter-spacing: -0.035em;
   --text-display-2xl--font-weight: 500;
 
   /* === Ombres teintées canard (additif — utilities shadow-md/lg/xl/glow) ===
@@ -895,11 +915,38 @@ body:has([data-app-shell]) [data-global-footer] {
     font-weight: 500;
   }
 
+  /* Soulignement « brush » du h1 hero : trait corail dessiné une fois au chargement
+     (pathLength normalisé à 1 côté SVG). Sous reduced-motion le kill-switch ci-dessous
+     annule durée ET délai → le trait apparaît instantanément. */
+  .hero-underline {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: hero-underline-draw 0.6s var(--ease-out-expo) 0.5s forwards;
+  }
+  @keyframes hero-underline-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Apparition d'une ligne de plat dans le menu vivant du hero (ajout en fin de liste →
+     aucun reflow visible). CSS pur : pas de m.* dans l'écran du téléphone. */
+  .live-item-in {
+    animation: live-item-in 0.3s var(--ease-out-expo) both;
+  }
+  @keyframes live-item-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.001ms !important;
+      animation-delay: 0.001ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.001ms !important;
       scroll-behavior: auto !important;

@@ -135,23 +135,25 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
         <main id="main">
           <LandingHero />
           {/* Reveal-on-scroll par section. Pas de delay cumulatif : chaque section apparaît à
-              son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold. */}
+              son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold.
+              variant="fade" sur les sections dont la grille interne stagger déjà ses items
+              (StaggerReveal) — sinon double animation y. */}
           <MotionSection>
             <LandingTrustStrip />
           </MotionSection>
-          <MotionSection>
+          <MotionSection variant="fade">
             <LandingProblem />
           </MotionSection>
-          <MotionSection>
+          <MotionSection variant="fade">
             <LandingHowItWorks />
           </MotionSection>
-          <MotionSection>
+          <MotionSection variant="fade">
             <LandingFeatures />
           </MotionSection>
           <MotionSection>
             <LandingDemoPreview />
           </MotionSection>
-          <MotionSection>
+          <MotionSection variant="fade">
             <LandingPricing />
           </MotionSection>
           <MotionSection>

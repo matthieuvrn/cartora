@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useLandingMotionPaused } from "@/interface/ui/landing/landingMotionStore";
 import { cn } from "@/lib/utils";
 
 /**
- * Fond "gradient mesh" du hero : canvas 2D peignant 3-4 blobs radiaux flous qui dérivent
+ * Fond "gradient mesh" du hero : canvas 2D peignant des blobs radiaux flous qui dérivent
  * lentement (mouvement sinusoïdal, pas d'intégration → stable). Garde-fous perf :
  *  - boucle plafonnée à ~30fps,
  *  - pause hors-viewport via IntersectionObserver,
  *  - `prefers-reduced-motion` → une seule frame statique, jamais de boucle,
+ *  - bouton pause du bloc démo (landingMotionStore, WCAG 2.2.2) → frame statique aussi,
  *  - cleanup strict (rAF + observers + listener).
  * Décoratif → `aria-hidden`. Cf. docs/ui-refonte-2026.md §8 (décision : canvas, pas WebGL).
  */
@@ -27,7 +29,9 @@ type Blob = {
 };
 
 // Positions/rayons en fractions des dimensions du canvas → responsive sans recalcul.
-// canard #2c5a66, sapin #1f4a3a, crème #fbfaf7 — alphas bas pour rester éditorial.
+// canard #2c5a66, sapin #1f4a3a, crème #fbfaf7, corail #e2603b — alphas relevés en Phase 3
+// (« mesh révélé » : il était quasi invisible) mais toujours éditoriaux ; le corail est le
+// contrepoint chaud, volontairement le plus discret (accent, pas un thème).
 const BLOBS: readonly Blob[] = [
   {
     baseX: 0.18,
@@ -39,7 +43,7 @@ const BLOBS: readonly Blob[] = [
     phaseX: 0,
     phaseY: 1.2,
     radius: 0.55,
-    color: "rgba(44,90,102,0.2)",
+    color: "rgba(44,90,102,0.28)",
   },
   {
     baseX: 0.83,
@@ -51,7 +55,7 @@ const BLOBS: readonly Blob[] = [
     phaseX: 2.1,
     phaseY: 0.4,
     radius: 0.42,
-    color: "rgba(31,74,58,0.16)",
+    color: "rgba(31,74,58,0.22)",
   },
   {
     baseX: 0.72,
@@ -63,7 +67,7 @@ const BLOBS: readonly Blob[] = [
     phaseX: 3.4,
     phaseY: 2.7,
     radius: 0.5,
-    color: "rgba(44,90,102,0.14)",
+    color: "rgba(44,90,102,0.2)",
   },
   {
     baseX: 0.32,
@@ -77,11 +81,26 @@ const BLOBS: readonly Blob[] = [
     radius: 0.46,
     color: "rgba(251,250,247,0.45)",
   },
+  {
+    baseX: 0.56,
+    baseY: 0.08,
+    ampX: 0.04,
+    ampY: 0.05,
+    speedX: 0.00014,
+    speedY: 0.00013,
+    phaseX: 4.2,
+    phaseY: 1.8,
+    radius: 0.3,
+    color: "rgba(226,96,59,0.1)",
+  },
 ];
 
 export function HeroMeshCanvas({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const paused = useLandingMotionPaused();
 
+  // `paused` en dépendance : l'effet se réinstalle au toggle (rare, action utilisateur) —
+  // les observers refont leur callback initial, donc la visibilité reste correcte.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -144,7 +163,7 @@ export function HeroMeshCanvas({ className }: { className?: string }) {
     const reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const applyMotionState = (visible: boolean) => {
-      if (reduceMq.matches) {
+      if (reduceMq.matches || paused) {
         stop();
         draw(performance.now());
       } else if (visible) {
@@ -173,7 +192,7 @@ export function HeroMeshCanvas({ className }: { className?: string }) {
       io.disconnect();
       reduceMq.removeEventListener("change", onReduceChange);
     };
-  }, []);
+  }, [paused]);
 
   return (
     <canvas ref={canvasRef} aria-hidden="true" className={cn("block h-full w-full", className)} />

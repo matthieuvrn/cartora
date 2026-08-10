@@ -1,24 +1,27 @@
-import Image, { type StaticImageData } from "next/image";
 import { BatteryFull, Signal, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type PhoneMockupProps = {
-  /** Import statique (pas string) → blurDataURL + dimensions intrinsèques pour LCP/CLS. */
-  src: StaticImageData;
-  alt: string;
-  /** Propagé à next/image (true sur le hero above-the-fold). */
-  priority?: boolean;
   /** Inclinaison 3D en degrés (rotateY). 0 = de face. Transform statique, pas une animation. */
   tilt?: number;
+  /** Status bar en clair (menus sombres NOIR/NEON/VELOURS) — transition douce au switch. */
+  statusBarLight?: boolean;
   className?: string;
+  /** Contenu de l'écran — remplit tout le viewport, la status bar est overlayée dessus. */
+  children: React.ReactNode;
 };
 
 /**
  * Frame iPhone réaliste, 100% CSS/SVG (aucune image de cadre) : coque canard, Dynamic Island,
- * status bar (heure + signal/wifi/batterie) et home indicator. Le viewport interne affiche une
- * capture d'écran via next/image. Réutilisé par le hero et par DemoPreview (étape 4).
+ * status bar (heure + signal/wifi/batterie) et home indicator. Le viewport interne rend des
+ * `children` (menu vivant du hero — Phase 3 ; avant : une capture next/image).
  */
-export function PhoneMockup({ src, alt, priority = false, tilt = 0, className }: PhoneMockupProps) {
+export function PhoneMockup({
+  tilt = 0,
+  statusBarLight = false,
+  className,
+  children,
+}: PhoneMockupProps) {
   return (
     <div
       className={cn("relative select-none", className)}
@@ -27,9 +30,17 @@ export function PhoneMockup({ src, alt, priority = false, tilt = 0, className }:
       {/* Coque + tranche */}
       <div className="relative rounded-[2.5rem] bg-canard-950 p-2 shadow-xl ring-1 ring-canard-950/40">
         {/* Viewport interne */}
-        <div className="relative flex aspect-[414/896] flex-col overflow-hidden rounded-[2rem] bg-sand-50">
-          {/* Status bar (strip réservé — n'écrase pas le contenu de la capture) */}
-          <div className="relative z-10 flex h-9 shrink-0 items-center justify-between px-6 text-canard-900">
+        <div className="relative aspect-[414/896] overflow-hidden rounded-[2rem] bg-sand-50">
+          {/* Écran — sous la status bar (le contenu gère son propre padding haut) */}
+          <div className="absolute inset-0">{children}</div>
+
+          {/* Status bar overlayée (couleur adaptée aux menus sombres) */}
+          <div
+            className={cn(
+              "absolute inset-x-0 top-0 z-10 flex h-9 items-center justify-between px-6 transition-colors duration-500",
+              statusBarLight ? "text-sand-50" : "text-canard-900",
+            )}
+          >
             <span className="text-micro font-medium tabular-nums">9:41</span>
             <span className="flex items-center gap-1" aria-hidden="true">
               <Signal className="size-3.5 stroke-[1.75]" />
@@ -38,23 +49,15 @@ export function PhoneMockup({ src, alt, priority = false, tilt = 0, className }:
             </span>
           </div>
 
-          {/* Capture menu — remplit la zone sous la status bar, débordement rogné en bas */}
-          <div className="relative flex-1">
-            <Image
-              src={src}
-              alt={alt}
-              fill
-              priority={priority}
-              placeholder="blur"
-              sizes="(min-width: 768px) 320px, 280px"
-              className="object-cover object-top"
-            />
-          </div>
-
           {/* Dynamic Island */}
-          <div className="absolute left-1/2 top-2 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-canard-950" />
+          <div className="absolute top-2 left-1/2 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-canard-950" />
           {/* Home indicator */}
-          <div className="absolute bottom-2 left-1/2 z-20 h-1 w-28 -translate-x-1/2 rounded-full bg-canard-950/25" />
+          <div
+            className={cn(
+              "absolute bottom-2 left-1/2 z-20 h-1 w-28 -translate-x-1/2 rounded-full transition-colors duration-500",
+              statusBarLight ? "bg-sand-50/40" : "bg-canard-950/25",
+            )}
+          />
         </div>
       </div>
     </div>

@@ -13,11 +13,12 @@ export function LandingFinalCta() {
       className="border-t-0 bg-canard-50/40"
       innerClassName="relative overflow-hidden py-24 text-center md:py-32"
     >
-      {/* Mesh signature canard/sapin très subtil en fond (statique si reduced-motion). */}
-      <HeroMeshCanvas className="pointer-events-none absolute inset-0 opacity-30" />
+      {/* Mesh signature canard/sapin subtil en fond (statique si reduced-motion). */}
+      <HeroMeshCanvas className="pointer-events-none absolute inset-0 opacity-40" />
 
       <div className="relative">
-        <h2 id="final-cta-heading" className="text-display-lg md:text-display-xl">
+        {/* display-xl fluide (clamp) — plus de swap md: nécessaire. */}
+        <h2 id="final-cta-heading" className="text-display-xl">
           {t("title")}
         </h2>
 

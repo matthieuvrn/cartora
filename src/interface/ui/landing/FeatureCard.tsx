@@ -1,7 +1,8 @@
 "use client";
 
 import { type ReactElement } from "react";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import {
   CalendarIcon,
   EditorIcon,
@@ -46,7 +47,7 @@ type FeatureCardProps = {
 
 export function FeatureCard({ featureKey, tier, title, body, tierLabel }: FeatureCardProps) {
   const Icon = CARD_ICONS[featureKey];
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
 
   const badge =
     tier === "all" ? null : (
