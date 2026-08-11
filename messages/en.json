@@ -523,11 +523,11 @@
     },
     "hero": {
       "kicker": "The digital menu for independent restaurants",
-      "title": "Your menu never <em>lies</em>.",
-      "subtitle": "Build your menu online and update it to the second from your phone. Your guests scan a QR and always see the real menu — today's prices, today's specials, allergens.",
+      "title": "Your menu online in <em>10 minutes</em>.",
+      "subtitle": "Update it to the second from your phone: your guests scan a QR code and always see today's menu — prices, dishes, allergens.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",
-      "microTrust": "No credit card · Ready in 10 minutes · Cancel anytime",
+      "microTrust": "No credit card · Free to start · Cancel anytime",
       "demoImageAlt": "Animated demo: the Bistrot Démo menu switches designs and updates live on a phone",
       "qrCaption": "Scan it — it's a real menu",
       "qrAlt": "QR code to the live Cartora demo menu",
@@ -596,7 +596,7 @@
       }
     },
     "features": {
-      "title": "Everything to keep your menu telling the truth",
+      "title": "Quick to create. Easy to keep fresh.",
       "editor": {
         "title": "Editor with no learning curve",
         "body": "Dishes, categories, allergens, prices: fill your menu without a tutorial. Edits go live to the second.",
@@ -689,10 +689,10 @@
       }
     },
     "finalCta": {
-      "title": "Your menu will never lie again.",
+      "title": "Ten minutes from now, your menu is live.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "See a live menu",
-      "microTrust": "No credit card · Ready in 10 minutes · Cancel anytime"
+      "microTrust": "No credit card · Free to start · Cancel anytime"
     }
   },
   "NotFound": {

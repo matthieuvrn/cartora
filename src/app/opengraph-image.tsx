@@ -65,8 +65,8 @@ export default function OpenGraphImage() {
             color: INK,
           }}
         >
-          Votre carte en ligne. Mise à jour à la&nbsp;
-          <span style={{ color: SAPIN, fontStyle: "italic" }}>seconde</span>.
+          Votre carte en ligne en&nbsp;
+          <span style={{ color: SAPIN, fontStyle: "italic" }}>10&nbsp;minutes</span>.
         </div>
         <div
           style={{
@@ -77,7 +77,7 @@ export default function OpenGraphImage() {
             fontWeight: 400,
           }}
         >
-          Sans carte bancaire · Configuration en 10 minutes · 100% RGPD français
+          Sans carte bancaire · Mise à jour à la seconde · 100% RGPD français
         </div>
       </div>
 

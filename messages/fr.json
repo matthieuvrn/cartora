@@ -523,11 +523,11 @@
     },
     "hero": {
       "kicker": "Le menu digital des restaurateurs indépendants",
-      "title": "Votre carte ne ment <em>jamais</em>.",
-      "subtitle": "Créez votre menu en ligne, modifiez-le à la seconde depuis votre téléphone. Vos clients scannent un QR et voient toujours la vraie carte — prix du jour, plats du jour, allergènes.",
+      "title": "Votre carte en ligne en <em>10 minutes</em>.",
+      "subtitle": "Modifiez-la à la seconde depuis votre téléphone : vos clients scannent un QR code et voient toujours la carte du jour — prix, plats, allergènes.",
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Voir un menu en direct",
-      "microTrust": "Sans carte bancaire · Prêt en 10 minutes · Résiliable à tout moment",
+      "microTrust": "Sans carte bancaire · Gratuit pour commencer · Résiliable à tout moment",
       "demoImageAlt": "Démonstration animée : le menu du Bistrot Démo change de design et se met à jour en direct sur un téléphone",
       "qrCaption": "Scannez : c'est une vraie carte",
       "qrAlt": "QR code vers le menu de démonstration Cartora",
@@ -596,7 +596,7 @@
       }
     },
     "features": {
-      "title": "Tout pour que votre carte dise toujours la vérité",
+      "title": "Rapide à créer. Simple à faire vivre.",
       "editor": {
         "title": "Éditeur sans formation",
         "body": "Plats, catégories, allergènes, prix : vous remplissez votre carte sans tutoriel. Les modifications sont en ligne à la seconde.",
@@ -689,10 +689,10 @@
       }
     },
     "finalCta": {
-      "title": "Votre carte ne mentira plus jamais.",
+      "title": "Dans 10 minutes, votre carte est en ligne.",
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Voir un menu en direct",
-      "microTrust": "Sans carte bancaire · Prêt en 10 minutes · Résiliable à tout moment"
+      "microTrust": "Sans carte bancaire · Gratuit pour commencer · Résiliable à tout moment"
     }
   },
   "NotFound": {
