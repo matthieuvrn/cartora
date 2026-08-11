@@ -1,6 +1,7 @@
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import enMessages from "../../../messages/en.json";
+import { landingClientMessages } from "@/app/_landing/landingClientMessages";
 import { LandingPageContent } from "@/app/_landing/LandingPageContent";
 import { landingMetadata } from "@/app/_landing/landingMetadata";
 
@@ -18,7 +19,7 @@ export const metadata = landingMetadata("en");
 export default function EnglishHomePage() {
   setRequestLocale("en");
   return (
-    <NextIntlClientProvider locale="en" messages={enMessages}>
+    <NextIntlClientProvider locale="en" messages={landingClientMessages(enMessages)}>
       <LandingPageContent locale="en" />
     </NextIntlClientProvider>
   );
