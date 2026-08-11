@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { CookieBanner } from "@/interface/ui/components/consent/CookieBanner";
 import { LandingDemoPreview } from "@/interface/ui/landing/LandingDemoPreview";
@@ -168,11 +167,12 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
         <LandingFooter />
         <StickyMobileCTA />
       </div>
-      {/* Suspense obligatoire en page STATIQUE : CookieBanner lit useSearchParams (?noBanner=1)
-          → CSR bailout. fallback null = la bannière apparaît à l'hydratation (standard). */}
-      <Suspense fallback={null}>
-        <CookieBanner />
-      </Suspense>
+      {/* CookieBanner : client-only par construction (useHydrated) — HTML serveur vide dans
+          TOUS les modes de rendu, apparition au montage. Plus de <Suspense> : le
+          useSearchParams qui l'exigeait a été retiré du composant (en dev 16.2.12 son
+          bailout CSR côté client face à un SSR dynamique contenant la bannière produisait
+          un « Hydration failed » à chaque chargement — cf. docblock du composant). */}
+      <CookieBanner />
     </>
   );
 }
