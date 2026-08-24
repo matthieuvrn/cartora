@@ -34,7 +34,18 @@ export function StickyMobileCTA() {
       observers.push(io);
     };
     observe("hero-heading", (intersecting) => setHeroOut(!intersecting));
-    observe("final-cta", setFinalIn);
+    // FinalCta visible OU déjà dépassée (footer) → pilule masquée : le CTA de clôture a été
+    // présenté, la barre ne ferait que recouvrir le footer. `boundingClientRect.top < 0`
+    // distingue « pas encore atteinte » (dessous) de « dépassée » (dessus).
+    const finalEl = document.getElementById("final-cta");
+    if (finalEl) {
+      const io = new IntersectionObserver(
+        ([entry]) => setFinalIn(entry.isIntersecting || entry.boundingClientRect.top < 0),
+        { threshold: 0 },
+      );
+      io.observe(finalEl);
+      observers.push(io);
+    }
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
@@ -49,14 +60,16 @@ export function StickyMobileCTA() {
       href="/signup?src=sticky"
       onClick={handleClick}
       tabIndex={visible ? undefined : -1}
-      className="flex h-14 w-full items-center justify-center text-base font-medium text-sand-50 active:bg-canard-700"
+      className="flex h-13 w-full items-center justify-center rounded-full border border-white/10 bg-nuit-900/95 text-base font-medium text-sand-50 shadow-[var(--shadow-pill-dark)] backdrop-blur-md transition-transform active:scale-[0.98]"
     >
       {t("signupCta")}
     </Link>
   );
 
+  // Pilule flottante détachée (plus de barre bord-à-bord) : nuit + hairline + halo,
+  // cohérente avec les CTA des scènes nuit. safe-area : max() garde 1rem de marge mini.
   const wrapperBase =
-    "fixed inset-x-0 bottom-0 z-30 bg-canard-600 pb-[env(safe-area-inset-bottom)] shadow-xl md:hidden";
+    "fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 md:hidden";
 
   if (reduce) {
     return (
@@ -71,9 +84,8 @@ export function StickyMobileCTA() {
       <m.div
         className={wrapperBase}
         initial={false}
-        // "110%" (pas une valeur px fixe) : h-14 + safe-area-inset-bottom ≈ 90px sur iPhone
-        // à encoche — à y:88 un liseré de la barre et son ombre restaient visibles.
-        animate={{ y: visible ? 0 : "110%" }}
+        // "160%" : pilule + bottom-4 + ombre portée — la sortie doit emmener le halo avec elle.
+        animate={{ y: visible ? 0 : "160%" }}
         transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
         aria-hidden={!visible}
       >

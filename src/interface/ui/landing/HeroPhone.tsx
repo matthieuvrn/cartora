@@ -29,11 +29,13 @@ export function HeroPhone({ className, paused = false, children }: HeroPhoneProp
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const parallaxY = useTransform(scrollYProgress, [0, 1], [24, -24]);
 
+  // Double halo sur scène nuit : assise teal large + cœur plus clair — le téléphone est
+  // « éclairé », pas posé sur du noir plat.
   const halo = (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 m-auto h-3/4 w-3/4 rounded-full bg-canard-400/25 blur-3xl"
-    />
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+      <div className="absolute inset-0 m-auto h-[95%] w-[95%] rounded-full bg-canard-500/30 blur-3xl" />
+      <div className="absolute inset-0 m-auto h-1/2 w-1/2 rounded-full bg-canard-300/20 blur-2xl" />
+    </div>
   );
 
   if (reduce) {
@@ -59,11 +61,11 @@ export function HeroPhone({ className, paused = false, children }: HeroPhoneProp
           >
             {/* Couche float idle (boucle infinie subtile, suspendue par le bouton pause) */}
             <m.div
-              animate={paused ? { y: 0 } : { y: [0, -6, 0] }}
+              animate={paused ? { y: 0 } : { y: [0, -5, 0] }}
               transition={
                 paused
                   ? { duration: 0.3, ease: "easeOut" }
-                  : { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 5.5, repeat: Infinity, ease: "easeInOut" }
               }
             >
               {children}

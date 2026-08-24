@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
+import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import { HowItWorksProgressLine } from "./HowItWorksProgressLine";
 
 type StepKey = "step1" | "step2" | "step3";
@@ -11,44 +12,54 @@ const STEPS: ReadonlyArray<{ key: StepKey; number: number }> = [
   { key: "step3", number: 3 },
 ] as const;
 
+/**
+ * « La méthode » — composition OUVERTE (DA 2026, plus de cards clonées) : ligne de métro
+ * révélée au scroll, puis 3 colonnes séparées par des hairlines, chacune portée par le
+ * registre mono (« Étape 01 ») — la voix « précision tech » du système typographique.
+ */
 export function LandingHowItWorks() {
   const t = useTranslations("Landing.howItWorks");
 
   return (
-    <LandingSection id="how-it-works" innerClassName="py-20 md:py-28">
-      <header className="mx-auto mb-12 max-w-2xl text-center">
-        <h2 className="text-h2 md:text-h1">{t("title")}</h2>
+    <LandingSection id="how-it-works">
+      <header className="mb-10 max-w-[38rem]">
+        <span aria-hidden="true" className="eyebrow-thread" />
+        <p className="eyebrow">
+          <span className="eyebrow-dot" aria-hidden="true" />
+          {t("kicker")}
+        </p>
+        <h2 className="mt-5 text-display-lg md:text-display-xl">{t("title")}</h2>
       </header>
 
-      {/* Stagger d'entrée des 3 étapes (Phase 3) — section parente en variant="fade". */}
-      <StaggerGroup as="ol" className="relative grid gap-6 lg:grid-cols-3">
-        <HowItWorksProgressLine />
+      <HowItWorksProgressLine />
+
+      {/* Stagger d'entrée des 3 étapes — section parente en variant="fade". */}
+      <StaggerGroup
+        as="ol"
+        className="grid gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-sand-200"
+      >
         {STEPS.map(({ key, number }) => {
           const titleId = `how-it-works-${key}-title`;
           return (
-            <StaggerItem
-              key={key}
-              as="li"
-              className="relative rounded-xl border border-canard-100 bg-card p-6 shadow-sm"
-            >
-              {/* Numéro Fraunces « tampon » : écho canard décalé + chiffre sapin net dessus. */}
-              <span className="relative inline-block font-display text-display-lg leading-none italic">
-                <span
-                  aria-hidden="true"
-                  className="absolute top-0 left-0 translate-x-[3px] translate-y-[3px] text-canard-200"
-                >
-                  {number}
-                </span>
-                <span className="relative text-sapin-600">{number}</span>
+            <StaggerItem key={key} as="li" className="md:px-8 md:first:pl-0 md:last:pr-0">
+              <span className="font-mono text-micro tracking-[0.16em] text-sand-500 uppercase">
+                {t("stepLabel")} {String(number).padStart(2, "0")}
               </span>
-              <h3 id={titleId} className="mt-3 text-h3 text-canard-900">
+              <h3 id={titleId} className="mt-4 text-h3 text-canard-950">
                 {t(`${key}.title`)}
               </h3>
-              <p className="mt-2 text-body text-sand-700">{t(`${key}.body`)}</p>
+              <p className="mt-2.5 text-body text-sand-700">{t(`${key}.body`)}</p>
             </StaggerItem>
           );
         })}
       </StaggerGroup>
+
+      {/* Pont de conversion : le momentum des 3 étapes débouche sur un geste, pas sur du vide. */}
+      <div className="mt-10">
+        <TrackedCtaButton event="cta_how_signup" href="/signup?src=how" variant="outline" arrow>
+          {t("cta")}
+        </TrackedCtaButton>
+      </div>
     </LandingSection>
   );
 }

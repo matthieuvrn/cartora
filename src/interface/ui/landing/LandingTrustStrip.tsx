@@ -15,42 +15,29 @@ const items: TrustItem[] = [
   { key: "supportFr", Icon: MessageSquare },
 ];
 
+/**
+ * Fin de la scène nuit du hero (DA « Nuit de service ») : bande hairline en registre mono,
+ * sans grille ni glow — seul le grain signature habille le fond. Aucun border-b : la coupe
+ * nuit → porcelaine est franche et assumée.
+ */
 export function LandingTrustStrip() {
   const t = useTranslations("Landing.trustStrip");
 
   return (
     <LandingSection
-      className="border-t-0 bg-canard-50/60 dark:bg-canard-900/60"
-      innerClassName="py-12"
+      className="section-nuit texture-grain relative border-t border-white/8 bg-background"
+      innerClassName="py-6 md:py-8"
     >
       {/* Mobile : grille 2×2 statique. L'ancienne marquee infinie violait WCAG 2.2.2
-          (défilement auto > 5 s sans pause possible au tactile). */}
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-4 md:hidden">
+          (défilement auto > 5 s sans pause possible au tactile). Dès md : 4 colonnes
+          séparées par des hairlines verticales. */}
+      <ul className="grid grid-cols-2 gap-x-4 gap-y-3 md:grid-cols-4 md:gap-0 md:divide-x md:divide-white/8">
         {items.map(({ key, Icon }) => (
           <li
             key={key}
-            className="flex items-center gap-2 text-body-sm font-medium text-canard-800 dark:text-canard-100"
+            className="flex items-center gap-2.5 font-mono text-caption text-sand-300 md:justify-center md:px-4"
           >
-            <Icon
-              className="size-[18px] shrink-0 stroke-[1.75] text-sapin-600 dark:text-sapin-300"
-              aria-hidden="true"
-            />
-            <span>{t(key)}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Desktop : grille 4 colonnes avec séparateurs verticaux discrets. */}
-      <ul className="hidden md:grid md:grid-cols-4 md:divide-x md:divide-canard-200/50 dark:md:divide-canard-800/50">
-        {items.map(({ key, Icon }) => (
-          <li
-            key={key}
-            className="flex items-center justify-center gap-2.5 px-4 text-body-sm font-medium text-canard-800 dark:text-canard-100"
-          >
-            <Icon
-              className="size-[18px] shrink-0 stroke-[1.75] text-sapin-600 dark:text-sapin-300"
-              aria-hidden="true"
-            />
+            <Icon className="size-4 shrink-0 stroke-[1.5] text-sapin-300" aria-hidden="true" />
             <span>{t(key)}</span>
           </li>
         ))}

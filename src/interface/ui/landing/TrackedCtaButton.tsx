@@ -8,7 +8,7 @@ import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
 
 type Variant = "primary" | "secondary" | "ghost" | "outline";
-type Size = "default" | "lg";
+type Size = "default" | "lg" | "xl";
 
 interface TrackedCtaButtonProps {
   event: LandingEventName;
@@ -16,24 +16,42 @@ interface TrackedCtaButtonProps {
   external?: boolean;
   variant?: Variant;
   size?: Size;
+  /** Flèche → animée au hover (CTA de conversion). */
+  arrow?: boolean;
   metadata?: Record<string, unknown>;
   className?: string;
   children: React.ReactNode;
 }
 
+/**
+ * CTA signature de la landing (DA « Nuit de service ») : pilule, ombre teintée qui
+ * s'INTENSIFIE au hover (jamais remplacée par un gris), pressed `active:scale`.
+ * `primary` est 100 % sémantique : canard en section claire, porcelaine sur `.section-nuit`
+ * (le remap --primary/--cta-shadow de globals.css fait tout le travail — ne pas surcharger
+ * les ombres au call-site).
+ */
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
+  "group inline-flex items-center justify-center gap-2 rounded-full font-medium " +
+  "transition-[transform,box-shadow,background-color,border-color,color] duration-200 " +
+  "ease-[var(--ease-snappy)] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 " +
+  "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+  primary:
+    "bg-primary text-primary-foreground shadow-[var(--cta-shadow)] " +
+    "hover:shadow-[var(--cta-shadow-hover)] hover:-translate-y-px",
   secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-  ghost: "hover:bg-accent hover:text-accent-foreground",
-  outline: "border border-canard-200 text-canard-700 hover:bg-canard-50",
+  ghost: "text-foreground/80 hover:bg-accent hover:text-accent-foreground",
+  // Hairline sémantique : sand-200 en clair, blanc/9 % sur nuit — s'adapte sans variante.
+  outline:
+    "border border-foreground/20 text-foreground hover:border-foreground/40 " +
+    "hover:bg-foreground/[0.04]",
 };
 
 const sizeClasses: Record<Size, string> = {
-  default: "h-9 px-4 py-2",
-  lg: "h-11 px-6 text-base",
+  default: "h-10 px-5 text-sm",
+  lg: "h-12 px-7 text-sm",
+  xl: "h-13 px-8 text-base",
 };
 
 export function TrackedCtaButton({
@@ -42,6 +60,7 @@ export function TrackedCtaButton({
   external,
   variant = "primary",
   size = "default",
+  arrow = false,
   metadata,
   className,
   children,
@@ -55,6 +74,20 @@ export function TrackedCtaButton({
 
   const classes = cn(baseClasses, variantClasses[variant], sizeClasses[size], className);
 
+  const content = (
+    <>
+      {children}
+      {arrow && (
+        <span
+          aria-hidden="true"
+          className="transition-transform duration-200 ease-[var(--ease-snappy)] group-hover:translate-x-0.5"
+        >
+          →
+        </span>
+      )}
+    </>
+  );
+
   if (external) {
     return (
       <a
@@ -64,7 +97,7 @@ export function TrackedCtaButton({
         onClick={handleClick}
         className={classes}
       >
-        {children}
+        {content}
         {/* WCAG 3.2.5/G201 : annoncer l'ouverture dans un nouvel onglet aux lecteurs d'écran. */}
         <span className="sr-only">{t("opensInNewTab")}</span>
       </a>
@@ -73,7 +106,7 @@ export function TrackedCtaButton({
 
   return (
     <Link href={href} onClick={handleClick} className={classes}>
-      {children}
+      {content}
     </Link>
   );
 }

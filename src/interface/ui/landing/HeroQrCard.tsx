@@ -14,7 +14,9 @@ export function HeroQrCard() {
   const { path, viewBoxSize } = buildQrSvgData(`${baseUrl}/m/demo-cartora?utm_source=qr`);
 
   return (
-    <div className="w-36 -rotate-6 rounded-xl bg-white p-3 shadow-lg ring-1 ring-sand-200">
+    // Sur la scène nuit, la carte blanche est l'objet le plus lumineux du viewport : ombre
+    // composée (assise noire + halo teal) pour l'asseoir, léger ring intérieur papier.
+    <div className="w-40 -rotate-6 rounded-2xl bg-white p-3.5 shadow-[var(--shadow-pill-dark)] ring-1 ring-white/60 ring-inset">
       <svg
         viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
         role="img"
@@ -22,9 +24,11 @@ export function HeroQrCard() {
         className="h-auto w-full"
         shapeRendering="crispEdges"
       >
-        <path d={path} fill="var(--color-canard-950)" />
+        <path d={path} fill="var(--color-nuit-950)" />
       </svg>
-      <p className="mt-2 text-center text-micro leading-snug text-sand-700">{t("qrCaption")}</p>
+      <p className="mt-2.5 text-center font-mono text-micro leading-snug text-sand-600">
+        {t("qrCaption")}
+      </p>
     </div>
   );
 }

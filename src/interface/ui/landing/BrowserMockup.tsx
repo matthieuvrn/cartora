@@ -16,20 +16,22 @@ type BrowserMockupProps = {
   className?: string;
 };
 
-// Cadre « fenêtre navigateur » macOS, propre (à la Linear/Vercel) : chrome teinté sand, pastilles
-// authentiques, pill d'URL en mono. Le screenshot desktop devient « un vrai site qu'on peut visiter ».
-const FRAME_CLASS =
-  "overflow-hidden rounded-2xl border border-canard-100 bg-card shadow-xl shadow-[var(--shadow-glow)]";
+// Cadre « fenêtre navigateur » macOS, propre (à la Linear/Vercel) : chrome nuit, pastilles
+// authentiques, pill d'URL en mono. Le screenshot desktop devient « un vrai site qu'on peut
+// visiter ». `shadow-frame` = élévation + halo fusionnés en UN token composé — remplace
+// l'ancien empilement `shadow-xl` + `shadow-[var(--shadow-glow)]` (non déterministe : deux
+// utilities box-shadow en concurrence).
+const FRAME_CLASS = "overflow-hidden rounded-2xl border border-white/10 bg-nuit-800 shadow-frame";
 
 function Chrome({ url }: { url: string }) {
   return (
-    <div className="flex items-center gap-3 border-b border-canard-100 bg-sand-100 px-4 py-2.5">
+    <div className="flex items-center gap-3 border-b border-white/10 bg-nuit-800 px-4 py-2.5">
       <div className="flex gap-1.5" aria-hidden="true">
         <span className="size-3 rounded-full bg-[#ff5f57]" />
         <span className="size-3 rounded-full bg-[#febc2e]" />
         <span className="size-3 rounded-full bg-[#28c840]" />
       </div>
-      <div className="mx-auto flex items-center gap-1.5 rounded-md bg-card px-3 py-1 font-mono text-micro text-sand-600">
+      <div className="mx-auto flex items-center gap-1.5 rounded-md bg-white/5 px-3 py-1 font-mono text-micro text-sand-300">
         <Lock className="size-3 stroke-[2]" aria-hidden="true" />
         {url}
       </div>

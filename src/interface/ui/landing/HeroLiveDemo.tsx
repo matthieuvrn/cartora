@@ -156,16 +156,19 @@ type EditKind = (typeof EDITS)[number];
 const DWELL_MS = 3800;
 const EDIT_AT_MS = 1700;
 
+// Fallbacks (skins clairs sans tokens badge dédiés) : teintes de la famille de marque —
+// teal doux pour « nouveau », chaleur cuivrée pour « populaire » — plus jamais les
+// blue-100/orange-100 stock de Tailwind (audit DA 2026).
 const BADGE_STYLE = {
   new: {
     icon: Sparkles,
-    bg: "var(--menu-badge-new-bg, #dbeafe)",
-    fg: "var(--menu-badge-new-fg, #1d4ed8)",
+    bg: "var(--menu-badge-new-bg, #e3efec)",
+    fg: "var(--menu-badge-new-fg, #1f5f56)",
   },
   popular: {
     icon: Flame,
-    bg: "var(--menu-badge-popular-bg, #ffedd5)",
-    fg: "var(--menu-badge-popular-fg, #c2410c)",
+    bg: "var(--menu-badge-popular-bg, #fdeadb)",
+    fg: "var(--menu-badge-popular-fg, #a34a12)",
   },
 } as const;
 
@@ -257,7 +260,7 @@ export function HeroLiveDemo({ className, qrCard }: { className?: string; qrCard
   // WCAG 2.2.2 Pause/Stop/Hide : contenu auto-changeant > 5s présenté en parallèle du hero
   // → mécanisme de pause SUR la page obligatoire (prefers-reduced-motion n'en tient pas lieu —
   // même standard que la suppression de la marquee TrustStrip). Le store partagé suspend
-  // AUSSI le float du téléphone et les deux HeroMeshCanvas (un seul contrôle, cf. G186).
+  // AUSSI le float du téléphone (un seul contrôle, cf. G186).
   const paused = useLandingMotionPaused();
 
   const running = !reduce && inView && pageVisible && !paused;
@@ -416,19 +419,33 @@ export function HeroLiveDemo({ className, qrCard }: { className?: string; qrCard
         {qrCard && <div className="absolute -bottom-9 -left-16 z-10 hidden md:block">{qrCard}</div>}
       </div>
 
-      {/* Chip du template courant (décoratif) + bouton pause/lecture — le mécanisme
-          WCAG 2.2.2, focusable et visible, HORS des zones aria-hidden. */}
-      <div className="mt-5 flex items-center justify-center gap-2 text-caption text-sand-600">
-        <span aria-hidden="true" className="flex items-center gap-2">
-          <span
-            className="size-2 shrink-0 rounded-full transition-colors duration-500"
-            style={{ backgroundColor: TEMPLATE_DOT[template] }}
-          />
-          {t("liveMenu.templateChip", {
-            name: TEMPLATE_NAMES[template],
-            index: (step % TEMPLATE_ORDER.length) + 1,
-            total: TEMPLATE_ORDER.length,
-          })}
+      {/* Indicateur « playlist » des 9 templates (décoratif) + bouton pause/lecture — le
+          mécanisme WCAG 2.2.2, focusable et visible, HORS des zones aria-hidden. Sur la
+          scène nuit : points hairline, le point actif prend la couleur d'accent du skin. */}
+      <div className="mt-6 flex items-center justify-center gap-3">
+        <span aria-hidden="true" className="flex items-center gap-3">
+          <span className="flex items-center gap-1.5">
+            {TEMPLATE_ORDER.map((tpl, i) => {
+              const active = i === step % TEMPLATE_ORDER.length;
+              return (
+                <span
+                  key={tpl}
+                  className="h-1.5 rounded-full transition-all duration-500"
+                  style={{
+                    width: active ? "1rem" : "0.375rem",
+                    backgroundColor: active ? TEMPLATE_DOT[tpl] : "oklch(1 0 0 / 0.22)",
+                  }}
+                />
+              );
+            })}
+          </span>
+          <span className="font-mono text-caption tracking-wide text-sand-300">
+            {t("liveMenu.templateChip", {
+              name: TEMPLATE_NAMES[template],
+              index: (step % TEMPLATE_ORDER.length) + 1,
+              total: TEMPLATE_ORDER.length,
+            })}
+          </span>
         </span>
         {/* Rendu inconditionnel (pas de gate `reduce` : mismatch d'hydratation structurel
             SSR reduce=null → client PRM true). Sous reduced-motion il est simplement inerte. */}
@@ -437,7 +454,7 @@ export function HeroLiveDemo({ className, qrCard }: { className?: string; qrCard
           onClick={() => setLandingMotionPaused(!paused)}
           aria-pressed={paused}
           aria-label={t("liveMenu.pause")}
-          className="rounded-full p-1 transition-colors hover:bg-canard-100 hover:text-canard-700"
+          className="flex size-8 items-center justify-center rounded-full border border-white/12 text-sand-300 transition-colors hover:bg-white/8 hover:text-sand-50"
         >
           {paused ? (
             <Play className="size-3.5 stroke-[1.75]" aria-hidden="true" />

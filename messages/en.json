@@ -524,12 +524,12 @@
     "hero": {
       "kicker": "The digital menu for independent restaurants",
       "title": "Your menu online in <em>10 minutes</em>.",
-      "subtitle": "Update it to the second from your phone: your guests scan a QR code and always see today's menu — prices, dishes, allergens.",
+      "subtitle": "Update it to the second from your phone: your guests scan a QR code and always see today’s menu — prices, dishes, allergens.",
       "ctaPrimary": "Create my menu for free",
-      "ctaSecondary": "See a live menu",
+      "ctaSecondary": "Open the real menu",
       "microTrust": "No credit card · Free to start · Cancel anytime",
       "demoImageAlt": "Animated demo: the Bistrot Démo menu switches designs and updates live on a phone",
-      "qrCaption": "Scan it — it's a real menu",
+      "qrCaption": "Scan it — it’s a real menu",
       "qrAlt": "QR code to the live Cartora demo menu",
       "liveMenu": {
         "catStarters": "Starters",
@@ -550,11 +550,12 @@
       "supportFr": "French-speaking support"
     },
     "problem": {
+      "kicker": "The problem",
       "title": "Today, your menu lives on…",
       "pains": {
         "ardoise": {
           "title": "A chalkboard wiped at every service",
-          "body": "Tuesday's daily special is still showing on Thursday. One rain shower, one sponge swipe, and half your offer is gone."
+          "body": "Tuesday’s daily special is still showing on Thursday. One rain shower, one sponge swipe, and half your offer is gone."
         },
         "pdf": {
           "title": "A PDF printed six months ago",
@@ -572,7 +573,7 @@
       "aside": {
         "website": {
           "title": "Already have a website?",
-          "body": "Keep it: address, opening hours, ambient photos. But a website isn't built for a menu that moves — Cartora slots in alongside, it doesn't replace it."
+          "body": "Keep it: address, opening hours, ambient photos. But a website isn’t built for a menu that moves — Cartora slots in alongside, it doesn’t replace it."
         },
         "others": {
           "title": "Comparing digital menus?",
@@ -581,10 +582,12 @@
       }
     },
     "howItWorks": {
-      "title": "Three steps, your menu is online",
+      "kicker": "How it works",
+      "title": "Three steps, your menu is online.",
+      "stepLabel": "Step",
       "step1": {
         "title": "Create your free account",
-        "body": "Email, password, that's it — no credit card needed. You're in the editor in under a minute."
+        "body": "Email, password, that’s it — no credit card needed. You’re in the editor in under a minute."
       },
       "step2": {
         "title": "Fill in your menu",
@@ -593,10 +596,13 @@
       "step3": {
         "title": "Print your QR code",
         "body": "Customers scan it. Every price or dish edit goes live to the second — with no reprint needed."
-      }
+      },
+      "cta": "Create my menu"
     },
     "features": {
+      "kicker": "The essentials",
       "title": "Quick to create. Easy to keep fresh.",
+      "subtitle": "Everything a living menu needs — nothing more.",
       "editor": {
         "title": "Editor with no learning curve",
         "body": "Dishes, categories, allergens, prices: fill your menu without a tutorial. Edits go live to the second.",
@@ -605,7 +611,7 @@
       "qr": {
         "title": "QR code with analytics",
         "body": "One QR per restaurant, to print on tables or in the window. Track scans (time, device, source) from your dashboard.",
-        "tier": "STARTER and PRO"
+        "tier": "From Starter"
       },
       "allergens": {
         "title": "14 EU allergens built in",
@@ -615,27 +621,34 @@
       "bilingual": {
         "title": "Multilingual menu",
         "body": "Write your menu once in your language, and Cartora translates it automatically (DeepL) into up to 5 languages (fr, en, es, de, it). Your guest sees theirs automatically, based on their browser.",
-        "tier": "PRO"
+        "tier": "Pro"
       },
       "daily": {
         "title": "Daily specials and set menus",
         "body": "Time-limited daily dishes (up to 14 days) and set menus with detailed descriptions. Auto-removed on expiry.",
-        "tier": "STARTER and PRO"
+        "tier": "From Starter"
       },
       "branding": {
         "title": "A menu that looks like you",
         "body": "Nine designer styles, your brand colors, guaranteed readability: your menu looks professionally designed — without a designer.",
-        "tier": "PRO"
+        "tier": "Pro"
       }
     },
     "demo": {
+      "kicker": "The proof",
       "title": "This menu was built in <em>8 minutes</em>.",
-      "subtitle": "It's a real, published Cartora menu. Open it, switch the language, check the allergens — and time us.",
-      "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today's specials.",
+      "subtitle": "It’s a real, published Cartora menu. Open it, switch the language, check the allergens — and time us.",
+      "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today’s specials.",
+      "stats": {
+        "allergens": "14 EU allergens",
+        "languages": "5 languages",
+        "designs": "9 designs"
+      },
       "openCta": "Open the real menu",
       "footnote": "No mockups: what you see is what your guests will see."
     },
     "pricing": {
+      "kicker": "Pricing",
       "title": "Fair pricing, no surprises.",
       "subtitle": "Start for free. Pay only when you publish.",
       "freeTagline": "To explore",
@@ -644,7 +657,10 @@
       "footer": "No commitment · Cancel in 1 click · VAT included"
     },
     "faq": {
+      "kicker": "FAQ",
       "title": "Frequently asked questions",
+      "subtitle": "Everything restaurateurs ask before getting started.",
+      "contactLabel": "Another question?",
       "items": {
         "noCc": {
           "q": "Do I need a credit card to sign up?",
@@ -656,7 +672,7 @@
         },
         "qrAgeingClients": {
           "q": "Will my customers know how to scan a QR code?",
-          "a": "Yes. QR codes became standard in restaurants after 2020 and most smartphones scan them directly from the camera app. If a customer can't scan, your menu URL also works without a QR."
+          "a": "Yes. QR codes became standard in restaurants after 2020 and most smartphones scan them directly from the camera app. If a customer can’t scan, your menu URL also works without a QR."
         },
         "allergens": {
           "q": "How does Cartora handle allergens?",
@@ -667,7 +683,7 @@
           "a": "Yes, with the PRO plan. Write your menu in your language, and Cartora translates it automatically (DeepL) into up to 5 languages: French, English, Spanish, German, Italian. Your customers automatically see theirs based on their browser settings."
         },
         "dataHosting": {
-          "q": "Where is my restaurant's data stored?",
+          "q": "Where is my restaurant’s data stored?",
           "a": "On Supabase, in France and Germany — exclusively within the European Union. Your data never leaves the EU. You can export or delete it at any time from your account."
         },
         "cancel": {
@@ -689,10 +705,13 @@
       }
     },
     "finalCta": {
-      "title": "Ten minutes from now, your menu is live.",
+      "title": "<em>Ten minutes</em> from now, your menu is live.",
       "ctaPrimary": "Create my menu for free",
-      "ctaSecondary": "See a live menu",
+      "ctaSecondary": "Open the real menu",
       "microTrust": "No credit card · Free to start · Cancel anytime"
+    },
+    "footer": {
+      "trustBadge": "Made in France · Data hosted in the EU"
     }
   },
   "NotFound": {

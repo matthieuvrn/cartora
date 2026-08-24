@@ -6,12 +6,20 @@ import { useTranslations } from "next-intl";
 import { Logo } from "@/interface/ui/components/Logo";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "#pricing", labelKey: "navTarifs" },
   { href: "#demo", labelKey: "navDemo" },
 ] as const;
 
+/**
+ * Header adaptatif deux mondes (DA « Nuit de service ») : posé sur le hero nuit il porte
+ * `section-nuit` (transparent, texte porcelaine, CTA pilule claire — tout suit le remap
+ * sémantique) ; dès 80px de scroll il bascule en verre porcelaine (fond clair blurré,
+ * hairline, texte encre) pour survoler les sections claires. Un seul état booléen, deux
+ * peaux complètes — aucune classe morte entre les deux.
+ */
 export function LandingHeader() {
   const t = useTranslations("Landing.header");
   const [scrolled, setScrolled] = useState(false);
@@ -25,13 +33,14 @@ export function LandingHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-[background-color,border-color,backdrop-filter] duration-200 ease-out ${
+      className={cn(
+        "sticky top-0 z-40 transition-[background-color,border-color] duration-300 ease-out",
         scrolled
-          ? "border-b border-canard-100/70 bg-background/90 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
-      }`}
+          ? "border-b border-sand-200/80 bg-sand-50/85 backdrop-blur-xl"
+          : "section-nuit border-b border-transparent bg-transparent",
+      )}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-6 md:h-16">
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6">
         <Link
           href="/"
           aria-label="Cartora"
@@ -40,16 +49,16 @@ export function LandingHeader() {
           <Logo className="h-7" />
         </Link>
 
-        <nav aria-label="Navigation principale" className="ml-6 hidden items-center gap-6 md:flex">
+        <nav aria-label="Navigation principale" className="ml-8 hidden items-center gap-7 md:flex">
           {NAV_LINKS.map(({ href, labelKey }) => (
             <Link
               key={href}
               href={href}
-              className="group inline-flex min-h-[44px] items-center rounded-sm text-sm font-medium text-sand-700 transition-colors hover:text-canard-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="group inline-flex min-h-[44px] items-center rounded-sm text-sm font-medium text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               <span className="relative">
                 {t(labelKey)}
-                <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-canard-600 transition-transform duration-200 ease-[var(--ease-out-expo)] group-hover:scale-x-100" />
+                <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-200 ease-[var(--ease-out-expo)] group-hover:scale-x-100" />
               </span>
             </Link>
           ))}

@@ -15,6 +15,7 @@ export const LANDING_EVENT_NAMES = [
   "cta_header_login",
   "cta_hero_signup",
   "cta_hero_demo",
+  "cta_how_signup",
   "cta_sticky_signup",
   "cta_pricing_free",
   "cta_pricing_starter",

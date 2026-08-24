@@ -186,6 +186,45 @@ html {
     0 28px 54px -10px oklch(0.18 0.05 200 / 0.18), 0 10px 18px 0 oklch(0.18 0.05 200 / 0.08),
     0 0 0 1px oklch(0.42 0.058 198 / 0.18), 0 0 32px -4px oklch(0.42 0.058 198 / 0.35);
 
+  /* === Nuit — scènes sombres de la landing (DA « Nuit de service », refonte 2026) ===
+     Charbon teinté canard (hue 208-216, chroma basse) : fond des scènes hero/demo/final-cta/
+     footer. Échelle courte et intentionnelle (4 paliers suffisent : fond profond, fond de
+     scène, surface élevée, hover). Additif : n'altère ni canard/sand (partagés avec l'app)
+     ni les menus publics. Le remap sémantique vit dans `.theme-cartora .section-nuit`. */
+  --color-nuit-950: oklch(0.13 0.026 216);
+  --color-nuit-900: oklch(0.165 0.032 212);
+  --color-nuit-800: oklch(0.21 0.036 210);
+  --color-nuit-700: oklch(0.26 0.038 208);
+
+  /* Lead : sous-titres de hero/section — l'étage manquant entre body-lg (17px) et h3,
+     pour que la promesse secondaire ne chuchote pas sous un display 96px. */
+  --text-lead: 1.1875rem;
+  --text-lead--line-height: 1.8rem;
+  --text-lead--letter-spacing: -0.012em;
+  --text-lead--font-weight: 400;
+
+  /* === Ombres composées (une utility = une box-shadow complète, jamais d'empilement
+     shadow-xl + shadow-[…] dont le gagnant dépend de l'ordre d'émission — cf. --shadow-featured) === */
+  /* Cadre de visuel (mockup navigateur/téléphone) sur scène nuit : élévation + hairline + halo canard. */
+  --shadow-frame:
+    0 28px 54px -10px oklch(0 0 0 / 0.45), 0 10px 18px 0 oklch(0 0 0 / 0.3),
+    0 0 0 1px oklch(1 0 0 / 0.08), 0 0 48px -8px oklch(0.42 0.058 198 / 0.4);
+  /* CTA primaire en section claire : ombre teintée + liseré lumineux interne. Le hover
+     INTENSIFIE l'identité (halo canard élargi), il ne la remplace jamais par du gris. */
+  --shadow-cta:
+    0 1px 2px 0 oklch(0.18 0.05 200 / 0.2), 0 4px 12px -2px oklch(0.42 0.058 198 / 0.35),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.12);
+  --shadow-cta-hover:
+    0 2px 4px 0 oklch(0.18 0.05 200 / 0.22), 0 8px 24px -4px oklch(0.42 0.058 198 / 0.5),
+    0 0 32px -6px oklch(0.42 0.058 198 / 0.4), inset 0 1px 0 0 oklch(1 0 0 / 0.16);
+  /* CTA porcelaine sur scène nuit : assise noire + halo teal froid discret. */
+  --shadow-pill-dark:
+    0 1px 2px 0 oklch(0 0 0 / 0.35), 0 8px 24px -6px oklch(0 0 0 / 0.5),
+    0 0 40px -8px oklch(0.74 0.034 198 / 0.3);
+  --shadow-pill-dark-hover:
+    0 2px 4px 0 oklch(0 0 0 / 0.35), 0 12px 32px -6px oklch(0 0 0 / 0.55),
+    0 0 56px -8px oklch(0.74 0.034 198 / 0.45);
+
   /* === Tokens motion (additif — var(--ease-out-expo), var(--duration-200), …) === */
   --duration-100: 100ms;
   --duration-150: 150ms;
@@ -355,6 +394,47 @@ html {
   --card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 6px -1px oklch(0 0 0 / 0.35);
 }
 
+/* === Scène nuit — DA landing « Nuit de service » ==================================
+   Remap sémantique complet pour un sous-arbre sombre de la landing (hero, demo, final CTA,
+   footer, carte pricing inversée). Poser `section-nuit bg-background text-foreground` sur le
+   conteneur : tous les composants sémantiques (boutons, cards, liens) basculent seuls —
+   notamment --primary → porcelaine, donc le CTA primaire devient une pilule claire sur nuit
+   sans variante dédiée. Scopé .theme-cartora : aucune fuite app/menus publics. */
+.theme-cartora .section-nuit {
+  --background: var(--color-nuit-900);
+  --foreground: var(--color-sand-100);
+  --card: var(--color-nuit-800);
+  --card-foreground: var(--color-sand-100);
+  --popover: var(--color-nuit-800);
+  --popover-foreground: var(--color-sand-100);
+  --primary: var(--color-sand-50);
+  --primary-foreground: var(--color-nuit-900);
+  --secondary: oklch(1 0 0 / 0.06);
+  --secondary-foreground: var(--color-sand-100);
+  --accent: oklch(1 0 0 / 0.07);
+  --accent-foreground: var(--color-sand-50);
+  --muted: oklch(1 0 0 / 0.05);
+  --muted-foreground: oklch(0.74 0.015 80);
+  --border: oklch(1 0 0 / 0.09);
+  --input: oklch(1 0 0 / 0.12);
+  --ring: oklch(0.74 0.034 198 / 0.55);
+  --card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 6px -1px oklch(0 0 0 / 0.35);
+  /* Le CTA (TrackedCtaButton) lit ces deux variables : porcelaine → ombre noire + halo teal. */
+  --cta-shadow: var(--shadow-pill-dark);
+  --cta-shadow-hover: var(--shadow-pill-dark-hover);
+}
+/* En section claire, les mêmes variables pointent sur les ombres canard. */
+.theme-cartora {
+  --cta-shadow: var(--shadow-cta);
+  --cta-shadow-hover: var(--shadow-cta-hover);
+}
+/* Focus sur nuit : l'anneau crème+canard des sections claires devient nuit+canard clair. */
+.theme-cartora .section-nuit :focus-visible {
+  box-shadow:
+    0 0 0 2px var(--color-nuit-900),
+    0 0 0 4px var(--color-canard-300);
+}
+
 /* Footer global ([data-global-footer], rendu via <LocaleShell>) masqué sur le shell dashboard
    ([data-app-shell]). Les pages auth portent .theme-app mais PAS [data-app-shell] → elles
    conservent le footer légal/cookies. La landing statique ne passe plus par LocaleShell et ne
@@ -391,6 +471,74 @@ body:has([data-app-shell]) [data-global-footer] {
   background-repeat: no-repeat;
   background-size: 200% 100%;
   animation: skeleton-shimmer var(--duration-1000) linear infinite;
+}
+
+@layer components {
+  /* === Matière landing (DA « Nuit de service ») — @layer components : les utilities
+     gardent le dernier mot au call-site. Scopé .theme-cartora. =========================== */
+
+  /* Kicker mono : le 3e registre typographique (précision tech) au-dessus des h2 Fraunces.
+     Usage : <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"/>Label</p> */
+  .theme-cartora .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-jetbrains-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+  .theme-cartora .eyebrow-dot {
+    display: inline-block;
+    width: 0.375rem;
+    height: 0.375rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background-color: var(--color-corail-500);
+  }
+
+  /* Fil conducteur : hairline verticale posée AU-DESSUS du kicker de section. Les grandes
+     respirations entre sections claires gagnent une colonne vertébrale — le vide devient
+     une pause structurée, pas un trou. Dégradé transparent→trait : la ligne « arrive »
+     de la section précédente. Centré via mx-auto sur les headers centrés. */
+  .theme-cartora .eyebrow-thread {
+    display: block;
+    width: 1px;
+    height: 2.5rem;
+    margin-bottom: 1.25rem;
+    background: linear-gradient(to bottom, transparent, var(--color-sand-400));
+  }
+  .theme-cartora .section-nuit .eyebrow-thread {
+    background: linear-gradient(to bottom, transparent, oklch(1 0 0 / 0.18));
+  }
+
+  /* Grain photographique (feTurbulence en data-URI, 0 Ko JS) : matière signature des scènes
+     nuit. Le parent doit être `relative` ; le ::after coiffe le contenu à 4 % — imperceptible
+     en aplat, mais casse le « flat numérique » des grands fonds sombres. */
+  .theme-cartora .texture-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+  }
+
+  /* Grille hairline des scènes nuit : structure « engineered » (72px, blanc 4,5 %) fondue
+     par un masque radial — visible près du sujet, disparaît vers les bords. Poser sur une
+     div décorative `absolute inset-0` aria-hidden. */
+  .theme-cartora .bg-grid-nuit {
+    background-image:
+      linear-gradient(to right, oklch(1 0 0 / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.045) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+  }
 }
 
 @layer base {
