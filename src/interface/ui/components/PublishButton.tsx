@@ -121,7 +121,7 @@ export function PublishButton({
   if (planTier === "FREE") {
     return (
       <>
-        <Button variant="default" size="sm" onClick={() => setPricingOpen(true)}>
+        <Button variant="cta" size="sm" onClick={() => setPricingOpen(true)}>
           <Send />
           {t("publish")}
         </Button>
@@ -141,6 +141,7 @@ export function PublishButton({
     <>
       <Button
         type="button"
+        variant="cta"
         size="sm"
         disabled={isPending || isTranslating}
         onClick={handlePublishClick}

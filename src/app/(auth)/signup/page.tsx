@@ -84,7 +84,7 @@ function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null 
 
   if (state.success) {
     return (
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm shadow-frame!">
         <CardHeader>
           <CardTitle className="display">{t("checkEmailTitle")}</CardTitle>
           <CardDescription>{t("checkEmailDesc")}</CardDescription>
@@ -102,10 +102,14 @@ function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null 
   }
 
   return (
-    <Card className="w-full max-w-md">
+    // `shadow-frame!` : cadre des scènes nuit — important requis, cf. la note du login.
+    <Card className="w-full max-w-md shadow-frame!">
       <CardHeader>
+        <p className="eyebrow">
+          <span className="eyebrow-dot" aria-hidden="true" />
+          Cartora
+        </p>
         <CardTitle className="display">{t("signup")}</CardTitle>
-        <CardDescription>Cartora</CardDescription>
       </CardHeader>
 
       <form action={action}>
@@ -179,7 +183,7 @@ function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null 
               ),
             })}
           </p>
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button type="submit" variant="cta" className="w-full" disabled={isPending}>
             {isPending ? "…" : t("signupAction")}
           </Button>
           <p className="text-sm text-muted-foreground">

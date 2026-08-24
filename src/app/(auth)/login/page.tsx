@@ -3,14 +3,7 @@
 import { useActionState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -49,10 +42,15 @@ export default function LoginPage() {
   const showResendForm = callbackError === "otp_expired";
 
   return (
-    <Card className="w-full max-w-sm">
+    // `shadow-frame!` : cadre élévation+halo des scènes nuit ; important requis car la règle
+    // non-layered `[data-slot="card"]` (globals.css) écrase sinon toute utility shadow-*.
+    <Card className="w-full max-w-sm shadow-frame!">
       <CardHeader>
+        <p className="eyebrow">
+          <span className="eyebrow-dot" aria-hidden="true" />
+          Cartora
+        </p>
         <CardTitle className="display">{t("login")}</CardTitle>
-        <CardDescription>Cartora</CardDescription>
       </CardHeader>
 
       {showResendForm && (
@@ -121,7 +119,7 @@ export default function LoginPage() {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3 pt-4">
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" variant="cta" className="w-full" disabled={isPending}>
               {isPending ? "…" : t("loginAction")}
             </Button>
             <p className="text-sm text-muted-foreground">

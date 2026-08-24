@@ -18,7 +18,7 @@ export const CLASSIC_FALLBACK = {
   bg: "#ffffff",
 } as const;
 
-// --- Set 2026 (figé — miroir des `--tpl-*` de globals.css, cf. DA dans docs/publicmenu.md) ---
+// --- Set 2026 (figé — miroir des `--tpl-*` de globals.css) ---
 
 export const CARTORA_FALLBACK = {
   primary: "#1f3d2f", // sapin

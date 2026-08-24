@@ -58,14 +58,16 @@ export function PricingModal({ open, onOpenChange }: Props) {
             </CardFooter>
           </Card>
 
-          {/* Starter — mise en avant premium calquée sur LandingPricing. Le glow est forcé via le
-              modificateur important : la règle non-layered `[data-slot=card]` (globals.css) écrase
-              sinon tout utilitaire shadow-*. Anneau sapin + glow composés dans un seul box-shadow. */}
-          <Card className="relative flex flex-col border-sapin-500 shadow-[0_0_0_2px_var(--color-sapin-500),var(--shadow-glow)]! sm:scale-[1.02]">
+          {/* Starter — carte INVERSÉE calquée sur la featured de LandingPricing : le remap
+              `.section-nuit` rend le CTA primaire automatiquement porcelaine, `bg-background`
+              (→ nuit-900) écrase le bg-card de la primitive. `shadow-frame!` : important requis,
+              la règle non-layered `[data-slot=card]` (globals.css) écrase sinon tout shadow-*. */}
+          <Card className="section-nuit texture-grain relative z-10 flex flex-col overflow-hidden bg-background text-foreground shadow-frame! sm:scale-[1.02]">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">{t("starter.name")}</CardTitle>
-                <span className="rounded-full bg-sapin-600 px-2.5 py-0.5 text-xs font-medium text-sand-50">
+                {/* Badge corail mono (pattern landing) — LE point corail du viewport. */}
+                <span className="rounded-full bg-corail-500 px-2.5 py-0.5 font-mono text-micro tracking-wider text-white uppercase">
                   {t("recommended")}
                 </span>
               </div>
@@ -81,7 +83,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
               <ul className="space-y-3 text-sm">
                 {(t.raw("starter.features") as string[]).map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
-                    <Check className="mt-0.5 size-4 shrink-0 text-sapin-600" />
+                    <Check className="mt-0.5 size-4 shrink-0 text-sapin-300" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -91,7 +93,7 @@ export function PricingModal({ open, onOpenChange }: Props) {
             <CardFooter>
               <form action={createCheckoutAction} className="w-full">
                 <input type="hidden" name="tier" value="STARTER" />
-                <CheckoutButton label={t("ctaChoose")} variant="default" />
+                <CheckoutButton label={t("ctaChoose")} variant="cta" />
               </form>
             </CardFooter>
           </Card>
@@ -144,7 +146,13 @@ function Price({ value }: { value: string }) {
   );
 }
 
-function CheckoutButton({ label, variant }: { label: string; variant: "default" | "outline" }) {
+function CheckoutButton({
+  label,
+  variant,
+}: {
+  label: string;
+  variant: "cta" | "default" | "outline";
+}) {
   const { pending } = useFormStatus();
   return (
     <Button className="w-full" type="submit" disabled={pending} variant={variant}>

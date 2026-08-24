@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Circle, CircleCheck } from "lucide-react";
-import { AnimatePresence, LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { AnimatePresence, LazyMotion, domAnimation, m } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
 import { EASE_OUT_EXPO } from "@/lib/motion";
@@ -18,7 +19,7 @@ type Props = {
 export function ActivationChecklistCard({ checklist, dismissAction }: Props) {
   const t = useTranslations("Dashboard.activation");
   const [collapsed, setCollapsed] = useState(false);
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
 
   useEffect(() => {
     if (checklist.allDone) {

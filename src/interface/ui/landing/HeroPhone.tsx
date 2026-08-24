@@ -21,7 +21,7 @@ type HeroPhoneProps = PropsWithChildren<{
  *  - chaque transform sur sa propre couche pour ne pas se disputer la valeur `y`.
  * Sous `prefers-reduced-motion` : halo + téléphone statiques, aucun mouvement.
  * Le LazyMotion posé ici sert aussi de contexte aux `m.*` du menu vivant enfant
- * (HeroLiveDemo — même arbre React). Cf. docs/ui-refonte-2026.md §8.
+ * (HeroLiveDemo — même arbre React).
  */
 export function HeroPhone({ className, paused = false, children }: HeroPhoneProps) {
   const reduce = useReducedMotionSafe();

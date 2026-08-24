@@ -38,7 +38,7 @@ const jetbrainsMono = localFont({
   preload: false,
 });
 
-// Polices des templates publics premium (Étape 4 — refonte menu, cf. docs/publicmenu.md).
+// Polices des templates publics premium (refonte menus publics 2026).
 // Toutes `preload: false` : le woff2 n'est fetché QUE sur le menu /m/[slug] qui utilise la
 // famille (un glyphe doit la consommer). Aucun surcoût sur landing/app/Classic. Sous-set `latin`
 // (français complet, œ inclus). Axe `wght` uniquement (font-variation par graisse) — Archivo

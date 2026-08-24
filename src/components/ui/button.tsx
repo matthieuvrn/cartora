@@ -13,6 +13,12 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md",
+        // CTA climax (DA « Nuit de service ») : UN par viewport (publier, submit de sheet,
+        // upsell) — jamais le bouton courant. Ombre composée `--cta-shadow` backée par les
+        // scopes de marque (globals.css) : canard en clair, porcelaine+halo sur `.section-nuit`
+        // (le remap --primary fait le reste). Le hover INTENSIFIE l'ombre, ne la remplace pas.
+        // Radius : la règle pill scopée `[data-slot="button"]` de globals.css s'en charge.
+        cta: "bg-primary text-primary-foreground shadow-[var(--cta-shadow)] hover:shadow-[var(--cta-shadow-hover)] hover:-translate-y-px active:scale-[0.98] transition-[transform,box-shadow,background-color,color] duration-200",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 hover:shadow-md dark:bg-destructive/60",
         outline:

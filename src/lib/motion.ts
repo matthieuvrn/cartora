@@ -3,9 +3,8 @@ import type { Transition } from "motion/react";
 /**
  * Presets motion partagés (landing + app produit) — SOURCE UNIQUE des constantes TS.
  * `EASE_OUT_EXPO` est le miroir du token CSS `--ease-out-expo` (globals.css) : garder les
- * deux en phase. `REVEAL_*` alimente HeroIntro et StaggerReveal (grilles landing) ; réutilisable
- * par le reveal du dashboard (étape 7, cf. docs/ui-harmonisation-app-2026.md).
- * Voir aussi docs/ui-refonte-2026.md §8.
+ * deux en phase. `REVEAL_*` alimente HeroIntro et StaggerReveal (grilles landing + reveal
+ * dashboard).
  */
 
 // ease-out-expo : entrées éditoriales (miroir du token CSS --ease-out-expo).
@@ -20,7 +19,7 @@ export const SPRING = {
 /**
  * Reveal d'arrivée en cascade. Variants nommés `hidden`/`show` : le conteneur orchestre via
  * `staggerChildren`, chaque enfant porte `REVEAL_ITEM`. Consommé par HeroIntro (mount) et
- * StaggerReveal (`whileInView`, grilles landing). Toujours derrière `useReducedMotion()`
+ * StaggerReveal (`whileInView`, grilles landing). Toujours derrière `useReducedMotionSafe()`
  * côté composant.
  */
 export const REVEAL_CONTAINER = {

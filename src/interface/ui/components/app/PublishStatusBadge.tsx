@@ -1,8 +1,8 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { Badge } from "@/components/ui/badge";
 import { useRelativeTime } from "@/hooks/use-relative-time";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
@@ -32,7 +32,7 @@ const DOT: Record<PublishView, { color: string; pulse: boolean }> = {
 
 /** Point de statut coloré, avec halo « live » (ping) pour les états publié / modifications. */
 export function StatusDot({ view, className }: { view: PublishView; className?: string }) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   const { color, pulse } = DOT[view];
   return (
     <span className={cn("relative flex size-2 shrink-0", className)} aria-hidden>

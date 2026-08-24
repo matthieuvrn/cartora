@@ -3,8 +3,9 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { CircleCheck, CircleX } from "lucide-react";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m } from "motion/react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { SPRING } from "@/lib/motion";
 
@@ -24,7 +25,7 @@ type CheckoutResultBannerProps =
  */
 export function CheckoutResultBanner(props: CheckoutResultBannerProps) {
   const t = useTranslations("Dashboard");
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
 
   useEffect(() => {
     window.history.replaceState(null, "", "/app");

@@ -1,7 +1,8 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { LazyMotion, domAnimation, m, useReducedMotion } from "motion/react";
+import { LazyMotion, domAnimation, m } from "motion/react";
+import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { SPRING } from "@/lib/motion";
 
 type Props = {
@@ -24,7 +25,7 @@ const SPRINGS = { tight: SPRING.tightSpring, bouncy: SPRING.bouncySpring } as co
  * le flux d'un libellé.
  */
 export function PopIn({ children, className, spring = "tight", animationKey }: Props) {
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   if (reduce) return <span className={className}>{children}</span>;
 
   return (
