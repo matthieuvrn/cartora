@@ -161,6 +161,7 @@
     "editItem": "Modifier l'item",
     "deleteItem": "Supprimer l'item",
     "save": "Enregistrer",
+    "saveAndAddAnother": "Enregistrer et ajouter un autre",
     "cancel": "Annuler",
     "name": "Nom",
     "description": "Description",
@@ -230,11 +231,13 @@
       "title": "Aujourd'hui",
       "description": "Plats du jour et formules, affichés en tête du menu public jusqu'à leur expiration.",
       "teaser": "Plats du jour et formules en tête de votre menu — dès la formule Starter.",
-      "teaserCta": "Découvrir Starter"
-    },
-    "quickAdd": {
-      "namePlaceholder": "Ajout rapide : nom du plat…",
-      "submit": "Ajouter"
+      "teaserCta": "Découvrir Starter",
+      "expand": "Déplier la section Aujourd'hui",
+      "collapse": "Replier la section Aujourd'hui",
+      "summaryEmpty": "Rien de prévu — dépliez pour ajouter un plat du jour ou une formule",
+      "summaryDishes": "{count, plural, one {# plat du jour} other {# plats du jour}}",
+      "summaryFormulas": "{count, plural, one {# formule} other {# formules}}",
+      "summaryExpired": "{count, plural, one {# expiré} other {# expirés}}"
     },
     "duplicate": "Dupliquer",
     "duplicateSuffix": "(copie)",

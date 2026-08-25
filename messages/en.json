@@ -161,6 +161,7 @@
     "editItem": "Edit item",
     "deleteItem": "Delete item",
     "save": "Save",
+    "saveAndAddAnother": "Save and add another",
     "cancel": "Cancel",
     "name": "Name",
     "description": "Description",
@@ -230,11 +231,13 @@
       "title": "Today",
       "description": "Today's dishes and combos, shown at the top of your public menu until they expire.",
       "teaser": "Today's dishes and combos at the top of your menu — from the Starter plan.",
-      "teaserCta": "Discover Starter"
-    },
-    "quickAdd": {
-      "namePlaceholder": "Quick add: dish name…",
-      "submit": "Add"
+      "teaserCta": "Discover Starter",
+      "expand": "Expand the Today section",
+      "collapse": "Collapse the Today section",
+      "summaryEmpty": "Nothing planned — expand to add a today's dish or a combo menu",
+      "summaryDishes": "{count, plural, one {# today's dish} other {# today's dishes}}",
+      "summaryFormulas": "{count, plural, one {# combo menu} other {# combo menus}}",
+      "summaryExpired": "{count, plural, one {# expired} other {# expired}}"
     },
     "duplicate": "Duplicate",
     "duplicateSuffix": "(copy)",

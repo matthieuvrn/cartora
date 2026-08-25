@@ -31,7 +31,6 @@ import { usePendingDeletes } from "@/hooks/use-deferred-delete";
 import { actionErrorText } from "./actionErrorText";
 import { SortableList, useSortableRow } from "./dnd/SortableList";
 import { ItemRow } from "./ItemRow";
-import { QuickAddItemRow } from "./QuickAddItemRow";
 import { ItemFormDialog } from "./ItemFormDialog";
 import { CategoryFormDialog } from "./CategoryFormDialog";
 import { DeleteCategoryDialog } from "./DeleteCategoryDialog";
@@ -46,8 +45,8 @@ type Props = {
   onCollapsedChange: (collapsed: boolean) => void;
   /**
    * Recherche active : la liste d'items reçue est FILTRÉE — le réordonnancement
-   * et la saisie rapide sont masqués (les indices ne correspondent plus à
-   * l'ordre réel) et la section est dépliée de force par le parent.
+   * est désactivé (les indices ne correspondent plus à l'ordre réel) et la
+   * section est dépliée de force par le parent.
    */
   searchActive?: boolean;
   onMoveUp?: () => void;
@@ -277,7 +276,6 @@ export function CategorySection({
               </div>
             </SortableList>
           )}
-          {!searchActive && <QuickAddItemRow categoryId={category.id} />}
         </CardContent>
       </div>
 

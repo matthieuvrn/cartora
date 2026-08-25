@@ -63,8 +63,8 @@ type Props = {
 /**
  * Canvas d'édition de la carte : toolbar d'édition (recherche + Aperçu, cf.
  * MenuActionBar), nav par chips scroll-spy, en-tête d'identité compact, section
- * « Aujourd'hui » (plats du jour + formules), catégories repliables (état persisté
- * par menu). Statut + Publier vivent dans la barre de publication globale du shell
+ * « Aujourd'hui » repliable (plats du jour + formules — repliée par défaut sans
+ * contenu actif), catégories repliables (état persisté par menu). Statut + Publier vivent dans la barre de publication globale du shell
  * (PublishBar) — commune à toutes les sections. L'aperçu du rendu public se fait à
  * la demande (bouton « Aperçu »). Les surfaces de consultation/admin ont leurs
  * sections — /app/stats, /app/partage, /app/abonnement.
@@ -271,6 +271,7 @@ export function MenuEditor({
             </div>
 
             <TodaySection
+              menuId={menu.menuId}
               dailyDishes={dailyDishes}
               formulas={formulas}
               planTier={planTier}

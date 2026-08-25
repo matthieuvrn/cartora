@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useId } from "react";
+import { useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -59,12 +59,25 @@ export function ItemFormDialog({
   const selectedAllergens = new Set(item?.allergens ?? initialValues?.allergens ?? []);
   const serverAction = mode === "create" ? createItemAction : updateItemAction;
 
+  // « Enregistrer et ajouter un autre » (création en série) : le Sheet reste
+  // ouvert, le <form> est remonté (key) pour vider les champs non contrôlés,
+  // et le scroll/focus vers la rangée créée est sauté (elle est derrière le Sheet).
+  const [formResetKey, setFormResetKey] = useState(0);
+  const skipRevealRef = useRef(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const wrappedAction = useCallback(
     async (prev: ItemActionState, formData: FormData) => {
+      const addAnother = formData.get("intent") === "createAndAddAnother";
       const result = await serverAction(prev, formData);
       if (result.success) {
-        onOpenChange(false);
         toast.success(mode === "create" ? t("toast.itemCreated") : t("toast.itemUpdated"));
+        if (addAnother) {
+          skipRevealRef.current = true;
+          setFormResetKey((k) => k + 1);
+        } else {
+          onOpenChange(false);
+        }
       }
       return result;
     },
@@ -79,6 +92,10 @@ export function ItemFormDialog({
   const createdItemId = state.createdItemId;
   useEffect(() => {
     if (!createdItemId) return;
+    if (skipRevealRef.current) {
+      skipRevealRef.current = false;
+      return;
+    }
     let raf = 0;
     let attempts = 0;
     const tryFocus = () => {
@@ -97,6 +114,11 @@ export function ItemFormDialog({
     return () => cancelAnimationFrame(raf);
   }, [createdItemId]);
 
+  // Après un « ajouter un autre » : champs vidés par le remount, focus sur le nom.
+  useEffect(() => {
+    if (formResetKey > 0) nameInputRef.current?.focus();
+  }, [formResetKey]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -108,7 +130,19 @@ export function ItemFormDialog({
           <SheetTitle>{mode === "create" ? t("addItem") : t("editItem")}</SheetTitle>
         </SheetHeader>
 
-        <form action={formAction} className="flex min-h-0 flex-1 flex-col">
+        <form key={formResetKey} action={formAction} className="flex min-h-0 flex-1 flex-col">
+          {/* Bouton par défaut de la soumission implicite (Entrée dans un champ) :
+              premier submit du DOM, sans name/value ⇒ Entrée = enregistrer et
+              fermer, jamais « ajouter un autre » (qui vit plus bas dans le footer).
+              disabled pendant l'envoi : un bouton par défaut désactivé rend la
+              soumission implicite inopérante — Entrée ne peut pas doubler la création. */}
+          <button
+            type="submit"
+            tabIndex={-1}
+            aria-hidden="true"
+            disabled={isPending}
+            className="hidden"
+          />
           <div className="flex-1 space-y-5 overflow-y-auto px-6 py-4">
             <input type="hidden" name="categoryId" value={categoryId} />
             {mode === "edit" && item && <input type="hidden" name="itemId" value={item.id} />}
@@ -121,6 +155,7 @@ export function ItemFormDialog({
               <div className="space-y-1">
                 <Label htmlFor={`${id}-name`}>{t("name")}</Label>
                 <Input
+                  ref={nameInputRef}
                   id={`${id}-name`}
                   name="name"
                   placeholder="ex: Spaghetti Carbonara"
@@ -234,10 +269,23 @@ export function ItemFormDialog({
             )}
           </div>
 
-          <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
+          {/* Mobile : pile pleine largeur, primaire en premier (col-reverse du DOM
+              Annuler → Ajouter un autre → Enregistrer). Desktop : rangée alignée à droite. */}
+          <SheetFooter className="flex-col-reverse gap-2 border-t pt-4 sm:flex-row sm:justify-end">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("cancel")}
             </Button>
+            {mode === "create" && !initialValues && (
+              <Button
+                type="submit"
+                variant="outline"
+                name="intent"
+                value="createAndAddAnother"
+                disabled={isPending}
+              >
+                {isPending ? "…" : t("saveAndAddAnother")}
+              </Button>
+            )}
             <Button type="submit" disabled={isPending}>
               {isPending ? "…" : t("save")}
             </Button>
