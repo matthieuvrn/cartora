@@ -15,7 +15,6 @@ export type PublicMenuLabels = {
   allergenLegendTitle: string;
   watermarkText: string;
   todaySectionTitle: string;
-  todaySectionDescription?: string;
   todaySectionDishesSubtitle?: string;
   todaySectionFormulasSubtitle?: string;
   categoriesNavLabel: string;
@@ -114,7 +113,6 @@ export function PublicMenuClient({
         allergenLegendTitle={labels.allergenLegendTitle}
         watermarkText={labels.watermarkText}
         todaySectionTitle={labels.todaySectionTitle}
-        todaySectionDescription={labels.todaySectionDescription}
         todaySectionDishesSubtitle={labels.todaySectionDishesSubtitle}
         todaySectionFormulasSubtitle={labels.todaySectionFormulasSubtitle}
         categoriesNavLabel={labels.categoriesNavLabel}

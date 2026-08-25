@@ -53,9 +53,24 @@ type Props = {
   size?: number;
   listLabel: string;
   className?: string;
+  /**
+   * Affiche le libellé court À CÔTÉ de l'icône (chips « icône + Gluten »). Requis côté
+   * menu public : les métaphores d'icônes sont ambiguës et `title` n'existe pas au
+   * doigt — l'info INCO doit se lire sans hover ni détour par la légende. Défaut false :
+   * les rangées compactes de l'éditeur gardent l'icône seule (audience = le restaurateur
+   * qui a lui-même coché les allergènes).
+   */
+  withLabels?: boolean;
 };
 
-export function AllergenIcons({ allergens, labels, size = 16, listLabel, className }: Props) {
+export function AllergenIcons({
+  allergens,
+  labels,
+  size = 16,
+  listLabel,
+  className,
+  withLabels = false,
+}: Props) {
   if (allergens.length === 0) return null;
   return (
     <ul
@@ -70,20 +85,23 @@ export function AllergenIcons({ allergens, labels, size = 16, listLabel, classNa
           // AUSSI dans les rangées de l'éditeur (ItemRow/DailyDishCard), hors `[data-template]` —
           // le fallback garde le rendu actuel partout, et seuls les skins sombres (NOIR/NEON)
           // redéfinissent les tokens pour éviter une pastille claire sur fond foncé (Étape 6).
-          className="inline-flex items-center rounded-full p-1"
+          className={
+            withLabels
+              ? "inline-flex items-center gap-1 rounded-full py-0.5 pl-1 pr-2"
+              : "inline-flex items-center rounded-full p-1"
+          }
           style={{
             backgroundColor: "var(--menu-allergen-bg, #fffbeb)",
             color: "var(--menu-allergen-fg, #b45309)",
           }}
           title={labels[a].legal}
         >
-          <Icon
-            icon={ALLERGEN_ICONS[a]}
-            width={size}
-            height={size}
-            role="img"
-            aria-label={labels[a].short}
-          />
+          <Icon icon={ALLERGEN_ICONS[a]} width={size} height={size} aria-hidden="true" />
+          {withLabels ? (
+            <span className="text-[11px] font-medium leading-none">{labels[a].short}</span>
+          ) : (
+            <span className="sr-only">{labels[a].short}</span>
+          )}
         </li>
       ))}
     </ul>

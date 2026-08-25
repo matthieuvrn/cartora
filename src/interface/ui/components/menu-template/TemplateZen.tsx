@@ -23,7 +23,6 @@ export function TemplateZen({
   allergenLegendTitle,
   watermarkText,
   todaySectionTitle,
-  todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
 }: MenuTemplateProps) {
@@ -64,7 +63,6 @@ export function TemplateZen({
           formulas={snapshot.formulas ?? []}
           locale={locale}
           title={todaySectionTitle}
-          description={todaySectionDescription}
           dishesSubtitle={todaySectionDishesSubtitle}
           formulasSubtitle={todaySectionFormulasSubtitle}
           badgeLabels={badgeLabels}

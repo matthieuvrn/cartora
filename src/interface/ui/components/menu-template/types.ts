@@ -21,7 +21,6 @@ export type MenuTemplateProps = {
   watermarkText?: string;
   /** Titre de la section "Aujourd'hui" (S3.1 + S3.2) — i18n résolu côté page. */
   todaySectionTitle: string;
-  todaySectionDescription?: string;
   /**
    * Sous-titres affichés UNIQUEMENT si plats du jour ET formules coexistent.
    * Si l'un des deux manque, le titre principal "Aujourd'hui" suffit.

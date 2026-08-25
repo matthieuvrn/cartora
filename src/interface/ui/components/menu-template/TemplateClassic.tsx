@@ -1,5 +1,9 @@
 import { TemplateLogo } from "./TemplateLogo";
-import { categoryAnchorId, collectPresentAllergens } from "@/domain/menu/publicMenuView";
+import {
+  categoryAnchorId,
+  collectPresentAllergens,
+  TODAY_SECTION_ANCHOR_ID,
+} from "@/domain/menu/publicMenuView";
 import { resolveText } from "@/domain/menu/MenuLocale";
 import { restaurantLogoUrl } from "@/lib/storage-url";
 import { MenuCategorySection } from "./MenuCategorySection";
@@ -25,7 +29,6 @@ export function TemplateClassic({
   allergenLegendTitle,
   watermarkText,
   todaySectionTitle,
-  todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
   categoriesNavLabel,
@@ -75,6 +78,16 @@ export function TemplateClassic({
             className="-mx-4 mt-2 overflow-x-auto px-4 sm:-mx-6 sm:px-6"
           >
             <ul className="flex gap-4 whitespace-nowrap" role="list">
+              {hasToday && (
+                <li>
+                  <a
+                    href={`#${TODAY_SECTION_ANCHOR_ID}`}
+                    className="menu-muted text-xs font-medium uppercase tracking-wide hover:underline"
+                  >
+                    {todaySectionTitle}
+                  </a>
+                </li>
+              )}
               {visibleCategories.map((category) => (
                 <li key={category.name}>
                   <a
@@ -99,7 +112,6 @@ export function TemplateClassic({
             formulas={snapshot.formulas ?? []}
             locale={locale}
             title={todaySectionTitle}
-            description={todaySectionDescription}
             dishesSubtitle={todaySectionDishesSubtitle}
             formulasSubtitle={todaySectionFormulasSubtitle}
             badgeLabels={badgeLabels}

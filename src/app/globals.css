@@ -880,6 +880,17 @@ body:has([data-app-shell]) [data-global-footer] {
   [data-template] .menu-divide > * {
     border-color: var(--menu-border);
   }
+  /* Ardoise « Aujourd'hui » (refonte 2026) : panneau borné qui sépare l'éphémère de la carte
+     permanente. Tokens dédiés `--menu-today-*` avec repli sur la surface/bordure/accent du
+     skin — chaque template a donc une ardoise cohérente sans hex supplémentaire, et peut
+     spécialiser au besoin (même mécanique que `--menu-badge-*`/`--menu-allergen-*`). */
+  [data-template] .menu-today {
+    background-color: var(--menu-today-bg, var(--menu-surface));
+    border-color: var(--menu-today-border, var(--menu-border));
+  }
+  [data-template] .menu-today-kicker {
+    color: var(--menu-today-accent, var(--menu-accent));
+  }
 
   /* ── Touches d'art-direction par skin (sans forker le JSX partagé) ──────────────────────────
      Chaque skin affine la typo des éléments partagés via ses propres règles `[data-template="X"]`.

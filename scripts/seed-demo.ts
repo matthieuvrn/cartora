@@ -498,25 +498,6 @@ const DEMO_DAILY_DISHES: DemoDailyDish[] = [
       it: "Vitello di fattoria in umido, salsa cremosa ai funghi, riso pilaf.",
     },
   },
-  {
-    priceCents: 950,
-    badge: "NONE",
-    allergens: ["GLUTEN", "MILK", "SULPHITES"],
-    name: {
-      fr: "Soupe à l'oignon gratinée",
-      en: "French onion soup au gratin",
-      es: "Sopa de cebolla gratinada",
-      de: "Überbackene Zwiebelsuppe",
-      it: "Zuppa di cipolle gratinata",
-    },
-    description: {
-      fr: "Oignons doux confits, croûtons et comté gratiné.",
-      en: "Slow-cooked sweet onions, croutons and melted Comté.",
-      es: "Cebolla dulce confitada, picatostes y comté gratinado.",
-      de: "Geschmorte süße Zwiebeln, Croûtons und gratinierter Comté.",
-      it: "Cipolle dolci stufate, crostini e comté gratinato.",
-    },
-  },
 ];
 
 const DEMO_FORMULAS: DemoFormula[] = [
@@ -530,11 +511,11 @@ const DEMO_FORMULAS: DemoFormula[] = [
       it: "Formula pranzo",
     },
     description: {
-      fr: "Entrée du jour + plat du jour\nou plat du jour + dessert au choix\nCafé offert, du mardi au vendredi midi",
-      en: "Starter of the day + dish of the day\nor dish of the day + dessert of your choice\nCoffee included, Tuesday to Friday lunchtime",
-      es: "Entrante del día + plato del día\no plato del día + postre a elegir\nCafé incluido, de martes a viernes al mediodía",
-      de: "Vorspeise des Tages + Tagesgericht\noder Tagesgericht + Dessert nach Wahl\nKaffee inklusive, Dienstag bis Freitag mittags",
-      it: "Antipasto del giorno + piatto del giorno\no piatto del giorno + dolce a scelta\nCaffè incluso, dal martedì al venerdì a pranzo",
+      fr: "Entrée au choix + plat du jour\nou plat du jour + dessert au choix\nCafé offert, du mardi au vendredi midi",
+      en: "Starter of your choice + dish of the day\nor dish of the day + dessert of your choice\nCoffee included, Tuesday to Friday lunchtime",
+      es: "Entrante a elegir + plato del día\no plato del día + postre a elegir\nCafé incluido, de martes a viernes al mediodía",
+      de: "Vorspeise nach Wahl + Tagesgericht\noder Tagesgericht + Dessert nach Wahl\nKaffee inklusive, Dienstag bis Freitag mittags",
+      it: "Antipasto a scelta + piatto del giorno\no piatto del giorno + dolce a scelta\nCaffè incluso, dal martedì al venerdì a pranzo",
     },
   },
   {

@@ -38,7 +38,6 @@ type PublicMenuMessages = {
     allergenLegendTitle: string;
     watermark: string;
     todayMenu: string;
-    todayMenuDescription: string;
     todaySectionDishesSubtitle: string;
     todaySectionFormulasSubtitle: string;
     categoriesNav: string;
@@ -68,7 +67,6 @@ function publicMenuLabelsFor(locale: MenuLocale): PublicMenuLabels {
     allergenLegendTitle: m.PublicMenu.allergenLegendTitle,
     watermarkText: m.PublicMenu.watermark,
     todaySectionTitle: m.PublicMenu.todayMenu,
-    todaySectionDescription: m.PublicMenu.todayMenuDescription,
     todaySectionDishesSubtitle: m.PublicMenu.todaySectionDishesSubtitle,
     todaySectionFormulasSubtitle: m.PublicMenu.todaySectionFormulasSubtitle,
     categoriesNavLabel: m.PublicMenu.categoriesNav,

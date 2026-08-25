@@ -16,7 +16,8 @@ type Props = {
 };
 
 // Couleurs des badges via le contrat `--menu-badge-*` (cf. globals.css), avec un défaut clair
-// inline en fallback. Le `var(--token, défaut)` s'applique partout — y compris hors `[data-template]`
+// inline en fallback — teintes de la famille de marque (teal doux / chaleur cuivrée, alignées
+// sur HeroLiveDemo), plus jamais les blue-100/orange-100 stock de Tailwind (audit DA 2026). Le `var(--token, défaut)` s'applique partout — y compris hors `[data-template]`
 // — donc aucune régression ; et les skins sombres (NOIR/NEON) redéfinissent ces tokens pour ne pas
 // poser de chip pastel clair sur fond charbon/nuit (cf. Étape 6 — keystone).
 const badgeConfig: Record<
@@ -25,13 +26,13 @@ const badgeConfig: Record<
 > = {
   NEW: {
     icon: Sparkles,
-    bg: "var(--menu-badge-new-bg, #dbeafe)",
-    fg: "var(--menu-badge-new-fg, #1d4ed8)",
+    bg: "var(--menu-badge-new-bg, #e3efec)",
+    fg: "var(--menu-badge-new-fg, #1f5f56)",
   },
   POPULAR: {
     icon: Flame,
-    bg: "var(--menu-badge-popular-bg, #ffedd5)",
-    fg: "var(--menu-badge-popular-fg, #c2410c)",
+    bg: "var(--menu-badge-popular-bg, #fdeadb)",
+    fg: "var(--menu-badge-popular-fg, #a34a12)",
   },
 };
 
@@ -72,6 +73,7 @@ export function MenuItemRow({
             allergens={item.allergens}
             labels={allergenLabels}
             listLabel={allergenSectionLabel}
+            withLabels
           />
         </div>
         <span

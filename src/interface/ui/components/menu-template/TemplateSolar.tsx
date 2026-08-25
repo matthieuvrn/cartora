@@ -23,7 +23,6 @@ export function TemplateSolar({
   allergenLegendTitle,
   watermarkText,
   todaySectionTitle,
-  todaySectionDescription,
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
 }: MenuTemplateProps) {
@@ -71,7 +70,6 @@ export function TemplateSolar({
           formulas={snapshot.formulas ?? []}
           locale={locale}
           title={todaySectionTitle}
-          description={todaySectionDescription}
           dishesSubtitle={todaySectionDishesSubtitle}
           formulasSubtitle={todaySectionFormulasSubtitle}
           badgeLabels={badgeLabels}

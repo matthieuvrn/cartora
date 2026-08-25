@@ -83,6 +83,14 @@ export function collectPresentAllergens(snapshot: PublicMenuSnapshot): Set<Aller
 }
 
 /**
+ * Ancre du panneau « Aujourd'hui » (refonte ardoise 2026) — `id` posé par `TodaySection`,
+ * consommé par la nav rapide des templates. Fragment stable non localisé (le libellé
+ * visible, lui, est traduit) ; le préfixe implicite `cat-` des catégories évite toute
+ * collision avec les ancres générées par `categoryAnchorId`.
+ */
+export const TODAY_SECTION_ANCHOR_ID = "aujourdhui";
+
+/**
  * Slug stable et sûr pour servir d'ancre (`id` + `href="#…"`) à une catégorie dans la
  * nav rapide du template (les noms de catégorie sont du texte libre saisi par le
  * restaurateur). Diacritiques retirés, minuscules, tout caractère non alphanumérique
