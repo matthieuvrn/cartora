@@ -7,6 +7,9 @@ import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
 import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES, type Allergen } from "@/domain/menu/ItemPolicy";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import { TEMPLATE_META } from "@/domain/menu/MenuTemplateMeta";
+import { DEMO_MENU_SLUG } from "@/lib/demo";
+import type { MenuTemplate } from "@/domain/menu/MenuTypes";
 import type { AllergenLabels } from "@/interface/ui/components/AllergenIcons";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
@@ -24,6 +27,7 @@ import itMessages from "../../../../messages/it.json";
 
 type Props = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 /**
@@ -40,6 +44,8 @@ type PublicMenuMessages = {
     todayMenu: string;
     todaySectionDishesSubtitle: string;
     todaySectionFormulasSubtitle: string;
+    templateShowcaseLabel: string;
+    templateNames: Record<MenuTemplate, string>;
     categoriesNav: string;
   };
   Allergen: { sectionTitle: string } & Record<Allergen, { short: string; legal: string }>;
@@ -69,6 +75,8 @@ function publicMenuLabelsFor(locale: MenuLocale): PublicMenuLabels {
     todaySectionTitle: m.PublicMenu.todayMenu,
     todaySectionDishesSubtitle: m.PublicMenu.todaySectionDishesSubtitle,
     todaySectionFormulasSubtitle: m.PublicMenu.todaySectionFormulasSubtitle,
+    templateShowcaseLabel: m.PublicMenu.templateShowcaseLabel,
+    templateNames: m.PublicMenu.templateNames,
     categoriesNavLabel: m.PublicMenu.categoriesNav,
   };
 }
@@ -190,9 +198,20 @@ function buildMenuJsonLd(snapshot: PublicMenuSnapshot, slug: string, todayLabel:
   };
 }
 
-export default async function PublicMenuPage({ params }: Props) {
+export default async function PublicMenuPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const result = await getPublicMenuBySlug(slug);
+
+  // Sélecteur de designs : DÉMO UNIQUEMENT (décision serveur — jamais sur un vrai
+  // restaurant). `?design=noir` = deep link SSR du skin, validé contre l'enum via
+  // TEMPLATE_META ; toute valeur inconnue (ou hors démo) est ignorée silencieusement.
+  const isDemoShowcase = slug === DEMO_MENU_SLUG;
+  const rawDesign = (await searchParams).design;
+  const requestedDesign = typeof rawDesign === "string" ? rawDesign.toUpperCase() : undefined;
+  const initialTemplate =
+    isDemoShowcase && requestedDesign && requestedDesign in TEMPLATE_META
+      ? (requestedDesign as MenuTemplate)
+      : undefined;
 
   const locale = (await getLocale()) as "fr" | "en";
   const t = await getTranslations("PublicMenu");
@@ -245,6 +264,8 @@ export default async function PublicMenuPage({ params }: Props) {
         defaultLocale={defaultLocale}
         labelsByLocale={labelsByLocale}
         showWatermark={PlanPolicy.shouldShowWatermark(result.planTier)}
+        showcaseTemplates={isDemoShowcase}
+        initialTemplate={initialTemplate}
       />
       <TrackingBeacon slug={slug} locale={locale} />
     </>

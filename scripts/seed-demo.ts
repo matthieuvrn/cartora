@@ -12,9 +12,10 @@ import { PrismaMenuRepository } from "../src/infrastructure/menu/PrismaMenuRepos
 import { PrismaSnapshotRepository } from "../src/infrastructure/snapshot/PrismaSnapshotRepository";
 import { PublishMenu } from "../src/application/use-cases/PublishMenu";
 import { hashSourceText } from "../src/domain/menu/textHash";
+import { DEMO_MENU_SLUG } from "../src/lib/demo";
 
 const DEMO_EMAIL = "demo@cartora.app";
-const DEMO_SLUG = "demo-cartora";
+const DEMO_SLUG = DEMO_MENU_SLUG;
 const DEMO_DISPLAY_NAME = "Le Bistrot Démo";
 const DEMO_LOGO_FILE = path.join(__dirname, "assets", "demo-logo.webp");
 const LOGO_BUCKET = "restaurant-logos";

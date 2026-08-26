@@ -1,7 +1,9 @@
 "use client";
 
-import { useSyncExternalStore, useCallback } from "react";
+import { useSyncExternalStore, useCallback, useState } from "react";
 import type { PublicMenuSnapshot } from "@/domain/menu/PublicMenuTypes";
+import type { MenuTemplate } from "@/domain/menu/MenuTypes";
+import { TEMPLATE_REGISTRY } from "./registry";
 import { isMenuLocale, MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MenuTemplateRenderer } from "./index";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,8 @@ export type PublicMenuLabels = {
   todaySectionTitle: string;
   todaySectionDishesSubtitle?: string;
   todaySectionFormulasSubtitle?: string;
+  templateShowcaseLabel: string;
+  templateNames: Record<MenuTemplate, string>;
   categoriesNavLabel: string;
 };
 
@@ -27,7 +31,18 @@ type Props = {
   /** Labels i18n par langue disponible (résolus côté page). */
   labelsByLocale: Partial<Record<MenuLocale, PublicMenuLabels>>;
   showWatermark: boolean;
+  /**
+   * Sélecteur de designs (vitrine) : DÉMO UNIQUEMENT — la décision vient du serveur
+   * (`slug === DEMO_MENU_SLUG` dans page.tsx), jamais d'un état client. Un vrai
+   * restaurant ne doit JAMAIS être re-skinnable par ses visiteurs.
+   */
+  showcaseTemplates?: boolean;
+  /** Skin initial du deep link `?design=` (déjà validé côté serveur). SSR fidèle. */
+  initialTemplate?: MenuTemplate;
 };
+
+/** Ordre d'affichage du sélecteur = ordre du registry (base d'abord, premium ensuite). */
+const SHOWCASE_TEMPLATES = Object.keys(TEMPLATE_REGISTRY) as MenuTemplate[];
 
 const STORAGE_KEY = "cartora_locale";
 
@@ -48,6 +63,8 @@ export function PublicMenuClient({
   defaultLocale,
   labelsByLocale,
   showWatermark,
+  showcaseTemplates = false,
+  initialTemplate,
 }: Props) {
   const available = snapshot.availableLocales;
 
@@ -63,6 +80,22 @@ export function PublicMenuClient({
     localStorage.setItem(STORAGE_KEY, next);
     window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
   };
+
+  // Skin affiché (vitrine démo). Initialisé au deep link `?design=` (SSR identique,
+  // pas de flash) sinon au template publié. Le switch charge le chunk du skin à la
+  // demande (registry `next/dynamic`) ; l'URL est synchronisée en silence
+  // (`history.replaceState` — pas de navigation Next, donc pas de re-fetch DB).
+  const [template, setTemplate] = useState<MenuTemplate>(
+    initialTemplate ?? snapshot.template ?? "CLASSIC",
+  );
+  const selectTemplate = (next: MenuTemplate) => {
+    setTemplate(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("design", next.toLowerCase());
+    window.history.replaceState(null, "", url);
+  };
+  const renderedSnapshot =
+    showcaseTemplates && template !== snapshot.template ? { ...snapshot, template } : snapshot;
 
   // Labels de la locale courante, repli sur la langue source (toujours présente).
   const labels = labelsByLocale[locale] ?? labelsByLocale[snapshot.sourceLocale];
@@ -104,7 +137,7 @@ export function PublicMenuClient({
         </div>
       )}
       <MenuTemplateRenderer
-        snapshot={snapshot}
+        snapshot={renderedSnapshot}
         locale={locale}
         showWatermark={showWatermark}
         badgeLabels={labels.badgeLabels}
@@ -117,6 +150,49 @@ export function PublicMenuClient({
         todaySectionFormulasSubtitle={labels.todaySectionFormulasSubtitle}
         categoriesNavLabel={labels.categoriesNavLabel}
       />
+      {showcaseTemplates && (
+        <div className="fixed inset-x-0 bottom-3 z-50 flex justify-center px-3">
+          <div className="flex max-w-full items-center gap-2 overflow-x-auto rounded-full border bg-background/95 py-1.5 pl-4 pr-3 shadow-lg backdrop-blur">
+            <span className="hidden shrink-0 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:inline">
+              {labels.templateShowcaseLabel}
+            </span>
+            <div
+              className="flex items-center gap-1"
+              role="group"
+              aria-label={labels.templateShowcaseLabel}
+            >
+              {SHOWCASE_TEMPLATES.map((t) => {
+                const tokens = TEMPLATE_REGISTRY[t].defaultTokens;
+                const active = t === template;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => selectTemplate(t)}
+                    aria-pressed={active}
+                    aria-label={labels.templateNames[t]}
+                    title={labels.templateNames[t]}
+                    className={cn(
+                      "flex size-7 shrink-0 items-center justify-center rounded-full border transition-shadow",
+                      active
+                        ? "ring-2 ring-foreground ring-offset-1 ring-offset-background"
+                        : "hover:ring-1 hover:ring-muted-foreground/60",
+                    )}
+                    style={{ backgroundColor: tokens.bg }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="size-3 rounded-full"
+                      style={{ backgroundColor: tokens.primary }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+            <span className="shrink-0 text-xs font-semibold">{labels.templateNames[template]}</span>
+          </div>
+        </div>
+      )}
     </>
   );
 }

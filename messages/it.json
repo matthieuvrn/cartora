@@ -7,6 +7,18 @@
     "todayMenu": "Oggi",
     "todaySectionDishesSubtitle": "Piatti del giorno",
     "todaySectionFormulasSubtitle": "Menù",
+    "templateShowcaseLabel": "Demo · Prova i design",
+    "templateNames": {
+      "CLASSIC": "Classico",
+      "CARTORA": "Cartora",
+      "BISTRO": "Bistrot",
+      "NOIR": "Noir",
+      "SOLAR": "Solare",
+      "ZEN": "Zen",
+      "NEON": "Neon",
+      "RIVAGE": "Rivage",
+      "VELOURS": "Velours"
+    },
     "watermark": "Realizzato con Cartora",
     "allergenLegendTitle": "Allergeni dichiarati",
     "categoriesNav": "Categorie del menù",

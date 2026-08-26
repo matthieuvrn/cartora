@@ -372,6 +372,18 @@
     "todayMenu": "Today",
     "todaySectionDishesSubtitle": "Today's dishes",
     "todaySectionFormulasSubtitle": "Combos",
+    "templateShowcaseLabel": "Demo · Try the designs",
+    "templateNames": {
+      "CLASSIC": "Classic",
+      "CARTORA": "Cartora",
+      "BISTRO": "Bistro",
+      "NOIR": "Noir",
+      "SOLAR": "Solar",
+      "ZEN": "Zen",
+      "NEON": "Neon",
+      "RIVAGE": "Rivage",
+      "VELOURS": "Velours"
+    },
     "notFound": "Menu not found",
     "notFoundDescription": "This menu does not exist or has not been published yet.",
     "unavailable": "Menu unavailable",
