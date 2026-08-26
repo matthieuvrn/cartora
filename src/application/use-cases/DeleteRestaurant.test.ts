@@ -193,4 +193,21 @@ describe("DeleteRestaurant", () => {
     expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
     expect(authAdmin.deleteUser).toHaveBeenCalledWith("user-1");
   });
+
+  it("captures auth user deletion error after the restaurant is already deleted", async () => {
+    const { uc, restaurantRepo } = createUseCase({
+      authAdmin: {
+        deleteUser: vi.fn(async () => {
+          throw new Error("GoTrue unavailable");
+        }),
+      },
+    });
+
+    const result = await uc.execute(VALID_INPUT);
+
+    expect(result.status).toBe("completed");
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]).toContain("Auth user deletion failed");
+    expect(restaurantRepo.delete).toHaveBeenCalledWith("resto-1");
+  });
 });

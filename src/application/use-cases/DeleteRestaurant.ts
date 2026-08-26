@@ -53,8 +53,15 @@ export class DeleteRestaurant {
     // 3. Delete restaurant (CASCADE handles all child tables)
     await this.restaurantRepo.delete(input.restaurantId);
 
-    // 4. Delete auth user
-    await this.authAdmin.deleteUser(input.ownerUserId);
+    // 4. Delete auth user (non-blocking — the restaurant is already gone; a failure
+    //    here leaves an orphaned auth user, surfaced via `errors` for manual cleanup)
+    try {
+      await this.authAdmin.deleteUser(input.ownerUserId);
+    } catch (error) {
+      errors.push(
+        `Auth user deletion failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
 
     return { status: "completed", errors };
   }

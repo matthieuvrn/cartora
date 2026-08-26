@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
@@ -120,19 +120,21 @@ export async function createPortalAction(): Promise<void> {
 }
 
 export async function deleteAccountAction(): Promise<{ error: string | null }> {
+  // Auth résolue HORS du try : les `redirect()` lancent NEXT_REDIRECT et ne doivent
+  // pas être avalés par le catch (même convention que withActionContext).
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { ownerUserId: user.id },
+    select: { id: true },
+  });
+  if (!restaurant) redirect("/app");
+
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) redirect("/login");
-
-    const restaurant = await prisma.restaurant.findUnique({
-      where: { ownerUserId: user.id },
-      select: { id: true },
-    });
-    if (!restaurant) redirect("/app");
-
     const billingRepo = new PrismaBillingRepository(prisma);
     const gateway = new StripePaymentGateway();
     const logoStorage = new SupabaseStorageService("restaurant-logos");
@@ -160,11 +162,16 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
       });
     }
   } catch (e) {
+    unstable_rethrow(e);
     Sentry.captureException(e, {
       tags: { action: "deleteAccount" },
     });
     return { error: "delete_failed" };
   }
 
+  // signOut même en cas d'échec non-fatal de deleteUser : sinon la session resterait
+  // valide et le proxy renverrait /login → /app, où EnsureRestaurantExists
+  // recréerait silencieusement un restaurant vierge.
+  await supabase.auth.signOut();
   redirect("/login");
 }
