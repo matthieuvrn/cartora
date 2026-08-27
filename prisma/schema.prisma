@@ -75,11 +75,16 @@ enum Allergen {
 }
 
 /// ⚠️ Réservé aux tables ANALYTICS (menu_view_events, menu_view_daily_stats,
-/// landing_events) — chrome visiteur fr/en. Les locales du CONTENU des menus
-/// vivent en TEXT sur `translations.locale` (codes ISO minuscules, cf. S4).
+/// landing_events). Aligné sur MenuLocale : les vues menu trackent la langue de
+/// LECTURE (état du switcher S4), plus la locale chrome. Les locales du CONTENU
+/// des menus vivent en TEXT sur `translations.locale` (codes ISO minuscules).
+/// ES/DE/IT exigent la migration 085 appliquée AVANT déploiement.
 enum Locale {
   FR
   EN
+  ES
+  DE
+  IT
 
   @@map("locale")
 }

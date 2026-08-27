@@ -6,6 +6,7 @@ import type { MenuTemplate } from "@/domain/menu/MenuTypes";
 import { TEMPLATE_REGISTRY } from "./registry";
 import { isMenuLocale, MENU_LOCALE_LABELS, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MenuTemplateRenderer } from "./index";
+import { TrackingBeacon } from "./TrackingBeacon";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { AllergenLabels } from "../AllergenIcons";
@@ -26,6 +27,8 @@ export type PublicMenuLabels = {
 
 type Props = {
   snapshot: PublicMenuSnapshot;
+  /** Slug public du menu — transmis au beacon analytics (le snapshot ne le porte pas). */
+  slug: string;
   /** Locale affichée au 1er rendu (SSR) — toujours ∈ `snapshot.availableLocales`. */
   defaultLocale: MenuLocale;
   /** Labels i18n par langue disponible (résolus côté page). */
@@ -60,6 +63,7 @@ function subscribeToStorage(callback: () => void): () => void {
  */
 export function PublicMenuClient({
   snapshot,
+  slug,
   defaultLocale,
   labelsByLocale,
   showWatermark,
@@ -103,6 +107,9 @@ export function PublicMenuClient({
 
   return (
     <>
+      {/* Monté ICI (et pas dans la page RSC) pour tracker la langue de LECTURE
+          réelle — la préférence localStorage du switcher, invisible du serveur. */}
+      <TrackingBeacon slug={slug} locale={locale} />
       {available.length > 1 && (
         <div className="fixed right-3 top-3 z-50">
           {available.length === 2 ? (

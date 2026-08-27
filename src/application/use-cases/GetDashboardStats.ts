@@ -6,6 +6,7 @@ import type {
   DeviceType,
   ViewSource,
 } from "@/domain/analytics/AnalyticsTypes";
+import { appCalendarDayISO } from "@/domain/time/appTimeZone";
 
 export type GetDashboardStatsInput = {
   restaurantId: string;
@@ -20,7 +21,10 @@ export class GetDashboardStats {
   ) {}
 
   async execute(input: GetDashboardStatsInput): Promise<GetDashboardStatsOutput> {
-    const today = this.clock.nowISO().slice(0, 10);
+    // Jour calendaire Europe/Paris, PAS UTC : l'écriture bucketise en jour Paris
+    // (PrismaAnalyticsRepository.recordView) — une borne UTC exclurait les vues
+    // entre minuit Paris et minuit UTC, pile après le service du soir.
+    const today = appCalendarDayISO(new Date(this.clock.nowISO()));
     const from = subtractDays(today, 6);
 
     const rows = await this.analyticsRepo.getDailyStats(input.restaurantId, from, today);

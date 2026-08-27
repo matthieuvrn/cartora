@@ -44,6 +44,17 @@ describe("GetDashboardStats", () => {
     expect(analyticsRepo.getDailyStats).toHaveBeenCalledWith("resto-1", "2026-03-22", "2026-03-28");
   });
 
+  it("bounds the window on the Paris calendar day, not the UTC day", async () => {
+    // 23:30 UTC le 28 mars = 00:30 Paris le 29 mars (CET) : la borne haute doit
+    // être le jour Paris (même référentiel que l'écriture des agrégats).
+    const analyticsRepo = defaultAnalyticsRepo();
+    const uc = new GetDashboardStats(analyticsRepo, createMockClock("2026-03-28T23:30:00.000Z"));
+
+    await uc.execute({ restaurantId: "resto-1" });
+
+    expect(analyticsRepo.getDailyStats).toHaveBeenCalledWith("resto-1", "2026-03-23", "2026-03-29");
+  });
+
   it("returns zero stats when no rows", async () => {
     const uc = new GetDashboardStats(createMockAnalyticsRepo(), createMockClock());
 

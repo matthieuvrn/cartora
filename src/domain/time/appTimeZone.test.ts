@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { APP_TIMEZONE, hourInAppTimeZone, appCalendarDateUTC } from "./appTimeZone";
+import {
+  APP_TIMEZONE,
+  hourInAppTimeZone,
+  appCalendarDateUTC,
+  appCalendarDayISO,
+} from "./appTimeZone";
 
 describe("appTimeZone", () => {
   it("exposes Europe/Paris as the app timezone", () => {
@@ -27,6 +32,21 @@ describe("appTimeZone", () => {
     it("returns 23 just before Paris midnight", () => {
       // 21:30 UTC en été → 23:30 Paris
       expect(hourInAppTimeZone(new Date("2026-06-18T21:30:00.000Z"))).toBe(23);
+    });
+  });
+
+  describe("appCalendarDayISO", () => {
+    it("returns the Paris calendar day for a post-midnight Paris instant", () => {
+      // 23:30 UTC le 17 juin = 01:30 Paris le 18 juin
+      expect(appCalendarDayISO(new Date("2026-06-17T23:30:00.000Z"))).toBe("2026-06-18");
+    });
+
+    it("returns the same day at midday", () => {
+      expect(appCalendarDayISO(new Date("2026-06-18T12:00:00.000Z"))).toBe("2026-06-18");
+    });
+
+    it("handles the winter offset (UTC+1)", () => {
+      expect(appCalendarDayISO(new Date("2026-01-15T23:30:00.000Z"))).toBe("2026-01-16");
     });
   });
 

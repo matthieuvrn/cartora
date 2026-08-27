@@ -921,7 +921,7 @@
   },
   "Privacy": {
     "title": "Politique de confidentialité",
-    "lastUpdated": "Dernière mise à jour : avril 2026",
+    "lastUpdated": "Dernière mise à jour : août 2026",
     "controller": {
       "title": "Responsable de traitement",
       "body": "Cartora est édité par Cartora. Pour toute question relative à vos données personnelles, vous pouvez nous contacter à contact@cartora.app."
@@ -941,8 +941,8 @@
         "body": "Votre email est transmis à Stripe lors de la souscription. Stripe traite les données de paiement (carte bancaire) en tant que sous-traitant. Nous ne stockons aucune donnée bancaire."
       },
       "analytics": {
-        "title": "Données d’audience (avec consentement)",
-        "body": "Sur les pages de menu publiques, et uniquement avec votre consentement, nous collectons : le type d’appareil (déduit du User-Agent, non stocké), la langue du navigateur, et la source de la visite (QR code, lien direct). L’adresse IP n’est pas stockée."
+        "title": "Données d’audience (anonymes, exemptées de consentement)",
+        "body": "Sur les pages publiques (menus et site vitrine), nous mesurons l’audience de façon strictement anonyme : type d’appareil (déduit du User-Agent, non stocké), langue de lecture du menu, et source de la visite (QR code, lien, accès direct — domaine référent réduit au nom d’hôte pour le site vitrine). Aucune adresse IP ni identifiant n’est stocké, aucun cookie n’est déposé pour cette mesure ; seule une clé de session locale (sessionStorage, effacée à la fermeture de l’onglet) évite les doubles comptages. Cette mesure relève de l’exemption « mesure d’audience » (art. 82 de la loi Informatique et Libertés, délibération CNIL 2020-091)."
       },
       "technical": {
         "title": "Données techniques (avec consentement)",
@@ -953,7 +953,7 @@
       "title": "Finalités des traitements",
       "service": "Fourniture du service : création de compte, gestion du menu, publication, QR code",
       "payment": "Gestion des paiements et abonnements via Stripe",
-      "analytics": "Mesure d’audience anonymisée sur les menus publiques (avec consentement)",
+      "analytics": "Mesure d’audience anonyme sur les pages publiques — menus et site vitrine (exemptée de consentement)",
       "security": "Sécurité : rate limiting pour prévenir les abus (IP temporaire, non stockée)",
       "monitoring": "Suivi des erreurs techniques via Sentry (avec consentement côté navigateur)"
     },
@@ -965,11 +965,11 @@
       },
       "legitimateInterest": {
         "label": "Intérêt légitime (Art. 6(1)(f) RGPD) :",
-        "body": "rate limiting (sécurité), monitoring serveur (Sentry côté serveur)."
+        "body": "rate limiting (sécurité), monitoring serveur (Sentry côté serveur), mesure d’audience anonyme des pages publiques (menus et site vitrine)."
       },
       "consent": {
         "label": "Consentement (Art. 6(1)(a) RGPD) :",
-        "body": "analytics visiteurs, Sentry côté navigateur. Vous pouvez retirer votre consentement à tout moment via le bouton « Gérer mes cookies »."
+        "body": "Sentry côté navigateur, et l’identifiant de session anonyme attaché aux événements du site vitrine pour l’analyse des parcours (sessionStorage, purgé à la fermeture de l’onglet, conservé 30 jours côté serveur). Vous pouvez retirer votre consentement à tout moment via le bouton « Gérer mes cookies »."
       }
     },
     "recipients": {
@@ -1004,7 +1004,7 @@
         "label": "Cookie de consentement (cartora-consent)",
         "body": "Stocke votre choix d’acceptation ou de refus des traceurs. Durée : 13 mois."
       },
-      "trackers": "Les traceurs non essentiels (analytics, Sentry côté navigateur) ne sont activés qu’après votre consentement explicite."
+      "trackers": "Les traceurs soumis à consentement sont le suivi d’erreurs Sentry côté navigateur et l’identifiant de session utilisé pour l’analyse des parcours sur le site vitrine. La mesure d’audience (menus publics et site vitrine) est quant à elle anonyme et exemptée de consentement ; elle utilise uniquement une clé de session locale (sessionStorage), strictement nécessaire au comptage des vues."
     },
     "rights": {
       "title": "Vos droits",
@@ -1105,7 +1105,7 @@
   },
   "Consent": {
     "bannerTitle": "Cookies et traceurs",
-    "bannerDescription": "Nous utilisons des traceurs pour analyser le trafic et améliorer la stabilité du service. Consultez notre <privacyLink>politique de confidentialité</privacyLink>.",
+    "bannerDescription": "L’audience est mesurée de façon anonyme, sans consentement requis. Avec votre accord, nous activons en plus le suivi des erreurs (Sentry) et un identifiant de session pour analyser les parcours. Consultez notre <privacyLink>politique de confidentialité</privacyLink>.",
     "accept": "Accepter",
     "refuse": "Refuser",
     "manageCookies": "Gérer mes cookies"
@@ -1127,7 +1127,10 @@
     },
     "locale": {
       "FR": "Français",
-      "EN": "Anglais"
+      "EN": "Anglais",
+      "ES": "Espagnol",
+      "DE": "Allemand",
+      "IT": "Italien"
     },
     "empty": "Aucune vue pour le moment",
     "topDevice": "Appareil principal",

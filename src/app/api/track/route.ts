@@ -10,6 +10,7 @@ import { RecordMenuView } from "@/application/use-cases/RecordMenuView";
 import { RecordLandingEvent } from "@/application/use-cases/RecordLandingEvent";
 import { createRateLimiter } from "@/infrastructure/rate-limit/createRateLimiter";
 import { LANDING_EVENT_NAMES } from "@/domain/analytics/LandingEventNames";
+import { isMenuLocale } from "@/domain/menu/MenuLocale";
 import type { RateLimiter } from "@/application/ports/RateLimiter";
 
 const analyticsRepo = new PrismaAnalyticsRepository(prisma);
@@ -30,17 +31,25 @@ const landingRateLimiter = createRateLimiter({
   prefix: "track-landing",
 });
 
+// Tolérant par principe : un label inattendu (utm posé par un tiers, locale
+// legacy en majuscules, referrer hors borne) est neutralisé à l'exécution via
+// `.catch(undefined)`, jamais sanctionné d'un 400 qui coûterait une vue légitime
+// — seul un slug invalide rejette. `referrer` = document.referrer transmis par le
+// client — le header Referer du POST est l'URL de la page émettrice (same-origin),
+// inutilisable pour classer la source de la visite.
 const MenuTrackBodySchema = z.object({
   slug: z.string().min(1).max(255),
-  locale: z.enum(["fr", "en", "FR", "EN"]).optional(),
-  source: z.enum(["qr"]).optional(),
+  locale: z.string().max(8).optional().catch(undefined),
+  source: z.string().max(64).optional().catch(undefined),
+  referrer: z.string().max(2048).optional().catch(undefined),
 });
 
 const LandingTrackBodySchema = z.object({
   type: z.literal("landing"),
   event: z.enum(LANDING_EVENT_NAMES),
-  locale: z.enum(["fr", "en"]).optional(),
-  source: z.string().max(32).optional(),
+  locale: z.enum(["fr", "en"]).optional().catch(undefined),
+  source: z.string().max(32).optional().catch(undefined),
+  referrer: z.string().max(2048).optional().catch(undefined),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -63,7 +72,6 @@ async function applyRateLimit(limiter: RateLimiter, ip: string) {
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const userAgent = request.headers.get("user-agent") ?? "";
-  const referer = request.headers.get("referer") ?? undefined;
 
   const body = await request.json().catch(() => null);
 
@@ -81,7 +89,7 @@ export async function POST(request: NextRequest) {
         eventName: parsed.data.event,
         locale: parsed.data.locale,
         userAgent,
-        referer,
+        referer: parsed.data.referrer,
         utmSource: parsed.data.source,
         metadata: parsed.data.metadata,
       });
@@ -100,13 +108,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
+  // Langue de LECTURE du menu (MenuLocale) ; valeur inconnue ⇒ repli "fr".
+  const rawLocale = parsed.data.locale?.toLowerCase();
+
   try {
     await recordMenuView.execute({
       slug: parsed.data.slug,
       userAgent,
-      locale: parsed.data.locale?.toLowerCase() ?? "fr",
+      locale: rawLocale && isMenuLocale(rawLocale) ? rawLocale : "fr",
       utmSource: parsed.data.source,
-      referrer: referer,
+      referrer: parsed.data.referrer,
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {

@@ -14,7 +14,6 @@ import type { AllergenLabels } from "@/interface/ui/components/AllergenIcons";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaSnapshotRepository } from "@/infrastructure/snapshot/PrismaSnapshotRepository";
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
-import { TrackingBeacon } from "@/interface/ui/components/menu-template";
 import {
   PublicMenuClient,
   type PublicMenuLabels,
@@ -261,13 +260,13 @@ export default async function PublicMenuPage({ params, searchParams }: Props) {
       />
       <PublicMenuClient
         snapshot={result.snapshot}
+        slug={slug}
         defaultLocale={defaultLocale}
         labelsByLocale={labelsByLocale}
         showWatermark={PlanPolicy.shouldShowWatermark(result.planTier)}
         showcaseTemplates={isDemoShowcase}
         initialTemplate={initialTemplate}
       />
-      <TrackingBeacon slug={slug} locale={locale} />
     </>
   );
 }

@@ -36,10 +36,16 @@ function getVisitorId(): string | null {
 export function trackLandingEvent({ event, locale, metadata }: TrackPayload) {
   const visitorId = getVisitorId();
   const mergedMetadata = { ...metadata, ...(visitorId ? { visitorId } : {}) };
+  // Référent de NAVIGATION (document.referrer) : le header Referer du POST est
+  // l'URL de la page émettrice — il classerait toute la landing en trafic « lien »
+  // auto-référentiel. Réduit au hostname côté serveur (sanitizeRefererToHost) ;
+  // tronqué ici à la borne Zod pour qu'une URL fleuve ne coûte pas l'événement.
+  const referrer = typeof document !== "undefined" ? document.referrer.slice(0, 2048) : "";
   const payload = JSON.stringify({
     type: "landing",
     event,
     locale: locale === "en" ? "en" : "fr",
+    ...(referrer ? { referrer } : {}),
     ...(Object.keys(mergedMetadata).length > 0 ? { metadata: mergedMetadata } : {}),
   });
 

@@ -921,7 +921,7 @@
   },
   "Privacy": {
     "title": "Privacy policy",
-    "lastUpdated": "Last updated: April 2026",
+    "lastUpdated": "Last updated: August 2026",
     "controller": {
       "title": "Data controller",
       "body": "Cartora is published by Cartora. For any questions about your personal data, contact us at contact@cartora.app."
@@ -941,8 +941,8 @@
         "body": "Your email is shared with Stripe during subscription. Stripe processes payment data (credit card) as a subprocessor. We do not store any banking information."
       },
       "analytics": {
-        "title": "Audience data (with consent)",
-        "body": "On public menu pages, and only with your consent, we collect: device type (inferred from User-Agent, not stored), browser language, and visit source (QR code, direct link). IP addresses are not stored."
+        "title": "Audience data (anonymous, consent-exempt)",
+        "body": "On public pages (menus and marketing site), we measure audience in a strictly anonymous way: device type (inferred from the User-Agent, not stored), the menu reading language, and the visit source (QR code, link, direct — referring domain reduced to its hostname for the marketing site). No IP address or identifier is stored and no cookie is set for this measurement; only a local session key (sessionStorage, cleared when the tab closes) prevents double counting. This measurement falls under the “audience measurement” exemption (Art. 82 of the French Data Protection Act, CNIL deliberation 2020-091)."
       },
       "technical": {
         "title": "Technical data (with consent)",
@@ -953,7 +953,7 @@
       "title": "Purposes of processing",
       "service": "Service delivery: account creation, menu management, publication, QR code",
       "payment": "Payment and subscription management via Stripe",
-      "analytics": "Anonymized audience measurement on public menus (with consent)",
+      "analytics": "Anonymous audience measurement on public pages — menus and marketing site (consent-exempt)",
       "security": "Security: rate limiting to prevent abuse (temporary IP, not stored)",
       "monitoring": "Technical error monitoring via Sentry (with consent on the browser side)"
     },
@@ -965,11 +965,11 @@
       },
       "legitimateInterest": {
         "label": "Legitimate interest (Art. 6(1)(f) GDPR):",
-        "body": "rate limiting (security), server-side monitoring (Sentry server-side)."
+        "body": "rate limiting (security), server-side monitoring (server-side Sentry), anonymous audience measurement on public pages (menus and marketing site)."
       },
       "consent": {
         "label": "Consent (Art. 6(1)(a) GDPR):",
-        "body": "visitor analytics, browser-side Sentry. You can withdraw your consent at any time via the \"Manage cookies\" button."
+        "body": "browser-side Sentry, and the anonymous session identifier attached to marketing-site events for journey analysis (sessionStorage, cleared when the tab closes, kept 30 days server-side). You can withdraw your consent at any time via the “Manage cookies” button."
       }
     },
     "recipients": {
@@ -1004,7 +1004,7 @@
         "label": "Consent cookie (cartora-consent)",
         "body": "Stores your acceptance or refusal of trackers. Duration: 13 months."
       },
-      "trackers": "Non-essential trackers (analytics, browser-side Sentry) are only activated after your explicit consent."
+      "trackers": "Consent-gated trackers are browser-side Sentry error monitoring and the session identifier used for journey analysis on the marketing site. Audience measurement (public menus and marketing site) is anonymous and consent-exempt; it only uses a local session key (sessionStorage), strictly necessary for view counting."
     },
     "rights": {
       "title": "Your rights",
@@ -1105,7 +1105,7 @@
   },
   "Consent": {
     "bannerTitle": "Cookies and trackers",
-    "bannerDescription": "We use trackers to analyze traffic and improve service stability. See our <privacyLink>privacy policy</privacyLink>.",
+    "bannerDescription": "Audience is measured anonymously, with no consent required. With your agreement, we additionally enable error monitoring (Sentry) and a session identifier to analyze journeys. See our <privacyLink>privacy policy</privacyLink>.",
     "accept": "Accept",
     "refuse": "Refuse",
     "manageCookies": "Manage cookies"
@@ -1127,7 +1127,10 @@
     },
     "locale": {
       "FR": "French",
-      "EN": "English"
+      "EN": "English",
+      "ES": "Spanish",
+      "DE": "German",
+      "IT": "Italian"
     },
     "empty": "No views yet",
     "topDevice": "Top device",

@@ -33,6 +33,17 @@ const dateFormatter = new Intl.DateTimeFormat("en-CA", {
 });
 
 /**
+ * Jour calendaire "YYYY-MM-DD" de `date` en {@link APP_TIMEZONE}. Sert de borne aux
+ * LECTURES d'agrégats quotidiens (`GetDashboardStats`) — même référentiel que
+ * l'écriture ({@link appCalendarDateUTC}), sans quoi les vues entre minuit Paris et
+ * minuit UTC seraient absentes du dashboard pendant 1 à 2 h chaque nuit.
+ */
+export function appCalendarDayISO(date: Date): string {
+  // en-CA formate en "YYYY-MM-DD".
+  return dateFormatter.format(date);
+}
+
+/**
  * Renvoie une `Date` à **minuit UTC** correspondant au jour calendaire de `date` en
  * {@link APP_TIMEZONE} — destinée à la colonne `@db.Date` des stats agrégées.
  *
@@ -41,7 +52,5 @@ const dateFormatter = new Intl.DateTimeFormat("en-CA", {
  * au bon jour calendaire local, et non au jour UTC.
  */
 export function appCalendarDateUTC(date: Date): Date {
-  // en-CA formate en "YYYY-MM-DD".
-  const ymd = dateFormatter.format(date);
-  return new Date(`${ymd}T00:00:00.000Z`);
+  return new Date(`${appCalendarDayISO(date)}T00:00:00.000Z`);
 }
