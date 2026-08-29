@@ -3,6 +3,7 @@ import { HandleStripeWebhook } from "./HandleStripeWebhook";
 import { createMockRestaurantRepo, restaurantFixture } from "./__fixtures__/restaurantRepoMock";
 import { createMockBillingRepo } from "./__fixtures__/billingRepoMock";
 import { createMockWebhookEventRepo } from "./__fixtures__/webhookEventRepoMock";
+import { createMockPaymentGateway } from "./__fixtures__/paymentGatewayMock";
 
 const STARTER_PRICE_ID = "price_starter_test_123";
 const PRO_PRICE_ID = "price_pro_test_456";
@@ -36,7 +37,12 @@ describe("HandleStripeWebhook", () => {
   it("processes checkout.session.completed for FREE restaurant (PRO priceId)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      freeRestaurantRepo(),
+      webhookEventRepo,
+      createMockPaymentGateway(),
+    );
 
     const result = await useCase.execute(VALID_INPUT);
 
@@ -62,6 +68,7 @@ describe("HandleStripeWebhook", () => {
       billingRepo,
       freeRestaurantRepo(),
       createMockWebhookEventRepo(),
+      createMockPaymentGateway(),
     );
 
     await useCase.execute({ ...VALID_INPUT, priceId: STARTER_PRICE_ID });
@@ -81,6 +88,7 @@ describe("HandleStripeWebhook", () => {
           restaurantFixture({ planStatus: "ACTIVE", planTier: "STARTER" }),
       }),
       createMockWebhookEventRepo(),
+      createMockPaymentGateway(),
     );
 
     const result = await useCase.execute({
@@ -102,6 +110,7 @@ describe("HandleStripeWebhook", () => {
       billingRepo,
       freeRestaurantRepo(),
       createMockWebhookEventRepo(),
+      createMockPaymentGateway(),
     );
 
     await useCase.execute({
@@ -125,6 +134,7 @@ describe("HandleStripeWebhook", () => {
           restaurantFixture({ planStatus: "ACTIVE", planTier: "STARTER" }),
       }),
       createMockWebhookEventRepo(),
+      createMockPaymentGateway(),
     );
 
     const result = await useCase.execute({
@@ -149,6 +159,7 @@ describe("HandleStripeWebhook", () => {
         getRestaurantById: async () => restaurantFixture({ planStatus: "ACTIVE", planTier: "PRO" }),
       }),
       createMockWebhookEventRepo(),
+      createMockPaymentGateway(),
     );
 
     const result = await useCase.execute({
@@ -167,7 +178,12 @@ describe("HandleStripeWebhook", () => {
   it("skips when priceId is unknown (broken Stripe config)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      freeRestaurantRepo(),
+      webhookEventRepo,
+      createMockPaymentGateway(),
+    );
 
     const result = await useCase.execute({
       ...VALID_INPUT,
@@ -177,13 +193,21 @@ describe("HandleStripeWebhook", () => {
     expect(result).toEqual({ status: "skipped", reason: "unknown_price_id" });
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
     expect(billingRepo.updateRestaurantPlan).not.toHaveBeenCalled();
-    expect(webhookEventRepo.markProcessed).toHaveBeenCalled();
+    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith(
+      "evt_test_123",
+      "checkout.session.completed",
+    );
   });
 
   it("skips unhandled event types", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      freeRestaurantRepo(),
+      webhookEventRepo,
+      createMockPaymentGateway(),
+    );
 
     const result = await useCase.execute({ ...VALID_INPUT, eventType: "customer.updated" });
 
@@ -196,7 +220,12 @@ describe("HandleStripeWebhook", () => {
   it("skips when transition is invalid (FREE → PAST_DUE)", async () => {
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
-    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      freeRestaurantRepo(),
+      webhookEventRepo,
+      createMockPaymentGateway(),
+    );
 
     const result = await useCase.execute({
       ...VALID_INPUT,
@@ -212,20 +241,92 @@ describe("HandleStripeWebhook", () => {
     );
   });
 
-  it("throws when restaurant not found", async () => {
+  it("compensates when restaurant not found: cancels sub + deletes customer, acks skipped", async () => {
+    // Cas nominal post-suppression de compte ET filet anti-orphelin (checkout complété
+    // après suppression) : personne ne doit rester facturé pour un compte disparu.
     const billingRepo = createMockBillingRepo();
     const webhookEventRepo = createMockWebhookEventRepo();
+    const paymentGateway = createMockPaymentGateway();
     const useCase = new HandleStripeWebhook(
       billingRepo,
       createMockRestaurantRepo({ getRestaurantById: async () => null }),
       webhookEventRepo,
+      paymentGateway,
     );
 
-    await expect(useCase.execute(VALID_INPUT)).rejects.toMatchObject({
-      name: "DomainError",
-      code: "restaurant_not_found",
-    });
+    const result = await useCase.execute(VALID_INPUT);
+
+    expect(result).toEqual({ status: "skipped", reason: "restaurant_not_found" });
+    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
+    expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
     expect(billingRepo.upsertBilling).not.toHaveBeenCalled();
+    expect(billingRepo.updateRestaurantPlan).not.toHaveBeenCalled();
+    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith(
+      "evt_test_123",
+      "checkout.session.completed",
+    );
+  });
+
+  it("compensates even on customer.subscription.deleted (idempotent mop-up of partial cleanup)", async () => {
+    const paymentGateway = createMockPaymentGateway();
+    const webhookEventRepo = createMockWebhookEventRepo();
+    const useCase = new HandleStripeWebhook(
+      createMockBillingRepo(),
+      createMockRestaurantRepo({ getRestaurantById: async () => null }),
+      webhookEventRepo,
+      paymentGateway,
+    );
+
+    const result = await useCase.execute({
+      ...VALID_INPUT,
+      eventType: "customer.subscription.deleted",
+    });
+
+    expect(result).toEqual({ status: "skipped", reason: "restaurant_not_found" });
+    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
+    expect(paymentGateway.deleteCustomer).toHaveBeenCalledWith("cus_abc123");
+    expect(webhookEventRepo.markProcessed).toHaveBeenCalledWith(
+      "evt_test_123",
+      "customer.subscription.deleted",
+    );
+  });
+
+  it("propagates compensation failure WITHOUT marking processed (Stripe retries, compensation re-runs)", async () => {
+    const webhookEventRepo = createMockWebhookEventRepo();
+    const useCase = new HandleStripeWebhook(
+      createMockBillingRepo(),
+      createMockRestaurantRepo({ getRestaurantById: async () => null }),
+      webhookEventRepo,
+      createMockPaymentGateway({
+        cancelSubscription: vi.fn(async () => {
+          throw new Error("Stripe API down");
+        }),
+      }),
+    );
+
+    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow("Stripe API down");
+    expect(webhookEventRepo.markProcessed).not.toHaveBeenCalled();
+  });
+
+  it("propagates deleteCustomer compensation failure AFTER cancel succeeded — event stays unprocessed", async () => {
+    // Épingle l'ordre cancel → deleteCustomer → markProcessed : si markProcessed passait
+    // avant deleteCustomer, la re-livraison Stripe taperait le guard duplicate et le
+    // customer (avec moyen de paiement) ne serait jamais supprimé.
+    const webhookEventRepo = createMockWebhookEventRepo();
+    const paymentGateway = createMockPaymentGateway({
+      deleteCustomer: vi.fn(async () => {
+        throw new Error("Stripe API down");
+      }),
+    });
+    const useCase = new HandleStripeWebhook(
+      createMockBillingRepo(),
+      createMockRestaurantRepo({ getRestaurantById: async () => null }),
+      webhookEventRepo,
+      paymentGateway,
+    );
+
+    await expect(useCase.execute(VALID_INPUT)).rejects.toThrow("Stripe API down");
+    expect(paymentGateway.cancelSubscription).toHaveBeenCalledWith("sub_xyz789");
     expect(webhookEventRepo.markProcessed).not.toHaveBeenCalled();
   });
 
@@ -234,7 +335,12 @@ describe("HandleStripeWebhook", () => {
     const webhookEventRepo = createMockWebhookEventRepo({
       isAlreadyProcessed: vi.fn(async () => true),
     });
-    const useCase = new HandleStripeWebhook(billingRepo, freeRestaurantRepo(), webhookEventRepo);
+    const useCase = new HandleStripeWebhook(
+      billingRepo,
+      freeRestaurantRepo(),
+      webhookEventRepo,
+      createMockPaymentGateway(),
+    );
 
     const result = await useCase.execute(VALID_INPUT);
 

@@ -320,11 +320,13 @@
     },
     "deleteAccount": "Delete my account",
     "deleteAccountConfirmTitle": "Delete your account?",
-    "deleteAccountConfirmDescription": "This action is irreversible. All your data, menu and subscription will be deleted.",
+    "deleteAccountConfirmDescription": "This action is irreversible: all your data and your menu will be permanently deleted. If you have an active subscription, it will be cancelled immediately, with no refund for the period already paid.",
     "deleteAccountConfirmWord": "DELETE",
     "deleteAccountConfirmLabel": "Type {word} to confirm",
     "deleteAccountConfirmButton": "Delete permanently",
+    "deleteAccountDeleting": "Deleting…",
     "deleteAccountError": "An error occurred while deleting your account.",
+    "deleteAccountStripeError": "We could not cancel your subscription. Nothing has been deleted — please try again in a few moments.",
     "dailyDishes": {
       "title": "Today's dishes",
       "add": "Add today's dish",
@@ -458,7 +460,7 @@
     "sectionTitle": "Subscription",
     "sectionDescription": "Manage your plan and payment details.",
     "freeBadge": "Free",
-    "freeDescription": "Upgrade to Pro to publish your menu.",
+    "freeDescription": "Subscribe (from €9.90/month) to publish your menu.",
     "activeDescription": "Your Pro subscription is active.",
     "manageSubscription": "Manage subscription",
     "pastDueTitle": "Payment failed",
@@ -698,11 +700,11 @@
         },
         "dataHosting": {
           "q": "Where is my restaurant’s data stored?",
-          "a": "On Supabase, in France and Germany — exclusively within the European Union. Your data never leaves the EU. You can export or delete it at any time from your account."
+          "a": "On Supabase, in France and Germany — exclusively within the European Union. Your menu data never leaves the EU. You can export or delete it at any time from your account (except billing data, retained under a legal obligation — see the privacy policy)."
         },
         "cancel": {
           "q": "How do I cancel?",
-          "a": "From your account, in one click. Cancellation is immediate, with no fee and no justification required. You keep free-tier access afterwards."
+          "a": "From your account, in one click, with no fee and no justification required. Your subscription stops at the end of the current period — you keep paid access until then, and free-tier access afterwards."
         },
         "supportFr": {
           "q": "Is there French support?",
@@ -748,6 +750,7 @@
     "ownership_mismatch": "Action not allowed",
     "unauthorized": "Action not allowed",
     "restaurant_not_found": "Restaurant not found",
+    "stripe_cleanup_failed": "We could not cancel your subscription. Nothing has been deleted — please try again in a few moments.",
     "menu_not_found": "Menu not found",
     "item_not_found": "Item not found",
     "category_not_found": "Category not found",
@@ -984,6 +987,8 @@
     "retention": {
       "title": "Retention periods",
       "account": "Account data: lifetime of the account. Deleted in cascade when the account is deleted.",
+      "billing": "Billing data (invoices, payment history at Stripe): 10 years from the end of the fiscal year, including after account deletion (legal accounting obligation, art. L123-22 of the French Commercial Code).",
+      "sentry": "Error reports (Sentry): 90 days maximum, automatically purged by Sentry.",
       "analytics": "Raw analytics events: 30 days (automatic daily purge)",
       "analyticsAggregates": "Daily analytics aggregates: 24 months",
       "webhookEvents": "Webhook events (Stripe idempotency): 90 days",
@@ -1011,7 +1016,7 @@
       "intro": "Under the GDPR, you have the following rights:",
       "access": "Right of access: obtain a copy of your personal data",
       "rectification": "Right to rectification: correct inaccurate data",
-      "erasure": "Right to erasure: delete your account and all your data",
+      "erasure": "Right to erasure: delete your account and all your data, except billing data subject to a legal retention obligation",
       "restriction": "Right to restriction of processing",
       "portability": "Right to data portability: download your data in a structured format (JSON)",
       "objection": "Right to object",
@@ -1072,11 +1077,11 @@
     },
     "service": {
       "title": "Service description",
-      "body": "Cartora lets you create a digital menu, publish it online, and generate a QR code to share it. The free plan includes menu creation with a watermark. The Pro plan allows publishing without watermark and access to the QR code."
+      "body": "Cartora lets you create a digital menu, publish it online, and generate a QR code to share it. The free plan includes menu creation with a watermark, without publishing. The Starter and Pro plans allow publishing without watermark and access to the QR code; the Pro plan additionally includes premium designs and automatic menu translation."
     },
     "pricing": {
       "title": "Pricing and payment",
-      "body": "The Pro plan is billed monthly. Payments are processed by Stripe. The subscription can be canceled at any time from the billing portal. In case of non-payment, access to Pro features is suspended."
+      "body": "Cartora offers two monthly subscriptions: Starter (€9.90 incl. VAT/month) and Pro (€29.90 incl. VAT/month). Payments are processed by Stripe. The subscription can be canceled at any time from the billing portal; cancellation then takes effect at the end of the current period, with no prorated refund. In case of non-payment, menu publication may be suspended."
     },
     "obligations": {
       "title": "User obligations",
@@ -1092,7 +1097,7 @@
     },
     "termination": {
       "title": "Termination and deletion",
-      "body": "You can delete your account at any time from settings. Deletion is immediate and irreversible: all your data, menu and subscription are deleted. Cartora reserves the right to suspend or delete an account in case of violation of these terms."
+      "body": "You can delete your account at any time from settings. Deletion is immediate and irreversible: all your data and your menu are deleted, and any active subscription is cancelled immediately, with no refund for the current period. Billing data is retained in accordance with legal accounting obligations (see the privacy policy). Cartora reserves the right to suspend or delete an account in case of violation of these terms."
     },
     "law": {
       "title": "Applicable law",

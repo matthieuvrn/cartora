@@ -3,7 +3,10 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { prisma } from "@/infrastructure/db/prisma";
-import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGateway";
+import {
+  StripePaymentGateway,
+  isSignatureVerificationError,
+} from "@/infrastructure/stripe/StripePaymentGateway";
 import { PrismaBillingRepository } from "@/infrastructure/billing/PrismaBillingRepository";
 import { PrismaWebhookEventRepository } from "@/infrastructure/billing/PrismaWebhookEventRepository";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
@@ -14,7 +17,12 @@ const paymentGateway = new StripePaymentGateway();
 const billingRepo = new PrismaBillingRepository(prisma);
 const webhookEventRepo = new PrismaWebhookEventRepository(prisma);
 const restaurantRepo = new PrismaRestaurantRepository(prisma);
-const handleWebhook = new HandleStripeWebhook(billingRepo, restaurantRepo, webhookEventRepo);
+const handleWebhook = new HandleStripeWebhook(
+  billingRepo,
+  restaurantRepo,
+  webhookEventRepo,
+  paymentGateway,
+);
 
 const isDev = () => process.env.NODE_ENV !== "production";
 
@@ -25,12 +33,16 @@ function jsonError(status: number, code: string) {
 /**
  * Webhook Stripe.
  *
- * Convention de retry :
- *  - **400** ⇒ non-retriable. Stripe arrête. À utiliser pour : signature invalide,
- *    champs requis manquants, restaurantId inconnu, payload malformé.
- *  - **200** ⇒ succès, duplicate, ou skipped (transition non applicable, price inconnu, …).
- *  - **500** ⇒ retriable. Stripe retry pendant ~3 jours. Réservé aux pannes
- *    transitoires (DB timeout, Stripe API momentanément indispo).
+ * Convention de réponse — ATTENTION à la sémantique réelle de Stripe : Stripe re-livre
+ * TOUT non-2xx (backoff exponentiel, ~3 jours), il n'existe PAS de statut « non-retriable ».
+ *  - **200** ⇒ acquitté (succès, duplicate, ou skipped : transition non applicable, price
+ *    inconnu, restaurant supprimé après compensation). Tout état FINAL connu doit répondre
+ *    200, sinon il génère 3 jours de retries + bruit Sentry pour rien.
+ *  - **500** ⇒ panne transitoire (DB timeout, Stripe API indispo) : le retry Stripe est
+ *    précisément ce qu'on veut.
+ *  - **400** ⇒ payload qu'on ne traitera JAMAIS (signature invalide, champs manquants,
+ *    restaurantId malformé). Stripe le re-livrera quand même ~3 jours puis abandonnera —
+ *    bruit borné et visible dans le dashboard Stripe, c'est voulu (signal de désync).
  *
  * Tous les Sentry captures héritent du scope (event id, type, restaurantId, …).
  */
@@ -45,9 +57,18 @@ export async function POST(request: NextRequest) {
   let event;
   try {
     event = paymentGateway.verifyWebhookSignature(payload, signature);
-  } catch {
-    // Signature falsifiée — ne pas logger en Sentry (potentiel bruit / abus).
-    return jsonError(400, "invalid_signature");
+  } catch (error) {
+    if (isSignatureVerificationError(error)) {
+      // Signature falsifiée — ne pas logger en Sentry (potentiel bruit / abus).
+      return jsonError(400, "invalid_signature");
+    }
+    // Tout le reste est une panne/misconfig (ex: STRIPE_WEBHOOK_SECRET absent), pas une
+    // attaque : Sentry + 500 retriable — surtout pas un 400 silencieux qui gèlerait la
+    // sync billing sans aucun signal.
+    Sentry.captureException(error, {
+      tags: { handler: "stripeWebhook", phase: "verifySignature" },
+    });
+    return jsonError(500, "signature_verification_unavailable");
   }
 
   return Sentry.withScope(async (scope) => {
@@ -106,8 +127,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(result);
     } catch (error) {
       if (isDomainError(error)) {
-        // DomainError ⇒ erreur attendue côté domaine (restaurant inconnu, …),
-        // non-retriable. 400 + Sentry pour visibilité.
+        // DomainError ⇒ état métier qu'on ne traitera jamais (filet de sécurité — le cas
+        // restaurant supprimé est désormais compensé + 200 dans le use case). 400 + Sentry.
         Sentry.captureException(error, {
           tags: { phase: "useCase", domainCode: error.code },
           level: "warning",

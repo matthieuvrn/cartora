@@ -75,6 +75,8 @@ export default async function PrivacyPage() {
       <h2>{t("retention.title")}</h2>
       <ul>
         <li>{t("retention.account")}</li>
+        <li>{t("retention.billing")}</li>
+        <li>{t("retention.sentry")}</li>
         <li>{t("retention.analytics")}</li>
         <li>{t("retention.analyticsAggregates")}</li>
         <li>{t("retention.webhookEvents")}</li>

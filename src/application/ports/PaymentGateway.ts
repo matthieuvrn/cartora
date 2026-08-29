@@ -48,6 +48,12 @@ export interface PaymentGateway {
    * confirmer le tier depuis Stripe en cas de désynchronisation soupçonnée.
    */
   fetchSubscriptionPriceId(subscriptionId: string): Promise<string | null>;
+  /**
+   * Résiliation IMMÉDIATE (pas fin de période). Contrat : idempotent — une subscription
+   * déjà résiliée ou inexistante est un succès silencieux, pas une erreur. Les deux
+   * consommateurs (DeleteRestaurant, compensation webhook) peuvent donc réessayer sans risque.
+   */
   cancelSubscription(subscriptionId: string): Promise<void>;
+  /** Même contrat d'idempotence : un customer déjà supprimé/inexistant est un succès. */
   deleteCustomer(customerId: string): Promise<void>;
 }

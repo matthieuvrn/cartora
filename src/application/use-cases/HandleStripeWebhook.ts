@@ -1,9 +1,9 @@
 import type { BillingRepository } from "@/application/ports/BillingRepository";
+import type { PaymentGateway } from "@/application/ports/PaymentGateway";
 import type { RestaurantRepository } from "@/application/ports/RestaurantRepository";
 import type { WebhookEventRepository } from "@/application/ports/WebhookEventRepository";
 import { BillingPolicy } from "@/domain/billing/BillingPolicy";
 import { PlanPolicy, type PlanTier } from "@/domain/billing/PlanPolicy";
-import { DomainError } from "@/domain/errors/DomainError";
 
 export type HandleStripeWebhookInput = {
   stripeEventId: string;
@@ -25,6 +25,7 @@ export class HandleStripeWebhook {
     private readonly billingRepo: BillingRepository,
     private readonly restaurantRepo: RestaurantRepository,
     private readonly webhookEventRepo: WebhookEventRepository,
+    private readonly paymentGateway: PaymentGateway,
   ) {}
 
   async execute(input: HandleStripeWebhookInput): Promise<HandleStripeWebhookOutput> {
@@ -41,9 +42,18 @@ export class HandleStripeWebhook {
 
     const restaurant = await this.restaurantRepo.getRestaurantById(input.restaurantId);
     if (!restaurant) {
-      // Throw une DomainError ⇒ le route handler la mappe à un 400 (non-retriable),
-      // Stripe arrête de retry sur un restaurant qui n'existe plus côté Cartora.
-      throw new DomainError("restaurant_not_found", { entityId: input.restaurantId });
+      // Restaurant supprimé côté Cartora mais Stripe référence encore un abonnement/customer :
+      // cas nominal après une suppression de compte (le customer.subscription.deleted arrive
+      // après le DELETE), et cas orphelin (checkout complété après suppression, ou cleanup
+      // Stripe partiel). COMPENSATION : on résilie l'abonnement et on supprime le customer —
+      // les deux appels sont idempotents (contrat du port), donc sans effet sur un abonnement
+      // déjà résilié, et personne ne peut être facturé pour un compte qui n'existe plus.
+      // Un échec transitoire ici PROPAGE (⇒ 500, Stripe re-livre, la compensation est réessayée) ;
+      // markProcessed n'est appelé qu'après compensation réussie pour la même raison.
+      await this.paymentGateway.cancelSubscription(input.stripeSubscriptionId);
+      await this.paymentGateway.deleteCustomer(input.stripeCustomerId);
+      await this.webhookEventRepo.markProcessed(input.stripeEventId, input.eventType);
+      return { status: "skipped", reason: "restaurant_not_found" };
     }
 
     const transition = BillingPolicy.checkTransition(restaurant.planStatus, resolved.status);

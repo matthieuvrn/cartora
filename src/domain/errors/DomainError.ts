@@ -59,6 +59,9 @@ export type DomainErrorCode =
   // Billing
   | "billing_missing"
   | "use_portal_to_change_plan"
+  // Suppression de compte : la résiliation Stripe a échoué ⇒ RIEN n'a été supprimé
+  // (invariant de DeleteRestaurant — jamais de destruction locale avant nettoyage Stripe).
+  | "stripe_cleanup_failed"
   | "template_not_allowed"
   | "daily_dishes_not_allowed"
   | "formula_not_allowed"

@@ -45,7 +45,7 @@ export class PlanPolicy {
   /**
    * Templates de rendu autorisés par tier. La règle vit dans `TEMPLATE_META`
    * (domaine) : `requiredTier === "FREE"` ⇒ sélectionnable par tous (set 2026 : la
-   * **Base** CLASSIC + CARTORA), sinon réservé au tier PRO (les 5 templates premium).
+   * **Base** CLASSIC + CARTORA), sinon réservé au tier PRO (les 7 templates premium).
    * Le « payant pour publier » est porté par `canPublish`, pas par ce gate — un FREE
    * peut sélectionner/prévisualiser une Base, mais ne peut pas publier. Lecture du meta
    * domaine plutôt que du registry interface (React) pour ne pas violer `domain → interface`.

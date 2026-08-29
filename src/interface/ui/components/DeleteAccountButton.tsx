@@ -26,10 +26,16 @@ export function DeleteAccountButton() {
   const isConfirmed = confirmText === confirmWord;
 
   function handleSubmit() {
+    setError(null);
     startTransition(async () => {
       const result = await deleteAccountAction();
       if (result?.error) {
-        setError(t("deleteAccountError"));
+        // stripe_cleanup_failed ⇒ rien n'a été supprimé, réessayer suffit (message dédié).
+        setError(
+          result.error === "stripe_cleanup_failed"
+            ? t("deleteAccountStripeError")
+            : t("deleteAccountError"),
+        );
       }
     });
   }
@@ -56,20 +62,30 @@ export function DeleteAccountButton() {
           <DialogDescription>{t("deleteAccountConfirmDescription")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <label className="text-sm font-medium">
+          <label htmlFor="delete-account-confirm" className="text-sm font-medium">
             {t("deleteAccountConfirmLabel", { word: confirmWord })}
           </label>
           <Input
+            id="delete-account-confirm"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={confirmWord}
             disabled={isPending}
           />
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
         </div>
         <DialogFooter>
-          <Button variant="destructive" disabled={!isConfirmed || isPending} onClick={handleSubmit}>
-            {isPending ? "..." : t("deleteAccountConfirmButton")}
+          <Button
+            variant="destructive"
+            disabled={!isConfirmed || isPending}
+            aria-busy={isPending}
+            onClick={handleSubmit}
+          >
+            {isPending ? t("deleteAccountDeleting") : t("deleteAccountConfirmButton")}
           </Button>
         </DialogFooter>
       </DialogContent>

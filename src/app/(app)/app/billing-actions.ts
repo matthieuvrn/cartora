@@ -155,16 +155,35 @@ export async function deleteAccountAction(): Promise<{ error: string | null }> {
 
     if (result.errors.length > 0) {
       console.error(`[deleteAccount] ${result.errors.length} partial cleanup error(s), see Sentry`);
+      // restaurantId + ownerUserId sont indispensables ici : les lignes DB sont déjà
+      // cascadées, cet event Sentry est la SEULE clé de pivot pour le nettoyage manuel
+      // (ex: `supabase auth admin delete-user <ownerUserId>` si deleteUser a échoué).
       Sentry.captureMessage("deleteAccount.partialCleanup", {
         level: "warning",
         tags: { action: "deleteAccount" },
-        extra: { errorCount: result.errors.length, errors: result.errors },
+        extra: {
+          errorCount: result.errors.length,
+          errors: result.errors,
+          restaurantId: restaurant.id,
+          ownerUserId: user.id,
+        },
       });
     }
   } catch (e) {
     unstable_rethrow(e);
+    if (isDomainError(e) && e.code === "stripe_cleanup_failed") {
+      // Résiliation Stripe impossible ⇒ RIEN n'a été supprimé (invariant DeleteRestaurant).
+      // L'UI affiche un message dédié « réessayez » — le retry converge (appels idempotents).
+      Sentry.captureException(e, {
+        tags: { action: "deleteAccount", domainCode: e.code },
+        extra: { restaurantId: restaurant.id, ownerUserId: user.id },
+        level: "warning",
+      });
+      return { error: "stripe_cleanup_failed" };
+    }
     Sentry.captureException(e, {
       tags: { action: "deleteAccount" },
+      extra: { restaurantId: restaurant.id, ownerUserId: user.id },
     });
     return { error: "delete_failed" };
   }

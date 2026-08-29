@@ -16,9 +16,35 @@ type StripeSubscriptionLike = {
 type StripeInvoiceLike = {
   customer?: string;
   subscription?: string;
-  parent?: { subscription_details?: { subscription?: string } };
-  lines?: { data?: { price?: { id?: string }; subscription?: string }[] };
+  parent?: {
+    subscription_details?: { subscription?: string; metadata?: Record<string, string> };
+  };
+  lines?: {
+    data?: {
+      /** Chemin legacy (< Basil) — conservé en fallback pour d'éventuels replays anciens. */
+      price?: { id?: string };
+      /** Chemin Basil (stripe@22) : le price id vit sous pricing.price_details.price. */
+      pricing?: { price_details?: { price?: string } };
+      subscription?: string;
+    }[];
+  };
 };
+
+/** Erreur Stripe « la ressource n'existe pas/plus » — code stable du SDK, pas un message. */
+function isResourceMissing(error: unknown): boolean {
+  return (
+    error instanceof Stripe.errors.StripeInvalidRequestError && error.code === "resource_missing"
+  );
+}
+
+/**
+ * Vraie signature falsifiée (à distinguer d'une panne/misconfig dans la route webhook :
+ * seule la falsification mérite un 400 silencieux — le reste doit être visible et retriable).
+ * Exporté ici pour garder la connaissance du SDK dans l'adapter.
+ */
+export function isSignatureVerificationError(error: unknown): boolean {
+  return error instanceof Stripe.errors.StripeSignatureVerificationError;
+}
 
 type StripeCheckoutSessionLike = {
   customer?: string;
@@ -27,8 +53,20 @@ type StripeCheckoutSessionLike = {
 };
 
 export class StripePaymentGateway implements PaymentGateway {
-  private readonly stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  // Client lazy : la clé n'est lue qu'au premier appel Stripe effectif. Une clé absente
+  // ne doit pas faire échouer les flux qui n'ont rien à faire côté Stripe (ex. suppression
+  // d'un compte FREE sans billing — le droit à l'effacement ne dépend pas de la config billing).
+  private stripeClient: Stripe | null = null;
   private readonly webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+  private get stripe(): Stripe {
+    if (!this.stripeClient) {
+      const key = process.env.STRIPE_SECRET_KEY;
+      if (!key) throw new Error("STRIPE_SECRET_KEY not configured");
+      this.stripeClient = new Stripe(key);
+    }
+    return this.stripeClient;
+  }
 
   private priceIdFor(tier: PlanTier): string {
     if (tier === "STARTER") {
@@ -90,7 +128,10 @@ export class StripePaymentGateway implements PaymentGateway {
   }
 
   verifyWebhookSignature(payload: string, signature: string): StripeWebhookEvent {
-    const event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
+    // API STATIQUE, sans clé : la vérification n'a besoin que du webhook secret. Ne PAS
+    // passer par le getter lazy — une STRIPE_SECRET_KEY absente se déguiserait en
+    // « signature invalide » (400 silencieux) et gèlerait toute la sync billing sans signal.
+    const event = Stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
     return this.normalizeEvent(event);
   }
 
@@ -101,11 +142,29 @@ export class StripePaymentGateway implements PaymentGateway {
   }
 
   async cancelSubscription(subscriptionId: string): Promise<void> {
-    await this.stripe.subscriptions.cancel(subscriptionId);
+    let status: string;
+    try {
+      status = (await this.stripe.subscriptions.retrieve(subscriptionId)).status;
+    } catch (error) {
+      if (isResourceMissing(error)) return;
+      throw error;
+    }
+    if (status === "canceled" || status === "incomplete_expired") return;
+    try {
+      await this.stripe.subscriptions.cancel(subscriptionId);
+    } catch (error) {
+      if (isResourceMissing(error)) return;
+      throw error;
+    }
   }
 
   async deleteCustomer(customerId: string): Promise<void> {
-    await this.stripe.customers.del(customerId);
+    try {
+      await this.stripe.customers.del(customerId);
+    } catch (error) {
+      if (isResourceMissing(error)) return;
+      throw error;
+    }
   }
 
   /**
@@ -152,6 +211,12 @@ export class StripePaymentGateway implements PaymentGateway {
     if (event.type === "invoice.paid" || event.type === "invoice.payment_failed") {
       const invoice = obj as StripeInvoiceLike;
       out.customerId = typeof invoice.customer === "string" ? invoice.customer : null;
+      // Stripe v22+ (Basil) : la metadata de la subscription est recopiée sur l'invoice
+      // sous `parent.subscription_details.metadata`. Sans cette extraction, la route
+      // rejette TOUS les events invoice (champ requis manquant) et PAST_DUE devient
+      // inatteignable — les impayés passeraient inaperçus.
+      out.restaurantIdMetadata =
+        invoice.parent?.subscription_details?.metadata?.restaurantId ?? null;
       // Stripe v22+ : sur les invoices, la subscription est sous `parent.subscription_details.subscription`
       // ou sur chaque line_item (`lines.data[i].subscription`). On essaie plusieurs paths.
       out.subscriptionId =
@@ -159,7 +224,10 @@ export class StripePaymentGateway implements PaymentGateway {
         invoice.parent?.subscription_details?.subscription ??
         invoice.lines?.data?.[0]?.subscription ??
         null;
-      out.priceId = invoice.lines?.data?.[0]?.price?.id ?? null;
+      out.priceId =
+        invoice.lines?.data?.[0]?.pricing?.price_details?.price ??
+        invoice.lines?.data?.[0]?.price?.id ??
+        null;
       return out;
     }
 

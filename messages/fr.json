@@ -320,11 +320,13 @@
     },
     "deleteAccount": "Supprimer mon compte",
     "deleteAccountConfirmTitle": "Supprimer votre compte ?",
-    "deleteAccountConfirmDescription": "Cette action est irréversible. Toutes vos données, votre menu et votre abonnement seront supprimés.",
+    "deleteAccountConfirmDescription": "Cette action est irréversible : toutes vos données et votre menu seront définitivement supprimés. Si vous avez un abonnement en cours, il sera résilié immédiatement, sans remboursement de la période déjà payée.",
     "deleteAccountConfirmWord": "SUPPRIMER",
     "deleteAccountConfirmLabel": "Tapez {word} pour confirmer",
     "deleteAccountConfirmButton": "Supprimer définitivement",
+    "deleteAccountDeleting": "Suppression…",
     "deleteAccountError": "Une erreur est survenue lors de la suppression.",
+    "deleteAccountStripeError": "La résiliation de votre abonnement n’a pas pu aboutir. Aucune donnée n’a été supprimée — réessayez dans quelques instants.",
     "dailyDishes": {
       "title": "Plats du jour",
       "add": "Ajouter un plat du jour",
@@ -458,7 +460,7 @@
     "sectionTitle": "Abonnement",
     "sectionDescription": "Gérez votre formule et vos informations de paiement.",
     "freeBadge": "Gratuit",
-    "freeDescription": "Passez au plan Pro pour publier votre carte.",
+    "freeDescription": "Passez à un abonnement (dès 9,90 €/mois) pour publier votre carte.",
     "activeDescription": "Votre abonnement Pro est actif.",
     "manageSubscription": "Gérer mon abonnement",
     "pastDueTitle": "Paiement en échec",
@@ -698,11 +700,11 @@
         },
         "dataHosting": {
           "q": "Où sont stockées les données de mon restaurant ?",
-          "a": "Sur Supabase, en France et en Allemagne, exclusivement dans l’Union européenne. Vos données ne quittent jamais l’UE. Vous pouvez les exporter ou les supprimer à tout moment depuis votre compte."
+          "a": "Sur Supabase, en France et en Allemagne, exclusivement dans l’Union européenne. Vos données de menu ne quittent jamais l’UE. Vous pouvez les exporter ou les supprimer à tout moment depuis votre compte (hors données de facturation, conservées par obligation légale — voir la politique de confidentialité)."
         },
         "cancel": {
           "q": "Comment je résilie ?",
-          "a": "Depuis votre espace client, en un clic. La résiliation est immédiate, sans frais et sans justification à fournir. Vous gardez l’accès en mode gratuit."
+          "a": "Depuis votre espace client, en un clic, sans frais ni justification à fournir. Votre abonnement s’arrête à la fin de la période en cours — vous conservez l’accès payant jusqu’à cette date, puis vous passez en mode gratuit."
         },
         "supportFr": {
           "q": "Le support est-il en français ?",
@@ -748,6 +750,7 @@
     "ownership_mismatch": "Action non autorisée",
     "unauthorized": "Action non autorisée",
     "restaurant_not_found": "Restaurant introuvable",
+    "stripe_cleanup_failed": "La résiliation de votre abonnement n’a pas pu aboutir. Aucune donnée n’a été supprimée — réessayez dans quelques instants.",
     "menu_not_found": "Menu introuvable",
     "item_not_found": "Plat introuvable",
     "category_not_found": "Catégorie introuvable",
@@ -984,6 +987,8 @@
     "retention": {
       "title": "Durées de conservation",
       "account": "Données de compte : durée de vie du compte. Supprimées en cascade lors de la suppression du compte.",
+      "billing": "Données de facturation (factures, historique de paiement chez Stripe) : 10 ans à compter de la clôture de l’exercice, y compris après suppression du compte (obligation légale comptable, art. L123-22 du Code de commerce).",
+      "sentry": "Rapports d’erreurs (Sentry) : 90 jours maximum, purge automatique côté Sentry.",
       "analytics": "Événements analytics bruts : 30 jours (purge automatique quotidienne)",
       "analyticsAggregates": "Agrégats analytics journaliers : 24 mois",
       "webhookEvents": "Événements webhook (idempotence Stripe) : 90 jours",
@@ -1011,7 +1016,7 @@
       "intro": "Conformément au RGPD, vous disposez des droits suivants :",
       "access": "Droit d’accès : obtenir une copie de vos données personnelles",
       "rectification": "Droit de rectification : corriger des données inexactes",
-      "erasure": "Droit à l’effacement : supprimer votre compte et toutes vos données",
+      "erasure": "Droit à l’effacement : supprimer votre compte et toutes vos données, à l’exception des données de facturation soumises à une obligation légale de conservation",
       "restriction": "Droit à la limitation du traitement",
       "portability": "Droit à la portabilité : télécharger vos données dans un format structuré (JSON)",
       "objection": "Droit d’opposition",
@@ -1072,11 +1077,11 @@
     },
     "service": {
       "title": "Description du service",
-      "body": "Cartora permet de créer un menu numérique, de le publier en ligne, et de générer un QR code pour le partager. Le plan gratuit inclut la création du menu avec un filigrane. Le plan Pro permet la publication sans filigrane et l’accès au QR code."
+      "body": "Cartora permet de créer un menu numérique, de le publier en ligne, et de générer un QR code pour le partager. Le plan gratuit inclut la création du menu avec un filigrane, sans publication. Les abonnements Starter et Pro permettent la publication du menu sans filigrane et l’accès au QR code ; le plan Pro ajoute notamment les designs premium et la traduction automatique du menu."
     },
     "pricing": {
       "title": "Tarifs et paiement",
-      "body": "Le plan Pro est facturé mensuellement. Le paiement est géré par Stripe. L’abonnement est résiliable à tout moment depuis le portail de facturation. En cas de non-paiement, l’accès aux fonctionnalités Pro est suspendu."
+      "body": "Cartora propose deux abonnements mensuels : Starter (9,90 € TTC/mois) et Pro (29,90 € TTC/mois). Le paiement est géré par Stripe. L’abonnement est résiliable à tout moment depuis le portail de facturation ; la résiliation prend alors effet à la fin de la période en cours, sans remboursement au prorata. En cas de non-paiement, la publication du menu peut être suspendue."
     },
     "obligations": {
       "title": "Obligations de l’utilisateur",
@@ -1092,7 +1097,7 @@
     },
     "termination": {
       "title": "Résiliation et suppression",
-      "body": "Vous pouvez supprimer votre compte à tout moment depuis les paramètres. La suppression est immédiate et irréversible : toutes vos données, votre menu et votre abonnement sont supprimés. Cartora se réserve le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU."
+      "body": "Vous pouvez supprimer votre compte à tout moment depuis les paramètres. La suppression est immédiate et irréversible : toutes vos données et votre menu sont supprimés, et tout abonnement en cours est résilié immédiatement, sans remboursement de la période déjà entamée. Les données de facturation sont conservées conformément aux obligations légales comptables (voir la politique de confidentialité). Cartora se réserve le droit de suspendre ou supprimer un compte en cas de violation des présentes CGU."
     },
     "law": {
       "title": "Droit applicable",

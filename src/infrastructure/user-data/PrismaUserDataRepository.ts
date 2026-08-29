@@ -1,5 +1,9 @@
 import type { PrismaClient } from "@/generated/prisma/client";
-import type { UserDataExport, UserDataRepository } from "@/application/ports/UserDataRepository";
+import type {
+  ExportedTexts,
+  UserDataExport,
+  UserDataRepository,
+} from "@/application/ports/UserDataRepository";
 
 export class PrismaUserDataRepository implements UserDataRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -17,6 +21,8 @@ export class PrismaUserDataRepository implements UserDataRepository {
             },
           },
         },
+        dailyDishes: { orderBy: { order: "asc" } },
+        formulas: { orderBy: { order: "asc" } },
         billing: true,
       },
     });
@@ -25,22 +31,36 @@ export class PrismaUserDataRepository implements UserDataRepository {
       where: { restaurantId },
     });
 
-    // Index entityId → locale (minuscules) → field → value. Couvre toutes les langues
-    // (RGPD : on exporte l'intégralité du contenu saisi par l'utilisateur).
-    const itemTextsById = new Map<string, Record<string, { name: string; description: string }>>();
+    // Index (entityType, entityId) → locale (minuscules) → field → value. Couvre toutes
+    // les langues et TOUS les types d'entités (RGPD : on exporte l'intégralité du contenu
+    // saisi par l'utilisateur — items, catégories, plats du jour, formules).
+    const textsByEntity = new Map<string, ExportedTexts>();
     for (const t of translations) {
-      if (t.entityType !== "ITEM") continue;
       if (t.field !== "name" && t.field !== "description") continue;
+      const key = `${t.entityType}:${t.entityId}`;
       const locale = t.locale.toLowerCase();
-      let byLocale = itemTextsById.get(t.entityId);
+      let byLocale = textsByEntity.get(key);
       if (!byLocale) {
         byLocale = {};
-        itemTextsById.set(t.entityId, byLocale);
+        textsByEntity.set(key, byLocale);
       }
       const slot = (byLocale[locale] ??= { name: "", description: "" });
       if (t.field === "name") slot.name = t.value;
       else slot.description = t.value;
     }
+
+    const textsFor = (entityType: string, entityId: string): ExportedTexts =>
+      textsByEntity.get(`${entityType}:${entityId}`) ?? {};
+
+    // Nom de catégorie : la source vit sur `categories.name`, seules les langues cibles
+    // sont en table translations (field name uniquement).
+    const categoryNameTranslations = (categoryId: string): Record<string, string> => {
+      const out: Record<string, string> = {};
+      for (const [locale, slot] of Object.entries(textsFor("CATEGORY", categoryId))) {
+        if (slot.name) out[locale] = slot.name;
+      }
+      return out;
+    };
 
     const totalViews = await this.prisma.menuViewDailyStat.aggregate({
       where: { restaurantId },
@@ -62,24 +82,53 @@ export class PrismaUserDataRepository implements UserDataRepository {
         displayName: restaurant.displayName,
         slug: restaurant.slug,
         planStatus: restaurant.planStatus,
+        planTier: restaurant.planTier,
+        restaurantType: restaurant.restaurantType ?? null,
         createdAt: restaurant.createdAt.toISOString(),
         sourceLocale: restaurant.sourceLocale,
         menuLocales: restaurant.menuLocales,
+        logoPath: restaurant.logoPath ?? null,
+        brandColors: {
+          primary: restaurant.brandPrimary ?? null,
+          accent: restaurant.brandAccent ?? null,
+          background: restaurant.brandBackground ?? null,
+        },
+        qrStyle: restaurant.qrStyle ?? null,
       },
       menu: {
         status: restaurant.menu?.status ?? "DRAFT",
+        template: restaurant.menu?.template ?? "CLASSIC",
+        publishedAt: restaurant.menu?.publishedAt?.toISOString() ?? null,
         categories: restaurant.categories.map((cat) => ({
           name: cat.name,
+          nameTranslations: categoryNameTranslations(cat.id),
           items: cat.items.map((item) => ({
-            texts: itemTextsById.get(item.id) ?? {},
+            texts: textsFor("ITEM", item.id),
             priceCents: item.priceCents,
             badge: item.badge,
+            allergens: item.allergens,
             isAvailable: item.isAvailable,
           })),
         })),
+        dailyDishes: restaurant.dailyDishes.map((dish) => ({
+          texts: textsFor("DAILY_DISH", dish.id),
+          priceCents: dish.priceCents,
+          badge: dish.badge,
+          allergens: dish.allergens,
+          validUntil: dish.validUntil.toISOString(),
+        })),
+        formulas: restaurant.formulas.map((formula) => ({
+          texts: textsFor("FORMULA", formula.id),
+          priceCents: formula.priceCents,
+          validUntil: formula.validUntil.toISOString(),
+        })),
       },
       billing: restaurant.billing
-        ? { hasSubscription: restaurant.billing.stripeSubscriptionId !== null }
+        ? {
+            hasSubscription: restaurant.billing.stripeSubscriptionId !== null,
+            stripeCustomerId: restaurant.billing.stripeCustomerId,
+            stripeSubscriptionId: restaurant.billing.stripeSubscriptionId,
+          }
         : null,
       analytics: {
         totalViews: totalViews._sum.viewCount ?? 0,
