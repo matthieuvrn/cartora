@@ -3,7 +3,10 @@ import type { MenuLocale } from "@/domain/menu/MenuLocale";
 import { DomainError } from "@/domain/errors/DomainError";
 
 /**
- * Adaptateur DeepL API Free (`api-free.deepl.com`). Instancié PARESSEUSEMENT
+ * Adaptateur DeepL. Le host est déduit de la clé : les clés Free se terminent par
+ * `:fx` → `api-free.deepl.com`, les clés payantes → `api.deepl.com` (un host codé
+ * en dur casserait silencieusement en 403 le jour du passage au payant).
+ * Instancié PARESSEUSEMENT
  * dans l'action (jamais au top-level d'un module) pour que les builds CI sans
  * `DEEPL_API_KEY` n'échouent pas. La clé absente lève `translation_unavailable`
  * AVANT l'instanciation (cf. action).
@@ -23,7 +26,12 @@ const BATCH_SIZE = 50;
 const TIMEOUT_MS = 15_000;
 
 export class DeepLTranslationService implements TranslationService {
-  constructor(private readonly apiKey: string) {}
+  private readonly endpoint: string;
+
+  constructor(private readonly apiKey: string) {
+    const host = apiKey.endsWith(":fx") ? "api-free.deepl.com" : "api.deepl.com";
+    this.endpoint = `https://${host}/v2/translate`;
+  }
 
   async translateBatch(params: {
     sourceLocale: MenuLocale;
@@ -52,7 +60,7 @@ export class DeepLTranslationService implements TranslationService {
 
     let res: Response;
     try {
-      res = await fetch("https://api-free.deepl.com/v2/translate", {
+      res = await fetch(this.endpoint, {
         method: "POST",
         headers: {
           Authorization: `DeepL-Auth-Key ${this.apiKey}`,

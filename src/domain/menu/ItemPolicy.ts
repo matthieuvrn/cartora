@@ -4,6 +4,13 @@ export const MAX_ITEM_NAME_LENGTH = 100;
 export const MAX_ITEM_DESCRIPTION_LENGTH = 500;
 export const MIN_PRICE_CENTS = 0;
 export const MAX_PRICE_CENTS = 99999;
+/**
+ * Plafond DUR d'items par catégorie, tous tiers (anti-abus, pas un levier commercial :
+ * aucune carte réelle n'approche 100 plats par catégorie). Borne à la fois la taille
+ * du snapshot public (servi à chaque visite, frais DB/egress) et le volume traduisible
+ * par appel DeepL — même esprit que MAX_CATEGORIES (CategoryPolicy).
+ */
+export const MAX_ITEMS_PER_CATEGORY = 100;
 
 export type ItemBadge = "NONE" | "NEW" | "POPULAR";
 
@@ -32,6 +39,11 @@ export type Allergen = (typeof ALLERGEN_VALUES)[number];
 const ALLERGEN_SET: ReadonlySet<string> = new Set(ALLERGEN_VALUES);
 
 export class ItemPolicy {
+  /** `currentCount` = nombre d'items déjà présents dans la catégorie. */
+  static canAddItem(currentCount: number): boolean {
+    return currentCount < MAX_ITEMS_PER_CATEGORY;
+  }
+
   static validateName(value: string): ValidationFailure | null {
     const trimmed = value.trim();
     if (!trimmed) return { field: "name", code: "name_required" };

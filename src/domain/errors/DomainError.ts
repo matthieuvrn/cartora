@@ -20,6 +20,9 @@ export type DomainErrorCode =
 
   // Quotas (transportent `metadata.limit`, `metadata.current`, `metadata.tier`)
   | "max_categories"
+  // Plafond anti-abus d'items par catégorie (borne aussi la taille du snapshot public
+  // et le volume traduisible par appel DeepL) — dur, tous tiers.
+  | "max_items"
 
   // Collisions
   | "duplicate_name"
@@ -90,6 +93,8 @@ export type DomainErrorCode =
   | "translation_failed"
   | "translation_quota_exhausted"
   | "translation_rate_limited"
+  // Plafond quotidien durable (appels ou caractères) — cf. TranslationBudgetPolicy.
+  | "translation_daily_limit_reached"
   | "translation_unavailable"
 
   // Règles structurelles

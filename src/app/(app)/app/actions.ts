@@ -20,6 +20,8 @@ import { UpdateMenuLocales } from "@/application/use-cases/UpdateMenuLocales";
 import { AutoTranslateMenu } from "@/application/use-cases/AutoTranslateMenu";
 import { PrismaTranslationRepository } from "@/infrastructure/menu/PrismaTranslationRepository";
 import { DeepLTranslationService } from "@/infrastructure/translation/DeepLTranslationService";
+import { PrismaTranslationUsageRepository } from "@/infrastructure/translation/PrismaTranslationUsageRepository";
+import { DEFAULT_MONTHLY_CHAR_BUDGET } from "@/domain/menu/TranslationBudgetPolicy";
 import { createRateLimiter } from "@/infrastructure/rate-limit/createRateLimiter";
 import { SUPPORTED_MENU_LOCALES, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { MENU_TEMPLATE_VALUES } from "@/domain/menu/MenuTypes";
@@ -50,6 +52,16 @@ import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorage
 import * as Sentry from "@sentry/nextjs";
 import { withActionContext, type ActionError, type ActionState } from "@/lib/action-result";
 import { parsePriceEurToCents } from "@/lib/price";
+
+// Limiteur de rafale DeepL — AU NIVEAU MODULE, comme /api/track : instancié dans le
+// corps de l'action, le fallback InMemoryRateLimiter renaissait vide à CHAQUE requête
+// et ne bloquait jamais rien. Reste par-lambda sans Upstash ; le garde-fou durable est
+// le budget DB (TranslationBudgetPolicy + translation_usage) vérifié dans le use case.
+const autoTranslateRateLimiter = createRateLimiter({
+  prefix: "ratelimit:translate",
+  limit: 10,
+  windowSeconds: 600,
+});
 
 // ─── State ──────────────────────────────────────────────────────────────────
 //
@@ -899,13 +911,8 @@ export async function autoTranslateMenuAction(
       input: { targetLocale: parsed.data.targetLocale },
     },
     async () => {
-      // Rate-limit par restaurant (quota DeepL partagé) — pattern /api/track.
-      const limiter = createRateLimiter({
-        prefix: "ratelimit:translate",
-        limit: 10,
-        windowSeconds: 600,
-      });
-      const { success } = await limiter.check(restaurantId);
+      // Rate-limit de rafale par restaurant (quota DeepL partagé) — pattern /api/track.
+      const { success } = await autoTranslateRateLimiter.check(restaurantId);
       if (!success) throw new DomainError("translation_rate_limited");
 
       // Instanciation paresseuse du service DeepL : la clé absente lève une erreur
@@ -917,12 +924,22 @@ export async function autoTranslateMenuAction(
       const restaurantRepo = new PrismaRestaurantRepository(prisma);
       const translationRepo = new PrismaTranslationRepository(prisma);
       const service = new DeepLTranslationService(apiKey);
+      const usageRepo = new PrismaTranslationUsageRepository(prisma);
+
+      // Budget mensuel global : env prioritaire (clé DeepL payante ⇒ relever sans
+      // redéployer le code), sinon défaut aligné sur l'API Free (500k − marge).
+      const envBudget = Number(process.env.DEEPL_MONTHLY_CHAR_BUDGET);
+      const monthlyCharBudget =
+        Number.isFinite(envBudget) && envBudget > 0 ? envBudget : DEFAULT_MONTHLY_CHAR_BUDGET;
 
       const result = await new AutoTranslateMenu(
         menuRepo,
         restaurantRepo,
         translationRepo,
         service,
+        usageRepo,
+        new SystemClock(),
+        monthlyCharBudget,
       ).execute({ restaurantId, targetLocale: parsed.data.targetLocale });
 
       revalidatePath("/app");

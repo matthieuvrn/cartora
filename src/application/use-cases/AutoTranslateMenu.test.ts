@@ -8,8 +8,14 @@ import {
 import { createMockTranslationRepo } from "./__fixtures__/translationRepoMock";
 import { createMockTranslationService } from "./__fixtures__/translationServiceMock";
 import { hashSourceText } from "@/domain/menu/textHash";
+import {
+  MAX_TRANSLATE_CALLS_PER_DAY,
+  MAX_TRANSLATE_CHARS_PER_DAY,
+} from "@/domain/menu/TranslationBudgetPolicy";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { MenuOverview } from "@/domain/menu/MenuTypes";
+import type { Clock } from "@/application/ports/Clock";
+import type { TranslationUsageRepository } from "@/application/ports/TranslationUsageRepository";
 
 function menuFixture(overrides: Partial<MenuOverview> = {}): MenuOverview {
   return {
@@ -57,6 +63,21 @@ function menuRepoOf(menu: MenuOverview) {
   });
 }
 
+// 22h30 UTC le 30/08 = 00h30 Paris le 31/08 → prouve le bucketing jour PARIS du budget.
+const FIXED_NOW = "2026-08-30T22:30:00.000Z";
+const clock: Clock = { nowISO: () => FIXED_NOW };
+
+// Port étroit → mock local (convention __fixtures__ : pas de fixture partagée).
+function createMockUsageRepo(
+  overrides: Partial<TranslationUsageRepository> = {},
+): TranslationUsageRepository {
+  return {
+    getUsage: vi.fn(async () => ({ dayCalls: 0, dayChars: 0, monthCharsGlobal: 0 })),
+    recordUsage: vi.fn(async () => {}),
+    ...overrides,
+  };
+}
+
 describe("AutoTranslateMenu", () => {
   it("translates only missing/stale fields and writes fresh hashes (PRO)", async () => {
     const menu = menuFixture();
@@ -75,7 +96,14 @@ describe("AutoTranslateMenu", () => {
     });
     const service = createMockTranslationService();
     const menuRepo = menuRepoOf(menu);
-    const uc = new AutoTranslateMenu(menuRepo, restaurantRepoOf("PRO"), translationRepo, service);
+    const uc = new AutoTranslateMenu(
+      menuRepo,
+      restaurantRepoOf("PRO"),
+      translationRepo,
+      service,
+      createMockUsageRepo(),
+      clock,
+    );
 
     const result = await uc.execute({ restaurantId: "resto-1", targetLocale: "en" });
 
@@ -142,7 +170,15 @@ describe("AutoTranslateMenu", () => {
     });
     const service = createMockTranslationService();
     const menuRepo = menuRepoOf(menuFixture());
-    const uc = new AutoTranslateMenu(menuRepo, restaurantRepoOf("PRO"), translationRepo, service);
+    const usageRepo = createMockUsageRepo();
+    const uc = new AutoTranslateMenu(
+      menuRepo,
+      restaurantRepoOf("PRO"),
+      translationRepo,
+      service,
+      usageRepo,
+      clock,
+    );
 
     const result = await uc.execute({ restaurantId: "resto-1", targetLocale: "en" });
 
@@ -151,6 +187,9 @@ describe("AutoTranslateMenu", () => {
     expect(translationRepo.upsertMany).not.toHaveBeenCalled();
     // Rien n'a changé (tout à jour) → pas de re-brouillon inutile.
     expect(menuRepo.markMenuAsDraft).not.toHaveBeenCalled();
+    // No-op ⇒ le budget n'est ni lu ni consommé.
+    expect(usageRepo.getUsage).not.toHaveBeenCalled();
+    expect(usageRepo.recordUsage).not.toHaveBeenCalled();
   });
 
   it("rejects non-PRO tiers", async () => {
@@ -160,6 +199,8 @@ describe("AutoTranslateMenu", () => {
       restaurantRepoOf("STARTER"),
       createMockTranslationRepo(),
       service,
+      createMockUsageRepo(),
+      clock,
     );
 
     await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "en" })).rejects.toMatchObject(
@@ -174,6 +215,8 @@ describe("AutoTranslateMenu", () => {
       restaurantRepoOf("PRO"),
       createMockTranslationRepo(),
       createMockTranslationService(),
+      createMockUsageRepo(),
+      clock,
     );
 
     await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "es" })).rejects.toMatchObject(
@@ -196,10 +239,125 @@ describe("AutoTranslateMenu", () => {
       restaurantRepoOf("PRO"),
       createMockTranslationRepo(),
       service,
+      createMockUsageRepo(),
+      clock,
     );
 
     await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "en" })).rejects.toMatchObject(
       { code: "translation_quota_exhausted" },
     );
+  });
+
+  it("reserves durable usage before translating (calls + chars, Paris day)", async () => {
+    const usageRepo = createMockUsageRepo();
+    const service = createMockTranslationService();
+    const uc = new AutoTranslateMenu(
+      menuRepoOf(menuFixture()),
+      restaurantRepoOf("PRO"),
+      createMockTranslationRepo(),
+      service,
+      usageRepo,
+      clock,
+    );
+
+    await uc.execute({ restaurantId: "resto-1", targetLocale: "en" });
+
+    // 22h30 UTC le 30/08 = 31/08 à Paris — le jour applicatif, pas le jour UTC.
+    expect(usageRepo.getUsage).toHaveBeenCalledWith({
+      restaurantId: "resto-1",
+      day: "2026-08-31",
+      monthStart: "2026-08-01",
+    });
+    // "Entrées" (7) + "Salade" (6) + "Fraîche" (7) = 20 caractères réservés.
+    expect(usageRepo.recordUsage).toHaveBeenCalledWith({
+      restaurantId: "resto-1",
+      day: "2026-08-31",
+      calls: 1,
+      chars: 20,
+    });
+  });
+
+  it("blocks the call when the daily call cap is reached, without consuming anything", async () => {
+    const usageRepo = createMockUsageRepo({
+      getUsage: vi.fn(async () => ({
+        dayCalls: MAX_TRANSLATE_CALLS_PER_DAY,
+        dayChars: 0,
+        monthCharsGlobal: 0,
+      })),
+    });
+    const service = createMockTranslationService();
+    const translationRepo = createMockTranslationRepo();
+    const menuRepo = menuRepoOf(menuFixture());
+    const uc = new AutoTranslateMenu(
+      menuRepo,
+      restaurantRepoOf("PRO"),
+      translationRepo,
+      service,
+      usageRepo,
+      clock,
+    );
+
+    await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "en" })).rejects.toMatchObject(
+      {
+        name: "DomainError",
+        code: "translation_daily_limit_reached",
+        metadata: { limit: MAX_TRANSLATE_CALLS_PER_DAY },
+      },
+    );
+    expect(service.translateBatch).not.toHaveBeenCalled();
+    expect(usageRepo.recordUsage).not.toHaveBeenCalled();
+    expect(translationRepo.upsertMany).not.toHaveBeenCalled();
+    expect(menuRepo.markMenuAsDraft).not.toHaveBeenCalled();
+  });
+
+  it("blocks the call when the daily char cap would be exceeded", async () => {
+    const usageRepo = createMockUsageRepo({
+      getUsage: vi.fn(async () => ({
+        dayCalls: 0,
+        dayChars: MAX_TRANSLATE_CHARS_PER_DAY - 5, // la requête pèse 20 caractères
+        monthCharsGlobal: 0,
+      })),
+    });
+    const service = createMockTranslationService();
+    const uc = new AutoTranslateMenu(
+      menuRepoOf(menuFixture()),
+      restaurantRepoOf("PRO"),
+      createMockTranslationRepo(),
+      service,
+      usageRepo,
+      clock,
+    );
+
+    await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "en" })).rejects.toMatchObject(
+      {
+        name: "DomainError",
+        code: "translation_daily_limit_reached",
+        metadata: { limit: MAX_TRANSLATE_CHARS_PER_DAY },
+      },
+    );
+    expect(service.translateBatch).not.toHaveBeenCalled();
+    expect(usageRepo.recordUsage).not.toHaveBeenCalled();
+  });
+
+  it("blocks the call when the GLOBAL monthly budget is exhausted (env-injected)", async () => {
+    const usageRepo = createMockUsageRepo({
+      getUsage: vi.fn(async () => ({ dayCalls: 0, dayChars: 0, monthCharsGlobal: 95 })),
+    });
+    const service = createMockTranslationService();
+    const uc = new AutoTranslateMenu(
+      menuRepoOf(menuFixture()),
+      restaurantRepoOf("PRO"),
+      createMockTranslationRepo(),
+      service,
+      usageRepo,
+      clock,
+      100, // budget mensuel custom : 95 consommés + 20 demandés > 100
+    );
+
+    await expect(uc.execute({ restaurantId: "resto-1", targetLocale: "en" })).rejects.toMatchObject(
+      { name: "DomainError", code: "translation_quota_exhausted", metadata: { limit: 100 } },
+    );
+    expect(service.translateBatch).not.toHaveBeenCalled();
+    expect(usageRepo.recordUsage).not.toHaveBeenCalled();
   });
 });

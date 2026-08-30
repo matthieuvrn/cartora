@@ -1,6 +1,6 @@
 import type { MenuRepository } from "@/application/ports/MenuRepository";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
-import { ItemPolicy } from "@/domain/menu/ItemPolicy";
+import { ItemPolicy, MAX_ITEMS_PER_CATEGORY } from "@/domain/menu/ItemPolicy";
 import { DomainError } from "@/domain/errors/DomainError";
 
 export type CreateItemInput = {
@@ -46,7 +46,12 @@ export class CreateItem {
     const isOwned = await this.repo.verifyCategoryOwnership(input.categoryId, input.restaurantId);
     if (!isOwned) throw new DomainError("ownership_mismatch", { entityId: input.categoryId });
 
+    // `getNextItemOrder` = count des items de la catégorie (contrat du repo) :
+    // sert aussi de base au plafond dur anti-abus, sans requête supplémentaire.
     const order = await this.repo.getNextItemOrder(input.categoryId);
+    if (!ItemPolicy.canAddItem(order)) {
+      throw new DomainError("max_items", { limit: MAX_ITEMS_PER_CATEGORY, current: order });
+    }
 
     const { id } = await this.repo.createItem({
       categoryId: input.categoryId,

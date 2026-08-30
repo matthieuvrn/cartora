@@ -4,6 +4,7 @@ import {
   ItemPolicy,
   MAX_ITEM_NAME_LENGTH,
   MAX_ITEM_DESCRIPTION_LENGTH,
+  MAX_ITEMS_PER_CATEGORY,
   MAX_PRICE_CENTS,
 } from "./ItemPolicy";
 
@@ -154,6 +155,18 @@ describe("ItemPolicy", () => {
       const tooMany = Array.from({ length: ALLERGEN_VALUES.length + 1 }, () => "GLUTEN");
       const result = ItemPolicy.validateAllergens(tooMany);
       expect(result.error).toEqual({ field: "allergens", code: "too_many_allergens" });
+    });
+  });
+
+  describe("canAddItem", () => {
+    it("allows adding below the hard cap", () => {
+      expect(ItemPolicy.canAddItem(0)).toBe(true);
+      expect(ItemPolicy.canAddItem(MAX_ITEMS_PER_CATEGORY - 1)).toBe(true);
+    });
+
+    it("refuses at and above the hard cap", () => {
+      expect(ItemPolicy.canAddItem(MAX_ITEMS_PER_CATEGORY)).toBe(false);
+      expect(ItemPolicy.canAddItem(MAX_ITEMS_PER_CATEGORY + 10)).toBe(false);
     });
   });
 });

@@ -747,6 +747,8 @@
     "duplicate_name": "Ce nom est déjà utilisé",
     "max_categories": "Limite de catégories atteinte pour votre formule",
     "max_categories_with_limit": "Limite de {limit} catégories atteinte (formule {tier}). Passez en supérieur pour en ajouter plus.",
+    "max_items": "Limite de plats atteinte pour cette catégorie",
+    "max_items_with_limit": "Limite de {limit} plats par catégorie atteinte. Répartissez vos plats dans une autre catégorie.",
     "ownership_mismatch": "Action non autorisée",
     "unauthorized": "Action non autorisée",
     "restaurant_not_found": "Restaurant introuvable",
@@ -793,6 +795,7 @@
     "translation_failed": "La traduction a échoué, réessayez",
     "translation_quota_exhausted": "Quota mensuel de traduction automatique épuisé, réessayez plus tard",
     "translation_rate_limited": "Trop de demandes de traduction, patientez quelques minutes",
+    "translation_daily_limit_reached": "Limite quotidienne de traduction automatique atteinte, réessayez demain",
     "translation_unavailable": "Le service de traduction est indisponible pour le moment"
   },
   "Settings": {

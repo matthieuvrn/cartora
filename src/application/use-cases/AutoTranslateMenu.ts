@@ -5,7 +5,14 @@ import type {
   TranslationRow,
 } from "@/application/ports/TranslationRepository";
 import type { TranslationService } from "@/application/ports/TranslationService";
+import type { TranslationUsageRepository } from "@/application/ports/TranslationUsageRepository";
+import type { Clock } from "@/application/ports/Clock";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import {
+  DEFAULT_MONTHLY_CHAR_BUDGET,
+  TranslationBudgetPolicy,
+} from "@/domain/menu/TranslationBudgetPolicy";
+import { appCalendarDayISO } from "@/domain/time/appTimeZone";
 import { isMenuLocale, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { hashSourceText } from "@/domain/menu/textHash";
 import {
@@ -33,6 +40,13 @@ export type AutoTranslateMenuOutput = {
  * Cost-aware : ne traduit QUE les champs `missing`/`stale` (jamais ceux déjà
  * `fresh`), pour ne pas reconsommer le quota externe à chaque clic. Les valeurs
  * traduites sont écrites avec un hash frais (⇒ `fresh` au prochain affichage).
+ *
+ * Budget durable (anti-abus) : avant tout appel DeepL, la consommation est vérifiée
+ * contre `TranslationBudgetPolicy` (plafonds jour/restaurant + budget mensuel global)
+ * via le compteur DB `TranslationUsageRepository` — le seul garde-fou qui survit aux
+ * cold starts Vercel, contrairement au rate limiter d'action. La réservation est
+ * pessimiste : comptée AVANT l'envoi (un appel DeepL en échec reste compté) ; un appel
+ * refusé par la policy ne compte RIEN (le spam post-blocage ne brûle pas le budget).
  */
 export class AutoTranslateMenu {
   constructor(
@@ -40,6 +54,10 @@ export class AutoTranslateMenu {
     private readonly restaurantRepo: RestaurantRepository,
     private readonly translationRepo: TranslationRepository,
     private readonly translationService: TranslationService,
+    private readonly usageRepo: TranslationUsageRepository,
+    private readonly clock: Clock,
+    /** Budget mensuel GLOBAL en caractères (env `DEEPL_MONTHLY_CHAR_BUDGET` au root). */
+    private readonly monthlyCharBudget: number = DEFAULT_MONTHLY_CHAR_BUDGET,
   ) {}
 
   async execute(input: AutoTranslateMenuInput): Promise<AutoTranslateMenuOutput> {
@@ -95,6 +113,29 @@ export class AutoTranslateMenu {
     if (toTranslate.length === 0) {
       return { translatedCount: 0, skippedCount: units.length };
     }
+
+    const requestChars = TranslationBudgetPolicy.charsOf(toTranslate.map((u) => u.sourceText));
+    const day = appCalendarDayISO(new Date(this.clock.nowISO()));
+    const monthStart = `${day.slice(0, 7)}-01`;
+
+    const usage = await this.usageRepo.getUsage({
+      restaurantId: input.restaurantId,
+      day,
+      monthStart,
+    });
+    const violation = TranslationBudgetPolicy.check({
+      usage,
+      requestChars,
+      monthlyCharBudget: this.monthlyCharBudget,
+    });
+    if (violation) throw new DomainError(violation.code, violation.metadata);
+
+    await this.usageRepo.recordUsage({
+      restaurantId: input.restaurantId,
+      day,
+      calls: 1,
+      chars: requestChars,
+    });
 
     const translated = await this.translationService.translateBatch({
       sourceLocale: menu.sourceLocale,

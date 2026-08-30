@@ -747,6 +747,8 @@
     "duplicate_name": "This name is already in use",
     "max_categories": "Category limit reached for your plan",
     "max_categories_with_limit": "Category limit ({limit}) reached on the {tier} plan. Upgrade to add more.",
+    "max_items": "Item limit reached for this category",
+    "max_items_with_limit": "Limit of {limit} items per category reached. Spread your items across another category.",
     "ownership_mismatch": "Action not allowed",
     "unauthorized": "Action not allowed",
     "restaurant_not_found": "Restaurant not found",
@@ -793,6 +795,7 @@
     "translation_failed": "Translation failed, please try again",
     "translation_quota_exhausted": "Monthly automatic translation quota exhausted, try again later",
     "translation_rate_limited": "Too many translation requests, please wait a few minutes",
+    "translation_daily_limit_reached": "Daily automatic translation limit reached, please try again tomorrow",
     "translation_unavailable": "The translation service is currently unavailable"
   },
   "Settings": {

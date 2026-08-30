@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { CreateItem } from "./CreateItem";
 import { createMockMenuRepo } from "./__fixtures__/menuRepoMock";
+import { MAX_ITEMS_PER_CATEGORY } from "@/domain/menu/ItemPolicy";
 
 const VALID_INPUT = {
   categoryId: "cat-1",
@@ -130,5 +131,31 @@ describe("CreateItem", () => {
     await uc.execute(VALID_INPUT);
 
     expect(repo.verifyCategoryOwnership).toHaveBeenCalledWith("cat-1", "resto-1");
+  });
+
+  it("rejects when the category already holds MAX_ITEMS_PER_CATEGORY items (hard cap)", async () => {
+    const repo = createMockMenuRepo({
+      getNextItemOrder: vi.fn(async () => MAX_ITEMS_PER_CATEGORY),
+    });
+    const uc = new CreateItem(repo);
+
+    await expect(uc.execute(VALID_INPUT)).rejects.toMatchObject({
+      name: "DomainError",
+      code: "max_items",
+      metadata: { limit: MAX_ITEMS_PER_CATEGORY, current: MAX_ITEMS_PER_CATEGORY },
+    });
+    expect(repo.createItem).not.toHaveBeenCalled();
+    expect(repo.markMenuAsDraft).not.toHaveBeenCalled();
+  });
+
+  it("accepts the last slot under the item cap", async () => {
+    const repo = createMockMenuRepo({
+      getNextItemOrder: vi.fn(async () => MAX_ITEMS_PER_CATEGORY - 1),
+    });
+    const uc = new CreateItem(repo);
+
+    const result = await uc.execute(VALID_INPUT);
+
+    expect(result).toEqual({ itemId: "new-item-id" });
   });
 });
