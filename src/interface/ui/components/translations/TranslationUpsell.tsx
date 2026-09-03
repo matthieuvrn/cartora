@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Languages, Sparkles } from "lucide-react";
+import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { Button } from "@/components/ui/button";
 import { PricingModal } from "@/interface/ui/components/PricingModal";
 
@@ -11,8 +12,9 @@ import { PricingModal } from "@/interface/ui/components/PricingModal";
  * PRO-only et entièrement auto (DeepL) : un FREE/STARTER voit ce pitch d'upsell
  * plutôt qu'un gestionnaire de langues qu'il ne pourrait pas remplir. CTA ouvre
  * la `PricingModal` — pas de langue activable tant que le forfait n'est pas PRO.
+ * `planTier` : un STARTER (abonné actif) y est redirigé vers la page Abonnement.
  */
-export function TranslationUpsell() {
+export function TranslationUpsell({ planTier }: { planTier: PlanTier }) {
   const t = useTranslations("Translations");
   const [pricingOpen, setPricingOpen] = useState(false);
 
@@ -29,7 +31,8 @@ export function TranslationUpsell() {
           {t("upsellCta")}
         </Button>
       </div>
-      <PricingModal open={pricingOpen} onOpenChange={setPricingOpen} />
+      {/* Un STARTER est renvoyé vers la page Abonnement depuis la grille (prorata annoncé). */}
+      <PricingModal open={pricingOpen} onOpenChange={setPricingOpen} currentTier={planTier} />
     </div>
   );
 }

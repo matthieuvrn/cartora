@@ -458,22 +458,102 @@
   },
   "Billing": {
     "sectionTitle": "Subscription",
-    "sectionDescription": "Manage your plan and payment details.",
-    "freeBadge": "Free",
-    "freeDescription": "Subscribe (from €9.90/month) to publish your menu.",
-    "activeDescription": "Your Pro subscription is active.",
-    "manageSubscription": "Manage subscription",
-    "pastDueTitle": "Payment failed",
-    "pastDueDescription": "Your last payment failed. Please update your payment information.",
-    "updatePayment": "Update payment",
-    "canceledBadge": "Canceled",
-    "canceledDescription": "Your subscription has been canceled.",
-    "resubscribe": "Resubscribe",
-    "proBadge": "Pro",
-    "starterBadge": "Starter",
-    "starterDescription": "Your Starter subscription is active.",
-    "switchToPro": "Switch to Pro",
-    "switchToStarter": "Switch to Starter"
+    "sectionDescription": "Your plan, payment method and invoices, managed from Cartora.",
+    "tier": {
+      "FREE": "Free",
+      "STARTER": "Starter",
+      "PRO": "Pro"
+    },
+    "plan": {
+      "title": "Your plan",
+      "perMonth": "/ month",
+      "freeHint": "Build your menu freely. To publish it without a watermark, pick a plan below.",
+      "includes": "Included",
+      "noBillingDetails": "No billing details are attached to this account."
+    },
+    "status": {
+      "free": "No subscription",
+      "active": "Active",
+      "renewsOn": "Next renewal on {date}",
+      "cancelScheduled": "Cancellation scheduled",
+      "cancelScheduledDetail": "You keep {tier} until {date}. After that, your menu goes back to the free tier and is unpublished.",
+      "downgradeScheduled": "Switch to {tier} scheduled",
+      "downgradeScheduledDetail": "You keep {current} until {date}, then your plan becomes {tier}.",
+      "pastDue": "Payment failed",
+      "pastDueDetail": "Your last payment failed and your menu is no longer published. Update your payment method to restore it.",
+      "canceled": "Subscription ended",
+      "canceledDetail": "Your subscription has ended and your menu is no longer published. Pick a plan to bring it back online."
+    },
+    "actions": {
+      "resume": "Resume subscription",
+      "keepPlan": "Stay on {tier}",
+      "updatePaymentMethod": "Update payment method",
+      "billingDetails": "Billing details",
+      "billingDetailsHint": "Name, address and email shown on your invoices, editable on the secure Stripe portal.",
+      "processing": "Processing…"
+    },
+    "change": {
+      "title": "Change plan",
+      "description": "Move up to the higher plan right away, or go back to Starter at the end of your period.",
+      "upgradeCta": "Go Pro",
+      "downgradeCta": "Switch back to Starter",
+      "upgradeTitle": "Go Pro now?",
+      "upgradeBody": "You get Pro features right away. {amount} is charged today, prorated for the current period (until {date}). Then {price} / month at each renewal.",
+      "upgradeBodyNoPreview": "You get Pro features right away. The price difference is charged today, prorated for the current period (until {date}). Then {price} / month at each renewal.",
+      "upgradeConfirm": "Confirm and pay {amount}",
+      "upgradeConfirmNoPreview": "Confirm the switch to Pro",
+      "downgradeTitle": "Switch back to Starter?",
+      "downgradeBody": "The change takes effect on {date}, at the end of your current period: you keep Pro until then at no extra cost. Then {price} / month. Premium designs, automatic translation and unlimited categories will no longer be available.",
+      "downgradeConfirm": "Schedule the switch to Starter",
+      "dismiss": "Cancel",
+      "blockedByCancellation": "A cancellation is scheduled. Resume your subscription to change plan.",
+      "toastUpgraded": "Welcome to Pro! Your plan is active.",
+      "toastDowngradeScheduled": "Switch to Starter scheduled on {date}.",
+      "toastReverted": "You stay on {tier}."
+    },
+    "paymentMethod": {
+      "title": "Payment method",
+      "description": "Used for your renewals. Card details are entered on the secure Stripe portal.",
+      "card": "{brand} •••• {last4}",
+      "expires": "Expires {month}/{year}",
+      "none": "No payment method on file."
+    },
+    "invoices": {
+      "title": "Invoices",
+      "description": "Issued by Stripe at each payment.",
+      "empty": "No invoices yet.",
+      "date": "Date",
+      "number": "Number",
+      "amount": "Amount",
+      "status": "Status",
+      "statusLabel": {
+        "paid": "Paid",
+        "open": "Due",
+        "uncollectible": "Unpaid",
+        "void": "Void"
+      },
+      "view": "View",
+      "pdf": "PDF"
+    },
+    "cancel": {
+      "title": "Cancel subscription",
+      "description": "No commitment: the subscription stops at the end of the current period, with no prorated refund.",
+      "cta": "Cancel",
+      "dialogTitle": "Cancel your {tier} subscription?",
+      "dialogBody": "Your subscription stays active until {date}. On that date, your menu goes back to the free tier: it is unpublished and your QR code no longer shows your menu. The current period is not refunded. You can resume your subscription at any time before that date.",
+      "confirm": "Confirm cancellation",
+      "keep": "Keep my subscription",
+      "toastScheduled": "Cancellation scheduled. Access kept until {date}.",
+      "toastResumed": "Subscription resumed, nothing changes."
+    },
+    "choose": {
+      "title": "Pick a plan",
+      "description": "Publish your menu today. No commitment, cancel anytime."
+    },
+    "feedback": {
+      "payment_method_updated": "Payment method updated.",
+      "stripeUnavailable": "Billing details are temporarily unavailable. Please try again in a few moments."
+    }
   },
   "Pricing": {
     "title": "Choose your plan",
@@ -760,7 +840,7 @@
     "invalid_image_path": "Invalid image path",
     "must_keep_one_category": "You must keep at least one category",
     "billing_missing": "No billing information found",
-    "use_portal_to_change_plan": "Use the customer portal to change your plan",
+    "use_portal_to_change_plan": "You already have a subscription: change your plan from the Subscription page.",
     "empty_list": "The list is empty",
     "list_mismatch": "List inconsistent with server data, please reload",
     "validation_failed": "Invalid input",
@@ -796,7 +876,13 @@
     "translation_quota_exhausted": "Monthly automatic translation quota exhausted, try again later",
     "translation_rate_limited": "Too many translation requests, please wait a few minutes",
     "translation_daily_limit_reached": "Daily automatic translation limit reached, please try again tomorrow",
-    "translation_unavailable": "The translation service is currently unavailable"
+    "translation_unavailable": "The translation service is currently unavailable",
+    "subscription_missing": "No active subscription is attached to your account.",
+    "subscription_not_active": "Your subscription is not active: settle your payment or pick a plan.",
+    "same_plan": "You are already on this plan.",
+    "cancellation_pending": "A cancellation is scheduled. Resume your subscription first.",
+    "no_pending_cancellation": "No cancellation is pending.",
+    "payment_failed": "The payment did not go through (declined or bank authentication required). Check your payment method and try again: your plan has not changed."
   },
   "Settings": {
     "title": "Settings",
@@ -1084,7 +1170,7 @@
     },
     "pricing": {
       "title": "Pricing and payment",
-      "body": "Cartora offers two monthly subscriptions: Starter (€9.90 incl. VAT/month) and Pro (€29.90 incl. VAT/month). Payments are processed by Stripe. The subscription can be canceled at any time from the billing portal; cancellation then takes effect at the end of the current period, with no prorated refund. In case of non-payment, menu publication may be suspended."
+      "body": "Cartora offers two monthly subscriptions: Starter (€9.90 incl. VAT/month) and Pro (€29.90 incl. VAT/month). Payments are processed by Stripe. You can change plan at any time from your Cartora account: switching to a higher plan takes effect immediately, with the price difference invoiced pro rata for the current period; switching to a lower plan takes effect at the end of the current period, with no refund. The subscription can be canceled at any time from your Cartora account; cancellation then takes effect at the end of the current period, with no prorated refund. In case of non-payment, menu publication may be suspended."
     },
     "obligations": {
       "title": "User obligations",

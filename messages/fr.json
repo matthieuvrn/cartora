@@ -458,22 +458,102 @@
   },
   "Billing": {
     "sectionTitle": "Abonnement",
-    "sectionDescription": "Gérez votre formule et vos informations de paiement.",
-    "freeBadge": "Gratuit",
-    "freeDescription": "Passez à un abonnement (dès 9,90 €/mois) pour publier votre carte.",
-    "activeDescription": "Votre abonnement Pro est actif.",
-    "manageSubscription": "Gérer mon abonnement",
-    "pastDueTitle": "Paiement en échec",
-    "pastDueDescription": "Votre dernier paiement a échoué. Mettez à jour vos informations de paiement.",
-    "updatePayment": "Mettre à jour",
-    "canceledBadge": "Annulé",
-    "canceledDescription": "Votre abonnement a été annulé.",
-    "resubscribe": "Se réabonner",
-    "proBadge": "Pro",
-    "starterBadge": "Starter",
-    "starterDescription": "Votre abonnement Starter est actif.",
-    "switchToPro": "Passer en Pro",
-    "switchToStarter": "Repasser en Starter"
+    "sectionDescription": "Votre formule, votre moyen de paiement et vos factures, gérés depuis Cartora.",
+    "tier": {
+      "FREE": "Gratuit",
+      "STARTER": "Starter",
+      "PRO": "Pro"
+    },
+    "plan": {
+      "title": "Votre formule",
+      "perMonth": "/ mois",
+      "freeHint": "Créez votre carte librement. Pour la publier sans filigrane, choisissez une formule ci-dessous.",
+      "includes": "Inclus",
+      "noBillingDetails": "Aucun détail de facturation n’est associé à ce compte."
+    },
+    "status": {
+      "free": "Sans abonnement",
+      "active": "Actif",
+      "renewsOn": "Prochain renouvellement le {date}",
+      "cancelScheduled": "Résiliation programmée",
+      "cancelScheduledDetail": "Vous conservez {tier} jusqu’au {date}. Ensuite, votre carte repasse en mode gratuit et n’est plus publiée.",
+      "downgradeScheduled": "Passage en {tier} programmé",
+      "downgradeScheduledDetail": "Vous conservez {current} jusqu’au {date}, puis votre formule devient {tier}.",
+      "pastDue": "Paiement en échec",
+      "pastDueDetail": "Votre dernier prélèvement a échoué et la publication de votre carte est suspendue. Mettez à jour votre moyen de paiement pour la rétablir.",
+      "canceled": "Abonnement terminé",
+      "canceledDetail": "Votre abonnement est terminé et votre carte n’est plus publiée. Choisissez une formule pour la remettre en ligne."
+    },
+    "actions": {
+      "resume": "Reprendre l’abonnement",
+      "keepPlan": "Rester en {tier}",
+      "updatePaymentMethod": "Mettre à jour le moyen de paiement",
+      "billingDetails": "Coordonnées de facturation",
+      "billingDetailsHint": "Nom, adresse et e-mail figurant sur vos factures, modifiables sur le portail sécurisé Stripe.",
+      "processing": "Traitement…"
+    },
+    "change": {
+      "title": "Changer de formule",
+      "description": "Passez à la formule supérieure dès maintenant, ou revenez à Starter à la fin de votre période.",
+      "upgradeCta": "Passer en Pro",
+      "downgradeCta": "Repasser en Starter",
+      "upgradeTitle": "Passer en Pro maintenant ?",
+      "upgradeBody": "Vous accédez immédiatement aux fonctionnalités Pro. {amount} sont prélevés aujourd’hui, au prorata de la période en cours (jusqu’au {date}). Ensuite, {price} / mois à chaque renouvellement.",
+      "upgradeBodyNoPreview": "Vous accédez immédiatement aux fonctionnalités Pro. La différence de prix est prélevée aujourd’hui au prorata de la période en cours (jusqu’au {date}). Ensuite, {price} / mois à chaque renouvellement.",
+      "upgradeConfirm": "Confirmer et payer {amount}",
+      "upgradeConfirmNoPreview": "Confirmer le passage en Pro",
+      "downgradeTitle": "Repasser en Starter ?",
+      "downgradeBody": "Le changement prend effet le {date}, à la fin de votre période en cours : vous conservez Pro jusque-là, sans frais supplémentaires. Ensuite, {price} / mois. Les designs premium, la traduction automatique et les catégories illimitées ne seront plus disponibles.",
+      "downgradeConfirm": "Programmer le passage en Starter",
+      "dismiss": "Annuler",
+      "blockedByCancellation": "Une résiliation est programmée. Reprenez votre abonnement pour changer de formule.",
+      "toastUpgraded": "Bienvenue sur Pro ! Votre formule est active.",
+      "toastDowngradeScheduled": "Passage en Starter programmé le {date}.",
+      "toastReverted": "Vous restez en {tier}."
+    },
+    "paymentMethod": {
+      "title": "Moyen de paiement",
+      "description": "Utilisé pour vos renouvellements. La saisie se fait sur le portail sécurisé Stripe.",
+      "card": "{brand} •••• {last4}",
+      "expires": "Expire {month}/{year}",
+      "none": "Aucun moyen de paiement enregistré."
+    },
+    "invoices": {
+      "title": "Factures",
+      "description": "Émises par Stripe à chaque prélèvement.",
+      "empty": "Aucune facture pour le moment.",
+      "date": "Date",
+      "number": "Numéro",
+      "amount": "Montant",
+      "status": "Statut",
+      "statusLabel": {
+        "paid": "Payée",
+        "open": "À régler",
+        "uncollectible": "Impayée",
+        "void": "Annulée"
+      },
+      "view": "Voir",
+      "pdf": "PDF"
+    },
+    "cancel": {
+      "title": "Résilier l’abonnement",
+      "description": "Sans engagement : l’abonnement s’arrête à la fin de la période en cours, sans remboursement au prorata.",
+      "cta": "Résilier",
+      "dialogTitle": "Résilier votre abonnement {tier} ?",
+      "dialogBody": "Votre abonnement reste actif jusqu’au {date}. À cette date, votre carte repasse en mode gratuit : elle est dépubliée et votre QR code n’affiche plus votre menu. La période entamée n’est pas remboursée. Vous pourrez reprendre votre abonnement à tout moment avant cette date.",
+      "confirm": "Confirmer la résiliation",
+      "keep": "Garder mon abonnement",
+      "toastScheduled": "Résiliation programmée. Accès conservé jusqu’au {date}.",
+      "toastResumed": "Abonnement repris, rien ne change."
+    },
+    "choose": {
+      "title": "Choisir une formule",
+      "description": "Publiez votre carte dès aujourd’hui. Sans engagement, résiliable à tout moment."
+    },
+    "feedback": {
+      "payment_method_updated": "Moyen de paiement mis à jour.",
+      "stripeUnavailable": "Les détails de facturation sont momentanément indisponibles. Réessayez dans quelques instants."
+    }
   },
   "Pricing": {
     "title": "Choisissez votre plan",
@@ -760,7 +840,7 @@
     "invalid_image_path": "Chemin d'image invalide",
     "must_keep_one_category": "Vous devez conserver au moins une catégorie",
     "billing_missing": "Aucune information de facturation trouvée",
-    "use_portal_to_change_plan": "Utilisez le portail client pour modifier votre formule",
+    "use_portal_to_change_plan": "Vous avez déjà un abonnement : changez de formule depuis la page Abonnement.",
     "empty_list": "La liste est vide",
     "list_mismatch": "Liste incoherente avec les données serveur, rechargez la page",
     "validation_failed": "Champ invalide",
@@ -796,7 +876,13 @@
     "translation_quota_exhausted": "Quota mensuel de traduction automatique épuisé, réessayez plus tard",
     "translation_rate_limited": "Trop de demandes de traduction, patientez quelques minutes",
     "translation_daily_limit_reached": "Limite quotidienne de traduction automatique atteinte, réessayez demain",
-    "translation_unavailable": "Le service de traduction est indisponible pour le moment"
+    "translation_unavailable": "Le service de traduction est indisponible pour le moment",
+    "subscription_missing": "Aucun abonnement actif n’est associé à votre compte.",
+    "subscription_not_active": "Votre abonnement n’est pas actif : régularisez votre paiement ou choisissez une formule.",
+    "same_plan": "Vous êtes déjà sur cette formule.",
+    "cancellation_pending": "Une résiliation est programmée. Reprenez d’abord votre abonnement.",
+    "no_pending_cancellation": "Aucune résiliation n’est en attente.",
+    "payment_failed": "Le paiement n’a pas abouti (refus ou authentification bancaire requise). Vérifiez votre moyen de paiement puis réessayez : votre formule n’a pas changé."
   },
   "Settings": {
     "title": "Paramètres",
@@ -1084,7 +1170,7 @@
     },
     "pricing": {
       "title": "Tarifs et paiement",
-      "body": "Cartora propose deux abonnements mensuels : Starter (9,90 € TTC/mois) et Pro (29,90 € TTC/mois). Le paiement est géré par Stripe. L’abonnement est résiliable à tout moment depuis le portail de facturation ; la résiliation prend alors effet à la fin de la période en cours, sans remboursement au prorata. En cas de non-paiement, la publication du menu peut être suspendue."
+      "body": "Cartora propose deux abonnements mensuels : Starter (9,90 € TTC/mois) et Pro (29,90 € TTC/mois). Le paiement est géré par Stripe. Vous pouvez changer de formule à tout moment depuis votre espace Cartora : le passage à une formule supérieure prend effet immédiatement, la différence de prix étant facturée au prorata de la période en cours ; le passage à une formule inférieure prend effet à la fin de la période en cours, sans remboursement. L’abonnement est résiliable à tout moment depuis votre espace Cartora ; la résiliation prend alors effet à la fin de la période en cours, sans remboursement au prorata. En cas de non-paiement, la publication du menu peut être suspendue."
     },
     "obligations": {
       "title": "Obligations de l’utilisateur",

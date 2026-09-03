@@ -34,7 +34,7 @@ export default async function TranslationsPage() {
     return (
       <div className="mx-auto max-w-3xl space-y-8">
         {header}
-        <TranslationUpsell />
+        <TranslationUpsell planTier={restaurant.planTier} />
       </div>
     );
   }

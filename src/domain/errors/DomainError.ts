@@ -62,6 +62,15 @@ export type DomainErrorCode =
   // Billing
   | "billing_missing"
   | "use_portal_to_change_plan"
+  // Gestion de l'abonnement in-app (page Abonnement) — cf. SubscriptionChangePolicy
+  | "subscription_missing"
+  | "subscription_not_active"
+  | "same_plan"
+  | "cancellation_pending"
+  | "no_pending_cancellation"
+  // Prorata d'upgrade refusé par la banque (ou authentification requise) : Stripe n'a
+  // rien modifié (`payment_behavior: error_if_incomplete`), la formule reste inchangée.
+  | "payment_failed"
   // Suppression de compte : la résiliation Stripe a échoué ⇒ RIEN n'a été supprimé
   // (invariant de DeleteRestaurant — jamais de destruction locale avant nettoyage Stripe).
   | "stripe_cleanup_failed"

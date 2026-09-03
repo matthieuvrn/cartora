@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Check, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -92,13 +93,19 @@ export function TemplateSelector({ currentTemplate, planTier, menu, restaurantNa
                       {isCurrent ? t("currentBadge") : t("saveButton")}
                     </Button>
                   </form>
-                ) : (
+                ) : planTier === "FREE" ? (
                   <form action={createCheckoutAction} className="w-full">
                     <input type="hidden" name="tier" value="PRO" />
                     <Button type="submit" variant="outline" className="w-full">
                       {t("upgradeCta")}
                     </Button>
                   </form>
+                ) : (
+                  // Abonné actif (STARTER) : le passage en PRO se fait depuis la page Abonnement
+                  // (prorata annoncé, pas de second Checkout).
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/app/abonnement">{t("upgradeCta")}</Link>
+                  </Button>
                 )}
               </CardFooter>
             </Card>

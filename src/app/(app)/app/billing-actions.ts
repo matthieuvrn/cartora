@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect, unstable_rethrow } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
@@ -10,10 +11,19 @@ import { StripePaymentGateway } from "@/infrastructure/stripe/StripePaymentGatew
 import { SupabaseStorageService } from "@/infrastructure/storage/SupabaseStorageService";
 import { SupabaseAuthAdminService } from "@/infrastructure/auth/SupabaseAuthAdminService";
 import { CreateCheckoutSession } from "@/application/use-cases/CreateCheckoutSession";
-import { CreatePortalSession } from "@/application/use-cases/CreatePortalSession";
+import {
+  BILLING_PAGE_PATH,
+  CreatePortalSession,
+} from "@/application/use-cases/CreatePortalSession";
+import {
+  ChangeSubscriptionPlan,
+  type ChangeSubscriptionPlanOutput,
+} from "@/application/use-cases/ChangeSubscriptionPlan";
+import { UpdateSubscriptionCancellation } from "@/application/use-cases/UpdateSubscriptionCancellation";
 import { DeleteRestaurant } from "@/application/use-cases/DeleteRestaurant";
 import * as Sentry from "@sentry/nextjs";
 import { isDomainError } from "@/domain/errors/DomainError";
+import { withActionContext, type ActionState } from "@/lib/action-result";
 
 const TIER_SCHEMA = z.enum(["STARTER", "PRO"]);
 
@@ -43,21 +53,28 @@ async function getAuthenticatedRestaurantId(): Promise<string> {
   return restaurantId;
 }
 
-// ─── Actions ────────────────────────────────────────────────────────────────
+/**
+ * Échec d'un flux « hand-off Stripe » (Checkout / portail) : retour sur la page Abonnement
+ * avec un code lisible, affiché en toast par `BillingUrlFeedback`.
+ */
+function redirectWithBillingError(code: string): never {
+  redirect(`${BILLING_PAGE_PATH}?billing_error=${encodeURIComponent(code)}`);
+}
+
+// ─── Hand-offs Stripe (redirect) ────────────────────────────────────────────
 
 /**
- * `formData` : champ `tier` requis = "STARTER" | "PRO". L'action accepte FormData
- * (côté client, on l'invoque via <form action={createCheckoutAction}> avec un input
- * caché `tier`). Pour les upgrades Starter↔Pro on passe par `createPortalAction`,
- * pas par cette action — le use case rejette si planStatus n'est pas FREE/CANCELED.
+ * `formData` : champ `tier` requis = "STARTER" | "PRO". Invoquée via <form action> avec un
+ * input caché `tier` (PricingTiers). Première souscription ou ré-abonnement uniquement —
+ * un abonné actif change de formule via `changePlanAction` (le use case rejette
+ * `use_portal_to_change_plan` sinon, et le toast renvoie vers la page Abonnement).
  */
 export async function createCheckoutAction(formData: FormData): Promise<void> {
+  // Auth HORS du try : ses `redirect()` (NEXT_REDIRECT) ne doivent pas être avalés/capturés.
+  const auth = await getAuthenticatedUser();
   let checkoutUrl: string;
-  let restaurantId: string | null = null;
   try {
     const tier = TIER_SCHEMA.parse(formData.get("tier"));
-    const auth = await getAuthenticatedUser();
-    restaurantId = auth.restaurantId;
     const restaurantRepo = new PrismaRestaurantRepository(prisma);
     const gateway = new StripePaymentGateway();
     const useCase = new CreateCheckoutSession(restaurantRepo, gateway);
@@ -69,55 +86,131 @@ export async function createCheckoutAction(formData: FormData): Promise<void> {
     });
     checkoutUrl = result.checkoutUrl;
   } catch (e) {
+    unstable_rethrow(e);
     if (isDomainError(e)) {
-      // DomainError ⇒ redirect propre vers /app avec un code lisible.
-      // L'UI peut afficher un toast/banner basé sur le query param.
       Sentry.captureException(e, {
         tags: { action: "createCheckout", domainCode: e.code },
-        user: restaurantId ? { id: restaurantId } : undefined,
+        user: { id: auth.restaurantId },
         level: "warning",
       });
-      redirect(`/app?checkout_error=${encodeURIComponent(e.code)}`);
+      redirectWithBillingError(e.code);
     }
     Sentry.captureException(e, {
       tags: { action: "createCheckout" },
-      user: restaurantId ? { id: restaurantId } : undefined,
+      user: { id: auth.restaurantId },
     });
     throw e;
   }
   redirect(checkoutUrl);
 }
 
-export async function createPortalAction(): Promise<void> {
+async function startPortalSession(
+  actionName: "createPortal" | "updatePaymentMethod",
+  flow?: "payment_method_update",
+): Promise<void> {
+  const restaurantId = await getAuthenticatedRestaurantId();
   let portalUrl: string;
-  let restaurantId: string | null = null;
   try {
-    restaurantId = await getAuthenticatedRestaurantId();
     const billingRepo = new PrismaBillingRepository(prisma);
     const gateway = new StripePaymentGateway();
     const useCase = new CreatePortalSession(billingRepo, gateway);
     const result = await useCase.execute({
       restaurantId,
       baseUrl: process.env.NEXT_PUBLIC_APP_URL!,
+      flow,
     });
     portalUrl = result.portalUrl;
   } catch (e) {
+    unstable_rethrow(e);
     if (isDomainError(e)) {
       Sentry.captureException(e, {
-        tags: { action: "createPortal", domainCode: e.code },
-        user: restaurantId ? { id: restaurantId } : undefined,
+        tags: { action: actionName, domainCode: e.code },
+        user: { id: restaurantId },
         level: "warning",
       });
-      redirect(`/app?portal_error=${encodeURIComponent(e.code)}`);
+      redirectWithBillingError(e.code);
     }
-    Sentry.captureException(e, {
-      tags: { action: "createPortal" },
-      user: restaurantId ? { id: restaurantId } : undefined,
-    });
+    Sentry.captureException(e, { tags: { action: actionName }, user: { id: restaurantId } });
     throw e;
   }
   redirect(portalUrl);
 }
+
+/** Accueil du portail Stripe : coordonnées de facturation + historique complet. */
+export async function createPortalAction(): Promise<void> {
+  await startPortalSession("createPortal");
+}
+
+/** Deep link « moyen de paiement » du portail, retour direct sur la page Abonnement. */
+export async function updatePaymentMethodAction(): Promise<void> {
+  await startPortalSession("updatePaymentMethod", "payment_method_update");
+}
+
+// ─── Gestion in-app de l'abonnement (ActionState + toasts) ──────────────────
+
+export type PlanChangeActionState = ActionState<{
+  kind?: ChangeSubscriptionPlanOutput["kind"];
+  effectiveAtISO?: string | null;
+}>;
+
+/**
+ * Changement de formule STARTER ↔ PRO (ou levée d'une rétrogradation programmée en
+ * re-choisissant la formule courante). Le tier gate tout le shell (PublishBar, sections
+ * verrouillées) : l'arbre `(app)` entier est revalidé.
+ */
+export async function changePlanAction(input: { tier: string }): Promise<PlanChangeActionState> {
+  const parsed = TIER_SCHEMA.safeParse(input.tier);
+  if (!parsed.success) return { error: { code: "validation" } };
+
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext(
+    { actionName: "changePlan", restaurantId, input: { tier: parsed.data } },
+    async () => {
+      const useCase = new ChangeSubscriptionPlan(
+        new PrismaRestaurantRepository(prisma),
+        new PrismaBillingRepository(prisma),
+        new StripePaymentGateway(),
+      );
+      const result = await useCase.execute({ restaurantId, targetTier: parsed.data });
+      revalidatePath("/app", "layout");
+      return { error: null, kind: result.kind, effectiveAtISO: result.effectiveAtISO };
+    },
+  );
+}
+
+export type CancellationActionState = ActionState<{
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEndISO?: string;
+}>;
+
+async function setCancellation(
+  actionName: "cancelSubscription" | "resumeSubscription",
+  cancel: boolean,
+): Promise<CancellationActionState> {
+  const restaurantId = await getAuthenticatedRestaurantId();
+  return withActionContext({ actionName, restaurantId }, async () => {
+    const useCase = new UpdateSubscriptionCancellation(
+      new PrismaRestaurantRepository(prisma),
+      new PrismaBillingRepository(prisma),
+      new StripePaymentGateway(),
+    );
+    const result = await useCase.execute({ restaurantId, cancel });
+    revalidatePath(BILLING_PAGE_PATH);
+    return { error: null, ...result };
+  });
+}
+
+/** Résiliation à la fin de la période en cours (jamais immédiate — promesse CGU). */
+export async function cancelSubscriptionAction(): Promise<CancellationActionState> {
+  return setCancellation("cancelSubscription", true);
+}
+
+/** Reprise d'un abonnement dont la résiliation est programmée (tant que la période court). */
+export async function resumeSubscriptionAction(): Promise<CancellationActionState> {
+  return setCancellation("resumeSubscription", false);
+}
+
+// ─── Suppression de compte ──────────────────────────────────────────────────
 
 export async function deleteAccountAction(): Promise<{ error: string | null }> {
   // Auth résolue HORS du try : les `redirect()` lancent NEXT_REDIRECT et ne doivent

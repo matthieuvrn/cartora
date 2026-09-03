@@ -18,7 +18,7 @@ const billingRepoWithFixture = () =>
   createMockBillingRepo({ findByRestaurantId: async () => BILLING_FIXTURE });
 
 describe("CreatePortalSession", () => {
-  it("creates portal session when billing exists", async () => {
+  it("creates a portal session returning to the billing page", async () => {
     const gateway = createMockPaymentGateway({
       createPortalSession: vi.fn(async () => ({
         url: "https://billing.stripe.com/portal_123",
@@ -31,7 +31,21 @@ describe("CreatePortalSession", () => {
     expect(result).toEqual({ portalUrl: "https://billing.stripe.com/portal_123" });
     expect(gateway.createPortalSession).toHaveBeenCalledWith({
       stripeCustomerId: "cus_abc123",
-      returnUrl: "https://cartora.app/app",
+      returnUrl: "https://cartora.app/app/abonnement",
+      flow: undefined,
+    });
+  });
+
+  it("deep-links to the payment method flow with an acknowledged return URL", async () => {
+    const gateway = createMockPaymentGateway();
+    const useCase = new CreatePortalSession(billingRepoWithFixture(), gateway);
+
+    await useCase.execute({ ...VALID_INPUT, flow: "payment_method_update" });
+
+    expect(gateway.createPortalSession).toHaveBeenCalledWith({
+      stripeCustomerId: "cus_abc123",
+      returnUrl: "https://cartora.app/app/abonnement?billing=payment_method_updated",
+      flow: "payment_method_update",
     });
   });
 
