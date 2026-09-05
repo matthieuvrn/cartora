@@ -5,6 +5,12 @@ import type { Metadata } from "next";
  * — surtout PAS de getLocale()/getTranslations() dans generateMetadata : toute API dynamique
  * y casserait le prerender. Les alternates hreflang relient les deux pages (x-default = fr,
  * marché principal).
+ *
+ * `title.absolute` : `/en` est un segment ENFANT du root layout, donc son `title.template`
+ * (« %s | Cartora ») s'y appliquait (marque doublée) alors que `/` (même segment) y échappait.
+ * L'og:image n'est PAS déclarée ici : un `openGraph` de page remplace celui du root en bloc,
+ * l'image file-based n'est réinjectée que depuis un `opengraph-image.tsx` du segment — d'où
+ * `src/app/en/opengraph-image.tsx` (ré-export du root avec un alt EN).
  */
 const COPY = {
   fr: {
@@ -28,7 +34,7 @@ const COPY = {
 export function landingMetadata(locale: "fr" | "en"): Metadata {
   const copy = COPY[locale];
   return {
-    title: copy.title,
+    title: { absolute: copy.title },
     description: copy.description,
     alternates: {
       canonical: copy.path,

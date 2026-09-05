@@ -7,6 +7,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 4rem;
+  /* Bannière cookies visible (CookieBanner publie sa hauteur) : un focus/ancre en bas de page
+     défile au-dessus d'elle au lieu de finir dessous (WCAG 2.4.11, technique C43). */
+  scroll-padding-bottom: var(--cookie-banner-h, 0px);
 }
 
 @theme inline {
@@ -420,6 +423,10 @@ html {
   --border: oklch(1 0 0 / 0.09);
   --input: oklch(1 0 0 / 0.12);
   --ring: oklch(0.74 0.034 198 / 0.55);
+  /* Alertes/status (text-destructive, text-success) sur nuit-800 : les valeurs claires tombaient
+     à 3,3:1 et 2,4:1 — mêmes teintes que le mode sombre .theme-app, ≥ 4,5:1 (AA texte). */
+  --destructive: oklch(0.66 0.2 25);
+  --color-success: oklch(0.75 0.09 155);
   --card-shadow: 0 1px 2px 0 oklch(0 0 0 / 0.3), 0 2px 6px -1px oklch(0 0 0 / 0.35);
   /* Le CTA (TrackedCtaButton) lit ces deux variables : porcelaine → ombre noire + halo teal. */
   --cta-shadow: var(--shadow-pill-dark);

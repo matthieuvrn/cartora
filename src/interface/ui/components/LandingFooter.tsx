@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Logo } from "@/interface/ui/components/Logo";
 import { ManageCookiesButton } from "@/interface/ui/components/consent/ManageCookiesButton";
+import { COOKIE_BANNER_OFFSET } from "@/interface/ui/components/consent/cookieBannerOffset";
 
 // Footer riche de la landing (rendu DANS .theme-cartora via page.tsx → tokens canard/sapin).
 // DA « Nuit de service » : scène nuit-950 (le bord de page le plus sombre de l'arc lumineux),
@@ -53,6 +54,8 @@ export async function LandingFooter() {
   return (
     <footer
       className="section-nuit texture-grain relative border-t border-white/8 bg-nuit-950 text-foreground"
+      // Dernière rangée (liens FR/EN) dégagée de la bannière cookies tant qu'elle est visible.
+      style={{ marginBottom: COOKIE_BANNER_OFFSET }}
       aria-labelledby="landing-footer-heading"
     >
       <h2 id="landing-footer-heading" className="sr-only">

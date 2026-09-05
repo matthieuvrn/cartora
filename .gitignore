@@ -52,3 +52,6 @@ prompt.landing.md
 docs/landing-plan.md
 /docs
 prompt.roadmap.global.ui.md
+
+# Playwright MCP output (snapshots/screenshots written by the local MCP server)
+.playwright-mcp/

@@ -11,18 +11,23 @@ import { LocaleShell } from "@/app/locale-shell";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <LocaleShell>
-      <div className="theme-app section-nuit texture-grain relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10 text-foreground">
-        <div aria-hidden="true" className="absolute inset-0 -z-10">
-          <div className="bg-grid-nuit absolute inset-0" />
-          <div
-            className="absolute top-1/2 left-1/2 h-[560px] w-[820px] -translate-x-1/2 -translate-y-1/2"
-            style={{
-              background:
-                "radial-gradient(ellipse 50% 50% at 50% 50%, oklch(0.42 0.058 198 / 0.28), transparent 70%)",
-            }}
-          />
+      {/* `theme-app` sur un PARENT distinct : le remap nuit est scopé en DESCENDANT
+          (`:is(.theme-cartora, .theme-app) .section-nuit`, globals.css) — les deux classes
+          sur le même élément ne matchent jamais et la scène restait claire (recette 2026-09-04). */}
+      <div className="theme-app">
+        <div className="section-nuit texture-grain relative isolate flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10 text-foreground">
+          <div aria-hidden="true" className="absolute inset-0 -z-10">
+            <div className="bg-grid-nuit absolute inset-0" />
+            <div
+              className="absolute top-1/2 left-1/2 h-[560px] w-[820px] -translate-x-1/2 -translate-y-1/2"
+              style={{
+                background:
+                  "radial-gradient(ellipse 50% 50% at 50% 50%, oklch(0.42 0.058 198 / 0.28), transparent 70%)",
+              }}
+            />
+          </div>
+          {children}
         </div>
-        {children}
       </div>
     </LocaleShell>
   );

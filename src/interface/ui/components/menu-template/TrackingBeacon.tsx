@@ -2,11 +2,14 @@
 
 import { useEffect } from "react";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
+import { readStoredMenuLocale } from "./menuLocaleStorage";
 
 type TrackingBeaconProps = {
   slug: string;
   /** Langue de CONTENU affichée au moment de la vue (état du switcher), pas la locale chrome. */
   locale: MenuLocale;
+  /** Langues du snapshot — borne la préférence localStorage relue à l'envoi. */
+  availableLocales: readonly MenuLocale[];
 };
 
 // Mesure d'audience EXEMPTÉE de consentement (art. 82 LIL / délib. CNIL 2020-091),
@@ -39,7 +42,7 @@ function markTracked(slug: string) {
   }
 }
 
-export function TrackingBeacon({ slug, locale }: TrackingBeaconProps) {
+export function TrackingBeacon({ slug, locale, availableLocales }: TrackingBeaconProps) {
   useEffect(() => {
     if (alreadyTracked(slug)) return;
 
@@ -47,7 +50,11 @@ export function TrackingBeacon({ slug, locale }: TrackingBeaconProps) {
     const utmSource = params.get("utm_source");
     const payload = JSON.stringify({
       slug,
-      locale,
+      // Relue ICI et pas seulement via la prop : au 1er passage, `locale` est encore le
+      // snapshot serveur d'hydratation — la préférence localStorage d'un visiteur récurrent
+      // n'arrive qu'au re-rendu suivant, après que la dédup a déjà marqué la vue (les
+      // lectures es/de/it au retour étaient comptées dans la langue SSR — recette 2026-09-04).
+      locale: readStoredMenuLocale(availableLocales) ?? locale,
       // Seule valeur portée par le domaine — un utm exotique (lien tagué par un
       // tiers) ne doit pas coûter la vue.
       source: utmSource === "qr" ? "qr" : undefined,
@@ -60,7 +67,7 @@ export function TrackingBeacon({ slug, locale }: TrackingBeaconProps) {
     // La dédup n'est marquée que si le beacon est accepté par la file d'envoi :
     // un refus laisse sa chance à un prochain rendu au lieu de brûler la vue.
     if (navigator.sendBeacon("/api/track", payload)) markTracked(slug);
-  }, [slug, locale]);
+  }, [slug, locale, availableLocales]);
 
   return null;
 }

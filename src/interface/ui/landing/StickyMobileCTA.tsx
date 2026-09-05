@@ -7,6 +7,7 @@ import { LazyMotion, domAnimation, m } from "motion/react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { COOKIE_BANNER_OFFSET } from "@/interface/ui/components/consent/cookieBannerOffset";
 
 /**
  * CTA collant en bas d'écran, mobile uniquement (`md:hidden`). Visible entre le hero et la
@@ -68,12 +69,20 @@ export function StickyMobileCTA() {
 
   // Pilule flottante détachée (plus de barre bord-à-bord) : nuit + hairline + halo,
   // cohérente avec les CTA des scènes nuit. safe-area : max() garde 1rem de marge mini.
-  const wrapperBase =
-    "fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 md:hidden";
+  // + hauteur de la bannière cookies tant qu'elle est visible (z-30 sous son z-50 : sans
+  // ce décalage, la pilule était entièrement recouverte pendant le consentement pending).
+  const wrapperBase = "fixed inset-x-4 z-30 md:hidden";
+  const wrapperStyle = {
+    bottom: `calc(max(1rem, env(safe-area-inset-bottom)) + ${COOKIE_BANNER_OFFSET})`,
+  };
 
   if (reduce) {
     return (
-      <div className={`${wrapperBase} ${visible ? "" : "hidden"}`} aria-hidden={!visible}>
+      <div
+        className={`${wrapperBase} ${visible ? "" : "hidden"}`}
+        style={wrapperStyle}
+        aria-hidden={!visible}
+      >
         {button}
       </div>
     );
@@ -83,8 +92,10 @@ export function StickyMobileCTA() {
     <LazyMotion features={domAnimation} strict>
       <m.div
         className={wrapperBase}
+        style={wrapperStyle}
         initial={false}
         // "160%" : pilule + bottom-4 + ombre portée — la sortie doit emmener le halo avec elle.
+        // Bannière visible : la pilule sort derrière elle (z-30 < z-50), même effet.
         animate={{ y: visible ? 0 : "160%" }}
         transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
         aria-hidden={!visible}
