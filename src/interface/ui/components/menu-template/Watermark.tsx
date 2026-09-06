@@ -1,3 +1,5 @@
+import { Logo } from "@/interface/ui/components/Logo";
+
 type Props = {
   text: string;
 };
@@ -13,9 +15,12 @@ export function Watermark({ text }: Props) {
       aria-hidden="true"
     >
       <span
-        className="text-xs font-medium"
+        className="inline-flex items-center gap-1.5 text-xs font-medium"
         style={{ color: "var(--menu-watermark-fg, var(--muted-foreground))" }}
       >
+        {/* Mark en `currentColor` (ton mono) : la couleur suit `--menu-watermark-fg` du skin — la
+            marque ne colore jamais le menu d'un restaurateur. */}
+        <Logo variant="mark" tone="mono" className="h-3.5" />
         {text}
       </span>
     </div>

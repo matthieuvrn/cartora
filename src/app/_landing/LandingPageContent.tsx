@@ -6,6 +6,7 @@ import { FAQ_ITEMS } from "@/interface/ui/landing/faqItems";
 import { LandingFeatures } from "@/interface/ui/landing/LandingFeatures";
 import { LandingFinalCta } from "@/interface/ui/landing/LandingFinalCta";
 import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
+import { Logo } from "@/interface/ui/components/Logo";
 import { LandingHero } from "@/interface/ui/landing/LandingHero";
 import { LandingHowItWorks } from "@/interface/ui/landing/LandingHowItWorks";
 import { LandingLocaleSync } from "@/interface/ui/landing/LandingLocaleSync";
@@ -126,7 +127,9 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
         >
           {tLanding("skipToContent")}
         </a>
-        <LandingHeader />
+        {/* Lockup rendu ici (serveur) : voir la note `logo` de LandingHeader (budget JS). `h-6` sous
+            sm : à 360 px, lockup 175 px + cluster droit 151 px + gaps dépassaient la largeur. */}
+        <LandingHeader logo={<Logo className="h-6 sm:h-7" />} />
         {/* Arc en 9 sections (refonte 2026, ex-12) : Hero → TrustStrip → Problème (fusionné
             avec l'ancienne Comparaison) → Comment ça marche → Features (audience intégrée à
             l'étape 2) → Démo-preuve → Pricing → FAQ → Final CTA. TrustSafety supprimée : la

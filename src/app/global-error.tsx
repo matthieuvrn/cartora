@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { BRAND_COLORS, brandMarkSvg, svgDataUri } from "@/interface/ui/brand/mark";
 
 /**
  * Boundary d'erreur top-level. Rendu en dehors du tree i18n, donc on ne peut pas
@@ -40,6 +41,17 @@ export default function GlobalError({ error }: { error: Error & { digest?: strin
         }}
       >
         <main style={{ maxWidth: "32rem", textAlign: "center" }}>
+          {/* Mark seul en data-URI : hors tree Next (pas de tokens CSS, pas de composant Logo), et
+              ce chunk client est préchargé sur TOUTES les pages — on n'y embarque pas le wordmark
+              outliné (cf. brand/wordmark.ts), le titre ci-dessous nomme déjà Cartora. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={svgDataUri(
+              brandMarkSvg({ body: BRAND_COLORS.canard600, point: BRAND_COLORS.corailInk }),
+            )}
+            alt="Cartora"
+            style={{ height: "2rem", width: "auto", marginBottom: "1.25rem" }}
+          />
           <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.5rem" }}>
             Une erreur inattendue est survenue
           </h1>

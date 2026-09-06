@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/interface/ui/components/Logo";
 import { loginAction, resendConfirmationAction, type AuthState } from "@/app/(auth)/actions";
 
 const initialState: AuthState = { error: null };
@@ -76,10 +77,12 @@ export default function LoginPage() {
     // non-layered `[data-slot="card"]` (globals.css) écrase sinon toute utility shadow-*.
     <Card className="w-full max-w-sm shadow-frame!">
       <CardHeader>
-        <p className="eyebrow">
-          <span className="eyebrow-dot" aria-hidden="true" />
-          Cartora
-        </p>
+        {/* Lockup (mark canard-300 + wordmark porcelaine via les tokens de la scène nuit) à la
+            place de l'ancien eyebrow « ● Cartora » : le point corail du mark reprend celui de
+            l'eyebrow. Lien vers la landing, comme le header. */}
+        <Link href="/" aria-label="Cartora" className="mb-1 inline-flex w-fit rounded-sm">
+          <Logo className="h-6" />
+        </Link>
         <CardTitle className="display">{t("login")}</CardTitle>
       </CardHeader>
 

@@ -327,6 +327,12 @@ html {
 
   --primary: var(--color-canard-600);
   --primary-foreground: var(--color-sand-50);
+  /* Logo Cartora (Logo.tsx) — préfixe `--logo-*` : `--brand-*` est réservé aux couleurs de marque du RESTAURATEUR (branding du menu public, cf. --menu-accent) : le mark suit la structure canard, l'accent corail
+     est le « point seconde » — même grammaire que l'eyebrow-dot. Trois backings : clair,
+     .dark, scène nuit (ci-dessous). Hors scope de marque, Logo.tsx retombe sur canard-600. */
+  --logo-mark: var(--color-canard-600);
+  /* Corail « encre » : corail-500 ne fait que 2,9:1 sur sand-50 (< 3:1 objets graphiques). */
+  --logo-accent: oklch(0.6 0.185 39);
   --secondary: var(--color-sand-100);
   --secondary-foreground: var(--color-canard-700);
   /* Hover des actions secondaires (boutons ghost, items dropdown) : wash teal clair plutôt
@@ -373,6 +379,8 @@ html {
 
   --primary: var(--color-canard-300);
   --primary-foreground: oklch(0.14 0.03 204);
+  --logo-mark: var(--color-canard-300);
+  --logo-accent: var(--color-corail-400);
   --secondary: oklch(0.2 0.04 202);
   --secondary-foreground: var(--color-canard-100);
   /* cf. note .theme-cartora light : hover secondaire en teal léger, pas en aplat coloré */
@@ -414,6 +422,11 @@ html {
   --popover-foreground: var(--color-sand-100);
   --primary: var(--color-sand-50);
   --primary-foreground: var(--color-nuit-900);
+  /* Mark en canard-300 (≈ 8:1 sur nuit-900, garde l'identité teal à côté du wordmark sand-100) :
+     le disque canard-600 historique tombait à ≈ 2:1 sur le header nuit de la landing (constaté
+     2026-09-05). Point corail-500 (5,5:1). */
+  --logo-mark: var(--color-canard-300);
+  --logo-accent: var(--color-corail-500);
   --secondary: oklch(1 0 0 / 0.06);
   --secondary-foreground: var(--color-sand-100);
   --accent: oklch(1 0 0 / 0.07);

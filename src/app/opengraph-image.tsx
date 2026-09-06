@@ -1,27 +1,46 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { BRAND_COLORS, svgDataUri } from "@/interface/ui/brand/mark";
+import { brandLockupSvg } from "@/interface/ui/brand/wordmark";
 
 // Next.js file-based metadata: served at /opengraph-image and auto-injected as og:image
 // (1200×630, summary_large_image). Composition statique en FR (locale dominante).
 //
-// Police : satori (le moteur d'ImageResponse) ne lit que TTF/OTF/WOFF — pas le WOFF2
-// variable de @fontsource-variable/fraunces. On assume donc une stack serif (Georgia) pour
-// le display plutôt que d'embarquer un binaire statique ou un fetch réseau au build (build
-// hermétique). NB : le doc UI 2026 fetchait le CSS Google Fonts sans jamais le passer à
-// `fonts:` — Fraunces n'y était jamais rendue (fallback serif silencieux). On fait pareil,
-// mais explicitement.
+// Police : satori (le moteur d'ImageResponse) ne lit que TTF/OTF/WOFF — pas le WOFF2 variable de
+// @fontsource-variable/fraunces. On embarque donc deux instances STATIQUES sous-ensemblées
+// (Fraunces wght 500 / opsz 144, romain + italique, latin + accents FR, ~22 + 27 Ko) dans
+// `src/app/_og/`, lues au build via fs (build hermétique, zéro fetch réseau). Le lockup, lui,
+// est vectoriel (wordmark outliné) : il ne dépend d'aucune police.
 
 export const alt = "Cartora — Menu digital pour restaurateurs indépendants";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const CANARD = "#2c5a66";
-const SAPIN = "#1f4a3a";
-const CREAM = "#fbfaf7";
-const INK = "#181d22";
+const CANARD = BRAND_COLORS.canard600;
+// Corail « encre » (≥ 3:1 sur crème) : même climax que le hero de la landing — le sapin est réservé au succès.
+const CORAIL = BRAND_COLORS.corailInk;
+const CREAM = BRAND_COLORS.sand50;
+const INK = BRAND_COLORS.ink;
 const SAND_MUTED = "#6f6a5e";
-const SERIF = "Georgia, 'Times New Roman', serif";
+const FRAUNCES = "Fraunces";
 
-export default function OpenGraphImage() {
+async function loadFonts() {
+  const dir = join(process.cwd(), "src/app/_og");
+  const [regular, italic] = await Promise.all([
+    readFile(join(dir, "fraunces-500.ttf")),
+    readFile(join(dir, "fraunces-500-italic.ttf")),
+  ]);
+  return [
+    { name: FRAUNCES, data: regular, weight: 500 as const, style: "normal" as const },
+    { name: FRAUNCES, data: italic, weight: 500 as const, style: "italic" as const },
+  ];
+}
+
+export default async function OpenGraphImage() {
+  const fonts = await loadFonts();
+  const lockup = svgDataUri(brandLockupSvg({ body: CANARD, point: CORAIL, text: INK }));
+
   return new ImageResponse(
     <div
       style={{
@@ -32,17 +51,12 @@ export default function OpenGraphImage() {
         flexDirection: "column",
         padding: "88px 96px",
         color: INK,
-        fontFamily: SERIF,
+        fontFamily: FRAUNCES,
         position: "relative",
       }}
     >
-      {/* Lockup logo — point canard + wordmark */}
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div style={{ width: 56, height: 56, borderRadius: "50%", background: CANARD }} />
-        <span style={{ fontSize: 44, fontWeight: 500, letterSpacing: "-0.02em", color: INK }}>
-          Cartora
-        </span>
-      </div>
+      {/* Lockup logo — mark + wordmark outliné (hauteur 56 px ≈ cap-height 52) */}
+      <img src={lockup} height={56} alt="" />
 
       {/* Punchline */}
       <div
@@ -66,7 +80,7 @@ export default function OpenGraphImage() {
           }}
         >
           Votre carte en ligne en&nbsp;
-          <span style={{ color: SAPIN, fontStyle: "italic" }}>10&nbsp;minutes</span>.
+          <span style={{ color: CORAIL, fontStyle: "italic" }}>10&nbsp;minutes</span>.
         </div>
         <div
           style={{
@@ -95,6 +109,6 @@ export default function OpenGraphImage() {
         cartora.app
       </div>
     </div>,
-    { ...size },
+    { ...size, fonts },
   );
 }

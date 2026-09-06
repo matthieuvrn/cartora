@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Logo } from "@/interface/ui/components/Logo";
 import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import { cn } from "@/lib/utils";
@@ -19,8 +18,13 @@ const NAV_LINKS = [
  * sémantique) ; dès 80px de scroll il bascule en verre porcelaine (fond clair blurré,
  * hairline, texte encre) pour survoler les sections claires. Un seul état booléen, deux
  * peaux complètes — aucune classe morte entre les deux.
+ *
+ * `logo` : le lockup est rendu par le PARENT serveur (`LandingPageContent`) et passé en prop —
+ * `Logo.tsx` embarque le wordmark Fraunces outliné (~2,4 Ko gz de tracés) et ce header est un
+ * composant client : le rendre ici l'aurait ajouté au bundle initial de la landing (mesuré
+ * 291 → 298 Ko gz sur le budget `perf:landing`). Côté serveur, ces tracés ne coûtent que du HTML.
  */
-export function LandingHeader() {
+export function LandingHeader({ logo }: { logo: React.ReactNode }) {
   const t = useTranslations("Landing.header");
   const [scrolled, setScrolled] = useState(false);
 
@@ -46,7 +50,7 @@ export function LandingHeader() {
           aria-label="Cartora"
           className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         >
-          <Logo className="h-7" />
+          {logo}
         </Link>
 
         <nav aria-label="Navigation principale" className="ml-8 hidden items-center gap-7 md:flex">

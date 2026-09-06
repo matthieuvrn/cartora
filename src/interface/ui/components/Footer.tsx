@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { Logo } from "@/interface/ui/components/Logo";
 import { ManageCookiesButton } from "@/interface/ui/components/consent/ManageCookiesButton";
 import { COOKIE_BANNER_OFFSET } from "@/interface/ui/components/consent/cookieBannerOffset";
 
@@ -17,7 +18,12 @@ export async function Footer() {
       style={{ marginBottom: COOKIE_BANNER_OFFSET }}
     >
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-6 py-8 text-center text-sm text-muted-foreground sm:flex-row sm:justify-between">
-        <p>&copy; {new Date().getFullYear()} Cartora</p>
+        {/* Mark mono (currentColor = muted-foreground) : présent aussi sur les menus publics /m/,
+            où la marque ne doit pas injecter sa couleur — le copyright y figurait déjà. */}
+        <p className="inline-flex items-center gap-2">
+          <Logo variant="mark" tone="mono" className="h-4" />
+          <span>&copy; {new Date().getFullYear()} Cartora</span>
+        </p>
         <nav className="flex flex-wrap items-center justify-center gap-4">
           <Link href="/confidentialite" className="underline-offset-4 hover:underline">
             {t("privacy")}

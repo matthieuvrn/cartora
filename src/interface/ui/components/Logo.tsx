@@ -1,61 +1,104 @@
 import { cn } from "@/lib/utils";
+import {
+  BRAND_MARK_BODY_PATH,
+  BRAND_MARK_POINT,
+  BRAND_MARK_VIEWBOX,
+} from "@/interface/ui/brand/mark";
+import {
+  BRAND_WORDMARK,
+  brandLockupLayout,
+  brandWordmarkLayout,
+} from "@/interface/ui/brand/wordmark";
 
-type LogoVariant = "lockup" | "wordmark" | "dot";
+type LogoVariant = "lockup" | "wordmark" | "mark";
+type LogoTone = "brand" | "mono";
 
 type LogoProps = {
-  /** "lockup" = point + wordmark (défaut), "wordmark" = texte seul, "dot" = point seul */
+  /** "lockup" = mark + wordmark (défaut), "wordmark" = texte seul, "mark" = signe seul */
   variant?: LogoVariant;
+  /**
+   * "brand" (défaut) : corps en `--logo-mark`, point en `--logo-accent` (tokens backés sous
+   * `.theme-cartora`/`.theme-app`, `.dark` et `.section-nuit` — cf. globals.css), wordmark en
+   * `--foreground`. "mono" : tout en `currentColor` — pour les surfaces neutres (footer des menus
+   * publics, filigrane) où la marque ne doit pas injecter sa couleur.
+   */
+  tone?: LogoTone;
   /** Hauteur via classe utilitaire (ex. "h-7"). Le SVG scale sur sa hauteur. */
   className?: string;
 };
 
-/**
- * Lockup de marque Cartora : point canard + wordmark Fraunces.
- * SVG inline qui scale sur sa hauteur (`className="h-7"`). Le point utilise la famille
- * canard (correcte même hors `.theme-cartora`, ex. footer neutre) ; le wordmark suit
- * `--foreground` et la police display via `var(--font-fraunces)`.
- */
-export function Logo({ variant = "lockup", className }: LogoProps) {
-  const label = "Cartora";
+const BODY_BRAND = { fill: "var(--logo-mark, #2c5a66)" } as const;
+const POINT_BRAND = { fill: "var(--logo-accent, #e8704e)" } as const;
+const CURRENT = { fill: "currentColor" } as const;
 
-  if (variant === "dot") {
+/**
+ * Logo Cartora — mark « Point final » (carte canard + point corail) et wordmark Fraunces
+ * OUTLINÉ (géométrie dans `@/interface/ui/brand/mark`). Vectoriel pur : aucun `<text>`, donc
+ * aucune dépendance au chargement de la webfont (l'ancien lockup rendait « Cartora » en
+ * fallback serif avant l'arrivée de Fraunces). SVG inline qui scale sur sa hauteur.
+ */
+export function Logo({ variant = "lockup", tone = "brand", className }: LogoProps) {
+  const label = "Cartora";
+  const body = tone === "mono" ? CURRENT : BODY_BRAND;
+  const point = tone === "mono" ? CURRENT : POINT_BRAND;
+  const textClass = tone === "mono" ? undefined : "fill-foreground";
+
+  if (variant === "mark") {
     return (
       <svg
-        viewBox="0 0 32 32"
+        viewBox={BRAND_MARK_VIEWBOX}
         role="img"
         aria-label={label}
         className={cn("h-7 w-auto", className)}
       >
-        <circle cx="16" cy="16" r="10" className="fill-canard-600 dark:fill-canard-300" />
+        <path style={body} d={BRAND_MARK_BODY_PATH} />
+        <circle
+          style={point}
+          cx={BRAND_MARK_POINT.cx}
+          cy={BRAND_MARK_POINT.cy}
+          r={BRAND_MARK_POINT.r}
+        />
       </svg>
     );
   }
 
-  const withDot = variant === "lockup";
-
-  return (
-    <svg
-      viewBox={withDot ? "0 0 240 56" : "0 0 196 56"}
-      role="img"
-      aria-label={label}
-      className={cn("h-7 w-auto", className)}
-    >
-      {withDot && (
-        <circle cx="20" cy="28" r="12" className="fill-canard-600 dark:fill-canard-300" />
-      )}
-      <text
-        x={withDot ? 44 : 0}
-        y="40"
-        className="fill-foreground"
-        style={{
-          fontFamily: "var(--font-fraunces)",
-          fontWeight: 500,
-          fontSize: 36,
-          letterSpacing: "-0.02em",
-        }}
+  if (variant === "wordmark") {
+    const l = brandWordmarkLayout();
+    return (
+      <svg
+        viewBox={l.viewBox}
+        role="img"
+        aria-label={label}
+        className={cn("h-7 w-auto", className)}
       >
-        {label}
-      </text>
+        <path
+          style={tone === "mono" ? CURRENT : undefined}
+          className={textClass}
+          transform={l.text.transform}
+          d={BRAND_WORDMARK.path}
+        />
+      </svg>
+    );
+  }
+
+  const l = brandLockupLayout();
+  return (
+    <svg viewBox={l.viewBox} role="img" aria-label={label} className={cn("h-7 w-auto", className)}>
+      <g transform={l.mark.transform}>
+        <path style={body} d={BRAND_MARK_BODY_PATH} />
+        <circle
+          style={point}
+          cx={BRAND_MARK_POINT.cx}
+          cy={BRAND_MARK_POINT.cy}
+          r={BRAND_MARK_POINT.r}
+        />
+      </g>
+      <path
+        style={tone === "mono" ? CURRENT : undefined}
+        className={textClass}
+        transform={l.text.transform}
+        d={BRAND_WORDMARK.path}
+      />
     </svg>
   );
 }

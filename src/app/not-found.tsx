@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/interface/ui/components/Logo";
 
 /**
  * 404 globale. IMPORTANT : ce fallback est embarqué dans le flight payload de TOUTES les
@@ -11,6 +12,10 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <main className="theme-app flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center text-foreground">
+      {/* Logo pur (aucun hook, aucun next-intl) : compatible avec la contrainte statique ci-dessus. */}
+      <Link href="/" aria-label="Cartora" className="mb-8 rounded-sm">
+        <Logo className="h-7" />
+      </Link>
       <h1 className="mb-2 text-h1">404</h1>
       <p className="display mb-1 text-h3">Page introuvable — Page not found</p>
       <p className="mb-6 text-body text-muted-foreground">

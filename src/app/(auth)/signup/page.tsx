@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/interface/ui/components/Logo";
 import { signupAction, type AuthState } from "@/app/(auth)/actions";
 import { RESTAURANT_TYPES, type RestaurantType } from "@/domain/restaurant/RestaurantInitPolicy";
 
@@ -86,6 +87,9 @@ function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null 
     return (
       <Card className="w-full max-w-sm shadow-frame!">
         <CardHeader>
+          <Link href="/" aria-label="Cartora" className="mb-1 inline-flex w-fit rounded-sm">
+            <Logo className="h-6" />
+          </Link>
           <CardTitle className="display">{t("checkEmailTitle")}</CardTitle>
           <CardDescription>{t("checkEmailDesc")}</CardDescription>
         </CardHeader>
@@ -105,10 +109,12 @@ function SignupCard({ plan, src }: { plan: PlanParam | null; src: string | null 
     // `shadow-frame!` : cadre des scènes nuit — important requis, cf. la note du login.
     <Card className="w-full max-w-md shadow-frame!">
       <CardHeader>
-        <p className="eyebrow">
-          <span className="eyebrow-dot" aria-hidden="true" />
-          Cartora
-        </p>
+        {/* Lockup (mark canard-300 + wordmark porcelaine via les tokens de la scène nuit) à la
+            place de l'ancien eyebrow « ● Cartora » : le point corail du mark reprend celui de
+            l'eyebrow. Lien vers la landing, comme le header. */}
+        <Link href="/" aria-label="Cartora" className="mb-1 inline-flex w-fit rounded-sm">
+          <Logo className="h-6" />
+        </Link>
         <CardTitle className="display">{t("signup")}</CardTitle>
       </CardHeader>
 
