@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { HIT_AREA } from "@/lib/utils";
 import { Logo } from "@/interface/ui/components/Logo";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
-import { AppSidebar } from "./AppSidebar";
+import { AppSidebar, type SidebarRestaurant } from "./AppSidebar";
 import { PublishBar } from "./PublishBar";
 import { PublishControlCompact } from "./PublishControlCompact";
 
@@ -19,11 +19,14 @@ import { PublishControlCompact } from "./PublishControlCompact";
  */
 export function AppShell({
   email,
+  restaurant,
   translationTodoCount,
   publishBarState,
   children,
 }: {
   email: string;
+  /** Identité du restaurant (pied de rail) — `null` avant le provisioning du 1er login. */
+  restaurant: SidebarRestaurant | null;
   /** Champs de traduction « à relire » — pastille de comptage sur l'entrée « Traductions ». */
   translationTodoCount: number;
   /** État de publication global (barre PublishBar) — `null` avant le provisioning du 1er login. */
@@ -45,7 +48,11 @@ export function AppShell({
 
       {/* Rail desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r md:block">
-        <AppSidebar email={email} translationTodoCount={translationTodoCount} />
+        <AppSidebar
+          email={email}
+          restaurant={restaurant}
+          translationTodoCount={translationTodoCount}
+        />
       </aside>
 
       {/* Barre mobile */}
@@ -60,6 +67,7 @@ export function AppShell({
             <SheetTitle className="sr-only">{t("navigation")}</SheetTitle>
             <AppSidebar
               email={email}
+              restaurant={restaurant}
               translationTodoCount={translationTodoCount}
               onNavigate={() => setOpen(false)}
             />

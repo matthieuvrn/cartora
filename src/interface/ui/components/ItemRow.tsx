@@ -163,7 +163,8 @@ export function ItemRow({
         id={`item-${item.id}`}
         tabIndex={-1}
         className={cn(
-          "flex items-center gap-3 rounded-lg border bg-card px-3 py-2",
+          // Rangée non cliquable dans son ensemble ⇒ hover bordure seulement (jamais de lift).
+          "flex items-center gap-3 rounded-lg border bg-card px-3 py-2 transition-colors hover:border-canard-200",
           isDragging && "relative z-10 shadow-lg",
         )}
       >
@@ -183,8 +184,10 @@ export function ItemRow({
           </button>
         )}
         <div className={cn("min-w-0 flex-1", !optimisticAvailable && "opacity-60")}>
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate font-medium">{name}</span>
+          {/* `flex-wrap` : en étroit, les pastilles passent sous le nom au lieu de l'écraser
+              (à 390 px le nom se réduisait à une lettre). */}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="min-w-0 truncate font-medium">{name}</span>
             {item.badge !== "NONE" && (
               <BadgeChip badge={item.badge} label={t(`badge.${item.badge}`)} />
             )}
@@ -228,10 +231,11 @@ export function ItemRow({
             }
             className={HIT_AREA}
           />
+          {/* Crayon direct dès `sm` ; en étroit il rejoint le menu overflow (place au nom). */}
           <Button
             variant="ghost"
             size="icon-xs"
-            className={HIT_AREA_TALL}
+            className={cn("hidden sm:inline-flex", HIT_AREA_TALL)}
             aria-label={t("editItem")}
             onClick={handleEdit}
           >
@@ -259,6 +263,10 @@ export function ItemRow({
                 deleteFocusTargetRef.current = null;
               }}
             >
+              <DropdownMenuItem className="sm:hidden" onSelect={handleEdit}>
+                <Pencil />
+                {t("editItem")}
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={handleDuplicate}>
                 <Copy />
                 {t("duplicate")}

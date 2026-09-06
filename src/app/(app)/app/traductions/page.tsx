@@ -5,6 +5,7 @@ import { loadTranslationOverview } from "../_lib/translationOverview";
 import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PlanPolicy } from "@/domain/billing/PlanPolicy";
+import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { LanguagesCard } from "@/interface/ui/components/translations/LanguagesCard";
 import { TranslationUpsell } from "@/interface/ui/components/translations/TranslationUpsell";
 
@@ -22,12 +23,7 @@ export default async function TranslationsPage() {
 
   const canUseMultilingual = PlanPolicy.canUseAutoTranslation(restaurant.planTier);
 
-  const header = (
-    <div>
-      <h1 className="text-h2">{t("title")}</h1>
-      <p className="text-sm text-muted-foreground">{t("description")}</p>
-    </div>
-  );
+  const header = <PageHeader title={t("title")} description={t("description")} />;
 
   // Non-PRO : multilingue verrouillé → pitch d'upsell (aucune langue activable).
   if (!canUseMultilingual) {

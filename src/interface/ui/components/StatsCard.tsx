@@ -123,8 +123,20 @@ export function StatsCard({ stats, realtimeStats }: Props) {
   const hasBreakdowns =
     deviceEntries.length > 0 || sourceEntries.length > 0 || localeEntries.length > 0;
 
+  // Rien de mesuré sur la fenêtre (ni 7 j ni 24 h) : on le dit explicitement au-dessus des
+  // tuiles à zéro, plutôt qu'une grille de « 0 » et de courbes plates sans explication.
+  const isEmpty = stats.totalViews === 0 && (realtimeStats?.viewsLast24h ?? 0) === 0;
+
   return (
     <div className="space-y-4">
+      {isEmpty && (
+        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed px-4 py-8 text-center">
+          <Eye className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
+          <p className="text-body font-medium">{t("empty")}</p>
+          <p className="max-w-md text-body-sm text-muted-foreground">{t("emptyHint")}</p>
+        </div>
+      )}
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <KpiCard

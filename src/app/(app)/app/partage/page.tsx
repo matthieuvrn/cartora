@@ -6,6 +6,7 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { PublishShareCluster } from "@/interface/ui/components/app/PublishShareCluster";
 import { QrStyleEditor } from "@/interface/ui/components/QrStyleEditor";
 
@@ -27,10 +28,7 @@ export default async function SharePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <h1 className="text-h2">{t("title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("description")}</p>
-      </div>
+      <PageHeader eyebrow={t("eyebrow")} title={t("title")} description={t("description")} />
 
       {!isPublished ? (
         <Card>

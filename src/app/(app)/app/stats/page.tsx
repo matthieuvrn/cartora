@@ -5,6 +5,7 @@ import { PrismaAnalyticsRepository } from "@/infrastructure/analytics/PrismaAnal
 import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { GetDashboardStats } from "@/application/use-cases/GetDashboardStats";
 import { GetRealtimeStats } from "@/application/use-cases/GetRealtimeStats";
+import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { StatsCard } from "@/interface/ui/components/StatsCard";
 
 export default async function StatsPage() {
@@ -21,7 +22,7 @@ export default async function StatsPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <h1 className="text-h2">{t("title")}</h1>
+      <PageHeader eyebrow={t("eyebrow")} title={t("title")} description={t("description")} />
       <StatsCard stats={stats} realtimeStats={realtimeStats} />
     </div>
   );

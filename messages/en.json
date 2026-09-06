@@ -11,7 +11,8 @@
     "partage": "Share",
     "abonnement": "Subscription",
     "reglages": "Settings",
-    "translationsPending": "{count} to translate"
+    "translationsPending": "{count} to translate",
+    "managePlan": "Manage my subscription"
   },
   "Translations": {
     "title": "Translations",
@@ -87,7 +88,8 @@
       "saved": "QR code updated",
       "reset": "Reset",
       "scanHint": "Always test the QR with a phone before printing."
-    }
+    },
+    "eyebrow": "Public link · QR code"
   },
   "Auth": {
     "login": "Sign in",
@@ -993,7 +995,8 @@
         "RIVAGE": "Seaside: navy blue, sea foam, sandy white.",
         "VELOURS": "Cosy wine bar: aubergine, dusty rose, copper."
       }
-    }
+    },
+    "description": "Your account, personal data and preferences."
   },
   "Footer": {
     "privacy": "Privacy policy",
@@ -1240,6 +1243,9 @@
     "peakHour": "Peak hour",
     "peakDay": "Busiest day",
     "hourlyTitle": "Views by hour",
-    "hourlyDescription": "Hourly distribution (last 7 days)"
+    "hourlyDescription": "Hourly distribution (last 7 days)",
+    "eyebrow": "Public menu audience",
+    "description": "Traffic on your online menu, measured without cookies or consent.",
+    "emptyHint": "Views will show up as soon as a guest opens your menu via the QR code or the public link."
   }
 }

@@ -11,7 +11,8 @@
     "partage": "Partage",
     "abonnement": "Abonnement",
     "reglages": "Réglages",
-    "translationsPending": "{count} à traduire"
+    "translationsPending": "{count} à traduire",
+    "managePlan": "Gérer mon abonnement"
   },
   "Translations": {
     "title": "Traductions",
@@ -87,7 +88,8 @@
       "saved": "QR code mis à jour",
       "reset": "Réinitialiser",
       "scanHint": "Testez toujours le QR avec un téléphone avant d'imprimer."
-    }
+    },
+    "eyebrow": "Lien public · QR code"
   },
   "Auth": {
     "login": "Se connecter",
@@ -887,7 +889,7 @@
     "payment_failed": "Le paiement n’a pas abouti (refus ou authentification bancaire requise). Vérifiez votre moyen de paiement puis réessayez : votre formule n’a pas changé."
   },
   "Settings": {
-    "title": "Paramètres",
+    "title": "Réglages",
     "back": "Retour",
     "account": "Mon compte",
     "accountDescription": "Informations de votre compte Cartora.",
@@ -993,7 +995,8 @@
         "RIVAGE": "Bord de mer : bleu marine, écume, blanc sablé.",
         "VELOURS": "Bar à vin feutré : aubergine, rosé poudré, cuivre."
       }
-    }
+    },
+    "description": "Votre compte, vos données personnelles et vos préférences."
   },
   "Footer": {
     "privacy": "Politique de confidentialité",
@@ -1240,6 +1243,9 @@
     "peakHour": "Heure de pointe",
     "peakDay": "Jour de pointe",
     "hourlyTitle": "Vues par heure",
-    "hourlyDescription": "Répartition horaire (7 derniers jours)"
+    "hourlyDescription": "Répartition horaire (7 derniers jours)",
+    "eyebrow": "Audience du menu public",
+    "description": "Fréquentation de votre carte en ligne, mesurée sans cookie ni consentement.",
+    "emptyHint": "Les vues apparaîtront dès qu'un client ouvrira votre carte via le QR code ou le lien public."
   }
 }

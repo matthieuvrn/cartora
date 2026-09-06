@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/infrastructure/supabase/server";
 import { prisma } from "@/infrastructure/db/prisma";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { AppShell } from "@/interface/ui/components/app/AppShell";
+import type { SidebarRestaurant } from "@/interface/ui/components/app/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { loadTranslationOverview, translationTodoCount } from "./app/_lib/translationOverview";
 import { loadPublishBarState, type PublishBarState } from "./app/_lib/publishBarState";
@@ -27,12 +28,25 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // `loadPublishBarState` mutualise `loadTranslationOverview` via `cache()` (pas de requête en plus).
   let pendingTranslations = 0;
   let publishBarState: PublishBarState | null = null;
+  let sidebarRestaurant: SidebarRestaurant | null = null;
   if (user) {
     const restaurant = await prisma.restaurant.findUnique({
       where: { ownerUserId: user.id },
-      select: { id: true, slug: true, planTier: true, menuLocales: true },
+      select: {
+        id: true,
+        slug: true,
+        planTier: true,
+        menuLocales: true,
+        displayName: true,
+        logoPath: true,
+      },
     });
     if (restaurant) {
+      sidebarRestaurant = {
+        name: restaurant.displayName,
+        logoPath: restaurant.logoPath,
+        planTier: restaurant.planTier as PlanTier,
+      };
       if (restaurant.menuLocales.length > 0) {
         const overview = await loadTranslationOverview(restaurant.id);
         pendingTranslations = translationTodoCount(overview.coverage);
@@ -54,6 +68,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       >
         <AppShell
           email={user?.email ?? ""}
+          restaurant={sidebarRestaurant}
           translationTodoCount={pendingTranslations}
           publishBarState={publishBarState}
         >

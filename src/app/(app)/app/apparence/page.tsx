@@ -6,6 +6,7 @@ import { prisma } from "@/infrastructure/db/prisma";
 import { PrismaRestaurantRepository } from "@/infrastructure/restaurant/PrismaRestaurantRepository";
 import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { TemplateSelector } from "@/interface/ui/components/TemplateSelector";
 import { RestaurantLogoEditor } from "@/interface/ui/components/RestaurantLogoEditor";
 import { BrandColorsEditor } from "@/interface/ui/components/BrandColorsEditor";
@@ -33,10 +34,7 @@ export default async function AppearancePage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
-      <div>
-        <h1 className="text-h2">{t("appearance")}</h1>
-        <p className="text-sm text-muted-foreground">{t("appearanceDescription")}</p>
-      </div>
+      <PageHeader title={t("appearance")} description={t("appearanceDescription")} />
 
       {restaurant.planTier === "FREE" && (
         <Card className="border-warning/30 bg-warning/10">

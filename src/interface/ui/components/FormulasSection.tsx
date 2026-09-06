@@ -42,7 +42,7 @@ export function FormulasSection({ activeFormulas, expiredFormulas, sourceLocale 
         <h3 id="formulas-section-heading" className="text-base font-semibold">
           {t("title")}
         </h3>
-        <Button onClick={handleAdd} size="sm">
+        <Button onClick={handleAdd} variant="outline" size="sm">
           <Plus className="size-4" />
           {t("add")}
         </Button>

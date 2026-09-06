@@ -4,6 +4,7 @@ import type { SubscriptionOverview } from "@/application/use-cases/GetSubscripti
 import { SubscriptionChangePolicy } from "@/domain/billing/SubscriptionChangePolicy";
 import { formatBillingAmount, formatBillingDate } from "@/lib/billing-format";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { PageHeader } from "../app/PageHeader";
 import { BillingUrlFeedback } from "./BillingUrlFeedback";
 import { CancelSubscriptionCard } from "./CancelSubscriptionCard";
 import { InvoicesCard } from "./InvoicesCard";
@@ -61,10 +62,7 @@ export function SubscriptionPageBody({
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
-      <div>
-        <h1 className="text-h2">{t("sectionTitle")}</h1>
-        <p className="text-sm text-muted-foreground">{t("sectionDescription")}</p>
-      </div>
+      <PageHeader title={t("sectionTitle")} description={t("sectionDescription")} />
 
       <BillingUrlFeedback error={billingError} notice={billingNotice} />
 

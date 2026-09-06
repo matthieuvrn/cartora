@@ -42,7 +42,9 @@ export function DailyDishesSection({ activeDishes, expiredDishes, sourceLocale }
         <h3 id="daily-menu-section-heading" className="text-base font-semibold">
           {t("title")}
         </h3>
-        <Button onClick={handleAdd} size="sm">
+        {/* Outline : même registre que « Ajouter un item » des catégories — le seul bouton
+            plein du viewport reste le climax de la barre de publication. */}
+        <Button onClick={handleAdd} variant="outline" size="sm">
           <Plus className="size-4" />
           {t("add")}
         </Button>

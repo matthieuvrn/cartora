@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { requireRestaurant } from "../_lib/requireRestaurant";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { DeleteAccountButton } from "@/interface/ui/components/DeleteAccountButton";
 import { ExportDataButton } from "@/interface/ui/components/ExportDataButton";
 import { ManageCookiesButton } from "@/interface/ui/components/consent/ManageCookiesButton";
@@ -12,7 +13,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-h2">{t("title")}</h1>
+      <PageHeader title={t("title")} description={t("description")} />
 
       <Card>
         <CardHeader>

@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import {
   DndContext,
   KeyboardSensor,
@@ -49,6 +49,10 @@ export function SortableList({
   children,
 }: SortableListProps) {
   const t = useTranslations("Dashboard.dnd");
+  // Id STABLE entre serveur et client : sans lui, dnd-kit numérote ses éléments d'accessibilité
+  // (`DndDescribedBy-N`) avec un compteur global qui diverge à l'hydratation (plusieurs contextes
+  // imbriqués : catégories + items) → mismatch `aria-describedby` signalé par React en dev.
+  const id = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -85,6 +89,7 @@ export function SortableList({
 
   return (
     <DndContext
+      id={id}
       sensors={sensors}
       collisionDetection={closestCenter}
       modifiers={[restrictToVerticalAxis]}
