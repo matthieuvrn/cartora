@@ -115,11 +115,10 @@ export async function LandingFooter() {
                   {t("terms")}
                 </Link>
               </li>
-              {/* ManageCookiesButton n'accepte pas de className : son style propre
-                  (text-muted-foreground + underline au hover) reste lisible sur nuit grâce au
-                  remap --muted-foreground de .section-nuit. */}
-              <li className="flex min-h-[44px] items-center md:min-h-0 md:py-1.5">
-                <ManageCookiesButton />
+              {/* Même registre que les trois liens voisins (linkClass) : le style propre du
+                  bouton (text-sm muted + underline) faisait une 4e ligne d'un autre système. */}
+              <li>
+                <ManageCookiesButton className={linkClass} />
               </li>
             </ul>
           </nav>

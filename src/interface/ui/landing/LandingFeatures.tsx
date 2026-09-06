@@ -126,7 +126,9 @@ function BilingualVisual() {
   return (
     <p className="font-mono text-body-sm">
       <span className="text-sand-500">FR</span>
-      <span aria-hidden="true" className="mx-2 text-corail-500">
+      {/* Flèche en canard (structure) : en corail elle faisait un 4e accent chaud dans le
+          viewport (point du kicker + 2 chips Pro) — un seul climax corail par viewport. */}
+      <span aria-hidden="true" className="mx-2 text-canard-500">
         →
       </span>
       <span className="font-medium text-canard-800">EN · ES · DE · IT</span>
@@ -134,14 +136,19 @@ function BilingualVisual() {
   );
 }
 
-function DailyVisual() {
+// Plat du jour du seed démo + échéance : l'ancien « 21,00 € barré → 19,50 € » se lisait comme
+// une PROMOTION (un plat du jour Cartora n'a pas d'ancien prix) — le visuel raconte désormais
+// l'expiration automatique, qui est la feature. Nom de plat volontairement en français sur /en
+// (même contrat que le facsimilé du hero).
+function DailyVisual({ dailyUntil }: VisualProps) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
       <span className="rounded-full bg-canard-100 px-2.5 py-1 text-micro font-medium text-canard-800">
         Aujourd’hui
       </span>
-      <span className="font-mono text-body-sm text-sand-400 line-through">21,00 €</span>
-      <span className="font-mono text-body-sm font-medium text-canard-800">19,50 €</span>
+      <span className="font-mono text-body-sm text-canard-950">Blanquette de veau</span>
+      <span className="font-mono text-body-sm font-medium text-canard-800">18,50 €</span>
+      <span className="font-mono text-micro text-sand-500">{dailyUntil}</span>
     </div>
   );
 }
@@ -161,7 +168,10 @@ function BrandingVisual() {
   );
 }
 
-const VISUALS: Record<FeatureKey, () => React.ReactNode> = {
+// Seul DailyVisual consomme la prop (échéance traduite) ; les autres visuels l'ignorent.
+type VisualProps = { dailyUntil: string };
+
+const VISUALS: Record<FeatureKey, (props: VisualProps) => React.ReactNode> = {
   editor: EditorVisual,
   qr: QrVisual,
   allergens: AllergenVisual,
@@ -185,8 +195,11 @@ export function LandingFeatures() {
         <p className="mt-5 text-lead text-muted-foreground">{t("subtitle")}</p>
       </header>
 
-      {/* Stagger d'entrée — la section parente passe en MotionSection variant="fade". */}
-      <StaggerGroup className="grid gap-4 md:grid-cols-6">
+      {/* Stagger d'entrée — la section parente passe en MotionSection variant="fade".
+          `grid-cols-1` (= minmax(0, 1fr)) sous md : sans piste explicite, la colonne auto prenait
+          la largeur min-content de la cellule éditeur (descriptions `truncate` = nowrap) et la
+          page défilait horizontalement de 11 px à 390 px / 41 px à 360 px (passe 2026-09-06). */}
+      <StaggerGroup className="grid grid-cols-1 gap-4 md:grid-cols-6">
         {FEATURES.map(({ key, tier }) => {
           const Visual = VISUALS[key];
           return (
@@ -197,7 +210,7 @@ export function LandingFeatures() {
                 title={t(`${key}.title`)}
                 body={t(`${key}.body`)}
                 tierLabel={t(`${key}.tier`)}
-                visual={<Visual />}
+                visual={<Visual dailyUntil={t("daily.visualUntil")} />}
               />
             </StaggerItem>
           );

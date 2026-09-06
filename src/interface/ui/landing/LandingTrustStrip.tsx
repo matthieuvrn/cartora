@@ -18,7 +18,8 @@ const items: TrustItem[] = [
 /**
  * Fin de la scène nuit du hero (DA « Nuit de service ») : bande hairline en registre mono,
  * sans grille ni glow — seul le grain signature habille le fond. Aucun border-b : la coupe
- * nuit → porcelaine est franche et assumée.
+ * nuit → porcelaine est franche et assumée. Icônes en canard-300 (structure) : le sapin est
+ * réservé au succès (grammaire chromatique) — une bande d'information n'en est pas un.
  */
 export function LandingTrustStrip() {
   const t = useTranslations("Landing.trustStrip");
@@ -37,7 +38,7 @@ export function LandingTrustStrip() {
             key={key}
             className="flex items-center gap-2.5 font-mono text-caption text-sand-300 md:justify-center md:px-4"
           >
-            <Icon className="size-4 shrink-0 stroke-[1.5] text-sapin-300" aria-hidden="true" />
+            <Icon className="size-4 shrink-0 stroke-[1.5] text-canard-300" aria-hidden="true" />
             <span>{t(key)}</span>
           </li>
         ))}

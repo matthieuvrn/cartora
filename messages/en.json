@@ -615,7 +615,8 @@
       "loginCta": "Log in",
       "signupCta": "Create my menu for free",
       "signupCtaShort": "Create my menu",
-      "loggedInCta": ""
+      "navLabel": "Main navigation",
+      "localeNavLabel": "Language"
     },
     "hero": {
       "kicker": "The digital menu for independent restaurants",
@@ -722,7 +723,8 @@
       "daily": {
         "title": "Daily specials and set menus",
         "body": "Time-limited daily dishes (up to 14 days) and set menus with detailed descriptions. Auto-removed on expiry.",
-        "tier": "From Starter"
+        "tier": "From Starter",
+        "visualUntil": "until 11:59 pm"
       },
       "branding": {
         "title": "A menu that looks like you",

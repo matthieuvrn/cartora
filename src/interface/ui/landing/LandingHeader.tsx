@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
+import { LandingLocaleSwitch } from "@/interface/ui/landing/LandingLocaleSwitch";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,9 @@ const NAV_LINKS = [
  * `Logo.tsx` embarque le wordmark Fraunces outliné (~2,4 Ko gz de tracés) et ce header est un
  * composant client : le rendre ici l'aurait ajouté au bundle initial de la landing (mesuré
  * 291 → 298 Ko gz sur le budget `perf:landing`). Côté serveur, ces tracés ne coûtent que du HTML.
+ *
+ * Langue : `LandingLocaleSwitch` (deux liens mono FR · EN) et non le `LocaleSwitcher` partagé —
+ * son DropdownMenu Radix pesait ~26 KB gz sur le bundle initial de la landing (cf. docblock).
  */
 export function LandingHeader({ logo }: { logo: React.ReactNode }) {
   const t = useTranslations("Landing.header");
@@ -38,13 +41,17 @@ export function LandingHeader({ logo }: { logo: React.ReactNode }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-[background-color,border-color] duration-300 ease-out",
+        "sticky top-0 z-40 transition-[background-color,border-color,color] duration-300 ease-out",
         scrolled
           ? "border-b border-sand-200/80 bg-sand-50/85 backdrop-blur-xl"
           : "section-nuit border-b border-transparent bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6">
+      {/* Géométrie < sm (passe landing 2026-09-06) : à 360 px (Galaxy A, très répandu), lockup
+          h-5.5 (134 px) + 12 + switcher 36 + 6 + CTA « Créer ma carte » nowrap px-4 (≈ 132 px)
+          = 320 px ≤ 328 px de contenu (px-4). Avant : le flex écrasait la pilule et le libellé
+          court wrappait quand même sur 2 lignes dans un h-10 (défaut visible dès 390 px). */}
+      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <Link
           href="/"
           aria-label="Cartora"
@@ -53,7 +60,7 @@ export function LandingHeader({ logo }: { logo: React.ReactNode }) {
           {logo}
         </Link>
 
-        <nav aria-label="Navigation principale" className="ml-8 hidden items-center gap-7 md:flex">
+        <nav aria-label={t("navLabel")} className="ml-8 hidden items-center gap-7 md:flex">
           {NAV_LINKS.map(({ href, labelKey }) => (
             <Link
               key={href}
@@ -68,8 +75,8 @@ export function LandingHeader({ logo }: { logo: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
-          <LocaleSwitcher trackLanding landingPaths />
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+          <LandingLocaleSwitch className="mr-1" />
           <TrackedCtaButton
             event="cta_header_login"
             href="/login"
@@ -78,9 +85,14 @@ export function LandingHeader({ logo }: { logo: React.ReactNode }) {
           >
             {t("loginCta")}
           </TrackedCtaButton>
-          <TrackedCtaButton event="cta_header_signup" href="/signup?src=header" variant="primary">
-            {/* Libellé court < sm : le CTA complet wrappe sur 2 lignes à 390px dans un header
-                sticky — défaut de polish permanent (audit visuel 2026). */}
+          <TrackedCtaButton
+            event="cta_header_signup"
+            href="/signup?src=header"
+            variant="primary"
+            className="shrink-0 px-4 whitespace-nowrap sm:px-5"
+          >
+            {/* Libellé court < sm (le CTA complet wrappait sur 2 lignes à 390 px) ; `shrink-0` +
+                nowrap : la pilule ne se fait plus écraser par le flex — cf. note de géométrie. */}
             <span className="sm:hidden">{t("signupCtaShort")}</span>
             <span className="hidden sm:inline">{t("signupCta")}</span>
           </TrackedCtaButton>

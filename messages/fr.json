@@ -615,7 +615,8 @@
       "loginCta": "Se connecter",
       "signupCta": "Créer ma carte gratuitement",
       "signupCtaShort": "Créer ma carte",
-      "loggedInCta": ""
+      "navLabel": "Navigation principale",
+      "localeNavLabel": "Langue"
     },
     "hero": {
       "kicker": "Le menu digital des restaurateurs indépendants",
@@ -722,7 +723,8 @@
       "daily": {
         "title": "Menus du jour et formules",
         "body": "Ardoise du jour à durée limitée (jusqu’à 14 jours), formules avec description détaillée. Disparaissent automatiquement à expiration.",
-        "tier": "Dès Starter"
+        "tier": "Dès Starter",
+        "visualUntil": "jusqu’à 23:59"
       },
       "branding": {
         "title": "Une carte à votre image",

@@ -3,11 +3,13 @@
 import { LazyMotion, domAnimation, m } from "motion/react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { EASE_OUT_EXPO } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * « Ligne de métro » des 3 étapes (desktop uniquement, in-flow au-dessus de la grille) :
- * route pointillée sand + tracé canard révélé au scroll-in avec 3 checkpoints sapin alignés
- * sur les débuts de colonnes (0 / 33,3 / 66,6 %). La révélation anime `clip-path` (inset) —
+ * route pointillée sand + tracé canard révélé au scroll-in avec 3 checkpoints alignés sur les
+ * débuts de colonnes (0 / 33,3 / 66,6 %) — canard pour les étapes à faire, sapin pour le seul
+ * jalon accompli (« votre carte est en ligne » : sapin = succès uniquement). La révélation anime `clip-path` (inset) —
  * jamais `scaleX`, qui étirait le motif pointillé (défaut v1). Sous `prefers-reduced-motion`,
  * le tracé est rendu entier et statique.
  */
@@ -18,10 +20,13 @@ function Track() {
   return (
     <div className="absolute inset-0">
       <div className="absolute inset-x-0 top-1/2 border-t border-canard-400" />
-      {CHECKPOINTS.map((left) => (
+      {CHECKPOINTS.map((left, i) => (
         <span
           key={left}
-          className="absolute top-1/2 size-2 -translate-y-1/2 rounded-full bg-sapin-500"
+          className={cn(
+            "absolute top-1/2 size-2 -translate-y-1/2 rounded-full",
+            i === CHECKPOINTS.length - 1 ? "bg-sapin-500" : "bg-canard-400",
+          )}
           style={{ left }}
         />
       ))}

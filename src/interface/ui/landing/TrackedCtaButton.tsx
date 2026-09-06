@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LandingEventName } from "@/domain/analytics/LandingEventNames";
 import { trackLandingEvent } from "@/interface/ui/landing/trackLandingEvent";
@@ -77,6 +78,14 @@ export function TrackedCtaButton({
   const content = (
     <>
       {children}
+      {/* Nouvel onglet : jusqu'ici seul le span sr-only l'annonçait — l'œil n'avait aucun signal
+          (passe landing 2026-09-06). Le CTA `arrow` garde sa flèche → de conversion. */}
+      {external && !arrow && (
+        <ArrowUpRight
+          aria-hidden="true"
+          className="size-4 stroke-[1.75] opacity-80 transition-transform duration-200 ease-[var(--ease-snappy)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+        />
+      )}
       {arrow && (
         <span
           aria-hidden="true"

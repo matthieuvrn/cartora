@@ -8,10 +8,16 @@
  * comme le SDK Sentry différé, n'y figurent pas : c'est voulu, ils ne pèsent pas sur
  * le chargement initial). Échoue au-delà de LANDING_JS_BUDGET_KB.
  *
- * Seuil par défaut calibré juste au-dessus de la mesure courante (290 KB, 2026-08) :
- * il bloque toute régression silencieuse. À RESSERRER au fil de la refonte landing —
- * cible long terme : 150 KB gzip (niveau top-tier SaaS). Ne JAMAIS le remonter pour
- * faire passer un build : c'est le signal qu'un import client doit sauter.
+ * Les balises `<script noModule>` (polyfills core-js de Next, ~39 KB gz) sont EXCLUES :
+ * un navigateur qui comprend les modules ES — tous ceux que Cartora supporte — ne les
+ * télécharge jamais. Les compter (jusqu'au 2026-09-06) gonflait la mesure de 292 à… 292 KB
+ * affichés pour ~253 KB réellement chargés.
+ *
+ * Seuil : 300 KB gzip. Avant la passe landing de 2026-09 la question était de le relever ;
+ * la correction noModule ci-dessus a rendu ~47 KB de marge réelle (253/300), donc le seuil
+ * est resté à 300. Il bloque toute régression silencieuse. Ne JAMAIS le remonter pour faire
+ * passer un build : c'est le signal qu'un import client doit sauter. À RESSERRER dès la passe
+ * livrée (≈ 270) — cible long terme : 150 KB gzip (niveau top-tier SaaS).
  * Usage : pnpm perf:landing (après pnpm build). CI : job checks, après le build.
  */
 import { spawn } from "node:child_process";
@@ -59,8 +65,20 @@ try {
   console.log("✓ / et /en prérendues statiques");
 
   const html = await fetchLandingHtml();
+  // Polyfills `noModule` : jamais chargés par un navigateur moderne — retirés AVANT l'extraction
+  // (le même chemin réapparaît dans le payload RSC : on l'exclut par nom, pas par balise).
+  const noModule = new Set();
+  for (const tag of html.matchAll(/<script\b[^>]*\bnomodule\b[^>]*>/gi)) {
+    const src = tag[0].match(/src="([^"]+)"/i);
+    if (src) noModule.add(src[1]);
+  }
   const refs = new Set();
-  for (const match of html.matchAll(/\/_next\/static\/[^"'\s\\]+?\.js\b/g)) refs.add(match[0]);
+  for (const match of html.matchAll(/\/_next\/static\/[^"'\s\\]+?\.js\b/g)) {
+    if (!noModule.has(match[0])) refs.add(match[0]);
+  }
+  if (noModule.size) {
+    console.log(`  (${noModule.size} script noModule ignoré·s : ${[...noModule].join(", ")})`);
+  }
   if (refs.size === 0) {
     throw new Error("Aucun chunk JS trouvé dans le HTML de la landing — extraction cassée ?");
   }

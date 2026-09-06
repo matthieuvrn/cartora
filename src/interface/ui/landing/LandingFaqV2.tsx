@@ -31,6 +31,20 @@ export function LandingFaqV2() {
     });
   };
 
+  // Issue de secours (mailto) : dans la colonne sticky dès lg, mais APRÈS les questions sous lg —
+  // proposer le contact avant même d'avoir lu la FAQ inversait l'ordre de lecture mobile.
+  const contact = (
+    <p className="text-body text-sand-700">
+      {t("contactLabel")}{" "}
+      <a
+        href="mailto:contact@cartora.app"
+        className="font-mono text-body-sm text-canard-700 underline-offset-4 hover:text-canard-900 hover:underline"
+      >
+        contact@cartora.app
+      </a>
+    </p>
+  );
+
   return (
     <LandingSection id="faq">
       <div className="grid gap-12 lg:grid-cols-12">
@@ -42,15 +56,7 @@ export function LandingFaqV2() {
           </p>
           <h2 className="mt-5 text-display-lg">{t("title")}</h2>
           <p className="mt-5 max-w-[28rem] text-lead text-sand-700">{t("subtitle")}</p>
-          <p className="mt-8 text-body text-sand-700">
-            {t("contactLabel")}{" "}
-            <a
-              href="mailto:contact@cartora.app"
-              className="font-mono text-body-sm text-canard-700 underline-offset-4 hover:text-canard-900 hover:underline"
-            >
-              contact@cartora.app
-            </a>
-          </p>
+          <div className="mt-8 hidden lg:block">{contact}</div>
         </header>
 
         <Accordion
@@ -77,6 +83,7 @@ export function LandingFaqV2() {
             </AccordionItem>
           ))}
         </Accordion>
+        <div className="-mt-4 lg:hidden">{contact}</div>
       </div>
     </LandingSection>
   );

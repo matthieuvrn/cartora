@@ -36,7 +36,7 @@ export function LandingHowItWorks() {
       {/* Stagger d'entrée des 3 étapes — section parente en variant="fade". */}
       <StaggerGroup
         as="ol"
-        className="grid gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-sand-200"
+        className="grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-0 md:divide-x md:divide-sand-200"
       >
         {STEPS.map(({ key, number }) => {
           const titleId = `how-it-works-${key}-title`;

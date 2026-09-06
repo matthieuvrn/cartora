@@ -5,12 +5,11 @@ import { BrowserMockup } from "@/interface/ui/landing/BrowserMockup";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import demoDesktop from "../../../../public/landing/demo-desktop.png";
 
-// Stat-chips flottantes autour du mockup (lg+) : surface nuit OPAQUE, registre mono « data ».
-// Opaque, pas glass : les chips chevauchent le mockup blanc — un verre translucide y rendait
-// le texte clair illisible (audit visuel 2026-08). pointer-events-none : purement visuelles.
-const STAT_CHIP_CLASS =
-  "pointer-events-none absolute z-10 hidden items-center rounded-full border border-white/15 " +
-  "bg-nuit-800 px-3.5 py-1.5 font-mono text-caption text-sand-100 shadow-md lg:flex";
+// Faits produit sous le cadre, en « fiche technique » mono (passe landing 2026-09-06) : les trois
+// pilules qui flottaient autour du mockup n'existaient qu'à partir de lg (rien sur mobile, là où
+// la carte sera lue), étaient aria-hidden et relevaient du cliché « chips autour d'un mockup ».
+// Ici : une ligne <ul> sémantique, séparateurs hairline, visible à tous les breakpoints.
+const STAT_KEYS = ["allergens", "languages", "designs"] as const;
 
 /**
  * Section preuve — scène NUIT au moment où la page prouve sa promesse (« créée en
@@ -63,26 +62,28 @@ export function LandingDemoPreview() {
         <p className="mt-5 text-lead text-sand-200/80">{t("subtitle")}</p>
       </header>
 
-      {/* Stat-chips aria-hidden : elles répètent des faits déjà énoncés avec leur contexte
-          dans Features (14 allergènes, 5 langues, 9 designs) — les annoncer ici, hors flux
-          et sans structure, serait du bruit pour les lecteurs d'écran. */}
       <div className="relative mx-auto max-w-4xl">
         <BrowserMockup src={demoDesktop} alt={t("imageAlt")} url="cartora.app/m/demo-cartora" />
-        <span aria-hidden="true" className={cn(STAT_CHIP_CLASS, "-top-4 -left-6 xl:-left-10")}>
-          {t("stats.allergens")}
-        </span>
-        <span
-          aria-hidden="true"
-          className={cn(STAT_CHIP_CLASS, "top-1/2 -right-6 -translate-y-1/2 xl:-right-10")}
-        >
-          {t("stats.languages")}
-        </span>
-        <span aria-hidden="true" className={cn(STAT_CHIP_CLASS, "bottom-14 -left-7 xl:-left-12")}>
-          {t("stats.designs")}
-        </span>
       </div>
 
-      <div className="mt-12 flex flex-col items-center gap-3">
+      {/* Sous sm la ligne peut replier : séparateur « · » (un hairline en tête de 2e ligne lisait
+          comme une barre orpheline) ; dès sm, hairlines verticales. */}
+      <ul className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 font-mono text-caption tracking-wide text-sand-300 sm:gap-x-0">
+        {STAT_KEYS.map((key, i) => (
+          <li
+            key={key}
+            className={cn(
+              "sm:px-4",
+              i > 0 &&
+                "before:mr-3 before:text-sand-500 before:content-['·'] sm:border-l sm:border-white/15 sm:before:content-none",
+            )}
+          >
+            {t(`stats.${key}`)}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-10 flex flex-col items-center gap-3">
         <TrackedCtaButton
           event="demo_link_click"
           href="/m/demo-cartora"

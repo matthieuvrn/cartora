@@ -14,6 +14,7 @@ export function LandingFinalCta() {
   return (
     <LandingSection
       id="final-cta"
+      ariaLabelledBy="final-cta-heading"
       className="section-nuit texture-grain relative isolate overflow-hidden bg-background text-foreground"
       innerClassName="relative py-28 text-center md:py-36"
     >
@@ -48,7 +49,14 @@ export function LandingFinalCta() {
       </h2>
 
       <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-        <TrackedCtaButton event="cta_final_signup" href="/signup?src=final" size="xl" arrow>
+        {/* Sous sm : pilules pleine largeur (deux largeurs « au contenu » centrées lisaient bancal). */}
+        <TrackedCtaButton
+          event="cta_final_signup"
+          href="/signup?src=final"
+          size="xl"
+          arrow
+          className="w-full sm:w-auto"
+        >
           {t("ctaPrimary")}
         </TrackedCtaButton>
         <TrackedCtaButton
@@ -57,6 +65,7 @@ export function LandingFinalCta() {
           external
           variant="outline"
           size="xl"
+          className="w-full sm:w-auto"
         >
           {t("ctaSecondary")}
         </TrackedCtaButton>

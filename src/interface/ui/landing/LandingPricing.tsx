@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { Check } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
@@ -16,6 +16,13 @@ type TierConfig = {
   highlighted: boolean;
   /** `features[0]` = « Tout X inclus » (clé existante) rendue en intro de liste distincte. */
   hasBaseIntro: boolean;
+  /**
+   * Nombre d'items de FIN de liste qui sont des RESTRICTIONS (« Aperçu avec filigrane »,
+   * « Publication non incluse ») : rendus avec un tiret sand, jamais avec le Check sapin
+   * (sapin = succès uniquement). À garder en phase avec l'ordre de `Pricing.<tier>.features`
+   * (fr + en) — le namespace `Pricing` est partagé avec l'app, on ne le restructure pas.
+   */
+  trailingRestrictions?: number;
   ctaKey: "ctaStartFree" | "ctaPublish" | "ctaGoPro";
   taglineKey: "freeTagline" | "starterTagline" | "proTagline";
   /** Ordre desktop (≥ md). En DOM, Starter est premier → mis en avant au scroll mobile. */
@@ -43,6 +50,7 @@ const TIERS: readonly TierConfig[] = [
     variant: "outline",
     highlighted: false,
     hasBaseIntro: false,
+    trailingRestrictions: 2,
     ctaKey: "ctaStartFree",
     taglineKey: "freeTagline",
     mdOrder: "md:order-1",
@@ -81,7 +89,7 @@ export function LandingPricing() {
           Starter (conversion) est une scène nuit inversée qui domine ; Free/Pro restent des
           cards porcelaine calmes. Cards non cliquables → hover border/couleur uniquement,
           aucun lift (loi anti fausse-affordance). */}
-      <StaggerGroup className="grid gap-6 md:grid-cols-3 md:items-start">
+      <StaggerGroup className="grid grid-cols-1 gap-6 md:grid-cols-3 md:items-start">
         {TIERS.map((tier) => {
           const titleId = `pricing-${tier.key}-title`;
           const period = tPricing(`${tier.key}.period`);
@@ -98,7 +106,10 @@ export function LandingPricing() {
                   tier.highlighted
                     ? // Carte inversée : le remap .section-nuit rend le CTA primaire
                       // automatiquement porcelaine — aucune variante dédiée.
-                      "section-nuit texture-grain relative z-10 overflow-hidden bg-background text-foreground shadow-frame md:scale-[1.03]"
+                      // Dominance STRUCTURELLE (carte plus haute, padding plus large) et non
+                      // `md:scale-[1.03]` : la mise à l'échelle non entière rasterisait texte et
+                      // hairlines en flou (Chrome/Safari) et débordait sur les gap voisins.
+                      "section-nuit texture-grain relative z-10 overflow-hidden bg-background text-foreground shadow-frame md:-my-4 md:p-10"
                     : "border border-sand-200 bg-card transition-colors hover:border-canard-300/70",
                 )}
               >
@@ -148,24 +159,38 @@ export function LandingPricing() {
                   </p>
                 )}
                 <ul className={cn("flex-1 space-y-3", intro ? "mt-4" : "mt-8")}>
-                  {features.map((feature) => (
-                    <li
-                      key={feature}
-                      className={cn(
-                        "flex items-start gap-2.5 text-body-sm",
-                        tier.highlighted ? "text-sand-200" : "text-sand-700",
-                      )}
-                    >
-                      <Check
+                  {features.map((feature, index) => {
+                    const restriction =
+                      tier.trailingRestrictions !== undefined &&
+                      index >= features.length - tier.trailingRestrictions;
+                    const Glyph = restriction ? Minus : Check;
+                    return (
+                      <li
+                        key={feature}
                         className={cn(
-                          "mt-0.5 size-4 shrink-0 stroke-[1.75]",
-                          tier.highlighted ? "text-sapin-300" : "text-sapin-600",
+                          "flex items-start gap-2.5 text-body-sm",
+                          restriction
+                            ? "text-sand-500"
+                            : tier.highlighted
+                              ? "text-sand-200"
+                              : "text-sand-700",
                         )}
-                        aria-hidden="true"
-                      />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
+                      >
+                        <Glyph
+                          className={cn(
+                            "mt-0.5 size-4 shrink-0 stroke-[1.75]",
+                            restriction
+                              ? "text-sand-400"
+                              : tier.highlighted
+                                ? "text-sapin-300"
+                                : "text-sapin-600",
+                          )}
+                          aria-hidden="true"
+                        />
+                        <span>{feature}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
 
                 <TrackedCtaButton

@@ -1,16 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Check, Clock, ShieldCheck } from "lucide-react";
+import { Check, Gift, ShieldCheck } from "lucide-react";
 import { LazyMotion, domAnimation, m } from "motion/react";
 import { useReducedMotionSafe } from "@/hooks/use-reduced-motion-safe";
 import { TrackedCtaButton } from "@/interface/ui/landing/TrackedCtaButton";
 import { REVEAL_CONTAINER, REVEAL_ITEM } from "@/lib/motion";
 
 // Icônes des 3 segments du micro-trust, dans l'ordre de la copy figée
-// (« Sans carte bancaire · Configuration en 10 minutes · Résiliable à tout moment »).
-// Check (pas X) : la zone de réassurance ne doit porter aucun glyphe négatif.
-const MICRO_TRUST_ICONS = [Check, Clock, ShieldCheck] as const;
+// (« Sans carte bancaire · Gratuit pour commencer · Résiliable à tout moment »). Le 2e segment
+// disait « Configuration en 10 minutes » (Clock) avant le pivot copy de 2026-08 — l'icône
+// horloge était restée (passe landing 2026-09-06). Check (pas X) : la zone de réassurance ne
+// doit porter aucun glyphe négatif.
+const MICRO_TRUST_ICONS = [Check, Gift, ShieldCheck] as const;
 
 // Le h1 (LCP) reste rendu hors de ce composant, instantané. Ici on fait apparaître
 // le reste du bloc texte en cascade après lui : sous-titre → CTA → micro-trust

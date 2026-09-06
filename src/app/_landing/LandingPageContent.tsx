@@ -127,9 +127,9 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
         >
           {tLanding("skipToContent")}
         </a>
-        {/* Lockup rendu ici (serveur) : voir la note `logo` de LandingHeader (budget JS). `h-6` sous
-            sm : à 360 px, lockup 175 px + cluster droit 151 px + gaps dépassaient la largeur. */}
-        <LandingHeader logo={<Logo className="h-6 sm:h-7" />} />
+        {/* Lockup rendu ici (serveur) : voir la note `logo` de LandingHeader (budget JS). `h-5.5` sous
+            sm (134 px) : budget de largeur du header à 360 px détaillé dans LandingHeader. */}
+        <LandingHeader logo={<Logo className="h-5.5 sm:h-7" />} />
         {/* Arc en 9 sections (refonte 2026, ex-12) : Hero → TrustStrip → Problème (fusionné
             avec l'ancienne Comparaison) → Comment ça marche → Features (audience intégrée à
             l'étape 2) → Démo-preuve → Pricing → FAQ → Final CTA. TrustSafety supprimée : la
