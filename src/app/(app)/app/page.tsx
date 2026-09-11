@@ -16,6 +16,7 @@ import { SystemClock } from "@/infrastructure/clock/SystemClock";
 import { prisma } from "@/infrastructure/db/prisma";
 import { ListActiveDailyDishes } from "@/application/use-cases/ListActiveDailyDishes";
 import { ListActiveFormulas } from "@/application/use-cases/ListActiveFormulas";
+import { EditorIdentityHeader } from "@/interface/ui/components/EditorIdentityHeader";
 import { MenuEditor } from "@/interface/ui/components/MenuEditor";
 import { CheckoutResultBanner } from "@/interface/ui/components/CheckoutResultBanner";
 import { dismissActivationChecklistAction } from "./actions";
@@ -75,6 +76,9 @@ export default async function AppPage({
   if (!restaurant) redirect("/login");
 
   const clock = new SystemClock();
+  // Référentiel temporel unique de la page : sert à la ligne « Expire aujourd'hui à … » (jour
+  // calendaire Paris), calculé côté serveur pour éviter tout `new Date()` client (hydratation).
+  const nowISO = clock.nowISO();
 
   const listDailyDishes = new ListActiveDailyDishes(menuRepo, clock);
   const dailyDishes = await listDailyDishes.execute({ restaurantId });
@@ -100,15 +104,26 @@ export default async function AppPage({
           <CheckoutResultBanner result="success" tier={restaurant.planTier} />
         )}
       {checkout === "cancel" && <CheckoutResultBanner result="cancel" />}
+      {/* En-tête d'identité : rendu ICI, avant l'éditeur, comme les autres sections rendent leur
+          PageHeader en premier enfant — dans MenuEditor il disparaîtrait pendant une recherche et
+          la page n'aurait plus de h1. */}
+      <EditorIdentityHeader
+        restaurantName={restaurant.displayName}
+        logoPath={restaurant.logoPath}
+        template={menu.template}
+        status={menu.status}
+        publishedAt={menu.publishedAt}
+        slug={restaurant.slug}
+      />
       <MenuEditor
         menu={menu}
         restaurantName={restaurant.displayName}
-        logoPath={restaurant.logoPath}
         planTier={restaurant.planTier}
         activationChecklist={checklist}
         dismissActivationAction={dismissActivationChecklistAction}
         dailyDishes={dailyDishes}
         formulas={formulas}
+        nowISO={nowISO}
       />
     </div>
   );

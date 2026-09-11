@@ -1,4 +1,4 @@
-import type { MenuTemplate } from "./MenuTypes";
+import { MENU_TEMPLATE_VALUES, type MenuTemplate } from "./MenuTypes";
 
 /**
  * Métadonnées **pures** par template de rendu public. Vit dans le domaine (zéro
@@ -43,6 +43,14 @@ export const TEMPLATE_META: Record<MenuTemplate, MenuTemplateMeta> = {
   RIVAGE: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "RIVAGE" },
   VELOURS: { requiredTier: "PRO", supportsColorCustomization: false, i18nKey: "VELOURS" },
 };
+
+/**
+ * Templates premium (`requiredTier: "PRO"`), dans l'ordre de `MENU_TEMPLATE_VALUES`. Source unique
+ * pour tout compteur/liste UI (bloc d'upsell Apparence) — jamais de « 7 » en dur dans le code.
+ */
+export const PREMIUM_MENU_TEMPLATES: readonly MenuTemplate[] = MENU_TEMPLATE_VALUES.filter(
+  (template) => TEMPLATE_META[template].requiredTier === "PRO",
+);
 
 /** Le template applique-t-il les couleurs de marque du restaurateur ? */
 export function supportsColorCustomization(template: MenuTemplate): boolean {

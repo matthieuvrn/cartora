@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Pencil, Trash2, Clock } from "lucide-react";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES } from "@/domain/menu/ItemPolicy";
+import { APP_TIMEZONE } from "@/domain/time/appTimeZone";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteDailyDishAction } from "@/app/(app)/app/actions";
 import { deferDelete } from "@/hooks/use-deferred-delete";
-import { HIT_AREA_TALL } from "@/lib/utils";
+import { cn, HIT_AREA_TALL } from "@/lib/utils";
+import { tagFor } from "@/lib/billing-format";
 import { actionErrorText } from "./actionErrorText";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
@@ -21,28 +23,42 @@ type Props = {
   sourceLocale: MenuLocale;
   /** Si true, l'entrée est expirée — affichée en grisé avec un badge "Expiré". */
   isExpired?: boolean;
+  /**
+   * Si true, l'entrée est ACTIVE et son expiration tombe aujourd'hui (jour Paris) : la ligne
+   * horloge passe en « Expire aujourd'hui à {heure} », en `text-foreground`. Exclusif avec
+   * `isExpired` — calculé par la section (helper domaine `expiresToday`).
+   */
+  expiresToday?: boolean;
 };
 
 function formatPrice(cents: number): string {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
-function formatExpiration(validUntilISO: string): { date: string; time: string } {
+// Le fuseau vient de la source unique du domaine (jamais le littéral) et la locale de la chrome :
+// une date au format FR sous une phrase anglaise serait incohérente.
+function formatExpiration(validUntilISO: string, locale: string): { date: string; time: string } {
   const d = new Date(validUntilISO);
-  const date = new Intl.DateTimeFormat("fr-FR", {
+  const date = new Intl.DateTimeFormat(tagFor(locale), {
     day: "2-digit",
     month: "2-digit",
-    timeZone: "Europe/Paris",
+    timeZone: APP_TIMEZONE,
   }).format(d);
-  const time = new Intl.DateTimeFormat("fr-FR", {
+  const time = new Intl.DateTimeFormat(tagFor(locale), {
     hour: "2-digit",
     minute: "2-digit",
-    timeZone: "Europe/Paris",
+    timeZone: APP_TIMEZONE,
   }).format(d);
   return { date, time };
 }
 
-export function DailyDishCard({ dish, sourceLocale, isExpired = false }: Props) {
+export function DailyDishCard({
+  dish,
+  sourceLocale,
+  isExpired = false,
+  expiresToday = false,
+}: Props) {
+  const locale = useLocale();
   const t = useTranslations("Dashboard");
   const tDaily = useTranslations("Dashboard.dailyDishes");
   const tErrors = useTranslations("Errors");
@@ -79,7 +95,10 @@ export function DailyDishCard({ dish, sourceLocale, isExpired = false }: Props) 
     });
   }
 
-  const exp = formatExpiration(dish.validUntilISO);
+  const exp = formatExpiration(dish.validUntilISO, locale);
+  // Hiérarchie par le CONTRASTE, jamais par la couleur seule : une entrée qui finit aujourd'hui
+  // remonte en `text-foreground` et dit son heure ; les autres restent en muted avec leur date.
+  const expiresTodayNow = !isExpired && expiresToday;
 
   return (
     <>
@@ -92,9 +111,18 @@ export function DailyDishCard({ dish, sourceLocale, isExpired = false }: Props) 
             {isExpired && <Badge variant="warning">{tDaily("expired")}</Badge>}
           </div>
           {description && <p className="text-sm text-foreground/80 line-clamp-2">{description}</p>}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div
+            className={cn(
+              "flex items-center gap-1.5 text-xs",
+              expiresTodayNow ? "text-foreground" : "text-muted-foreground",
+            )}
+          >
             <Clock className="size-3" aria-hidden="true" />
-            <span>{tDaily("expiresAt", { date: exp.date, time: exp.time })}</span>
+            <span>
+              {expiresTodayNow
+                ? tDaily("expiresTodayAt", { time: exp.time })
+                : tDaily("expiresAt", { date: exp.date, time: exp.time })}
+            </span>
           </div>
           <AllergenIcons
             allergens={dish.allergens}

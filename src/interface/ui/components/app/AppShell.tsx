@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { HIT_AREA } from "@/lib/utils";
+import { COOKIE_BANNER_OFFSET } from "@/interface/ui/components/consent/cookieBannerOffset";
 import { Logo } from "@/interface/ui/components/Logo";
 import type { PublishBarState } from "@/app/(app)/app/_lib/publishBarState";
 import { AppSidebar, type SidebarRestaurant } from "./AppSidebar";
+import { MobileTabBar } from "./MobileTabBar";
+import { MOBILE_TAB_BAR_OFFSET } from "./mobileTabBarOffset";
 import { PublishBar } from "./PublishBar";
 import { PublishControlCompact } from "./PublishControlCompact";
 
 /**
- * Shell de l'app produit : rail latéral persistant (desktop ≥ md) + barre supérieure à hamburger
- * (mobile) ouvrant la même nav dans un Sheet. Le contenu de page est rendu dans la zone principale,
- * décalée de la largeur du rail. Monté par (app)/layout.tsx sous le scope `.theme-app`.
+ * Shell de l'app produit : rail latéral persistant (desktop ≥ md) + topbar mobile (logo et
+ * contrôle de publication) + barre d'onglets basse `MobileTabBar` (mobile, < md) dont l'onglet
+ * « Plus » ouvre la même nav dans un Sheet par le bas. Le contenu de page est rendu dans la zone
+ * principale, décalée de la largeur du rail. Monté par (app)/layout.tsx sous le scope `.theme-app`.
  */
 export function AppShell({
   email,
@@ -33,7 +32,6 @@ export function AppShell({
   publishBarState: PublishBarState | null;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
   const t = useTranslations("Nav");
 
   return (
@@ -55,34 +53,33 @@ export function AppShell({
         />
       </aside>
 
-      {/* Barre mobile */}
-      <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background px-3 md:hidden">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className={HIT_AREA} aria-label={t("openMenu")}>
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" aria-describedby={undefined} className="w-64 p-0">
-            <SheetTitle className="sr-only">{t("navigation")}</SheetTitle>
-            <AppSidebar
-              email={email}
-              restaurant={restaurant}
-              translationTodoCount={translationTodoCount}
-              onNavigate={() => setOpen(false)}
-            />
-          </SheetContent>
-        </Sheet>
+      {/* Barre mobile — la nav a migré vers la barre d'onglets basse (plus de hamburger). */}
+      <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background px-4 md:hidden">
         <Logo variant="lockup" className="h-6" />
-        {/* Contrôle de publication fusionné dans la topbar (plus de 2ᵉ barre sticky mobile). */}
+        {/* Contrôle de publication fusionné dans la topbar (plus de 2ᵉ barre sticky mobile) :
+            unique climax corail du viewport mobile. */}
         {publishBarState && <PublishControlCompact state={publishBarState} className="ml-auto" />}
       </header>
 
-      {/* Contenu */}
-      <main id="main" className="md:pl-60">
+      {/* Contenu — le padding bas réserve la hauteur des overlays du bas (barre d'onglets mobile,
+          0 dès md ; bannière cookies tant qu'elle est affichée) : rien ne finit dessous. */}
+      <main
+        id="main"
+        className="md:pl-60"
+        style={{
+          paddingBottom: `calc(${COOKIE_BANNER_OFFSET} + ${MOBILE_TAB_BAR_OFFSET})`,
+        }}
+      >
         {publishBarState && <PublishBar state={publishBarState} />}
         <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</div>
       </main>
+
+      {/* En fin de DOM : l'ordre de lecture et de tabulation suit l'ordre visuel. */}
+      <MobileTabBar
+        email={email}
+        restaurant={restaurant}
+        translationTodoCount={translationTodoCount}
+      />
     </div>
   );
 }

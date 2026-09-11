@@ -18,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { createItemAction, updateItemAction, type ItemActionState } from "@/app/(app)/app/actions";
 import { ErrorMessage } from "./ErrorMessage";
+import { itemRowId } from "./editorAnchors";
 import type { MenuItemData } from "@/domain/menu/MenuTypes";
 import { resolveText, type MenuLocale } from "@/domain/menu/MenuLocale";
 import { ALLERGEN_VALUES, type Allergen, type ItemBadge } from "@/domain/menu/ItemPolicy";
@@ -99,7 +100,7 @@ export function ItemFormDialog({
     let raf = 0;
     let attempts = 0;
     const tryFocus = () => {
-      const el = document.getElementById(`item-${createdItemId}`);
+      const el = document.getElementById(itemRowId(createdItemId));
       if (el) {
         el.scrollIntoView({
           block: "center",

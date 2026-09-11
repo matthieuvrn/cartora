@@ -34,6 +34,7 @@ import { ItemRow } from "./ItemRow";
 import { ItemFormDialog } from "./ItemFormDialog";
 import { CategoryFormDialog } from "./CategoryFormDialog";
 import { DeleteCategoryDialog } from "./DeleteCategoryDialog";
+import { EmptyState } from "./EmptyState";
 
 type Props = {
   category: MenuCategoryData;
@@ -150,6 +151,8 @@ export function CategorySection({
       ref={setNodeRef}
       style={style}
       id={id}
+      // Cible de focus programmatique (palette ⌘K) — même pattern que la rangée d'item.
+      tabIndex={-1}
       className={cn(isDragging && "relative z-10 shadow-lg")}
     >
       <CardHeader className="flex flex-wrap items-center justify-between gap-x-2 gap-y-3">
@@ -236,18 +239,16 @@ export function CategorySection({
       <div id={contentId} hidden={collapsed}>
         <CardContent className="space-y-3">
           {liveItems.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <UtensilsCrossed
-                className="size-8 text-canard-400"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              <p className="text-body-sm text-muted-foreground">{t("emptyCategory")}</p>
-              <Button variant="outline" size="sm" onClick={handleAdd}>
-                <Plus />
-                {t("addItem")}
-              </Button>
-            </div>
+            <EmptyState
+              icon={UtensilsCrossed}
+              description={t("emptyCategory")}
+              action={
+                <Button variant="outline" size="sm" onClick={handleAdd}>
+                  <Plus />
+                  {t("addItem")}
+                </Button>
+              }
+            />
           ) : (
             <SortableList
               ids={liveItems.map((it) => it.id)}

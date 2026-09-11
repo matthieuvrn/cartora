@@ -8,9 +8,12 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import type { StatsPeriod } from "@/domain/analytics/AnalyticsTypes";
 
 type Props = {
   viewsByDay: { date: string; count: number }[];
+  /** Longueur de la fenêtre : au-delà de 7 points, l'axe X s'allège (ticks et libellés). */
+  period: StatsPeriod;
 };
 
 const chartConfig = {
@@ -20,16 +23,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ViewsChart({ viewsByDay }: Props) {
+export function ViewsChart({ viewsByDay, period }: Props) {
   const locale = useLocale();
+
+  // À 30 points dans ~200 px, le jour de semaine devient illisible : on garde « 12 mars » et on
+  // laisse recharts espacer les ticks. Sur 7 jours, le rendu actuel est conservé à l'identique.
+  const dense = period > 7;
 
   const data = viewsByDay.map((day) => ({
     date: day.date,
     views: day.count,
-    label: new Date(day.date + "T00:00:00").toLocaleDateString(locale, {
-      weekday: "short",
-      day: "numeric",
-    }),
+    label: new Date(day.date + "T00:00:00").toLocaleDateString(
+      locale,
+      dense ? { day: "numeric", month: "short" } : { weekday: "short", day: "numeric" },
+    ),
   }));
 
   return (
@@ -42,7 +49,15 @@ export function ViewsChart({ viewsByDay }: Props) {
           </linearGradient>
         </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
-        <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          fontSize={11}
+          interval={dense ? "preserveStartEnd" : undefined}
+          minTickGap={dense ? 24 : undefined}
+        />
         <YAxis
           tickLine={false}
           axisLine={false}

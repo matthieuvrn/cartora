@@ -6,14 +6,18 @@ import { Plus, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DailyDishData } from "@/domain/menu/MenuTypes";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
+import { expiresToday } from "@/domain/menu/expiryStatus";
 import { usePendingDeletes } from "@/hooks/use-deferred-delete";
 import { DailyDishCard } from "./DailyDishCard";
 import { DailyDishFormDialog } from "./DailyDishFormDialog";
+import { EmptyState } from "./EmptyState";
 
 type Props = {
   activeDishes: DailyDishData[];
   expiredDishes: DailyDishData[];
   sourceLocale: MenuLocale;
+  /** ISO 8601 UTC (horloge serveur) — base de la ligne « Expire aujourd'hui à … ». */
+  nowISO: string;
 };
 
 /**
@@ -21,7 +25,7 @@ type Props = {
  * h2 et le gating de plan). Liste active + « Ajouter » + expirées repliées en
  * bas, grisées, pour suppression manuelle.
  */
-export function DailyDishesSection({ activeDishes, expiredDishes, sourceLocale }: Props) {
+export function DailyDishesSection({ activeDishes, expiredDishes, sourceLocale, nowISO }: Props) {
   const t = useTranslations("Dashboard.dailyDishes");
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
@@ -51,19 +55,26 @@ export function DailyDishesSection({ activeDishes, expiredDishes, sourceLocale }
       </div>
 
       {visibleActive.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center">
-          <Sun className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
-          <p className="text-body-sm text-muted-foreground">{t("empty")}</p>
-          <Button variant="outline" size="sm" onClick={handleAdd}>
-            <Plus />
-            {t("add")}
-          </Button>
-        </div>
+        <EmptyState
+          icon={Sun}
+          description={t("empty")}
+          action={
+            <Button variant="outline" size="sm" onClick={handleAdd}>
+              <Plus />
+              {t("add")}
+            </Button>
+          }
+        />
       ) : (
+        /* Expiration « aujourd'hui » calculée ici (helper domaine pur) — la carte reste un rendu. */
         <ul className="space-y-2" role="list">
           {visibleActive.map((dish) => (
             <li key={dish.id}>
-              <DailyDishCard dish={dish} sourceLocale={sourceLocale} />
+              <DailyDishCard
+                dish={dish}
+                sourceLocale={sourceLocale}
+                expiresToday={expiresToday(dish, nowISO)}
+              />
             </li>
           ))}
         </ul>

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { cn, prefersReducedMotion } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { EDITOR_STICKY_OFFSET, scrollToBelowStickyBars } from "./editorAnchors";
 
 /** Ancre stable par catégorie — posée par CategorySection, ciblée par les chips. */
 export function categoryAnchorId(categoryId: string): string {
@@ -14,21 +15,11 @@ type Props = {
   className?: string;
 };
 
-// Décalage haut (px) : hauteur approximative des barres collantes (topbar mobile
-// + chips, ou toolbar desktop) sous lesquelles une catégorie doit se poser.
-// SERT À LA FOIS de cible de défilement au clic ET de ligne de détection du
-// scroll-spy — c'est le fait de partager la même valeur qui garantit que la
-// catégorie sur laquelle on vient de cliquer est bien celle qui s'active
-// (indépendamment de sa valeur exacte, qui ne change que le rendu cosmétique).
-const HEADER_OFFSET = 116;
-
 /**
- * Navigation par chips avec scroll-spy. Le défilement au clic est fait « à la
- * main » (`window.scrollTo` avec décalage explicite) plutôt que via
- * `scrollIntoView`, pour NE PAS empiler le `scroll-padding-top: 4rem` global
- * avec un `scroll-mt` — combinaison qui posait la catégorie trop bas et faisait
- * détecter la catégorie précédente. Actif = dernière catégorie dont le haut a
- * franchi `HEADER_OFFSET`.
+ * Navigation par chips avec scroll-spy. Le défilement au clic passe par
+ * `scrollToBelowStickyBars` (module `editorAnchors`, partagé avec la palette de
+ * commandes) plutôt que par `scrollIntoView` — voir le docblock de ce module.
+ * Actif = dernière catégorie dont le haut a franchi `EDITOR_STICKY_OFFSET`.
  */
 export function CategoryChipBar({ categories, className }: Props) {
   const t = useTranslations("Dashboard");
@@ -52,7 +43,7 @@ export function CategoryChipBar({ categories, className }: Props) {
       for (const c of categories) {
         const el = document.getElementById(categoryAnchorId(c.id));
         if (!el) continue;
-        if (el.getBoundingClientRect().top <= HEADER_OFFSET + 2) current = c.id;
+        if (el.getBoundingClientRect().top <= EDITOR_STICKY_OFFSET + 2) current = c.id;
         else break;
       }
       if (current) setActiveId(current);
@@ -88,8 +79,7 @@ export function CategoryChipBar({ categories, className }: Props) {
     lockTimer.current = setTimeout(() => {
       scrollLock.current = false;
     }, 700);
-    const top = el.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
-    window.scrollTo({ top, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    scrollToBelowStickyBars(el);
   }
 
   if (categories.length < 2) return null;

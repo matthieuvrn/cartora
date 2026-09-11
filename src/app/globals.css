@@ -7,9 +7,11 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 4rem;
-  /* Bannière cookies visible (CookieBanner publie sa hauteur) : un focus/ancre en bas de page
-     défile au-dessus d'elle au lieu de finir dessous (WCAG 2.4.11, technique C43). */
-  scroll-padding-bottom: var(--cookie-banner-h, 0px);
+  /* Bannière cookies visible (CookieBanner publie sa hauteur) + barre d'onglets basse du shell
+     /app (MobileTabBar, hauteur publiée plus bas) : un focus ou une ancre (#aujourdhui, une
+     catégorie) en bas de page défile AU-DESSUS des deux au lieu de finir dessous (WCAG 2.4.11,
+     technique C43). Les deux overlays peuvent être empilés — d'où l'addition. */
+  scroll-padding-bottom: calc(var(--cookie-banner-h, 0px) + var(--mobile-tab-bar-h, 0px));
 }
 
 @theme inline {
@@ -466,6 +468,22 @@ html {
    .theme-cartora. Règle non-layered : prioritaire sur les utilities. */
 body:has([data-app-shell]) [data-global-footer] {
   display: none;
+}
+
+/* Barre d'onglets basse du shell /app (MobileTabBar) — hauteur publiée en CSS pur, aucun JS.
+   Ancrée sur <html> et NON sur <body> comme la règle footer voisine : `scroll-padding-bottom`
+   ci-dessus ne s'applique qu'à l'élément de défilement racine, il doit donc résoudre la variable
+   sur <html>. Ne pas « harmoniser » les deux sélecteurs. 0 dès `md` (la barre est `md:hidden`) ;
+   sous md : 56 px (= topbar h-14) + safe-area iOS (sans effet tant que `viewportFit: "cover"`
+   n'est pas activé — cf. src/app/layout.tsx). `48rem` = breakpoint `md` de Tailwind v4.
+   Consommateurs : MobileTabBar (height) et le <main> d'AppShell (padding-bottom). */
+html:has([data-app-shell]) {
+  --mobile-tab-bar-h: 0px;
+}
+@media (width < 48rem) {
+  html:has([data-app-shell]) {
+    --mobile-tab-bar-h: calc(3.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 /* Ombre de carte teintée canard sous le thème de marque. Règle non-layered → prioritaire sur

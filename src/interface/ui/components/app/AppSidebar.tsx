@@ -1,21 +1,13 @@
 "use client";
 
+import { useId } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  BarChart3,
-  CreditCard,
-  Languages,
-  LayoutGrid,
-  Palette,
-  QrCode,
-  Settings,
-  type LucideIcon,
-} from "lucide-react";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { cn } from "@/lib/utils";
 import { restaurantLogoUrl } from "@/lib/storage-url";
+import { APP_NAV_ITEMS, groupAppNavItems, isAppNavItemActive } from "@/lib/app-nav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/interface/ui/components/Logo";
@@ -23,6 +15,7 @@ import { LocaleSwitcher } from "@/interface/ui/components/LocaleSwitcher";
 import { LogoMonogram } from "@/interface/ui/components/logo/LogoMonogram";
 import { TemplateLogo } from "@/interface/ui/components/menu-template/TemplateLogo";
 import { logoutAction } from "@/app/(auth)/actions";
+import { APP_NAV_ICONS } from "./appNavIcons";
 
 /** Identité affichée en pied de rail : nom, logo (ou monogramme) et forfait courant. */
 export type SidebarRestaurant = {
@@ -30,26 +23,6 @@ export type SidebarRestaurant = {
   logoPath: string | null;
   planTier: PlanTier;
 };
-
-type NavItem = {
-  key: string;
-  href: string;
-  icon: LucideIcon;
-  /** `true` = actif sur match exact (ex. `/app` ne doit pas s'allumer sous `/app/stats`). */
-  exact: boolean;
-};
-
-// Nav de marque — source unique d'ordre et de libellés. Carte d'abord (le job), admin/consultation
-// ensuite. `exact` sur /app pour qu'il ne s'allume pas sous les sous-sections.
-const NAV: readonly NavItem[] = [
-  { key: "menu", href: "/app", icon: LayoutGrid, exact: true },
-  { key: "stats", href: "/app/stats", icon: BarChart3, exact: false },
-  { key: "apparence", href: "/app/apparence", icon: Palette, exact: false },
-  { key: "traductions", href: "/app/traductions", icon: Languages, exact: false },
-  { key: "partage", href: "/app/partage", icon: QrCode, exact: false },
-  { key: "abonnement", href: "/app/abonnement", icon: CreditCard, exact: false },
-  { key: "reglages", href: "/app/reglages", icon: Settings, exact: false },
-];
 
 export function AppSidebar({
   email,
@@ -68,6 +41,9 @@ export function AppSidebar({
   const t = useTranslations("Nav");
   const tBilling = useTranslations("Billing");
   const logoUrl = restaurant?.logoPath ? restaurantLogoUrl(restaurant.logoPath) : null;
+  // Le rail est rendu deux fois dans le DOM (aside desktop + tiroir « Plus » mobile) : un préfixe
+  // par instance garantit des `id` de groupe uniques quand le tiroir est ouvert.
+  const groupIdPrefix = useId();
 
   return (
     <div className="flex h-full flex-col bg-card">
@@ -77,34 +53,60 @@ export function AppSidebar({
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3" aria-label={t("navigation")}>
-        {NAV.map(({ key, href, icon: Icon, exact }) => {
-          const active = exact ? pathname === href : pathname.startsWith(href);
+      {/* `py-1` : l'anneau de focus de marque déborde de 4 px hors boîte — sans ce padding, le
+          conteneur défilant rognerait l'anneau du premier et du dernier lien. */}
+      <nav
+        className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-1"
+        aria-label={t("navigation")}
+      >
+        {groupAppNavItems(APP_NAV_ITEMS).map(({ group, items }) => {
+          const labelId = `${groupIdPrefix}-${group}`;
           return (
-            <Link
-              key={key}
-              href={href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ease-[var(--ease-snappy)]",
-                active
-                  ? // Indicateur d'ancrage : barre canard sur le bord gauche de l'entrée active.
-                    "bg-accent text-accent-foreground before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-primary before:content-['']"
-                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-              )}
-            >
-              <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              {t(key)}
-              {key === "traductions" && translationTodoCount > 0 && (
-                <span
-                  className="ml-auto inline-flex min-w-4 items-center justify-center rounded-full bg-warning/15 px-1 font-mono text-[0.6875rem] font-medium text-warning tabular-nums"
-                  aria-label={t("translationsPending", { count: translationTodoCount })}
-                >
-                  {translationTodoCount}
-                </span>
-              )}
-            </Link>
+            // Groupe de nav : kicker mono (3e registre typographique, sans point corail — le
+            // climax du viewport reste « Publier ») qui nomme le groupe pour les lecteurs d'écran.
+            <div key={group} role="group" aria-labelledby={labelId} className="space-y-1">
+              <p id={labelId} className="eyebrow block px-3 pb-0.5">
+                {t(`group.${group}`)}
+              </p>
+              {items.map(({ key, href, exact }) => {
+                const Icon = APP_NAV_ICONS[key];
+                const active = isAppNavItemActive(pathname, { href, exact });
+                return (
+                  <Link
+                    key={key}
+                    href={href}
+                    onClick={onNavigate}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ease-[var(--ease-snappy)]",
+                      active
+                        ? // Indicateur d'ancrage : barre canard sur le bord gauche de l'entrée active.
+                          "bg-accent text-accent-foreground before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-primary before:content-['']"
+                        : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                    {t(key)}
+                    {key === "traductions" && translationTodoCount > 0 && (
+                      // Le chiffre est décoratif (`aria-label` sur un <span> sans rôle est
+                      // ignoré : « nom interdit » sur role=generic) ; le texte lisible arrive en
+                      // sr-only APRÈS le libellé — nom accessible « Traductions, 3 à traduire ».
+                      <>
+                        <span
+                          aria-hidden="true"
+                          className="ml-auto inline-flex min-w-4 items-center justify-center rounded-full bg-warning/15 px-1 font-mono text-[0.6875rem] font-medium text-warning tabular-nums"
+                        >
+                          {translationTodoCount}
+                        </span>
+                        <span className="sr-only">
+                          {t("translationsPending", { count: translationTodoCount })}
+                        </span>
+                      </>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           );
         })}
       </nav>

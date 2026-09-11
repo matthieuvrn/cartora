@@ -8,6 +8,7 @@ import { PrismaMenuRepository } from "@/infrastructure/menu/PrismaMenuRepository
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/interface/ui/components/app/PageHeader";
 import { TemplateSelector } from "@/interface/ui/components/TemplateSelector";
+import { TemplateUpsellCard } from "@/interface/ui/components/TemplateUpsellCard";
 import { RestaurantLogoEditor } from "@/interface/ui/components/RestaurantLogoEditor";
 import { BrandColorsEditor } from "@/interface/ui/components/BrandColorsEditor";
 import { supportsColorCustomization } from "@/domain/menu/MenuTemplateMeta";
@@ -56,6 +57,9 @@ export default async function AppearancePage() {
           menu={menu}
           restaurantName={restaurant.displayName}
         />
+        {/* Bloc UNIQUE d'upsell PRO (remplace les CTA par carte) — absent pour un PRO. Le narrowing
+            TS de `planTier` vers `Exclude<PlanTier, "PRO">` est porté par cette condition. */}
+        {restaurant.planTier !== "PRO" && <TemplateUpsellCard planTier={restaurant.planTier} />}
       </section>
 
       <Card>

@@ -1,7 +1,6 @@
 {
   "Nav": {
     "navigation": "Navigation",
-    "openMenu": "Ouvrir le menu",
     "skipToContent": "Aller au contenu",
     "logout": "Se déconnecter",
     "menu": "Ma carte",
@@ -12,7 +11,20 @@
     "abonnement": "Abonnement",
     "reglages": "Réglages",
     "translationsPending": "{count} à traduire",
-    "managePlan": "Gérer mon abonnement"
+    "managePlan": "Gérer mon abonnement",
+    "group": {
+      "carte": "Carte",
+      "diffusion": "Diffusion",
+      "compte": "Compte"
+    },
+    "closeMenu": "Fermer le menu",
+    "tab": {
+      "menu": "Carte",
+      "stats": "Stats",
+      "partage": "Partage",
+      "more": "Plus"
+    },
+    "quickNav": "Navigation rapide"
   },
   "Translations": {
     "title": "Traductions",
@@ -209,6 +221,7 @@
     "publishChanges": "Publier les modifications",
     "viewMyMenu": "Voir mon menu",
     "viewLiveVersion": "Voir la version en ligne",
+    "opensInNewTab": "(s’ouvre dans un nouvel onglet)",
     "copyLink": "Copier le lien",
     "linkCopied": "Lien copié",
     "copyLinkError": "Impossible de copier le lien",
@@ -222,6 +235,22 @@
       "clear": "Effacer la recherche",
       "results": "{count, plural, one {# résultat} other {# résultats}}",
       "noResults": "Aucun résultat pour « {query} »"
+    },
+    "palette": {
+      "open": "Aller à…",
+      "title": "Palette de commandes",
+      "placeholder": "Rechercher un plat, une catégorie ou une page…",
+      "group": {
+        "item": "Plats",
+        "category": "Catégories",
+        "page": "Pages"
+      },
+      "itemCount": "{count, plural, =0 {aucun item} one {# item} other {# items}}",
+      "hint": {
+        "navigate": "naviguer",
+        "go": "aller à",
+        "close": "fermer"
+      }
     },
     "categoryNav": {
       "label": "Catégories de la carte"
@@ -257,7 +286,6 @@
       "undo": "Annuler"
     },
     "preview": "Aperçu",
-    "jumpToCategory": "Aller à…",
     "previewTitle": "Aperçu du menu",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablette",
@@ -299,6 +327,9 @@
     "saveName": "Enregistrer",
     "cancelEdit": "Annuler",
     "namePlaceholder": "Nom de votre restaurant",
+    "identity": {
+      "templateLink": "{template} · modifier l’apparence"
+    },
     "error": {
       "generic": "Une erreur est survenue, réessayez"
     },
@@ -318,7 +349,8 @@
       "dishSaved": "Plat du jour enregistré",
       "formulaSaved": "Formule enregistrée",
       "nameSaved": "Nom enregistré",
-      "published": "Menu publié"
+      "published": "Menu publié",
+      "publishedDescription": "Votre menu est désormais visible par vos clients"
     },
     "deleteAccount": "Supprimer mon compte",
     "deleteAccountConfirmTitle": "Supprimer votre compte ?",
@@ -337,6 +369,7 @@
       "empty": "Aucun plat du jour pour le moment.",
       "emptyExpired": "Tous vos plats du jour sont expirés.",
       "expiresAt": "Expire le {date} à {time}",
+      "expiresTodayAt": "Expire aujourd’hui à {time}",
       "expired": "Expiré",
       "validUntilLabel": "Expiration",
       "validUntilHint": "Par défaut, fin de la journée (heure de Paris)."
@@ -349,6 +382,7 @@
       "empty": "Aucune formule pour le moment.",
       "emptyExpired": "Toutes vos formules sont expirées.",
       "expiresAt": "Expire le {date} à {time}",
+      "expiresTodayAt": "Expire aujourd’hui à {time}",
       "expired": "Expirée",
       "validUntilLabel": "Expiration",
       "validUntilHint": "Par défaut, fin de la journée (heure de Paris).",
@@ -965,14 +999,20 @@
     },
     "template": {
       "title": "Apparence du menu",
-      "description": "Choisissez le rendu visuel de votre menu public. Les templates premium sont réservés à la formule PRO.",
+      "description": "Utilisez « Aperçu » pour voir chaque rendu appliqué à votre carte.",
       "back": "Retour aux paramètres",
       "lockedBadge": "PRO",
-      "lockedHint": "Disponible avec la formule PRO",
       "upgradeCta": "Passer à PRO",
       "saveButton": "Choisir ce template",
       "currentBadge": "Sélectionné",
       "saveSuccess": "Template mis à jour. Republiez votre menu pour l'appliquer.",
+      "upsell": {
+        "badge": "Formule PRO",
+        "title": "Débloquez les {count} templates premium",
+        "body": "Chaque design premium a sa palette et sa typographie, prêtes à l’emploi.",
+        "noteFree": "Sans engagement · Résiliation en 1 clic",
+        "noteStarter": "Passage à PRO depuis votre page Abonnement"
+      },
       "names": {
         "CLASSIC": "Classique",
         "CARTORA": "Cartora",
@@ -1212,7 +1252,16 @@
   "Stats": {
     "title": "Statistiques",
     "totalViews": "Vues totales",
-    "last7Days": "7 derniers jours",
+    "period": {
+      "label": "Période",
+      "option": "{days} jours",
+      "lastDays": "{days} derniers jours"
+    },
+    "delta": {
+      "up": "En hausse de {value} : {current, plural, one {# vue} other {# vues}} contre {previous} sur les {days} jours précédents",
+      "down": "En baisse de {value} : {current, plural, one {# vue} other {# vues}} contre {previous} sur les {days} jours précédents",
+      "flat": "Stable : {current, plural, one {# vue} other {# vues}}, comme sur les {days} jours précédents"
+    },
     "views": "vues",
     "device": {
       "MOBILE": "Mobile",

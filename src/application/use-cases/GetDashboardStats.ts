@@ -1,15 +1,20 @@
 import type { AnalyticsRepository } from "@/application/ports/AnalyticsRepository";
 import type { Clock } from "@/application/ports/Clock";
-import type {
-  DailyStatRow,
-  DashboardStats,
-  DeviceType,
-  ViewSource,
+import { AnalyticsPolicy } from "@/domain/analytics/AnalyticsPolicy";
+import {
+  DEFAULT_STATS_PERIOD,
+  type DailyStatRow,
+  type DashboardStats,
+  type DeviceType,
+  type StatsPeriod,
+  type ViewSource,
 } from "@/domain/analytics/AnalyticsTypes";
 import { appCalendarDayISO } from "@/domain/time/appTimeZone";
 
 export type GetDashboardStatsInput = {
   restaurantId: string;
+  /** Fenêtre demandée (7 ou 30 jours) — déjà validée par `AnalyticsPolicy.parseStatsPeriod`. */
+  period?: StatsPeriod;
 };
 
 export type GetDashboardStatsOutput = DashboardStats;
@@ -21,15 +26,34 @@ export class GetDashboardStats {
   ) {}
 
   async execute(input: GetDashboardStatsInput): Promise<GetDashboardStatsOutput> {
+    const period = input.period ?? DEFAULT_STATS_PERIOD;
     // Jour calendaire Europe/Paris, PAS UTC : l'écriture bucketise en jour Paris
     // (PrismaAnalyticsRepository.recordView) — une borne UTC exclurait les vues
     // entre minuit Paris et minuit UTC, pile après le service du soir.
     const today = appCalendarDayISO(new Date(this.clock.nowISO()));
-    const from = subtractDays(today, 6);
+    const from = subtractDays(today, period - 1);
 
-    const rows = await this.analyticsRepo.getDailyStats(input.restaurantId, from, today);
+    // Période précédente de MÊME longueur (7 vs 7, 30 vs 30) : seule comparaison honnête.
+    // Elle est relue en entier plutôt qu'agrégée par le port — choix assumé : pas de méthode
+    // supplémentaire sur `AnalyticsRepository`, et l'index (restaurant_id, date) rend ce second
+    // appel négligeable.
+    const previousTo = subtractDays(from, 1);
+    const previousFrom = subtractDays(from, period);
 
-    return aggregate(rows, from, today);
+    const [rows, previousRows] = await Promise.all([
+      this.analyticsRepo.getDailyStats(input.restaurantId, from, today),
+      this.analyticsRepo.getDailyStats(input.restaurantId, previousFrom, previousTo),
+    ]);
+
+    const current = aggregate(rows, from, today);
+    const previousTotalViews = previousRows.reduce((sum, row) => sum + row.viewCount, 0);
+
+    return {
+      ...current,
+      period,
+      previousTotalViews,
+      viewsDelta: AnalyticsPolicy.computeViewsDelta(current.totalViews, previousTotalViews),
+    };
   }
 }
 
@@ -39,7 +63,11 @@ function subtractDays(isoDate: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-function aggregate(rows: DailyStatRow[], from: string, to: string): DashboardStats {
+function aggregate(
+  rows: DailyStatRow[],
+  from: string,
+  to: string,
+): Omit<DashboardStats, "period" | "previousTotalViews" | "viewsDelta"> {
   const dates: string[] = [];
   const d = new Date(from + "T00:00:00Z");
   const end = new Date(to + "T00:00:00Z");

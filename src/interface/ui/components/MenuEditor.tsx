@@ -4,11 +4,14 @@ import {
   startTransition,
   useActionState,
   useCallback,
+  useEffect,
   useMemo,
   useOptimistic,
+  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { SearchX } from "lucide-react";
@@ -17,8 +20,9 @@ import { resolveText } from "@/domain/menu/MenuLocale";
 import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import type { ActivationChecklist } from "@/domain/restaurant/ActivationPolicy";
 import { reorderCategoriesAction, type ItemActionState } from "@/app/(app)/app/actions";
+import { APP_NAV_ITEMS } from "@/lib/app-nav";
+import { buildPaletteEntries, type PaletteEntry } from "@/lib/command-palette";
 import { matchesQuery } from "@/lib/text-search";
-import { restaurantLogoUrl } from "@/lib/storage-url";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { actionErrorText } from "./actionErrorText";
@@ -26,13 +30,15 @@ import { ActivationChecklistCard } from "./ActivationChecklist";
 import { AddCategoryButton } from "./AddCategoryButton";
 import { CategoryChipBar, categoryAnchorId } from "./CategoryChipBar";
 import { CategorySection } from "./CategorySection";
+import { CommandPalette } from "./CommandPalette";
 import { SortableList } from "./dnd/SortableList";
-import { EditableRestaurantName } from "./EditableRestaurantName";
+import { itemRowId } from "./editorAnchors";
 import { EditorSearchInput } from "./EditorSearchInput";
-import { MenuActionBar } from "./MenuActionBar";
+import { EmptyState } from "./EmptyState";
+import { MenuActionBar, PALETTE_TRIGGER_ID } from "./MenuActionBar";
 import { PreviewDialog } from "./PreviewDialog";
+import { revealEditorTarget } from "./revealEditorTarget";
 import { TodaySection } from "./TodaySection";
-import { TemplateLogo } from "./menu-template/TemplateLogo";
 
 // Persistance de l'état replié des catégories (par menu) : localStorage lu via
 // useSyncExternalStore — hydration-safe (server snapshot = null ⇒ tout déplié au
@@ -52,35 +58,41 @@ function subscribeToCollapseStore(callback: () => void) {
 type Props = {
   menu: MenuOverview;
   restaurantName: string;
-  logoPath: string | null;
   planTier: PlanTier;
   activationChecklist: ActivationChecklist | null;
   dismissActivationAction: () => Promise<void>;
   dailyDishes: { active: DailyDishData[]; expired: DailyDishData[] };
   formulas: { active: FormulaData[]; expired: FormulaData[] };
+  /** ISO 8601 UTC, horloge serveur de la requête — base de la ligne « Expire aujourd'hui à … ». */
+  nowISO: string;
 };
 
 /**
  * Canvas d'édition de la carte : toolbar d'édition (recherche + Aperçu, cf.
- * MenuActionBar), nav par chips scroll-spy, en-tête d'identité compact, section
+ * MenuActionBar + palette de commandes ⌘K), nav par chips scroll-spy, section
  * « Aujourd'hui » repliable (plats du jour + formules — repliée par défaut sans
  * contenu actif), catégories repliables (état persisté par menu). Statut + Publier vivent dans la barre de publication globale du shell
  * (PublishBar) — commune à toutes les sections. L'aperçu du rendu public se fait à
  * la demande (bouton « Aperçu »). Les surfaces de consultation/admin ont leurs
- * sections — /app/stats, /app/partage, /app/abonnement.
+ * sections — /app/stats, /app/partage, /app/abonnement. L'en-tête d'identité (logo/monogramme,
+ * nom éditable = seul h1 de la page, chip template, lien version en ligne) est rendu PAR LA PAGE
+ * avant l'éditeur (cf. EditorIdentityHeader) : le laisser ici le ferait disparaître dès qu'une
+ * recherche est active, laissant /app sans h1.
  */
 export function MenuEditor({
   menu,
   restaurantName,
-  logoPath,
   planTier,
   activationChecklist,
   dismissActivationAction,
   dailyDishes,
   formulas,
+  nowISO,
 }: Props) {
   const t = useTranslations("Dashboard");
   const tErrors = useTranslations("Errors");
+  const tNav = useTranslations("Nav");
+  const router = useRouter();
   const sourceLocale = menu.sourceLocale;
 
   // ─ Recherche instantanée (filtre client : noms d'items, descriptions, noms
@@ -195,6 +207,103 @@ export function MenuEditor({
     handleReorderCategories(newIds);
   }
 
+  // ─ Palette de commandes ⌘K (items, catégories, pages — navigation seulement). ──────────
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  // Construction différée à la PREMIÈRE ouverture : jusqu'à 50 × 100 entrées et deux `resolveText`
+  // par item, à ne pas payer au chargement de la page ni à chaque frappe dans la recherche de
+  // l'éditeur (ni `searchQuery` ni `paletteOpen` ne sont des dépendances). Le drapeau ne retombe
+  // JAMAIS : le contenu du dialog reste monté pendant son animation de sortie et se reconstruirait
+  // sous les yeux de l'utilisateur (les plats et catégories cédant la place aux seules pages).
+  const [paletteUsed, setPaletteUsed] = useState(false);
+  const openPalette = useCallback(() => {
+    setPaletteUsed(true);
+    setPaletteOpen(true);
+  }, []);
+  // Mémo scindé : les pages ne dépendent que des libellés de nav.
+  const paletteCategories = useMemo(
+    () =>
+      paletteUsed
+        ? optimisticCategories.map((category) => ({
+            id: category.id,
+            name: category.name,
+            items: category.items.map((item) => ({
+              id: item.id,
+              name: resolveText(item.texts.name, sourceLocale, sourceLocale),
+              description: resolveText(item.texts.description, sourceLocale, sourceLocale),
+              isAvailable: item.isAvailable,
+            })),
+          }))
+        : [],
+    [paletteUsed, optimisticCategories, sourceLocale],
+  );
+  const palettePages = useMemo(
+    () => APP_NAV_ITEMS.map((nav) => ({ key: nav.key, href: nav.href, label: tNav(nav.key) })),
+    [tNav],
+  );
+  const paletteEntries = useMemo(
+    () =>
+      buildPaletteEntries({
+        categories: paletteCategories,
+        pages: palettePages,
+        currentPath: "/app",
+      }),
+    [paletteCategories, palettePages],
+  );
+
+  // Raccourci global ⌘K / Ctrl+K — UNE instance (ici, pas dans la sidebar rendue deux fois).
+  // Les champs de saisie ne sont PAS exclus (les modificateurs rendent la combinaison sûre) ;
+  // un dialog déjà ouvert l'est, y compris quand le focus est retombé sur <body> après un clic
+  // sur son overlay : on n'empile jamais deux modales. Le ⌘K frappé DANS la palette est géré par
+  // son propre champ (bascule → fermeture).
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey || e.repeat) return;
+      if (e.key.toLowerCase() !== "k") return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("[role=dialog]")) return;
+      if (document.querySelector('[role="dialog"][data-state="open"]')) return;
+      e.preventDefault();
+      openPalette();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [openPalette]);
+
+  const revealCancelRef = useRef<(() => void) | null>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+  useEffect(() => () => revealCancelRef.current?.(), []);
+
+  // Repli de focus déterministe quand la cible n'apparaît jamais (rangée en fenêtre « Annuler ») :
+  // le déclencheur de la toolbar desktop, sinon le champ de recherche mobile — jamais <body>.
+  // La toolbar est montée À TOUS les viewports (masquée par `hidden md:block`) : tester sa seule
+  // présence dans le DOM laisserait le focus sur <body> en mobile, `focus()` étant sans effet sur
+  // un élément `display:none`. D'où le test de visibilité réelle (getClientRects).
+  function focusPaletteFallback() {
+    const trigger = document.getElementById(PALETTE_TRIGGER_ID);
+    if (trigger && trigger.getClientRects().length > 0) {
+      trigger.focus();
+      return;
+    }
+    mobileSearchRef.current?.querySelector<HTMLInputElement>("input")?.focus();
+  }
+
+  // Appelé par la palette APRÈS sa fermeture complète (onCloseAutoFocus) : la cible reçoit le focus.
+  function handlePaletteSelect(entry: PaletteEntry) {
+    if (entry.kind === "page") {
+      router.push(entry.href);
+      return;
+    }
+    // Une recherche active retire les ancres et filtre les rangées ; une catégorie repliée cache
+    // les siennes — on rétablit le canvas complet puis on retente en rAF jusqu'au re-rendu.
+    setSearchQuery("");
+    setCategoryCollapsed(entry.categoryId, false);
+    revealCancelRef.current?.();
+    revealCancelRef.current =
+      entry.kind === "item"
+        ? revealEditorTarget(itemRowId(entry.itemId), "item", focusPaletteFallback)
+        : revealEditorTarget(categoryAnchorId(entry.categoryId), "category", focusPaletteFallback);
+  }
+
   const chipCategories = optimisticCategories.map((c) => ({ id: c.id, name: c.name }));
   const listedCategories = isSearching ? visibleCategories : optimisticCategories;
 
@@ -207,6 +316,7 @@ export function MenuEditor({
         categories={chipCategories}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
+        onOpenPalette={openPalette}
       />
 
       {/* Équivalents mobiles de la toolbar desktop : recherche + Aperçu en haut du
@@ -214,7 +324,7 @@ export function MenuEditor({
           le sticky tienne sur toute la hauteur de la page). Publier vit dans la barre
           globale du shell (PublishBar). */}
       <div className="flex items-center gap-2 md:hidden">
-        <div className="min-w-0 flex-1">
+        <div ref={mobileSearchRef} className="min-w-0 flex-1">
           <EditorSearchInput value={searchQuery} onChange={setSearchQuery} />
         </div>
         <PreviewDialog menu={menu} restaurantName={restaurantName} planTier={planTier} />
@@ -226,25 +336,35 @@ export function MenuEditor({
       )}
 
       <div className={cn("min-w-0", isSearching ? "space-y-6" : "space-y-8")}>
+        {/* Région live PERSISTANTE : montée avec l'éditeur, AVANT tout contenu de recherche — une
+            région créée en même temps que son texte n'est pas annoncée de façon fiable (NVDA,
+            VoiceOver). Elle porte le compteur de résultats ; le bloc « aucun résultat », visuel,
+            vit dans le flux ci-dessous et n'a donc pas besoin d'être répété ici. */}
+        <div role="status" aria-live="polite" className={isSearching ? undefined : "sr-only"}>
+          {isSearching && resultCount > 0 && (
+            <p className="text-sm text-muted-foreground">
+              {t("search.results", { count: resultCount })}
+            </p>
+          )}
+          {isSearching && visibleCategories.length === 0 && (
+            <span className="sr-only">{t("search.noResults", { query: searchQuery.trim() })}</span>
+          )}
+        </div>
         {isSearching ? (
-          <>
-            {resultCount > 0 && (
-              <p role="status" className="text-sm text-muted-foreground">
-                {t("search.results", { count: resultCount })}
-              </p>
-            )}
+          <div className="space-y-6">
             {visibleCategories.length === 0 && (
-              <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed py-12 text-center">
-                <SearchX className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
-                <p className="text-body-sm text-muted-foreground">
-                  {t("search.noResults", { query: searchQuery.trim() })}
-                </p>
-                <Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
-                  {t("search.clear")}
-                </Button>
-              </div>
+              <EmptyState
+                variant="page"
+                icon={SearchX}
+                description={t("search.noResults", { query: searchQuery.trim() })}
+                action={
+                  <Button variant="outline" size="sm" onClick={() => setSearchQuery("")}>
+                    {t("search.clear")}
+                  </Button>
+                }
+              />
             )}
-          </>
+          </div>
         ) : (
           <>
             {activationChecklist && (
@@ -254,28 +374,13 @@ export function MenuEditor({
               />
             )}
 
-            <div className="flex items-center gap-3 border-b pb-4">
-              {logoPath &&
-                (() => {
-                  const url = restaurantLogoUrl(logoPath);
-                  return url ? (
-                    <TemplateLogo
-                      src={url}
-                      alt={restaurantName}
-                      className="size-8 shrink-0"
-                      sizes="32px"
-                    />
-                  ) : null;
-                })()}
-              <EditableRestaurantName currentName={restaurantName} />
-            </div>
-
             <TodaySection
               menuId={menu.menuId}
               dailyDishes={dailyDishes}
               formulas={formulas}
               planTier={planTier}
               sourceLocale={sourceLocale}
+              nowISO={nowISO}
             />
           </>
         )}
@@ -318,6 +423,13 @@ export function MenuEditor({
           </div>
         )}
       </div>
+
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        entries={paletteEntries}
+        onSelect={handlePaletteSelect}
+      />
     </div>
   );
 }

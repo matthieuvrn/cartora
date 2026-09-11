@@ -81,4 +81,57 @@ describe("AnalyticsPolicy", () => {
       expect(result!.length).toBeLessThanOrEqual(100);
     });
   });
+
+  describe("parseStatsPeriod", () => {
+    it.each([
+      ["30", 30],
+      ["7", 7],
+      [undefined, 7],
+      ["", 7],
+      ["14", 7],
+      ["030", 7],
+      ["30.0", 7],
+      [" 30", 7],
+      ["abc", 7],
+    ] as const)("maps %s to the %s-day window", (raw, expected) => {
+      expect(AnalyticsPolicy.parseStatsPeriod(raw)).toBe(expected);
+    });
+
+    it("falls back to the default period when the searchParam is repeated", () => {
+      // Next fournit un tableau pour `?period=30&period=7` : aucune période n'est déductible.
+      expect(AnalyticsPolicy.parseStatsPeriod(["30"])).toBe(7);
+    });
+  });
+
+  describe("computeViewsDelta", () => {
+    it("returns none when both windows are empty", () => {
+      expect(AnalyticsPolicy.computeViewsDelta(0, 0)).toEqual({ kind: "none" });
+    });
+
+    it("returns new when the previous window is empty", () => {
+      expect(AnalyticsPolicy.computeViewsDelta(5, 0)).toEqual({ kind: "new" });
+    });
+
+    it.each([
+      [10, 10, { kind: "flat", pct: 0 }],
+      [15, 10, { kind: "up", pct: 50 }],
+      [5, 10, { kind: "down", pct: -50 }],
+      [1, 3, { kind: "down", pct: -67 }],
+      [101, 100, { kind: "up", pct: 1 }],
+      [0, 8, { kind: "down", pct: -100 }],
+    ] as const)("compares %i views with %i", (current, previous, expected) => {
+      expect(AnalyticsPolicy.computeViewsDelta(current, previous)).toEqual(expected);
+    });
+
+    it("reads a sub-percent move as flat, in both directions", () => {
+      // Le kind suit le pourcentage ARRONDI : jamais « en hausse de +0 % », et jamais -0.
+      expect(AnalyticsPolicy.computeViewsDelta(1004, 1000)).toEqual({ kind: "flat", pct: 0 });
+      // `Math.round(-0.4)` vaut -0 : l'assertion stricte ci-dessous le refuserait s'il fuitait.
+      expect(AnalyticsPolicy.computeViewsDelta(996, 1000)).toEqual({ kind: "flat", pct: 0 });
+    });
+
+    it("does not cap the percentage", () => {
+      expect(AnalyticsPolicy.computeViewsDelta(1300, 100)).toEqual({ kind: "up", pct: 1200 });
+    });
+  });
 });

@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/** Squelette miroir de la page Apparence : en-tête, grille des 9 templates, cartes logo + couleurs. */
+/**
+ * Squelette miroir de la page Apparence : en-tête, grille des 9 templates, bloc d'upsell PRO,
+ * cartes logo + couleurs.
+ */
 export default function AppearanceLoading() {
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -29,6 +32,8 @@ export default function AppearanceLoading() {
             </Card>
           ))}
         </div>
+        {/* Bloc d'upsell PRO : le squelette ignore le tier (la majorité des comptes est non-PRO). */}
+        <Skeleton className="h-72 w-full rounded-xl lg:h-44" />
       </section>
 
       {Array.from({ length: 2 }).map((_, i) => (

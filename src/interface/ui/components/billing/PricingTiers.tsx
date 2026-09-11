@@ -185,7 +185,9 @@ function PaidTierCta({
 // (le mono est réservé aux prix/data inline : items, KPI). `tabular-nums` pour l'alignement des chiffres.
 // `text-h1` (40px) plutôt que le `text-display-lg` (52px) de la landing : la grille est plus dense
 // (3 colonnes ~180px au breakpoint sm), display-lg ferait déborder « 29,90 € ». Même esprit éditorial.
-function Price({ value }: { value: string }) {
+// Exporté : réutilisé par `TemplateUpsellCard` (bloc PRO de la page Apparence) pour ne pas
+// dupliquer les classes du prix.
+export function Price({ value }: { value: string }) {
   return (
     <span className="font-display text-h1 font-medium tracking-[-0.04em] whitespace-nowrap tabular-nums">
       {value}

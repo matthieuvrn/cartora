@@ -32,6 +32,8 @@ type Props = {
   formulas: { active: FormulaData[]; expired: FormulaData[] };
   planTier: PlanTier;
   sourceLocale: MenuLocale;
+  /** ISO 8601 UTC (horloge serveur) — référentiel de la ligne « Expire aujourd'hui à … ». */
+  nowISO: string;
 };
 
 /**
@@ -45,7 +47,14 @@ type Props = {
  * unique ouvrant la PricingModal — au lieu de deux pavés paywall empilés
  * au-dessus de la carte.
  */
-export function TodaySection({ menuId, dailyDishes, formulas, planTier, sourceLocale }: Props) {
+export function TodaySection({
+  menuId,
+  dailyDishes,
+  formulas,
+  planTier,
+  sourceLocale,
+  nowISO,
+}: Props) {
   const t = useTranslations("Dashboard");
   const [pricingOpen, setPricingOpen] = useState(false);
   const dishesAllowed = PlanPolicy.canUseDailyDishes(planTier);
@@ -150,6 +159,7 @@ export function TodaySection({ menuId, dailyDishes, formulas, planTier, sourceLo
             activeDishes={dailyDishes.active}
             expiredDishes={dailyDishes.expired}
             sourceLocale={sourceLocale}
+            nowISO={nowISO}
           />
         )}
         {formulasAllowed && (
@@ -157,6 +167,7 @@ export function TodaySection({ menuId, dailyDishes, formulas, planTier, sourceLo
             activeFormulas={formulas.active}
             expiredFormulas={formulas.expired}
             sourceLocale={sourceLocale}
+            nowISO={nowISO}
           />
         )}
       </div>

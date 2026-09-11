@@ -1,7 +1,6 @@
 {
   "Nav": {
     "navigation": "Navigation",
-    "openMenu": "Open menu",
     "skipToContent": "Skip to content",
     "logout": "Log out",
     "menu": "My menu",
@@ -12,7 +11,20 @@
     "abonnement": "Subscription",
     "reglages": "Settings",
     "translationsPending": "{count} to translate",
-    "managePlan": "Manage my subscription"
+    "managePlan": "Manage my subscription",
+    "group": {
+      "carte": "Menu",
+      "diffusion": "Distribution",
+      "compte": "Account"
+    },
+    "closeMenu": "Close menu",
+    "tab": {
+      "menu": "Menu",
+      "stats": "Stats",
+      "partage": "Share",
+      "more": "More"
+    },
+    "quickNav": "Quick navigation"
   },
   "Translations": {
     "title": "Translations",
@@ -209,6 +221,7 @@
     "publishChanges": "Publish changes",
     "viewMyMenu": "View my menu",
     "viewLiveVersion": "View live version",
+    "opensInNewTab": "(opens in a new tab)",
     "copyLink": "Copy link",
     "linkCopied": "Link copied",
     "copyLinkError": "Couldn't copy the link",
@@ -222,6 +235,22 @@
       "clear": "Clear search",
       "results": "{count, plural, one {# result} other {# results}}",
       "noResults": "No results for “{query}”"
+    },
+    "palette": {
+      "open": "Go to…",
+      "title": "Command palette",
+      "placeholder": "Search a dish, a category or a page…",
+      "group": {
+        "item": "Dishes",
+        "category": "Categories",
+        "page": "Pages"
+      },
+      "itemCount": "{count, plural, =0 {no items} one {# item} other {# items}}",
+      "hint": {
+        "navigate": "navigate",
+        "go": "go to",
+        "close": "close"
+      }
     },
     "categoryNav": {
       "label": "Menu categories"
@@ -257,7 +286,6 @@
       "undo": "Undo"
     },
     "preview": "Preview",
-    "jumpToCategory": "Go to…",
     "previewTitle": "Menu preview",
     "previewViewportMobile": "Mobile",
     "previewViewportTablet": "Tablet",
@@ -299,6 +327,9 @@
     "saveName": "Save",
     "cancelEdit": "Cancel",
     "namePlaceholder": "Your restaurant name",
+    "identity": {
+      "templateLink": "{template} · change appearance"
+    },
     "error": {
       "generic": "Something went wrong, please try again"
     },
@@ -318,7 +349,8 @@
       "dishSaved": "Today's dish saved",
       "formulaSaved": "Combo saved",
       "nameSaved": "Name saved",
-      "published": "Menu published"
+      "published": "Menu published",
+      "publishedDescription": "Your menu is now visible to your customers"
     },
     "deleteAccount": "Delete my account",
     "deleteAccountConfirmTitle": "Delete your account?",
@@ -337,6 +369,7 @@
       "empty": "No dishes yet.",
       "emptyExpired": "All your dishes have expired.",
       "expiresAt": "Expires {date} at {time}",
+      "expiresTodayAt": "Expires today at {time}",
       "expired": "Expired",
       "validUntilLabel": "Expiration",
       "validUntilHint": "Defaults to end of day (Paris time)."
@@ -349,6 +382,7 @@
       "empty": "No combos yet.",
       "emptyExpired": "All your combos have expired.",
       "expiresAt": "Expires {date} at {time}",
+      "expiresTodayAt": "Expires today at {time}",
       "expired": "Expired",
       "validUntilLabel": "Expiration",
       "validUntilHint": "Defaults to end of day (Paris time).",
@@ -965,14 +999,20 @@
     },
     "template": {
       "title": "Menu appearance",
-      "description": "Choose the visual rendering of your public menu. Premium templates require the PRO plan.",
+      "description": "Use “Preview” to see each design applied to your menu.",
       "back": "Back to settings",
       "lockedBadge": "PRO",
-      "lockedHint": "Available with the PRO plan",
       "upgradeCta": "Upgrade to PRO",
       "saveButton": "Pick this template",
       "currentBadge": "Selected",
       "saveSuccess": "Template updated. Republish your menu to apply it.",
+      "upsell": {
+        "badge": "PRO plan",
+        "title": "Unlock the {count} premium templates",
+        "body": "Every premium design comes with its own ready-to-use palette and typography.",
+        "noteFree": "No commitment · Cancel in 1 click",
+        "noteStarter": "Upgrade from your Subscription page"
+      },
       "names": {
         "CLASSIC": "Classic",
         "CARTORA": "Cartora",
@@ -1212,7 +1252,16 @@
   "Stats": {
     "title": "Statistics",
     "totalViews": "Total views",
-    "last7Days": "Last 7 days",
+    "period": {
+      "label": "Period",
+      "option": "{days} days",
+      "lastDays": "Last {days} days"
+    },
+    "delta": {
+      "up": "Up {value}: {current, plural, one {# view} other {# views}} versus {previous} over the previous {days} days",
+      "down": "Down {value}: {current, plural, one {# view} other {# views}} versus {previous} over the previous {days} days",
+      "flat": "Unchanged: {current, plural, one {# view} other {# views}}, same as the previous {days} days"
+    },
     "views": "views",
     "device": {
       "MOBILE": "Mobile",

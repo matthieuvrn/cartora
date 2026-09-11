@@ -6,14 +6,18 @@ import { Plus, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { FormulaData } from "@/domain/menu/MenuTypes";
 import type { MenuLocale } from "@/domain/menu/MenuLocale";
+import { expiresToday } from "@/domain/menu/expiryStatus";
 import { usePendingDeletes } from "@/hooks/use-deferred-delete";
 import { FormulaCard } from "./FormulaCard";
 import { FormulaFormDialog } from "./FormulaFormDialog";
+import { EmptyState } from "./EmptyState";
 
 type Props = {
   activeFormulas: FormulaData[];
   expiredFormulas: FormulaData[];
   sourceLocale: MenuLocale;
+  /** ISO 8601 UTC (horloge serveur) — base de la ligne « Expire aujourd'hui à … ». */
+  nowISO: string;
 };
 
 /**
@@ -21,7 +25,7 @@ type Props = {
  * et le gating de plan). Pile identique à `DailyDishesSection` : liste active
  * + « Ajouter » + expirées repliées pour suppression manuelle.
  */
-export function FormulasSection({ activeFormulas, expiredFormulas, sourceLocale }: Props) {
+export function FormulasSection({ activeFormulas, expiredFormulas, sourceLocale, nowISO }: Props) {
   const t = useTranslations("Dashboard.formula");
   const [createOpen, setCreateOpen] = useState(false);
   const [createKey, setCreateKey] = useState(0);
@@ -49,19 +53,26 @@ export function FormulasSection({ activeFormulas, expiredFormulas, sourceLocale 
       </div>
 
       {visibleActive.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed p-6 text-center">
-          <Layers className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
-          <p className="text-body-sm text-muted-foreground">{t("empty")}</p>
-          <Button variant="outline" size="sm" onClick={handleAdd}>
-            <Plus />
-            {t("add")}
-          </Button>
-        </div>
+        <EmptyState
+          icon={Layers}
+          description={t("empty")}
+          action={
+            <Button variant="outline" size="sm" onClick={handleAdd}>
+              <Plus />
+              {t("add")}
+            </Button>
+          }
+        />
       ) : (
+        /* Expiration « aujourd'hui » calculée ici (helper domaine pur) — la carte reste un rendu. */
         <ul className="space-y-2" role="list">
           {visibleActive.map((formula) => (
             <li key={formula.id}>
-              <FormulaCard formula={formula} sourceLocale={sourceLocale} />
+              <FormulaCard
+                formula={formula}
+                sourceLocale={sourceLocale}
+                expiresToday={expiresToday(formula, nowISO)}
+              />
             </li>
           ))}
         </ul>

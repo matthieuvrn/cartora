@@ -6,6 +6,7 @@ import type { PlanTier } from "@/domain/billing/PlanPolicy";
 import { AppShell } from "@/interface/ui/components/app/AppShell";
 import type { SidebarRestaurant } from "@/interface/ui/components/app/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { COOKIE_BANNER_OFFSET } from "@/interface/ui/components/consent/cookieBannerOffset";
 import { loadTranslationOverview, translationTodoCount } from "./app/_lib/translationOverview";
 import { loadPublishBarState, type PublishBarState } from "./app/_lib/publishBarState";
 
@@ -74,8 +75,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
         >
           {children}
         </AppShell>
-        {/* Dans le scope .theme-app : les toasts consomment --popover/--border/--card-shadow. */}
-        <Toaster />
+        {/* Dans le scope .theme-app : les toasts consomment --popover/--border/--card-shadow.
+            Overlay fixe bas (desktop) : décalé de la bannière cookies comme tout `fixed bottom-*`.
+            Le z-index de sonner (999999999) passe DEVANT la bannière (z-50) : sans ce décalage, un
+            toast porteur d'un lien (publication, 8 s) recouvrirait ses boutons Accepter/Refuser.
+            `top: 72` = topbar h-14 + marge, pour la bande 600–767 px où sonner applique encore les
+            offsets desktop alors que le Toaster est déjà passé en `top-center`. */}
+        <Toaster offset={{ top: 72, bottom: `calc(1.5rem + ${COOKIE_BANNER_OFFSET})` }} />
       </div>
     </LocaleShell>
   );

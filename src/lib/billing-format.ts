@@ -6,7 +6,8 @@
 
 const INTL_TAGS: Record<string, string> = { fr: "fr-FR", en: "en-GB" };
 
-function tagFor(locale: string): string {
+/** Étiquette Intl complète — `en` nu donnerait le format US (MM/JJ, 12 h) sur un chrome anglais. */
+export function tagFor(locale: string): string {
   return INTL_TAGS[locale] ?? INTL_TAGS.fr;
 }
 

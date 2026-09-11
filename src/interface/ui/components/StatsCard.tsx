@@ -11,15 +11,19 @@ import {
   TrendingUp,
   CalendarDays,
 } from "lucide-react";
-import type {
-  DashboardStats,
-  DeviceType,
-  RealtimeStats,
-  ViewSource,
+import {
+  DEFAULT_STATS_PERIOD,
+  type DashboardStats,
+  type DeviceType,
+  type RealtimeStats,
+  type ViewSource,
 } from "@/domain/analytics/AnalyticsTypes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "./EmptyState";
 import { KpiCard } from "./stats/KpiCard";
+import { Sparkline } from "./stats/Sparkline";
 import { ViewsChart } from "./stats/ViewsChart";
+import { ViewsDeltaBadge } from "./stats/ViewsDeltaBadge";
 import { HourlyChart } from "./stats/HourlyChart";
 import { BreakdownSection } from "./stats/BreakdownSection";
 
@@ -83,7 +87,7 @@ export function StatsCard({ stats, realtimeStats }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="display">{t("title")}</CardTitle>
-          <CardDescription>{t("last7Days")}</CardDescription>
+          <CardDescription>{t("period.lastDays", { days: DEFAULT_STATS_PERIOD })}</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-body-sm text-muted-foreground">{t("empty")}</p>
@@ -123,27 +127,43 @@ export function StatsCard({ stats, realtimeStats }: Props) {
   const hasBreakdowns =
     deviceEntries.length > 0 || sourceEntries.length > 0 || localeEntries.length > 0;
 
-  // Rien de mesuré sur la fenêtre (ni 7 j ni 24 h) : on le dit explicitement au-dessus des
-  // tuiles à zéro, plutôt qu'une grille de « 0 » et de courbes plates sans explication.
+  // Rien de mesuré (ni sur la fenêtre choisie, ni sur les 24 h) : on le dit explicitement
+  // au-dessus des tuiles à zéro, plutôt qu'une grille de « 0 » et de courbes plates sans
+  // explication.
   const isEmpty = stats.totalViews === 0 && (realtimeStats?.viewsLast24h ?? 0) === 0;
 
   return (
     <div className="space-y-4">
       {isEmpty && (
-        <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed px-4 py-8 text-center">
-          <Eye className="size-8 text-canard-400" strokeWidth={1.75} aria-hidden="true" />
-          <p className="text-body font-medium">{t("empty")}</p>
-          <p className="max-w-md text-body-sm text-muted-foreground">{t("emptyHint")}</p>
-        </div>
+        <EmptyState variant="page" icon={Eye} title={t("empty")} description={t("emptyHint")} />
       )}
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        {/*
+          Seul chiffre ORIENTÉ de la page : delta vs la période précédente de même longueur +
+          mini-courbe. La fenêtre qualifie le chiffre (« 7 derniers jours »), la pastille qualifie
+          la variation. Les tuiles temps réel (24 h, 60 min, heure de pointe, graphe horaire)
+          restent sur 7 jours d'événements bruts, indépendamment du sélecteur de période.
+        */}
         <KpiCard
           title={t("totalViews")}
           value={stats.totalViews}
           icon={Eye}
-          description={t("last7Days")}
+          description={t("period.lastDays", { days: stats.period })}
+          delta={
+            <ViewsDeltaBadge
+              delta={stats.viewsDelta}
+              days={stats.period}
+              current={stats.totalViews}
+              previous={stats.previousTotalViews}
+            />
+          }
+          trend={
+            stats.totalViews > 0 ? (
+              <Sparkline values={stats.viewsByDay.map((day) => day.count)} />
+            ) : undefined
+          }
         />
         <KpiCard title={t("last24h")} value={realtimeStats?.viewsLast24h ?? "—"} icon={Timer} />
         <KpiCard title={t("last60Min")} value={realtimeStats?.viewsLast60Min ?? "—"} icon={Clock} />
@@ -154,11 +174,17 @@ export function StatsCard({ stats, realtimeStats }: Props) {
           }
           icon={TrendingUp}
         />
-        <KpiCard title={t("peakDay")} value={peakDay ?? "—"} icon={CalendarDays} />
+        <KpiCard
+          title={t("peakDay")}
+          value={peakDay ?? "—"}
+          icon={CalendarDays}
+          description={t("period.lastDays", { days: stats.period })}
+        />
         <KpiCard
           title={t("topDevice")}
           value={topDevice ? t(`device.${topDevice}`) : "—"}
           icon={topDevice ? DEVICE_ICONS[topDevice] : Monitor}
+          description={t("period.lastDays", { days: stats.period })}
         />
       </div>
 
@@ -166,10 +192,10 @@ export function StatsCard({ stats, realtimeStats }: Props) {
       <Card>
         <CardHeader>
           <CardTitle className="display">{t("chartTitle")}</CardTitle>
-          <CardDescription>{t("last7Days")}</CardDescription>
+          <CardDescription>{t("period.lastDays", { days: stats.period })}</CardDescription>
         </CardHeader>
         <CardContent>
-          <ViewsChart viewsByDay={stats.viewsByDay} />
+          <ViewsChart viewsByDay={stats.viewsByDay} period={stats.period} />
         </CardContent>
       </Card>
 

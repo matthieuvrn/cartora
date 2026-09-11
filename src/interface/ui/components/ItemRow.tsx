@@ -31,6 +31,7 @@ import { deleteItemAction, setItemAvailabilityAction } from "@/app/(app)/app/act
 import { deferDelete } from "@/hooks/use-deferred-delete";
 import { cn, HIT_AREA, HIT_AREA_TALL } from "@/lib/utils";
 import { actionErrorText } from "./actionErrorText";
+import { itemRowId } from "./editorAnchors";
 import { ItemFormDialog } from "./ItemFormDialog";
 import { AllergenIcons, type AllergenLabels } from "./AllergenIcons";
 import { useSortableRow } from "./dnd/SortableList";
@@ -113,7 +114,7 @@ export function ItemRow({
   // l'appel serveur ne part qu'à l'échéance. Le focus est rendu à une rangée
   // voisine — le trigger du menu disparaît avec la rangée.
   function handleDelete() {
-    const row = document.getElementById(`item-${item.id}`);
+    const row = document.getElementById(itemRowId(item.id));
     deleteFocusTargetRef.current = (row?.nextElementSibling ??
       row?.previousElementSibling) as HTMLElement | null;
 
@@ -160,7 +161,7 @@ export function ItemRow({
       <div
         ref={setNodeRef}
         style={style}
-        id={`item-${item.id}`}
+        id={itemRowId(item.id)}
         tabIndex={-1}
         className={cn(
           // Rangée non cliquable dans son ensemble ⇒ hover bordure seulement (jamais de lift).
