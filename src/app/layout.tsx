@@ -35,6 +35,8 @@ const jetbrainsMono = localFont({
   // Pas de preload : ses seuls usages (prix du template CLASSIC sur /m/[slug], pill d'URL
   // du BrowserMockup) sont below-the-fold ou hors landing — le preload root faisait payer
   // 40 KB sur le chemin critique de TOUTES les pages. Fetch à la demande + swap.
+  // Sous-ensemble latin : « → » U+2192 / « ↗ » U+2197 absents (repli Arial) — en mono,
+  // séparer avec « › » U+203A ou une icône lucide.
   preload: false,
 });
 

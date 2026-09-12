@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { CookieBanner } from "@/interface/ui/components/consent/CookieBanner";
 import { LandingDemoPreview } from "@/interface/ui/landing/LandingDemoPreview";
 import { LandingFaqV2 } from "@/interface/ui/landing/LandingFaqV2";
-import { FAQ_ITEMS } from "@/interface/ui/landing/faqItems";
+import { FAQ_ANSWER_TAGS, FAQ_CONTACT_EMAIL, FAQ_ITEMS } from "@/interface/ui/landing/faqItems";
 import { LandingFeatures } from "@/interface/ui/landing/LandingFeatures";
 import { LandingFinalCta } from "@/interface/ui/landing/LandingFinalCta";
 import { LandingHeader } from "@/interface/ui/landing/LandingHeader";
@@ -39,12 +39,21 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
     logo: `${baseUrl}/icon.svg`,
     contactPoint: {
       "@type": "ContactPoint",
-      email: "contact@cartora.app",
+      email: FAQ_CONTACT_EMAIL,
       contactType: "customer support",
       areaServed: "FR",
       availableLanguage: ["French", "English"],
     },
   };
+
+  // Balises ICU des réponses rendues en texte nu (fonctions identité) : le JSON-LD doit rester une
+  // string. Un `t()` simple (sans valeurs) renverrait la chaîne BRUTE avec ses balises
+  // `<pricing>…</pricing>` dans le JSON-LD (fast path use-intl) ; `t.markup` + fonctions identité
+  // rend le texte nu. Une balise sans fonction (t.rich / t.markup) fait retomber next-intl sur la
+  // CLÉ — d'où le test faq-answer-tags (balises ⊆ FAQ_ANSWER_TAGS).
+  const stripAnswerTags = Object.fromEntries(
+    FAQ_ANSWER_TAGS.map((tag) => [tag, (chunks: string) => chunks]),
+  ) as Record<(typeof FAQ_ANSWER_TAGS)[number], (chunks: string) => string>;
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -52,10 +61,7 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
     mainEntity: FAQ_ITEMS.map((key) => ({
       "@type": "Question",
       name: t(`items.${key}.q`),
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: t(`items.${key}.a`),
-      },
+      acceptedAnswer: { "@type": "Answer", text: t.markup(`items.${key}.a`, stripAnswerTags) },
     })),
   };
 
@@ -127,35 +133,41 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
         >
           {tLanding("skipToContent")}
         </a>
-        {/* Lockup rendu ici (serveur) : voir la note `logo` de LandingHeader (budget JS). `h-5.5` sous
-            sm (134 px) : budget de largeur du header à 360 px détaillé dans LandingHeader. */}
-        <LandingHeader logo={<Logo className="h-5.5 sm:h-7" />} />
+        {/* Logo rendu ici (serveur) : voir la note `logo` de LandingHeader (budget JS). Mark seul
+            sous sm (24 px) pour garder le CTA court dans la barre à 360 px, lockup h-7 dès sm ;
+            les deux rendus SERVEUR (budget JS). */}
+        <LandingHeader
+          logo={
+            <>
+              <Logo variant="mark" className="h-6 sm:hidden" />
+              <Logo className="hidden h-7 sm:block" />
+            </>
+          }
+        />
         {/* Arc en 9 sections (refonte 2026, ex-12) : Hero → TrustStrip → Problème (fusionné
             avec l'ancienne Comparaison) → Comment ça marche → Features (audience intégrée à
             l'étape 2) → Démo-preuve → Pricing → FAQ → Final CTA. TrustSafety supprimée : la
             confiance vit dans la strip + la FAQ (elle était traitée trois fois). */}
         <main id="main">
           <LandingHero />
-          {/* Reveal-on-scroll par section. Pas de delay cumulatif : chaque section apparaît à
-              son propre scroll-in, un délai croissant n'ajouterait que du lag below-the-fold.
-              variant="fade" sur les sections dont la grille interne stagger déjà ses items
-              (StaggerReveal) — sinon double animation y. */}
+          {/* Reveal-on-scroll par section (fade seul, sans delay cumulatif — cf. docblock de
+              MotionSection). */}
           <MotionSection>
             <LandingTrustStrip />
           </MotionSection>
-          <MotionSection variant="fade">
+          <MotionSection>
             <LandingProblem />
           </MotionSection>
-          <MotionSection variant="fade">
+          <MotionSection>
             <LandingHowItWorks />
           </MotionSection>
-          <MotionSection variant="fade">
+          <MotionSection>
             <LandingFeatures />
           </MotionSection>
           <MotionSection>
             <LandingDemoPreview />
           </MotionSection>
-          <MotionSection variant="fade">
+          <MotionSection>
             <LandingPricing />
           </MotionSection>
           <MotionSection>
@@ -165,7 +177,10 @@ export async function LandingPageContent({ locale }: { locale: "fr" | "en" }) {
             <LandingFinalCta />
           </MotionSection>
           <ScrollDepthTracker />
-          <SectionViewTracker sectionIds={["demo", "pricing", "final-cta"]} />
+          {/* Union des ids suivis (header nav, features, FAQ) — écrite UNE fois ici, ordre de page. */}
+          <SectionViewTracker
+            sectionIds={["how-it-works", "features", "demo", "pricing", "faq", "final-cta"]}
+          />
         </main>
         <LandingFooter />
         <StickyMobileCTA />

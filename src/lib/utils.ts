@@ -1,5 +1,30 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * Tokens `--text-*` déclarés dans le `@theme` de globals.css. À TENIR EN PHASE : hors de cette
+ * liste, tailwind-merge (qui ne connaît que les tailles t-shirt) classe `text-<token>` comme une
+ * COULEUR et le supprime dès qu'un `text-<couleur>` le suit dans le même `cn()` — le pricing
+ * landing a rendu ses titres et ses prix à 16 px hérités pendant des semaines pour cette raison.
+ */
+const THEME_TEXT_SIZES = [
+  "micro",
+  "caption",
+  "body-sm",
+  "body",
+  "body-lg",
+  "lead",
+  "h1",
+  "h2",
+  "h3",
+  "display-lg",
+  "display-xl",
+  "display-2xl",
+];
+
+const twMerge = extendTailwindMerge({
+  extend: { classGroups: { "font-size": [{ text: THEME_TEXT_SIZES }] } },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

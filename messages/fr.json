@@ -652,12 +652,15 @@
       "signupCta": "Créer ma carte gratuitement",
       "signupCtaShort": "Créer ma carte",
       "navLabel": "Navigation principale",
-      "localeNavLabel": "Langue"
+      "localeNavLabel": "Langue",
+      "navHow": "Comment ça marche",
+      "navFeatures": "Fonctionnalités",
+      "menuLabel": "Menu"
     },
     "hero": {
       "kicker": "Le menu digital des restaurateurs indépendants",
       "title": "Votre carte en ligne en <em>10 minutes</em>.",
-      "subtitle": "Modifiez-la à la seconde depuis votre téléphone : vos clients scannent un QR code et voient toujours la carte du jour — prix, plats, allergènes.",
+      "subtitle": "Modifiez-la à la seconde depuis votre téléphone : vos clients scannent un QR code et voient toujours la carte du jour — prix, plats, allergènes.",
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Ouvrir la vraie carte",
       "microTrust": "Sans carte bancaire · Gratuit pour commencer · Résiliable à tout moment",
@@ -672,15 +675,45 @@
         "soldOut": "Épuisé",
         "updatedToast": "Mis à jour à l’instant",
         "templateChip": "Design {name} · {index}/{total}",
-        "pause": "Mettre en pause les animations"
+        "pause": "Mettre en pause les animations",
+        "today": "Aujourd’hui",
+        "todayKicker": "Plats du jour",
+        "allergenMilk": "Lait",
+        "allergenCelery": "Céleri",
+        "allergenSulphites": "Sulfites",
+        "designsLabel": "Choisir un design",
+        "designTab": "Design {name}",
+        "next": "Design suivant",
+        "pauseShort": "Pause"
       },
-      "demoImageAltStatic": "Aperçu du menu du Bistrot Démo affiché sur un téléphone"
+      "demoImageAltStatic": "Aperçu du menu du Bistrot Démo affiché sur un téléphone",
+      "specLine": "9 designs · 5 langues · vrai QR"
     },
     "trustStrip": {
-      "hostingEu": "Hébergé en France & UE (Supabase)",
+      "hostingEu": "Données hébergées en UE",
       "stripe": "Paiements sécurisés Stripe",
       "rgpd": "Conforme RGPD",
-      "supportFr": "Support en français"
+      "supportFr": "Support en français",
+      "factsLabel": "Chiffres clés",
+      "facts": {
+        "designs": {
+          "value": "9",
+          "label": "designs"
+        },
+        "languages": {
+          "value": "5",
+          "label": "langues"
+        },
+        "allergens": {
+          "value": "14",
+          "label": "allergènes UE"
+        },
+        "minutes": {
+          "value": "10",
+          "label": "minutes"
+        }
+      },
+      "reassuranceLabel": "Engagements"
     },
     "problem": {
       "kicker": "Le constat",
@@ -688,29 +721,36 @@
       "pains": {
         "ardoise": {
           "title": "Une ardoise effacée à chaque service",
-          "body": "Le plat du jour de mardi reste affiché le jeudi. Une averse, un coup d’éponge, et la moitié de votre offre disparaît."
+          "body": "Le plat du jour de mardi reste affiché le jeudi. Une averse, un coup d’éponge, et la moitié de votre offre disparaît.",
+          "figure": "mardi › jeudi",
+          "artefact": {
+            "label": "Plat du jour"
+          }
         },
         "pdf": {
           "title": "Un PDF imprimé il y a six mois",
-          "body": "Les prix ont bougé, deux plats ne sont plus servis, mais le pressing du coin imprime toujours la même version."
+          "body": "Les prix ont bougé, deux plats ne sont plus servis, mais le pressing du coin imprime toujours la même version.",
+          "figure": "2 plats"
         },
         "wix": {
           "title": "Un site que seule votre agence peut modifier",
-          "body": "Chaque changement de carte coûte 80 € à votre agence. Vous laissez tomber au bout de trois mois."
+          "body": "Chaque changement de carte coûte 80 € à votre agence. Vous laissez tomber au bout de trois mois.",
+          "figure": "80 €"
         },
         "allergens": {
           "title": "Une carte sans allergènes",
-          "body": "Le règlement UE 1169/2011 vous y oblige depuis 2014. Sur papier, vous improvisez à l’oral. À chaque service."
+          "body": "Le règlement UE 1169/2011 vous y oblige depuis 2014. Sur papier, vous improvisez à l’oral. À chaque service.",
+          "figure": "UE 1169/2011"
         }
       },
       "aside": {
         "website": {
-          "title": "Vous avez déjà un site ?",
+          "title": "Vous avez déjà un site ?",
           "body": "Gardez-le : adresse, horaires, photos d’ambiance. Mais un site n’est pas conçu pour une carte qui bouge — Cartora se branche en complément, il ne le remplace pas."
         },
         "others": {
-          "title": "Vous comparez les menus digitaux ?",
-          "body": "D’autres outils existent et certains font très bien leur travail. Ce qui guide Cartora : conçu en France, hébergement en Europe, 14 allergènes EU natifs, menu multilingue, sans engagement. À vous de comparer ce qui compte pour votre établissement."
+          "title": "Vous comparez les menus digitaux ?",
+          "body": "D’autres outils existent et certains font très bien leur travail. Ce qui guide Cartora : conçu en France, hébergement en Europe, 14 allergènes UE natifs, menu multilingue, sans engagement. <em>À vous de comparer</em> ce qui compte pour votre établissement."
         }
       }
     },
@@ -724,13 +764,17 @@
       },
       "step2": {
         "title": "Vous remplissez votre carte",
-        "body": "Plats, catégories, allergènes : l’éditeur fonctionne sans formation, avec des catégories pré-remplies selon votre type d’établissement (pizzeria, brasserie, café…). Une carte complète prend environ 10 minutes."
+        "body": "Plats, catégories, allergènes : l’éditeur fonctionne sans formation, avec des catégories pré-remplies selon votre type d’établissement (pizzeria, brasserie, café…). Une carte complète prend <em>environ 10 minutes</em>."
       },
       "step3": {
         "title": "Vous imprimez votre QR code",
         "body": "Vos clients scannent. À chaque correction de prix ou de plat, votre carte est à jour à la seconde — sans rien réimprimer."
       },
-      "cta": "Créer ma carte"
+      "cta": "Créer ma carte",
+      "artefacts": {
+        "emailLabel": "Email",
+        "emailValue": "vous@votre-restaurant.fr"
+      }
     },
     "features": {
       "kicker": "L’essentiel",
@@ -747,39 +791,44 @@
         "tier": "Dès Starter"
       },
       "allergens": {
-        "title": "14 allergènes EU intégrés",
+        "title": "14 allergènes UE intégrés",
         "body": "Les 14 allergènes du règlement UE 1169/2011, intégrés dans chaque plat. Vos clients les voient directement sur la carte.",
         "tier": "Tous les plans"
       },
       "bilingual": {
         "title": "Menu multilingue",
-        "body": "Vous rédigez votre carte une fois dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu’à 5 langues (fr, en, es, de, it). Votre client voit automatiquement la sienne selon son navigateur.",
+        "body": "Vous rédigez votre carte une fois dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu’à 5 langues (fr, en, es, de, it). Votre client change de langue d’un geste, directement sur la carte.",
         "tier": "Pro"
       },
       "daily": {
         "title": "Menus du jour et formules",
         "body": "Ardoise du jour à durée limitée (jusqu’à 14 jours), formules avec description détaillée. Disparaissent automatiquement à expiration.",
         "tier": "Dès Starter",
-        "visualUntil": "jusqu’à 23:59"
+        "visualDaysLeft": "encore 5 jours",
+        "visualHorizon": "14 jours max"
       },
       "branding": {
         "title": "Une carte à votre image",
         "body": "Neuf designs signés, vos couleurs de marque, lisibilité garantie : votre carte a l’allure d’un menu de designer — sans designer.",
-        "tier": "Pro"
-      }
+        "tier": "Pro",
+        "visualCaption": "9 designs"
+      },
+      "proofLink": "Voir tout ça sur une vraie carte"
     },
     "demo": {
       "kicker": "La preuve",
       "title": "Cette carte a été créée en <em>8 minutes</em>.",
       "subtitle": "C’est un vrai menu Cartora, publié et en ligne. Ouvrez-le, changez la langue, consultez les allergènes — et chronométrez-nous.",
-      "imageAlt": "Aperçu desktop d’un menu Cartora publié, avec entrées, plats et formules du jour.",
-      "stats": {
-        "allergens": "14 allergènes UE",
-        "languages": "5 langues",
-        "designs": "9 designs"
-      },
+      "imageAlt": "Aperçu d’un menu Cartora publié : plat du jour, formules et allergènes.",
       "openCta": "Ouvrir la vraie carte",
-      "footnote": "Aucune maquette : ce que vous voyez est ce que vos clients verront."
+      "footnote": "Aucune maquette : ce que vous voyez est ce que vos clients verront.",
+      "frameLinkLabel": "Ouvrir la vraie carte dans un nouvel onglet",
+      "frameHint": "Ouvrir",
+      "designsLabel": "La démo en {count} designs",
+      "designShown": "(design de l’aperçu ci-dessus)",
+      "excerpt": {
+        "legend": "La démo en {count} langues"
+      }
     },
     "pricing": {
       "kicker": "Les tarifs",
@@ -788,53 +837,106 @@
       "freeTagline": "Pour découvrir",
       "starterTagline": "Pour publier sereinement",
       "proTagline": "Pour aller plus loin",
-      "footer": "Sans engagement · Résiliable en 1 clic · TVA incluse"
+      "notIncluded": "Non inclus :",
+      "reassurance": {
+        "paid": "Sans engagement · Résiliable à tout moment",
+        "free": "Sans carte bancaire"
+      },
+      "priceNote": {
+        "paid": "TVA incluse",
+        "freePeriod": "sans abonnement",
+        "freeNote": "sans frais"
+      },
+      "specs": {
+        "labels": {
+          "categories": "Catégories",
+          "designs": "Designs",
+          "languages": "Langues"
+        },
+        "free": {
+          "categories": "6",
+          "designs": "2",
+          "languages": "1"
+        },
+        "starter": {
+          "categories": "10",
+          "designs": "2",
+          "languages": "1"
+        },
+        "pro": {
+          "categories": "∞",
+          "designs": "9",
+          "languages": "5"
+        }
+      },
+      "free": {
+        "features": ["Création de carte complète", "QR code intégré", "14 allergènes UE"],
+        "restrictions": ["Aperçu avec filigrane", "Publication en ligne"]
+      },
+      "starter": {
+        "intro": "Tout FREE inclus",
+        "features": [
+          "Publication sans filigrane",
+          "Menus du jour & formules",
+          "Couleurs de marque",
+          "Statistiques temps réel"
+        ]
+      },
+      "pro": {
+        "intro": "Tout STARTER inclus",
+        "features": ["Traduction automatique (DeepL)", "Support prioritaire"]
+      }
     },
     "faq": {
-      "kicker": "Questions",
+      "kicker": "Les réponses",
       "title": "Questions fréquentes",
-      "subtitle": "Tout ce que les restaurateurs nous demandent avant de se lancer.",
-      "contactLabel": "Une autre question ?",
+      "subtitle": "Ce que les restaurateurs nous demandent le plus souvent.",
+      "contactLabel": "Une autre question ?",
+      "groups": {
+        "billing": "Facturation",
+        "service": "En salle",
+        "data": "Données & support"
+      },
       "items": {
         "noCc": {
-          "q": "Faut-il une carte bancaire pour s’inscrire ?",
-          "a": "Non. Vous créez votre compte et votre menu entièrement gratuitement, sans carte bancaire. Le paiement n’intervient que si vous décidez de publier votre carte (à partir de 9,90 €/mois)."
+          "q": "Faut-il une carte bancaire pour s’inscrire ?",
+          "a": "Non. Vous créez votre compte et votre menu entièrement gratuitement, sans carte bancaire. Le paiement n’intervient que si vous décidez de publier votre carte (à partir de <pricing>9,90 €/mois</pricing>)."
         },
         "commitment": {
-          "q": "Suis-je engagé sur une durée ?",
+          "q": "Suis-je engagé sur une durée ?",
           "a": "Aucune durée d’engagement. Les abonnements STARTER et PRO sont mensuels, résiliables en un clic depuis votre compte, à tout moment."
         },
+        "cancel": {
+          "q": "Comment je résilie ?",
+          "a": "Depuis votre espace client, en un clic, sans frais ni justification à fournir. Votre abonnement s’arrête à la fin de la période en cours — vous conservez l’accès payant jusqu’à cette date, puis vous passez en mode gratuit."
+        },
         "qrAgeingClients": {
-          "q": "Mes clients sauront-ils scanner un QR code ?",
+          "q": "Mes clients sauront-ils scanner un QR code ?",
           "a": "Oui. Les QR codes se sont généralisés au restaurant après 2020 et la majorité des smartphones les scannent directement depuis l’appareil photo. Si un client n’y arrive pas, l’URL de votre carte fonctionne aussi sans QR."
         },
+        "qrPrinting": {
+          "q": "Comment imprimer le QR code et où le placer ?",
+          "a": "Cartora génère un QR code haute définition téléchargeable depuis votre tableau de bord. Vous l’imprimez sur les supports de votre choix : sets de table, chevalets, vitrine, additions. Toutes les impressions renvoient vers la version à jour de votre carte."
+        },
         "allergens": {
-          "q": "Comment Cartora gère-t-il les allergènes ?",
+          "q": "Comment Cartora gère-t-il les allergènes ?",
           "a": "Les 14 allergènes du règlement européen 1169/2011 sont intégrés. Vous cochez ceux présents dans chaque plat, et vos clients les voient directement sur la carte. Conforme à l’obligation légale d’information."
         },
         "bilingual": {
-          "q": "Puis-je proposer ma carte en plusieurs langues ?",
-          "a": "Oui, avec le plan PRO. Vous rédigez votre carte dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu’à 5 langues : français, anglais, espagnol, allemand, italien. Vos clients voient automatiquement leur langue selon les réglages de leur navigateur."
+          "q": "Puis-je proposer ma carte en plusieurs langues ?",
+          "a": "Oui, avec le plan PRO. Vous rédigez votre carte dans votre langue, et Cartora la traduit automatiquement (DeepL) jusqu’à 5 langues : français, anglais, espagnol, allemand, italien. Vos clients changent de langue d’un geste, directement sur la carte."
         },
         "dataHosting": {
-          "q": "Où sont stockées les données de mon restaurant ?",
-          "a": "Sur Supabase, en France et en Allemagne, exclusivement dans l’Union européenne. Vos données de menu ne quittent jamais l’UE. Vous pouvez les exporter ou les supprimer à tout moment depuis votre compte (hors données de facturation, conservées par obligation légale — voir la politique de confidentialité)."
-        },
-        "cancel": {
-          "q": "Comment je résilie ?",
-          "a": "Depuis votre espace client, en un clic, sans frais ni justification à fournir. Votre abonnement s’arrête à la fin de la période en cours — vous conservez l’accès payant jusqu’à cette date, puis vous passez en mode gratuit."
+          "q": "Où sont stockées les données de mon restaurant ?",
+          "a": "Sur Supabase, en France et en Allemagne, exclusivement dans l’Union européenne. Vos données de menu ne quittent jamais l’UE. Vous pouvez les exporter ou les supprimer à tout moment depuis votre compte (hors données de facturation, conservées par obligation légale — voir la <privacyLink>politique de confidentialité</privacyLink>)."
         },
         "supportFr": {
-          "q": "Le support est-il en français ?",
-          "a": "Oui. Cartora est édité en France et chaque demande envoyée à contact@cartora.app reçoit une réponse en français, sous 48h ouvrées."
+          "q": "Le support est-il en français ?",
+          "a": "Oui. Cartora est édité en France et chaque demande envoyée à <email>contact@cartora.app</email> reçoit une réponse en français, sous 48h ouvrées."
         },
         "multiRestaurants": {
-          "q": "Puis-je gérer plusieurs restaurants avec un seul compte ?",
-          "a": "Pas pour le moment : un compte correspond à un restaurant. Si vous en gérez plusieurs, écrivez-nous à contact@cartora.app, nous étudions chaque cas."
-        },
-        "qrPrinting": {
-          "q": "Comment imprimer le QR code et où le placer ?",
-          "a": "Cartora génère un QR code haute définition téléchargeable depuis votre tableau de bord. Vous l’imprimez sur les supports de votre choix : sets de table, chevalets, vitrine, additions. Toutes les impressions renvoient vers la version à jour de votre carte."
+          "q": "Puis-je gérer plusieurs restaurants avec un seul compte ?",
+          "a": "Pas pour le moment : un compte correspond à un restaurant. Si vous en gérez plusieurs, écrivez-nous à <email>contact@cartora.app</email>, nous étudions chaque cas."
         }
       }
     },
@@ -842,10 +944,17 @@
       "title": "Dans <em>10 minutes</em>, votre carte est en ligne.",
       "ctaPrimary": "Créer ma carte gratuitement",
       "ctaSecondary": "Ouvrir la vraie carte",
-      "microTrust": "Sans carte bancaire · Gratuit pour commencer · Résiliable à tout moment"
+      "microTrust": "Compte › carte › QR code : trois étapes, rien à installer.",
+      "kicker": "Dernière étape",
+      "qrCaption": "ou scannez ce code : c’est la vraie carte"
     },
     "footer": {
-      "trustBadge": "Édité en France · Données hébergées en UE"
+      "trustBadge": "Édité en France · Données hébergées en UE",
+      "facts": {
+        "designs": "9 designs",
+        "languages": "5 langues",
+        "allergens": "14 allergènes UE"
+      }
     }
   },
   "NotFound": {
@@ -1042,10 +1151,8 @@
     "privacy": "Politique de confidentialité",
     "legal": "Mentions légales",
     "terms": "CGU",
-    "manageCookies": "Gérer mes cookies",
     "tagline": "Votre carte, à la seconde.",
     "colProduct": "Produit",
-    "colResources": "Ressources",
     "colLegal": "Légal",
     "colAccount": "Compte",
     "linkPricing": "Tarifs",

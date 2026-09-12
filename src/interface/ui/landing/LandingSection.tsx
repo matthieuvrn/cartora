@@ -6,6 +6,12 @@ interface LandingSectionProps {
   ariaLabelledBy?: string;
   className?: string;
   innerClassName?: string;
+  /**
+   * `scene="nuit"` = contrat des sentinelles du header/pilule (`landingChromeStore`) : à poser sur
+   * les VRAIES scènes nuit (strip, démo, clôture) — jamais sur une carte (Starter). Rendu en
+   * `data-scene` sur le `<section>`.
+   */
+  scene?: "nuit";
   children: React.ReactNode;
 }
 
@@ -21,10 +27,11 @@ export function LandingSection({
   ariaLabelledBy,
   className,
   innerClassName,
+  scene,
   children,
 }: LandingSectionProps) {
   return (
-    <section id={id} aria-labelledby={ariaLabelledBy} className={className}>
+    <section id={id} aria-labelledby={ariaLabelledBy} className={className} data-scene={scene}>
       <div className={cn("mx-auto max-w-6xl px-6 py-12 md:py-16", innerClassName)}>{children}</div>
     </section>
   );

@@ -214,6 +214,11 @@ html {
   --shadow-frame:
     0 28px 54px -10px oklch(0 0 0 / 0.45), 0 10px 18px 0 oklch(0 0 0 / 0.3),
     0 0 0 1px oklch(1 0 0 / 0.08), 0 0 48px -8px oklch(0.42 0.058 198 / 0.4);
+  /* Hover/focus du cadre-lien (démo) : même composition, halo canard 0,4 → 0,6, hairline 0,08 → 0,12,
+     élévation légèrement étendue. UN token = UNE box-shadow (jamais shadow-frame + hover:shadow-[…]). */
+  --shadow-frame-hover:
+    0 32px 60px -10px oklch(0 0 0 / 0.5), 0 10px 18px 0 oklch(0 0 0 / 0.3),
+    0 0 0 1px oklch(1 0 0 / 0.12), 0 0 56px -8px oklch(0.42 0.058 198 / 0.6);
   /* CTA primaire en section claire : ombre teintée + liseré lumineux interne. Le hover
      INTENSIFIE l'identité (halo canard élargi), il ne la remplace jamais par du gris. */
   --shadow-cta:
@@ -574,6 +579,10 @@ html:has([data-app-shell]) {
     position: absolute;
     inset: 0;
     z-index: 1;
+    /* Suit les coins du parent (carte Starter du pricing : rounded-2xl SANS overflow-hidden,
+       le tag « Recommandé » chevauche le bord). `inherit` = 0 sur les scènes pleine largeur ;
+       identique aux cartes app déjà overflow-hidden. */
+    border-radius: inherit;
     pointer-events: none;
     opacity: 0.04;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -590,6 +599,331 @@ html:has([data-app-shell]) {
     background-size: 72px 72px;
     -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
     mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+  }
+
+  /* Variante porcelaine de .bg-grid-nuit : grille hairline 72 px en encre canard à 7 %, même
+     masque radial ancré en haut. Consommée (1) en fond révélé au survol d'une cellule du bento
+     Features (article `relative isolate`, span `absolute inset-0 -z-10`), (2) en tête de la
+     section Pricing (retour porcelaine après la Démo). Une utility au call-site peut surcharger
+     le masque (`[mask-image:…]`). Jamais dans /m/[slug] (scope thème). */
+  :is(.theme-cartora, .theme-app) .bg-grid-sand {
+    background-image:
+      linear-gradient(to right, oklch(0.18 0.05 200 / 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.18 0.05 200 / 0.07) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
+  }
+
+  /* Variante « sujet au centre » de la grille nuit : même trame, masque radial centré sur le bloc
+     titre au lieu du bord haut. À poser AVEC .bg-grid-nuit (elle ne redéfinit que le masque).
+     Même spécificité, déclarée après → prime. Consommateur UNIQUE : LandingFinalCta (clôture) —
+     les autres scènes nuit (hero, démo, Starter) gardent le masque ancré en haut. Le centre du
+     bloc titre tombe à ≈ 34 % (390) et ≈ 42 % (1440) de la hauteur de section : l'ellipse
+     large (70 % × 60 %) couvre l'écart. */
+  :is(.theme-cartora, .theme-app) .bg-grid-nuit-centered {
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 42%, black 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 42%, black 20%, transparent 75%);
+  }
+
+  /* Ticks de coin « instrument » : 4 équerres de 12 px dessinées en background (8 dégradés
+     positionnés), aucun pseudo-élément → réutilisable sur un élément qui a déjà ::before/::after.
+     Couleur : sand-300 sur porcelaine, white/18 sur nuit (= alpha du thread nuit). Surcharge
+     ponctuelle SUR L'ÉLÉMENT lui-même (utilities > components) : [--tick-color:oklch(1_0_0/0.12)]. */
+  :is(.theme-cartora, .theme-app) .corner-ticks {
+    --tick-color: var(--color-sand-300);
+    --tick-size: 0.75rem;
+    background-image:
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color)),
+      linear-gradient(var(--tick-color), var(--tick-color));
+    background-repeat: no-repeat;
+    background-size:
+      var(--tick-size) 1px,
+      1px var(--tick-size),
+      var(--tick-size) 1px,
+      1px var(--tick-size),
+      var(--tick-size) 1px,
+      1px var(--tick-size),
+      var(--tick-size) 1px,
+      1px var(--tick-size);
+    background-position:
+      left top,
+      left top,
+      right top,
+      right top,
+      left bottom,
+      left bottom,
+      right bottom,
+      right bottom;
+  }
+  :is(.theme-cartora, .theme-app) .section-nuit .corner-ticks {
+    --tick-color: oklch(1 0 0 / 0.18);
+  }
+
+  /* Hairline verticale pointillée (4 px / 4 px) qui s'évanouit vers le haut : prolongement
+     d'une colonne au-delà de sa section (strip → hero). width 1 px ; hauteur au call-site.
+     Pointillé 4/4 à 18 % ≈ densité perçue d'un trait plein à 8-9 % : continuité visuelle avec
+     le border-l white/8 de la colonne qu'il prolonge. Même surcharge que .corner-ticks. */
+  :is(.theme-cartora, .theme-app) .hairline-dashed-up {
+    --tick-color: var(--color-sand-300);
+    width: 1px;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--tick-color) 0 4px,
+      transparent 4px 8px
+    );
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black);
+    mask-image: linear-gradient(to bottom, transparent, black);
+  }
+  :is(.theme-cartora, .theme-app) .section-nuit .hairline-dashed-up {
+    --tick-color: oklch(1 0 0 / 0.18);
+  }
+
+  /* Hairline verticale fondue aux deux bouts (3 rem) — gouttière de Problème, réutilisable. */
+  :is(.theme-cartora, .theme-app) .hairline-fade-y {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 3rem,
+      black calc(100% - 3rem),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 3rem,
+      black calc(100% - 3rem),
+      transparent
+    );
+  }
+
+  /* Points de conduite « plat …… prix » (Problème) : item flex vide, align-items: baseline →
+     bord bas = ligne de base → pointillé rond (Ø 1,5 px, pas 6 px) posé sur la baseline. */
+  :is(.theme-cartora, .theme-app) .leader-dots {
+    height: 3px;
+    background-image: radial-gradient(circle, var(--color-sand-400) 0.75px, transparent 1.25px);
+    background-size: 6px 3px;
+    background-repeat: repeat-x;
+    background-position: 0 100%;
+  }
+
+  /* Surlignage « craie » sand-200 (lavis, thème ardoise du constat — arbitrage frontière
+     constat → méthode, variante A : le corail texte est porté par « environ 10 minutes » en
+     corail-600 dans Comment ça marche, JAMAIS deux climax co-visibles ; corail-200 abandonné
+     ici). Dégradé plat en background, balayé via background-size par motion (HighlightSweep).
+     Contraste du texte surligné : canard-950 sur sand-200 ≈ 13:1. Base = surligné entier : ne
+     sert que la branche PRM (em nu) — sous RevealVisual le HTML prérendu porte déjà
+     background-size:0% 100% inline. */
+  :is(.theme-cartora, .theme-app) .highlight-sweep {
+    background-image: linear-gradient(var(--color-sand-200), var(--color-sand-200));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 100%;
+    padding-inline: 0.15em;
+    margin-inline: -0.15em;
+    border-radius: 2px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* Artefacts de la douleur (Problème). Règle de base = état FINAL (ligne biffée, craie effacée
+     à droite) : sert la branche PRM et le cas où [data-inview] ne serait jamais posé. Sans JS,
+     la grille entière est à opacity 0 (REVEAL_ITEM prérendu), comme tout whileInView de la page.
+     L'animation ne se joue que sous [data-inview], posé par ProblemGrid (onViewportEnter). */
+  :is(.theme-cartora, .theme-app) .artefact-strike {
+    position: relative;
+  }
+  :is(.theme-cartora, .theme-app) .artefact-strike::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  :is(.theme-cartora, .theme-app) [data-inview] .artefact-strike::after {
+    animation: artefact-strike 0.5s var(--ease-out-expo) 0.9s both;
+  }
+  /* Masque 200 % : position 0 0 = tout visible ; 100 % 0 = plein jusqu'à 45 % puis fondu à 30 %. */
+  :is(.theme-cartora, .theme-app) .artefact-chalk {
+    -webkit-mask-image: linear-gradient(to right, black 72.5%, oklch(0 0 0 / 0.3) 100%);
+    mask-image: linear-gradient(to right, black 72.5%, oklch(0 0 0 / 0.3) 100%);
+    -webkit-mask-size: 200% 100%;
+    mask-size: 200% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  :is(.theme-cartora, .theme-app) [data-inview] .artefact-chalk {
+    animation: artefact-chalk 0.9s var(--ease-out-expo) 0.7s both;
+  }
+  @keyframes artefact-strike {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes artefact-chalk {
+    from {
+      -webkit-mask-position: 0 0;
+      mask-position: 0 0;
+    }
+    to {
+      -webkit-mask-position: 100% 0;
+      mask-position: 100% 0;
+    }
+  }
+
+  /* === Header landing : barre de verre à trois peaux (transparent / nuit / porcelaine) ======
+     Une seule règle de transition (hauteur + matière), pilotée par data-skin sur le <header>.
+     La hauteur EN FLUX du header reste 64 px (hero -mt-16, scroll-padding-top 4rem) : seule
+     cette barre absolue se compacte. `section-nuit` sur le header ne peint rien : le verre nuit
+     a son propre fond ici. Le blur n'existe QUE sur les deux peaux de verre (pas de
+     `backdrop-filter: blur(0)` sur la peau transparente : une racine de backdrop pleine largeur
+     composée en permanence sur le hero coûterait cher sur Android bas de gamme) et n'est pas
+     transitionné — le fondu du fond à 85 % masque la bascule sèche du flou. */
+  :is(.theme-cartora, .theme-app) .landing-bar {
+    border-bottom: 1px solid transparent;
+    background-color: transparent;
+    box-shadow: 0 0 0 0 transparent;
+    transition-property: height, background-color, border-color, box-shadow, color;
+    transition-duration: var(--duration-300);
+    transition-timing-function: var(--ease-out-expo);
+  }
+  :is(.theme-cartora, .theme-app) [data-skin="porcelaine"] .landing-bar {
+    background-color: color-mix(in oklab, var(--color-sand-50) 85%, transparent);
+    border-bottom-color: color-mix(in oklab, var(--color-sand-200) 80%, transparent);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    /* Décollement : hairline sand-200 + halo canard-600 à 10 %. */
+    box-shadow:
+      0 1px 0 0 var(--color-sand-200),
+      0 12px 32px -16px oklch(0.42 0.058 198 / 0.1);
+  }
+  :is(.theme-cartora, .theme-app) [data-skin="nuit"] .landing-bar {
+    background-color: color-mix(in oklab, var(--color-nuit-900) 85%, transparent);
+    border-bottom-color: oklch(1 0 0 / 0.08);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    box-shadow:
+      0 1px 0 0 oklch(1 0 0 / 0.06),
+      0 12px 32px -16px oklch(0 0 0 / 0.5);
+  }
+
+  /* Règle graduée de lecture : bord bas de la barre, graduation mono (currentColor 18 % — dépend
+     du `text-foreground` posé sur .landing-bar pour suivre la peau) + remplissage --primary piloté
+     par le scroll (CSS scroll-driven, 0 JS). Masquée sans support (Firefox stable) et sous PRM —
+     l'élément reste dans le DOM (aria-hidden), invisible. */
+  :is(.theme-cartora, .theme-app) .landing-ruler {
+    display: none;
+  }
+  @supports (animation-timeline: scroll()) {
+    :is(.theme-cartora, .theme-app) .landing-ruler {
+      display: block;
+      position: absolute;
+      inset-inline: 0;
+      bottom: -1px;
+      height: 1px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity var(--duration-300) var(--ease-out-expo);
+    }
+    :is(.theme-cartora, .theme-app) .landing-ruler::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      background-image: repeating-linear-gradient(
+        to right,
+        currentColor 0 1px,
+        transparent 1px 8px
+      );
+    }
+    :is(.theme-cartora, .theme-app) .landing-ruler::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-color: var(--primary);
+      transform-origin: left;
+      animation: landing-ruler-fill linear both;
+      animation-timeline: scroll(root);
+    }
+    /* Barre transparente (haut de page) : la règle ne dessine rien sur le hero. */
+    :is(.theme-cartora, .theme-app) [data-skin="transparent"] .landing-ruler {
+      opacity: 0;
+    }
+  }
+  @keyframes landing-ruler-fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :is(.theme-cartora, .theme-app) .landing-ruler {
+      display: none !important;
+    }
+  }
+
+  /* Rail vertical « Comment ça marche » (< md) : tronçon canard rempli par le scroll —
+     progressive enhancement animation-timeline: view() (Chrome 115+, Safari 26+). Sans
+     support (Firefox stable) et sous reduced-motion, le tronçon est rendu ENTIER : l'état
+     final est le fallback. Le kill-switch PRM global (animation-duration 0.001ms) a une
+     sémantique indéfinie sur une timeline de scroll → règle explicite ci-dessous.
+     Desktop (≥ md) n'utilise pas cette classe (tronçon m.span calé sur le stagger).
+     CONTRAT DE DÉFILEMENT : view() prend pour scroller le PLUS PROCHE ancêtre à overflow non
+     visible. AUCUN ancêtre entre .how-rail-fill et la racine ne doit porter un `overflow-*`
+     autre que visible (un `overflow-x: hidden` sur .theme-cartora, <main> ou LandingSection
+     force overflow-y: auto ⇒ cet ancêtre devient le scroller, la timeline n'avance jamais et,
+     avec fill-mode both, le rail reste à scaleY(0) : INVISIBLE, sans erreur, Chrome/Safari
+     seulement). Vérif : grep 'overflow' sur src/app/_landing + LandingSection + MotionSection
+     ⇒ vide. Un futur fix d'overflow horizontal doit être `overflow-x: clip` (ne crée PAS de
+     scroller) — jamais hidden. */
+  .theme-cartora .how-rail-fill {
+    transform-origin: top;
+  }
+  @supports (animation-timeline: view()) {
+    @media (width < 48rem) {
+      .theme-cartora .how-rail-fill {
+        animation: how-rail-grow linear both;
+        /* ORDRE OBLIGATOIRE : `animation-timeline` et `animation-range` DOIVENT rester APRÈS
+           le shorthand `animation`, qui les RÉINITIALISE (spec CSS Animations 2 / scroll-driven).
+           Inversés, la timeline de scroll disparaît SANS erreur visible (fallback = tronçon
+           plein, comme sans support). */
+        /* inset bas 35 % : la pointe du tronçon suit une ligne à ~65 % de la hauteur du
+           viewport (au-dessus de la pilule collante et du bandeau cookies). */
+        animation-timeline: view(block 0 35%);
+        animation-range: entry 0% entry 100%;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .theme-cartora .how-rail-fill {
+      animation: none;
+      transform: none;
+    }
+  }
+  /* Nom distinct de la classe (.how-rail-fill) pour que les greps du CSS compilé restent univoques. */
+  @keyframes how-rail-grow {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
   }
 }
 
@@ -1132,7 +1466,7 @@ html:has([data-app-shell]) {
   .hero-underline {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    animation: hero-underline-draw 0.6s var(--ease-out-expo) 0.5s forwards;
+    animation: hero-underline-draw 0.6s var(--ease-out-expo) 0.35s forwards;
   }
   @keyframes hero-underline-draw {
     to {
@@ -1149,6 +1483,19 @@ html:has([data-app-shell]) {
     from {
       opacity: 0;
       transform: translateY(6px);
+    }
+  }
+
+  /* Chiffre de prix qui « roule » dans le menu vivant du hero (span remonté à chaque changement
+     de caractère). CSS pur ; neutralisé par le kill-switch reduced-motion ci-dessous. */
+  .live-digit-in {
+    animation: live-digit-in 320ms var(--ease-out-expo) both;
+  }
+  @keyframes live-digit-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em);
+      filter: blur(4px);
     }
   }
 

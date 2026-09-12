@@ -32,4 +32,9 @@ export type MenuTemplateProps = {
    * nav (ex. CARTORA, éditorial) l'ignore simplement.
    */
   categoriesNavLabel?: string;
+  /**
+   * Largeur (px) à réserver à droite de l'en-tête pour le sélecteur de langue `fixed` monté par
+   * PublicMenuClient (SEUL propriétaire de cette géométrie). Absent en aperçu in-app (pas de sélecteur).
+   */
+  localeSwitcherReserve?: number;
 };

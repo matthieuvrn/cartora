@@ -5,11 +5,16 @@
  * et n'ont pas besoin du provider ; embarquer fr.json entier (~44 KB) faisait voyager
  * Dashboard/Privacy/Settings/… chez chaque visiteur pour rien.
  *
- * Inventaire (à re-vérifier avant d'ajouter ici) :
- *  - "Landing"  : HeroIntro/HeroLiveDemo/HeroQrCard (hero), LandingFaqV2 (faq),
- *                 LandingHeader + StickyMobileCTA (header), TrackedCtaButton (racine —
- *                 opensInNewTab)
+ * Inventaire (à re-vérifier avant d'ajouter ici — passe landing 2026-09) :
+ *  - "Landing"  : HeroIntro/HeroLiveDemo (hero), LandingFaqV2 (faq), LandingHeader +
+ *                 StickyMobileCTA + LandingLocaleSwitch (header, dont header.localeNavLabel),
+ *                 TrackedCtaButton + TrackedLink (racine — opensInNewTab)
  *  - "Consent"  : CookieBanner + ManageCookiesButton (rendu par le footer serveur)
+ *  - aucun namespace : DemoDesignLink, HowItWorksMilestone, Reveal, HighlightSweep,
+ *                 landingChromeStore, ScrollDepthTracker, SectionViewTracker, StaggerReveal,
+ *                 MotionSection, ProblemGrid, BrowserMockup, HeroPhone, LandingLocaleSync —
+ *                 ne lisent que `useLocale` ou rien. (HeroQrCard/DemoQrSvg sont des RSC : hors
+ *                 provider.)
  *
  * RÈGLE : tout NOUVEAU composant client de la landing qui consomme un namespace absent
  * d'ici doit l'ajouter à LANDING_CLIENT_NAMESPACES — sinon le symptôme est une erreur

@@ -652,12 +652,15 @@
       "signupCta": "Create my menu for free",
       "signupCtaShort": "Create my menu",
       "navLabel": "Main navigation",
-      "localeNavLabel": "Language"
+      "localeNavLabel": "Language",
+      "navHow": "How it works",
+      "navFeatures": "Features",
+      "menuLabel": "Menu"
     },
     "hero": {
       "kicker": "The digital menu for independent restaurants",
       "title": "Your menu online in <em>10 minutes</em>.",
-      "subtitle": "Update it to the second from your phone: your guests scan a QR code and always see today’s menu — prices, dishes, allergens.",
+      "subtitle": "Update it to the second from your phone: your guests scan a QR code and always see today’s menu — prices, dishes, allergens.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "Open the real menu",
       "microTrust": "No credit card · Free to start · Cancel anytime",
@@ -672,15 +675,45 @@
         "soldOut": "Sold out",
         "updatedToast": "Updated just now",
         "templateChip": "Design {name} · {index}/{total}",
-        "pause": "Pause the animations"
+        "pause": "Pause the animations",
+        "today": "Today",
+        "todayKicker": "Today’s dishes",
+        "allergenMilk": "Milk",
+        "allergenCelery": "Celery",
+        "allergenSulphites": "Sulphites",
+        "designsLabel": "Choose a design",
+        "designTab": "Design {name}",
+        "next": "Next design",
+        "pauseShort": "Pause"
       },
-      "demoImageAltStatic": "Preview of the Bistrot Démo menu on a phone"
+      "demoImageAltStatic": "Preview of the Bistrot Démo menu on a phone",
+      "specLine": "9 designs · 5 languages · real QR"
     },
     "trustStrip": {
-      "hostingEu": "Hosted in France & EU (Supabase)",
+      "hostingEu": "Data hosted in the EU",
       "stripe": "Secure payments via Stripe",
       "rgpd": "GDPR-compliant",
-      "supportFr": "French-speaking support"
+      "supportFr": "French-speaking support",
+      "factsLabel": "Key figures",
+      "facts": {
+        "designs": {
+          "value": "9",
+          "label": "designs"
+        },
+        "languages": {
+          "value": "5",
+          "label": "languages"
+        },
+        "allergens": {
+          "value": "14",
+          "label": "EU allergens"
+        },
+        "minutes": {
+          "value": "10",
+          "label": "minutes"
+        }
+      },
+      "reassuranceLabel": "Commitments"
     },
     "problem": {
       "kicker": "The problem",
@@ -688,19 +721,26 @@
       "pains": {
         "ardoise": {
           "title": "A chalkboard wiped at every service",
-          "body": "Tuesday’s daily special is still showing on Thursday. One rain shower, one sponge swipe, and half your offer is gone."
+          "body": "Tuesday’s daily special is still showing on Thursday. One rain shower, one sponge swipe, and half your offer is gone.",
+          "figure": "Tuesday › Thursday",
+          "artefact": {
+            "label": "Today’s special"
+          }
         },
         "pdf": {
           "title": "A PDF printed six months ago",
-          "body": "Prices have changed, two dishes are off the menu, but the corner copy shop keeps printing the same version."
+          "body": "Prices have changed, two dishes are off the menu, but the corner copy shop keeps printing the same version.",
+          "figure": "2 dishes"
         },
         "wix": {
           "title": "A website only your agency can update",
-          "body": "Every menu change costs €80 to your agency. After three months, you stop bothering."
+          "body": "Every menu change costs €80 to your agency. After three months, you stop bothering.",
+          "figure": "€80"
         },
         "allergens": {
           "title": "A menu without allergens",
-          "body": "EU Regulation 1169/2011 has required them since 2014. On paper, you improvise out loud — at every single service."
+          "body": "EU Regulation 1169/2011 has required them since 2014. On paper, you improvise out loud — at every single service.",
+          "figure": "EU 1169/2011"
         }
       },
       "aside": {
@@ -710,7 +750,7 @@
         },
         "others": {
           "title": "Comparing digital menus?",
-          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, multilingual menus, no commitment. Up to you to compare what matters for your venue."
+          "body": "Other tools exist and some do their job very well. What drives Cartora: built in France, EU hosting, 14 native EU allergens, multilingual menus, no commitment. <em>It’s up to you to compare</em> what matters for your venue."
         }
       }
     },
@@ -724,13 +764,17 @@
       },
       "step2": {
         "title": "Fill in your menu",
-        "body": "Dishes, categories, allergens: the editor works without any training, with categories pre-filled for your type of establishment (pizzeria, brasserie, café…). A full menu takes about 10 minutes."
+        "body": "Dishes, categories, allergens: the editor works without any training, with categories pre-filled for your type of establishment (pizzeria, brasserie, café…). A full menu takes <em>about 10 minutes</em>."
       },
       "step3": {
         "title": "Print your QR code",
         "body": "Customers scan it. Every price or dish edit goes live to the second — with no reprint needed."
       },
-      "cta": "Create my menu"
+      "cta": "Create my menu",
+      "artefacts": {
+        "emailLabel": "Email",
+        "emailValue": "you@your-restaurant.com"
+      }
     },
     "features": {
       "kicker": "The essentials",
@@ -753,33 +797,38 @@
       },
       "bilingual": {
         "title": "Multilingual menu",
-        "body": "Write your menu once in your language, and Cartora translates it automatically (DeepL) into up to 5 languages (fr, en, es, de, it). Your guest sees theirs automatically, based on their browser.",
+        "body": "Write your menu once in your language, and Cartora translates it automatically (DeepL) into up to 5 languages (fr, en, es, de, it). Your guests switch language with one tap, right on the menu.",
         "tier": "Pro"
       },
       "daily": {
         "title": "Daily specials and set menus",
         "body": "Time-limited daily dishes (up to 14 days) and set menus with detailed descriptions. Auto-removed on expiry.",
         "tier": "From Starter",
-        "visualUntil": "until 11:59 pm"
+        "visualDaysLeft": "5 days left",
+        "visualHorizon": "up to 14 days"
       },
       "branding": {
         "title": "A menu that looks like you",
         "body": "Nine designer styles, your brand colors, guaranteed readability: your menu looks professionally designed — without a designer.",
-        "tier": "Pro"
-      }
+        "tier": "Pro",
+        "visualCaption": "9 designs"
+      },
+      "proofLink": "See all of this on a real menu"
     },
     "demo": {
       "kicker": "The proof",
       "title": "This menu was built in <em>8 minutes</em>.",
       "subtitle": "It’s a real, published Cartora menu. Open it, switch the language, check the allergens — and time us.",
-      "imageAlt": "Desktop preview of a published Cartora menu, with starters, mains and today’s specials.",
-      "stats": {
-        "allergens": "14 EU allergens",
-        "languages": "5 languages",
-        "designs": "9 designs"
-      },
+      "imageAlt": "Preview of a published Cartora menu: today’s special, set menus and allergens.",
       "openCta": "Open the real menu",
-      "footnote": "No mockups: what you see is what your guests will see."
+      "footnote": "No mockups: what you see is what your guests will see.",
+      "frameLinkLabel": "Open the real menu in a new tab",
+      "frameHint": "Open",
+      "designsLabel": "The demo in {count} designs",
+      "designShown": "(design shown in the preview above)",
+      "excerpt": {
+        "legend": "The demo in {count} languages"
+      }
     },
     "pricing": {
       "kicker": "Pricing",
@@ -788,25 +837,86 @@
       "freeTagline": "To explore",
       "starterTagline": "To publish with confidence",
       "proTagline": "To go further",
-      "footer": "No commitment · Cancel in 1 click · VAT included"
+      "notIncluded": "Not included:",
+      "reassurance": {
+        "paid": "No commitment · Cancel anytime",
+        "free": "No credit card"
+      },
+      "priceNote": {
+        "paid": "VAT included",
+        "freePeriod": "no subscription",
+        "freeNote": "no charge"
+      },
+      "specs": {
+        "labels": {
+          "categories": "Categories",
+          "designs": "Designs",
+          "languages": "Languages"
+        },
+        "free": {
+          "categories": "6",
+          "designs": "2",
+          "languages": "1"
+        },
+        "starter": {
+          "categories": "10",
+          "designs": "2",
+          "languages": "1"
+        },
+        "pro": {
+          "categories": "∞",
+          "designs": "9",
+          "languages": "5"
+        }
+      },
+      "free": {
+        "features": ["Full menu builder", "Built-in QR code", "14 EU allergens"],
+        "restrictions": ["Preview with watermark", "Online publishing"]
+      },
+      "starter": {
+        "intro": "Everything in FREE",
+        "features": [
+          "Publish without watermark",
+          "Daily dishes & set menus",
+          "Brand colors",
+          "Real-time analytics"
+        ]
+      },
+      "pro": {
+        "intro": "Everything in STARTER",
+        "features": ["Automatic translation (DeepL)", "Priority support"]
+      }
     },
     "faq": {
-      "kicker": "FAQ",
+      "kicker": "The answers",
       "title": "Frequently asked questions",
-      "subtitle": "Everything restaurateurs ask before getting started.",
+      "subtitle": "What restaurateurs ask us most often.",
       "contactLabel": "Another question?",
+      "groups": {
+        "billing": "Billing",
+        "service": "Front of house",
+        "data": "Data & support"
+      },
       "items": {
         "noCc": {
           "q": "Do I need a credit card to sign up?",
-          "a": "No. You create your account and build your menu entirely for free, without a credit card. You only pay if you decide to publish your menu (from €9.90/month)."
+          "a": "No. You create your account and build your menu entirely for free, without a credit card. You only pay if you decide to publish your menu (from <pricing>€9.90/month</pricing>)."
         },
         "commitment": {
           "q": "Am I locked into a contract?",
           "a": "No commitment period. STARTER and PRO subscriptions are monthly and can be cancelled with one click from your account, at any time."
         },
+        "cancel": {
+          "q": "How do I cancel?",
+          "a": "From your account, in one click, with no fee and no justification required. Your subscription stops at the end of the current period — you keep paid access until then, and free-tier access afterwards."
+        },
         "qrAgeingClients": {
           "q": "Will my customers know how to scan a QR code?",
           "a": "Yes. QR codes became standard in restaurants after 2020 and most smartphones scan them directly from the camera app. If a customer can’t scan, your menu URL also works without a QR."
+        },
+        "qrPrinting": {
+          "q": "How do I print the QR code and where should I place it?",
+          "a": "Cartora generates a high-resolution QR code downloadable from your dashboard. Print it on whatever you like: table mats, easels, window displays, receipts. Every printed copy always points to the latest version of your menu."
         },
         "allergens": {
           "q": "How does Cartora handle allergens?",
@@ -814,27 +924,19 @@
         },
         "bilingual": {
           "q": "Can I offer my menu in several languages?",
-          "a": "Yes, with the PRO plan. Write your menu in your language, and Cartora translates it automatically (DeepL) into up to 5 languages: French, English, Spanish, German, Italian. Your customers automatically see theirs based on their browser settings."
+          "a": "Yes, with the PRO plan. Write your menu in your language, and Cartora translates it automatically (DeepL) into up to 5 languages: French, English, Spanish, German, Italian. Your guests switch language with one tap, right on the menu."
         },
         "dataHosting": {
           "q": "Where is my restaurant’s data stored?",
-          "a": "On Supabase, in France and Germany — exclusively within the European Union. Your menu data never leaves the EU. You can export or delete it at any time from your account (except billing data, retained under a legal obligation — see the privacy policy)."
-        },
-        "cancel": {
-          "q": "How do I cancel?",
-          "a": "From your account, in one click, with no fee and no justification required. Your subscription stops at the end of the current period — you keep paid access until then, and free-tier access afterwards."
+          "a": "On Supabase, in France and Germany — exclusively within the European Union. Your menu data never leaves the EU. You can export or delete it at any time from your account (except billing data, retained under a legal obligation — see the <privacyLink>privacy policy</privacyLink>)."
         },
         "supportFr": {
           "q": "Is there French support?",
-          "a": "Yes. Cartora is built in France, and every request sent to contact@cartora.app gets a reply in French within 48 business hours."
+          "a": "Yes. Cartora is built in France, and every request sent to <email>contact@cartora.app</email> gets a reply in French within 48 business hours."
         },
         "multiRestaurants": {
           "q": "Can I manage multiple restaurants with one account?",
-          "a": "Not yet — one account is one restaurant. If you manage several, write to us at contact@cartora.app; we review each case."
-        },
-        "qrPrinting": {
-          "q": "How do I print the QR code and where should I place it?",
-          "a": "Cartora generates a high-resolution QR code downloadable from your dashboard. Print it on whatever you like: table mats, easels, window displays, receipts. Every printed copy always points to the latest version of your menu."
+          "a": "Not yet — one account is one restaurant. If you manage several, write to us at <email>contact@cartora.app</email>; we review each case."
         }
       }
     },
@@ -842,10 +944,17 @@
       "title": "<em>Ten minutes</em> from now, your menu is live.",
       "ctaPrimary": "Create my menu for free",
       "ctaSecondary": "Open the real menu",
-      "microTrust": "No credit card · Free to start · Cancel anytime"
+      "microTrust": "Account › menu › QR code: three steps, nothing to install.",
+      "kicker": "Last step",
+      "qrCaption": "or scan this code: it’s the real menu"
     },
     "footer": {
-      "trustBadge": "Made in France · Data hosted in the EU"
+      "trustBadge": "Made in France · Data hosted in the EU",
+      "facts": {
+        "designs": "9 designs",
+        "languages": "5 languages",
+        "allergens": "14 EU allergens"
+      }
     }
   },
   "NotFound": {
@@ -1042,10 +1151,8 @@
     "privacy": "Privacy policy",
     "legal": "Legal notice",
     "terms": "Terms of service",
-    "manageCookies": "Manage cookies",
     "tagline": "Your menu, to the second.",
     "colProduct": "Product",
-    "colResources": "Resources",
     "colLegal": "Legal",
     "colAccount": "Account",
     "linkPricing": "Pricing",

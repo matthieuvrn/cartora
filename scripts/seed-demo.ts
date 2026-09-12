@@ -61,10 +61,18 @@ type DemoFormula = {
   description: Localized;
 };
 
-// ⚠️ Contrat avec le facsimilé du hero (src/interface/ui/landing/HeroLiveDemo.tsx) :
-// les 5 plats qu'il référence gardent noms FR + prix — Velouté de potimarron 9,50 /
-// Burrata fumée 14,00 / Magret de canard 24,00 / Risotto aux cèpes 21,00 (édité 19,50
-// dans l'animation) / Bar en croûte de sel 26,00. Ajouter autour est libre.
+// ⚠️ Contrat avec les fac-similés de la landing (src/interface/ui/landing/) :
+// — HeroLiveDemo.tsx : les 5 plats référencés gardent noms FR + prix — Velouté de potimarron 9,50 /
+//   Burrata fumée 14,00 / Magret de canard 24,00 / Risotto aux cèpes 21,00 (édité 19,50 dans
+//   l'animation) / Bar en croûte de sel 26,00 — ET le plat du jour DEMO_DAILY_DISHES[0]
+//   (TODAY_DISH) : « Blanquette de veau à l'ancienne » 18,50 / POPULAR / MILK, CELERY, SULPHITES.
+// — LandingFeatures.tsx : la paire « Burrata fumée » → « Smoked burrata » (nom EN aussi épinglé).
+// — LandingProblem.tsx (ARTEFACT_SEED) / LandingHowItWorks.tsx : Blanquette 18,50, Risotto 21,00,
+//   Burrata 14,00 + MILK.
+// — demoExcerpt.ts (« La démo en 5 langues ») : copie VERBATIM de DEMO_DAILY_DISHES[0] et
+//   DEMO_FORMULAS[0] — nom ET description dans les 5 locales. Toute retouche de ces deux entrées
+//   doit être répercutée là-bas.
+// Ajouter autour est libre.
 const DEMO_MENU: DemoCategory[] = [
   {
     name: { fr: "Entrées", en: "Starters", es: "Entrantes", de: "Vorspeisen", it: "Antipasti" },

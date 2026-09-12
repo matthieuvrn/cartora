@@ -21,6 +21,9 @@ export const SPRING = {
  * `staggerChildren`, chaque enfant porte `REVEAL_ITEM`. Consommé par HeroIntro (mount) et
  * StaggerReveal (`whileInView`, grilles landing). Toujours derrière `useReducedMotionSafe()`
  * côté composant.
+ * Dette connue : `staggerChildren` est déprécié par motion-dom (→ `delayChildren: stagger()`),
+ * migration hors périmètre de la passe landing 2026-09 — partagé avec l'app, ne pas dupliquer
+ * localement.
  */
 export const REVEAL_CONTAINER = {
   hidden: {},
@@ -35,7 +38,10 @@ export const REVEAL_ITEM = {
 /**
  * Vocabulaire différencié par type de contenu (DA 2026) — le fade-up universel est réservé
  * aux items de grille (REVEAL_ITEM) ; les titres display et les visuels ont leur propre voix.
- * Le blur est volontairement limité aux headings (surface réduite → compositing bon marché).
+ * Le blur est limité aux headings (RevealHeading) ET aux 4 cellules de la TrustStrip (boîtes
+ * de ≈ 40 px : compositing bon marché). `transitionEnd` remplace le `filter: blur(0px)`
+ * résiduel par `none` : un filter non-none garde l'élément sur une couche composée
+ * (anticrénelage en niveaux de gris, texte Fraunces « mou » sur Safari).
  */
 export const REVEAL_HEADING = {
   hidden: { opacity: 0, y: 16, filter: "blur(6px)" },
@@ -44,6 +50,7 @@ export const REVEAL_HEADING = {
     y: 0,
     filter: "blur(0px)",
     transition: { duration: 0.7, ease: EASE_OUT_EXPO },
+    transitionEnd: { filter: "none" },
   },
 } as const;
 

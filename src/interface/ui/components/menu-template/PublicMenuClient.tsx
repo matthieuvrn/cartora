@@ -104,6 +104,13 @@ export function PublicMenuClient({
   const labels = labelsByLocale[locale] ?? labelsByLocale[snapshot.sourceLocale];
   if (!labels) return null;
 
+  // Réserve (px) que le template CLASSIC laisse à droite de son en-tête sticky pour le sélecteur
+  // ci-dessous (`fixed right-3` = 12 px, l'en-tête est paddé 16 px, + 8 px d'écart) : 2 langues =
+  // Button size="sm" (h-8 px-3 ≈ 44 px) → 48 ; ≥ 3 = pilules px-2 text-xs ≈ 36 px chacune − 2,
+  // p-1/gap-1/bordure inclus → n*36+6. Doit suivre toute restylisation du bloc ci-dessous.
+  const localeSwitcherReserve =
+    available.length <= 1 ? 0 : available.length === 2 ? 48 : available.length * 36 + 6;
+
   return (
     <>
       {/* Monté ICI (et pas dans la page RSC) pour tracker la langue de LECTURE
@@ -155,6 +162,7 @@ export function PublicMenuClient({
         todaySectionDishesSubtitle={labels.todaySectionDishesSubtitle}
         todaySectionFormulasSubtitle={labels.todaySectionFormulasSubtitle}
         categoriesNavLabel={labels.categoriesNavLabel}
+        localeSwitcherReserve={localeSwitcherReserve}
       />
       {showcaseTemplates && (
         // Décalée de la bannière cookies (même z-50, montée après dans le DOM) tant qu'elle

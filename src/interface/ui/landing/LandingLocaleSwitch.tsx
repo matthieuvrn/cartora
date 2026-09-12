@@ -27,9 +27,10 @@ const LOCALES = [
  * Le clic navigue par le Link ; l'événement `locale_switched` part avant (sendBeacon survit à la
  * navigation). Un clic sur la langue courante ne fait rien de plus que le Link (`/` ou `/en`).
  *
- * Sous `sm`, seule la langue CIBLE est affichée (« EN » sur la landing fr, « FR » sur /en) : le
- * budget de largeur du header à 360 px ne laisse pas de place à « FR · EN » (mesuré : la paire
- * poussait le cluster droit à 363 px), et la langue courante n'est pas actionnable de toute façon.
+ * Placement (passe 2026-09) : dans la barre du header à partir de `lg` seulement ; sous `lg` il
+ * vit dans la carte menu mobile (`LandingHeader`), toujours avec les deux langues. Cibles
+ * `min-h-11` partout (44 px tiennent dans la barre de 56/64 px comme dans la carte) ; aucune
+ * utility `focus-visible:ring-*` — les règles globales font le focus (cf. docblock du header).
  */
 export function LandingLocaleSwitch({ className }: { className?: string }) {
   const locale = useLocale();
@@ -45,7 +46,7 @@ export function LandingLocaleSwitch({ className }: { className?: string }) {
         return (
           <Fragment key={value}>
             {i > 0 && (
-              <span aria-hidden="true" className="hidden px-1 text-foreground/35 sm:inline">
+              <span aria-hidden="true" className="px-1 text-foreground/35">
                 ·
               </span>
             )}
@@ -64,10 +65,8 @@ export function LandingLocaleSwitch({ className }: { className?: string }) {
                 document.cookie = `locale=${value}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
               }}
               className={cn(
-                "min-h-11 items-center rounded-sm px-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 md:min-h-0",
-                active
-                  ? "hidden text-foreground sm:inline-flex"
-                  : "inline-flex text-foreground/55 hover:text-foreground",
+                "inline-flex min-h-11 items-center rounded-sm px-1 transition-colors",
+                active ? "text-foreground" : "text-foreground/70 hover:text-foreground",
               )}
             >
               {label}

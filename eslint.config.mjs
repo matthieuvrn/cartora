@@ -25,8 +25,17 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
 
-  // Override default ignores of eslint-config-next.
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "coverage/**"]),
+  // Override default ignores of eslint-config-next. `.playwright-mcp/` = sorties et scripts
+  // locaux du MCP Playwright (git-ignorés, jamais en CI) : lintés, ils faisaient diverger
+  // `pnpm lint` local du job CI.
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "coverage/**",
+    ".playwright-mcp/**",
+  ]),
 
   // Accessibilité (RGAA/OPQUAST) — démarche outillée explicite : on active le jeu
   // de règles "recommended" de jsx-a11y (le plugin est déjà enregistré par

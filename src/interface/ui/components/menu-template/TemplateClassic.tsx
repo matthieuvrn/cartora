@@ -32,6 +32,7 @@ export function TemplateClassic({
   todaySectionDishesSubtitle,
   todaySectionFormulasSubtitle,
   categoriesNavLabel,
+  localeSwitcherReserve = 0,
 }: MenuTemplateProps) {
   // Légende INCO partagée (items + plats du jour). Logique factorisée + testée en domaine.
   const presentAllergens = collectPresentAllergens(snapshot);
@@ -49,6 +50,15 @@ export function TemplateClassic({
     (snapshot.dailyItems && snapshot.dailyItems.length > 0) ||
     (snapshot.formulas && snapshot.formulas.length > 0);
 
+  // Le sélecteur de langue est `fixed right-3 top-3` par-dessus le menu : seul ce template pose
+  // son titre en haut à GAUCHE d'un en-tête sticky, donc il lui réserve la place à droite — sinon
+  // la pilule recouvre le nom sur téléphone (vu à 390 px avec 5 langues, 2026-09). Réserve fournie
+  // par PublicMenuClient (propriétaire de la géométrie), 0 en aperçu in-app ; plafonnée à 45 % de
+  // l'en-tête pour que le titre garde une colonne utile sur les téléphones étroits.
+  const headerPaddingRight = localeSwitcherReserve
+    ? `min(${localeSwitcherReserve}px, 45%)`
+    : undefined;
+
   return (
     <main
       className="menu-root mx-auto max-w-lg pb-12"
@@ -58,7 +68,7 @@ export function TemplateClassic({
         className="sticky top-0 z-10 border-b px-4 py-3 sm:px-6"
         style={{ backgroundColor: "var(--menu-bg)", borderColor: "var(--menu-border)" }}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3" style={{ paddingRight: headerPaddingRight }}>
           {logoUrl && (
             <TemplateLogo
               src={logoUrl}
@@ -68,7 +78,8 @@ export function TemplateClassic({
               priority
             />
           )}
-          <h1 className="menu-heading truncate text-xl font-bold tracking-tight">
+          {/* Deux lignes puis ellipse (jamais un nom caché sous la pilule de langue). */}
+          <h1 className="menu-heading line-clamp-2 text-xl font-bold tracking-tight">
             {snapshot.restaurantName}
           </h1>
         </div>
