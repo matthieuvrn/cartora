@@ -770,11 +770,7 @@
         "title": "Print your QR code",
         "body": "Customers scan it. Every price or dish edit goes live to the second — with no reprint needed."
       },
-      "cta": "Create my menu",
-      "artefacts": {
-        "emailLabel": "Email",
-        "emailValue": "you@your-restaurant.com"
-      }
+      "cta": "Create my menu"
     },
     "features": {
       "kicker": "The essentials",

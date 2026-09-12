@@ -328,7 +328,12 @@ export function LandingFeatures() {
   };
 
   return (
-    <LandingSection id="features" ariaLabelledBy="features-heading">
+    <LandingSection
+      id="features"
+      ariaLabelledBy="features-heading"
+      // Voir LandingHowItWorks : frontière resserrée, le fil du kicker porte déjà 60 px.
+      innerClassName="pt-4 md:pt-6"
+    >
       <header className="mb-10 max-w-[38rem]">
         <span aria-hidden="true" className="eyebrow-thread" />
         <p className="eyebrow">

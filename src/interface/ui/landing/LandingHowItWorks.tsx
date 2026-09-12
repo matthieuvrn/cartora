@@ -1,5 +1,4 @@
 import { useTranslations } from "next-intl";
-import { DemoQrSvg } from "@/interface/ui/landing/DemoQr";
 import { HowItWorksMilestone } from "@/interface/ui/landing/HowItWorksMilestone";
 import { LandingSection } from "@/interface/ui/landing/LandingSection";
 import { StaggerGroup, StaggerItem } from "@/interface/ui/landing/StaggerReveal";
@@ -20,18 +19,22 @@ const STEPS: ReadonlyArray<{ key: StepKey; number: number }> = [
  * (« votre carte est en ligne » : sapin = succès uniquement) ; sur mobile, rail vertical à
  * gauche rempli par le scroll (CSS `.how-rail-fill`). Chaque colonne est portée par un numéral
  * mono canard-700 en objet typographique (la voix « précision tech » du système), un label
- * « Étape » AA, et se termine par l'artefact produit par l'étape (e-mail saisi, ligne de carte
- * enregistrée, vrai QR démo). Plus de hairlines `divide-x` : le rail porte la structure — un
- * seul dispositif structurel par section. Le seul ordinal fiable pour les AT est le sr-only
+ * « Étape » AA. Plus de hairlines `divide-x` : le rail porte la structure — un seul dispositif
+ * structurel par section. (Les « artefacts produits par étape » du plan 2026-09 — champ e-mail,
+ * ligne Burrata, carte QR — ont été livrés puis RETIRÉS le 2026-09-12 à la demande de Matt.) Le seul ordinal fiable pour les AT est le sr-only
  * « Étape N » (le <ol> est sans list-style ; `role="list"` restaure la liste, pas les ordinaux).
  */
 export function LandingHowItWorks() {
   const t = useTranslations("Landing.howItWorks");
-  const tHero = useTranslations("Landing.hero");
-  const tAllergen = useTranslations("Allergen");
 
   return (
-    <LandingSection id="how-it-works" ariaLabelledBy="how-it-works-heading">
+    <LandingSection
+      id="how-it-works"
+      ariaLabelledBy="how-it-works-heading"
+      // Frontière méthode → essentiel resserrée (2026-09-12) : les deux sections claires
+      // additionnent leurs paddings ET le fil du kicker suivant (60 px) — 188 px sans ce réglage.
+      innerClassName="pb-8 md:pb-10"
+    >
       <header className="mb-10 max-w-[38rem]">
         <span aria-hidden="true" className="eyebrow-thread" />
         <p className="eyebrow">
@@ -67,23 +70,11 @@ export function LandingHowItWorks() {
           {STEPS.map(({ key, number }, index) => {
             const titleId = `how-it-works-${key}-title`;
             const nn = String(number).padStart(2, "0"); // affichage seulement — JAMAIS dans le sr-only
-            // Artefact par étape — sélection ici (closure sur t/tHero/tAllergen), pas en module.
-            const artefact =
-              key === "step1" ? (
-                <EmailArtefact
-                  label={t("artefacts.emailLabel")}
-                  value={t("artefacts.emailValue")}
-                />
-              ) : key === "step2" ? (
-                <MenuRowArtefact allergen={tAllergen("MILK.short")} />
-              ) : (
-                <QrArtefact caption={tHero("qrCaption")} />
-              );
             return (
               <StaggerItem
                 key={key}
                 as="li"
-                className="relative pb-10 pl-8 last:pb-0 md:flex md:flex-col md:pt-9 md:pb-0 md:pl-0"
+                className="relative pb-10 pl-8 last:pb-0 md:pt-9 md:pb-0 md:pl-0"
               >
                 <HowItWorksMilestone index={index} last={index === STEPS.length - 1} />
                 {/* Numéral = objet typographique (registre mono « précision tech »), décoratif pour l'AT.
@@ -125,9 +116,6 @@ export function LandingHowItWorks() {
                     ),
                   })}
                 </p>
-                {/* Artefact produit : sur md+ le li est flex-col ⇒ mt-auto aligne les trois artefacts
-                    sur une même ligne basse quelle que soit la longueur des bodies (md:pt-6 = espacement minimal). */}
-                <div className="mt-6 md:mt-auto md:pt-6">{artefact}</div>
               </StaggerItem>
             );
           })}
@@ -141,69 +129,5 @@ export function LandingHowItWorks() {
         </TrackedCtaButton>
       </div>
     </LandingSection>
-  );
-}
-
-/* Étape 1 — champ e-mail « en cours de saisie » : ring canard (focus) + caret STATIQUE
-   (précédent Features ; un caret clignotant serait une boucle infinie). Décoratif : jamais
-   un <input> (faux contrôle focusable). Label sand-600 : 6,55:1 sur blanc (sand-500 = 3,95,
-   sous AA — même sous aria-hidden on ne livre pas un fac-similé de formulaire illisible).
-   Valeur en `truncate` : à md (194 px internes) la valeur mono 13 px fait ≈ 187 px — pendant
-   le FOUT JetBrains Mono la fallback monospace est plus large et ferait passer le caret à la
-   ligne ; nowrap + ellipsis plutôt qu'un retour. */
-function EmailArtefact({ label, value }: { label: string; value: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className="max-w-[17rem] rounded-lg bg-white px-3 py-2.5 ring-2 ring-canard-300"
-    >
-      <span className="block font-mono text-micro tracking-[0.16em] text-sand-600 uppercase">
-        {label}
-      </span>
-      <span className="mt-1 flex items-center font-mono text-body-sm text-canard-950">
-        <span className="min-w-0 truncate">{value}</span>
-        <span className="ml-0.5 h-3.5 w-px shrink-0 bg-canard-600" />
-      </span>
-    </div>
-  );
-}
-
-/* Étape 2 — ligne de carte ENREGISTRÉE (pas de ring, pas de caret : l'état « rempli »),
-   fac-similé du seed : Burrata fumée 14,00 €, allergène MILK. Nom en français sur /en
-   (contrat du fac-similé, comme le hero et Features). CONTRAT SEED : si scripts/seed-demo.ts
-   change le prix de la Burrata fumée, mettre à jour ce littéral ET EditorVisual (Features).
-   14,00 € est un littéral de fac-similé, PAS un prix Cartora (aucune 5e source de prix). */
-function MenuRowArtefact({ allergen }: { allergen: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className="flex max-w-[20rem] items-start justify-between gap-4 rounded-lg border border-sand-200 bg-white px-3 py-2.5"
-    >
-      <span className="min-w-0">
-        <span className="block text-body-sm font-medium text-canard-950">Burrata fumée</span>
-        <span className="mt-1.5 inline-flex rounded-full border border-sand-200 bg-sand-50 px-2.5 py-0.5 text-micro text-sand-700">
-          {allergen}
-        </span>
-      </span>
-      <span className="shrink-0 font-mono text-body-sm font-medium text-canard-800">14,00 €</span>
-    </div>
-  );
-}
-
-/* Étape 3 — VRAI QR (SVG au build via DemoQr.tsx, 0 Ko JS), même destination que le hero
-   (DEMO_QR_URL = source unique). `DemoQrSvg` porte role="img" + aria-label (il porte une
-   information — scannable — contrairement aux deux autres artefacts). Carte à LARGEUR FIXE
-   w-32 (précédent HeroQrCard w-40), border-box : 128 − 16 (p-2) − 2 (border) = 110 px internes
-   ⇒ la caption 11 px mono (≈ 6,6 px/car.) tient sur 2 lignes en FR (« Scannez : c’est » /
-   « une vraie carte », 15 + 15 car. = 99 px) et en EN (“Scan it — it’s a” / “real menu”).
-   Ne pas descendre sous 99 px internes (p-2.5 → 106 px et p-3 → 102 px restent à 2 lignes). */
-function QrArtefact({ caption }: { caption: string }) {
-  return (
-    <div className="w-32 rounded-lg border border-sand-200 bg-white p-2">
-      <DemoQrSvg />
-      <p className="mt-1.5 text-center font-mono text-micro leading-snug text-sand-600">
-        {caption}
-      </p>
-    </div>
   );
 }

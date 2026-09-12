@@ -770,11 +770,7 @@
         "title": "Vous imprimez votre QR code",
         "body": "Vos clients scannent. À chaque correction de prix ou de plat, votre carte est à jour à la seconde — sans rien réimprimer."
       },
-      "cta": "Créer ma carte",
-      "artefacts": {
-        "emailLabel": "Email",
-        "emailValue": "vous@votre-restaurant.fr"
-      }
+      "cta": "Créer ma carte"
     },
     "features": {
       "kicker": "L’essentiel",
